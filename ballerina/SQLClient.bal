@@ -1,5 +1,4 @@
 import ballerina/sql;
-import ballerina/io;
 
 public client class SQLClient {
 
@@ -51,7 +50,6 @@ public client class SQLClient {
             }
         }
 
-        io:println(query);
         stream<record {}, sql:Error?> resultStream = self.dbClient->query(query);
         return resultStream;
     }
@@ -68,7 +66,6 @@ public client class SQLClient {
             }
         }
 
-        io:println(query);
         _ = check self.dbClient->execute(query);
     }
 
@@ -84,7 +81,6 @@ public client class SQLClient {
             }
         }
 
-        io:println(query);
         _ = check self.dbClient->execute(query);
     }
 
