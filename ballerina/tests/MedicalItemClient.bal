@@ -23,10 +23,10 @@ client class MedicalItemClient {
     private final string entityName = "MedicalItems";
     private final sql:ParameterizedQuery tableName = `MedicalItems`;
     private final map<FieldMetadata> fieldMetadata = {
-        itemId: { columnName: "itemId", 'type: int },
-        name: { columnName: "name", 'type: string },
-        'type: { columnName: "type", 'type: string },
-        unit: { columnName: "unit", 'type: string }
+        itemId: {columnName: "itemId", 'type: int},
+        name: {columnName: "name", 'type: string},
+        'type: {columnName: "type", 'type: string},
+        unit: {columnName: "unit", 'type: string}
     };
     private string[] keyFields = ["itemId"];
 
@@ -34,7 +34,7 @@ client class MedicalItemClient {
 
     public function init() returns error? {
         mysql:Client dbClient = check new (host = HOST, user = USER, password = PASSWORD, database = DATABASE, port = PORT);
-        self.persistClient = check new(self.entityName, self.tableName, self.fieldMetadata, self.keyFields, dbClient);
+        self.persistClient = check new (self.entityName, self.tableName, self.fieldMetadata, self.keyFields, dbClient);
     }
 
     remote function create(MedicalItem value) returns int|error? {

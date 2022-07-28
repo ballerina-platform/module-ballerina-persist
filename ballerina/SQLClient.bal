@@ -19,7 +19,7 @@ import ballerina/sql;
 public client class SQLClient {
 
     private final sql:Client dbClient;
-    
+
     private string entityName;
     private sql:ParameterizedQuery tableName;
     private map<FieldMetadata> fieldMetadata;
@@ -144,9 +144,9 @@ public client class SQLClient {
 
     function getWhereClauses(map<anydata> filter) returns sql:ParameterizedQuery|error {
         sql:ParameterizedQuery query = ` `;
-    
+
         string[] keys = filter.keys();
-        foreach int i in 0 ..< keys.length(){
+        foreach int i in 0 ..< keys.length() {
             if i > 0 {
                 query = sql:queryConcat(query, ` AND `);
             }
@@ -158,7 +158,7 @@ public client class SQLClient {
     function getSetClauses(record {} 'object) returns sql:ParameterizedQuery|error {
         sql:ParameterizedQuery query = ` `;
         string[] keys = 'object.keys();
-        foreach int i in 0 ..< keys.length(){
+        foreach int i in 0 ..< keys.length() {
             if i > 0 {
                 query = sql:queryConcat(query, `, `);
             }
