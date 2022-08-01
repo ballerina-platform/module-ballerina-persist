@@ -33,7 +33,7 @@ public client class SQLClient {
         self.dbClient = dbClient;
     }
 
-    function runInsertQuery(record {} 'object) returns sql:ExecutionResult|error {
+    public function runInsertQuery(record {} 'object) returns sql:ExecutionResult|error {
         sql:ParameterizedQuery query = sql:queryConcat(
             `INSERT INTO `, self.tableName, ` (`,
             self.getColumnNames(), ` ) `,
@@ -43,7 +43,7 @@ public client class SQLClient {
     }
 
     // TODO: handle composite keys
-    function runReadByKeyQuery(anydata key) returns record {}|error {
+    public function runReadByKeyQuery(anydata key) returns record {}|error {
         sql:ParameterizedQuery query = sql:queryConcat(
             `SELECT `, self.getColumnNames(), ` FROM `, self.tableName, ` WHERE `, check self.getGetKeyWhereClauses(key)
         );
@@ -54,7 +54,7 @@ public client class SQLClient {
         return result;
     }
 
-    function runReadQuery(map<anydata>|FilterQuery? filter) returns stream<record {}, sql:Error?>|error {
+    public function runReadQuery(map<anydata>|FilterQuery? filter) returns stream<record {}, sql:Error?>|error {
         sql:ParameterizedQuery query = sql:queryConcat(`SELECT * FROM `, self.tableName);
 
         if !(filter is ()) {
@@ -70,7 +70,7 @@ public client class SQLClient {
         return resultStream;
     }
 
-    function runUpdateQuery(record {} 'object, map<anydata>|FilterQuery? filter) returns error? {
+    public function runUpdateQuery(record {} 'object, map<anydata>|FilterQuery? filter) returns error? {
         sql:ParameterizedQuery query = sql:queryConcat(`UPDATE `, self.tableName, ` SET`, check self.getSetClauses('object));
 
         if !(filter is ()) {
@@ -85,7 +85,7 @@ public client class SQLClient {
         _ = check self.dbClient->execute(query);
     }
 
-    function runDeleteQuery(map<anydata>|FilterQuery? filter) returns error? {
+    public function runDeleteQuery(map<anydata>|FilterQuery? filter) returns error? {
         sql:ParameterizedQuery query = sql:queryConcat(`DELETE FROM `, self.tableName);
 
         if !(filter is ()) {
@@ -175,7 +175,7 @@ public client class SQLClient {
         return stringToParameterizedQuery(fieldMetadata.columnName);
     }
 
-    function close() returns error? {
+    public function close() returns error? {
         return self.dbClient.close();
     }
 }
