@@ -16,19 +16,24 @@
 
 import ballerina/time;
 
+@Entity {
+    key: ["needId"]
+}
 public type MedicalNeed record {|
+    @AutoIncrement
     readonly int needId = -1;
     int itemId;
     int beneficiaryId;
     time:Civil period;
-
-    //TODO: How can we handle enum types?
     string urgency;
     int quantity;
 |};
 
+@Entity {
+    key: ["itemId"]
+}
 public type MedicalItem record {|
-    int itemId;
+    readonly int itemId;
     string name;
     string 'type;
     string unit;
