@@ -1,0 +1,10 @@
+[package]
+org = "ballerina"
+name = "persist"
+version = "0.1.0"
+authors = ["Ballerina"]
+keywords = ["persist"]
+repository = "https://github.com/ballerina-platform/module-ballerina-persist"
+icon = "icon.png"
+license = ["Apache-2.0"]
+distribution = "2201.2.0"
