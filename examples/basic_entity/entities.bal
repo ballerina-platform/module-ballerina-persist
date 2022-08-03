@@ -14,13 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/persist;
 import ballerina/time;
 
-@Entity {
+@persist:Entity {
     key: ["needId"]
 }
 public type MedicalNeed record {|
-    @AutoIncrement
+    @persist:AutoIncrement
     readonly int needId = -1;
     int itemId;
     int beneficiaryId;
@@ -29,7 +30,7 @@ public type MedicalNeed record {|
     int quantity;
 |};
 
-@Entity {
+@persist:Entity {
     key: ["itemId"]
 }
 public type MedicalItem record {|
