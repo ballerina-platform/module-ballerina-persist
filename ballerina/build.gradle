@@ -67,8 +67,6 @@ ballerina {
 
 task updateTomlFiles {
     doLast {
-//        def stdlibDependentSqlVersion = stripBallerinaExtensionVersion(project.stdlibSqlVersion)
-
         def newConfig = ballerinaTomlFilePlaceHolder.text.replace('@project.version@', project.version.toString())
         newConfig = newConfig.replace('@toml.version@', tomlVersion)
         ballerinaTomlFile.text = newConfig
@@ -185,11 +183,11 @@ task stopTestDockerContainer() {
 }
 
 updateTomlFiles.dependsOn copyStdlibs
-//startTestDockerContainer.dependsOn createTestDockerImage
+startTestDockerContainer.dependsOn createTestDockerImage
 
 build.dependsOn "generatePomFileForMavenPublication"
 build.dependsOn ":${packageName}-compiler-plugin:build"
 
 test.dependsOn ":${packageName}-compiler-plugin:build"
-//test.dependsOn startTestDockerContainer
-//test.finalizedBy stopTestDockerContainer
+test.dependsOn startTestDockerContainer
+test.finalizedBy stopTestDockerContainer
