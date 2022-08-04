@@ -58,7 +58,7 @@ public annotation AutoIncrementConfig AutoIncrement on record field;
 # + cascadeDelete - If it is true, the corresponding records in the other table
 #                   will be deleted when deleting a record from one table
 # + cascadeUpdate - If it is true, the corresponding records in the other table
-#                   will be updated when deleting a record from one table
+#                   will be updated when updating a record from one table
 public type RelationConfig record {|
     string[] key;
     string[] reference = [];

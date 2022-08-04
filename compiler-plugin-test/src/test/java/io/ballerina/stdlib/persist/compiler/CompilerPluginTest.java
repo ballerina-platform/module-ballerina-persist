@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package io.ballerina.stdlib.persist.compiler;
 
 import io.ballerina.projects.DiagnosticResult;
@@ -43,7 +61,7 @@ public class CompilerPluginTest {
                 filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
                 collect(Collectors.toList());
         assertValues(errorDiagnosticsList,
-                "invalid column name: the given column name is not in the record definition",
+                "invalid field name: the given field name is not in the record definition",
                 DiagnosticsCodes.PERSIST_103.getCode(), 1);
     }
 
@@ -54,7 +72,7 @@ public class CompilerPluginTest {
                 filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
                 collect(Collectors.toList());
         assertValues(errorDiagnosticsList,
-                "invalid column name: the given column name is not in the record definition",
+                "invalid field name: the given field name is not in the record definition",
                 DiagnosticsCodes.PERSIST_103.getCode(), 1);
     }
 
@@ -101,6 +119,17 @@ public class CompilerPluginTest {
     }
 
     @Test
+    public void testEntityAnnotation7() {
+        DiagnosticResult diagnosticResult = loadPackage("package_12").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList,
+                "invalid field name: the given field name is not in the record definition",
+                DiagnosticsCodes.PERSIST_103.getCode(), 1);
+    }
+
+    @Test
     public void testAutoIncrementAnnotation1() {
         DiagnosticResult diagnosticResult = loadPackage("package_07").getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
@@ -123,14 +152,23 @@ public class CompilerPluginTest {
     }
 
     @Test
-    public void testRelationAnnotation3() {
-        DiagnosticResult diagnosticResult = loadPackage("package_10").getCompilation().diagnosticResult();
+    public void testAutoIncrementAnnotation3() {
+        DiagnosticResult diagnosticResult = loadPackage("package_13").getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
                 filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
                 collect(Collectors.toList());
-        assertValues(errorDiagnosticsList,
-                "invalid column name: the given column name is not in the record definition",
-                DiagnosticsCodes.PERSIST_103.getCode(), 1);
+        assertValues(errorDiagnosticsList, "invalid initialization: the field is not specified as read-only",
+                DiagnosticsCodes.PERSIST_108.getCode(), 1);
+    }
+
+    @Test
+    public void testAutoIncrementAnnotation4() {
+        DiagnosticResult diagnosticResult = loadPackage("package_14").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList, "invalid type: the field type should be in integer",
+                DiagnosticsCodes.PERSIST_107.getCode(), 1);
     }
 
     @Test
@@ -144,13 +182,13 @@ public class CompilerPluginTest {
     }
 
     @Test
-    public void testEntityAnnotation7() {
-        DiagnosticResult diagnosticResult = loadPackage("package_12").getCompilation().diagnosticResult();
+    public void testRelationAnnotation2() {
+        DiagnosticResult diagnosticResult = loadPackage("package_10").getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
                 filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
                 collect(Collectors.toList());
         assertValues(errorDiagnosticsList,
-                "invalid column name: the given column name is not in the record definition",
+                "invalid field name: the given field name is not in the record definition",
                 DiagnosticsCodes.PERSIST_103.getCode(), 1);
     }
 

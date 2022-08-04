@@ -21,12 +21,12 @@ import ballerina/persist;
 
 @persist:Entity {
     key: ["needId"],
-    unique: [["id", "needId"]],
+    unique: [["itemId", "needId"]],
     tableName: "EMPLOYEE"
 }
 public type MedicalNeed record {|
     @persist:AutoIncrement {increment: 2}
-    readonly int needId = 1;
+    int needId = 1;
     int itemId;
     int beneficiaryId;
     time:Civil period?;

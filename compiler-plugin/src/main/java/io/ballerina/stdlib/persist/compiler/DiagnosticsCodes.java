@@ -32,13 +32,17 @@ public enum DiagnosticsCodes {
     PERSIST_102("PERSIST_102",
             "missing annotation: the record does not have `persist:Entity` annotation", ERROR),
     PERSIST_103("PERSIST_103",
-            "invalid column name: the given column name is not in the record definition", ERROR),
+            "invalid field name: the given field name is not in the record definition", ERROR),
     PERSIST_104("PERSIST_104",
             "empty value: At least one key is expected", ERROR),
     PERSIST_105("PERSIST_105",
             "invalid value: the value only supports positive integer", ERROR),
     PERSIST_106("PERSIST_106",
-            "invalid value: the value does not support negative integer", ERROR);
+            "invalid value: the value does not support negative integer", ERROR),
+    PERSIST_107("PERSIST_107",
+            "invalid type: the field type should be in integer", ERROR),
+    PERSIST_108("PERSIST_108",
+            "invalid initialization: the field is not specified as read-only", ERROR);
 
     private final String code;
     private final String message;

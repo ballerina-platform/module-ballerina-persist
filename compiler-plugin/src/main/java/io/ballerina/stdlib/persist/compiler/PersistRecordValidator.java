@@ -131,29 +131,40 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             if (field instanceof RecordFieldNode) {
                 RecordFieldNode fieldNode = (RecordFieldNode) field;
                 Optional<MetadataNode> metadataNode = fieldNode.metadata();
-                metadataNode.ifPresent(node -> validateAnnotation(ctx, node, null, fieldDescriptors));
+                metadataNode.ifPresent(node -> validateAnnotation(ctx, node, null,
+                        fieldNode.typeName().toSourceCode().trim(), fieldNode.readonlyKeyword().isPresent(),
+                        fieldNode.location(), fieldDescriptors));
             } else if (field instanceof RecordFieldWithDefaultValueNode) {
                 RecordFieldWithDefaultValueNode fieldNode = (RecordFieldWithDefaultValueNode) field;
                 Optional<MetadataNode> metadataNode = fieldNode.metadata();
-                metadataNode.ifPresent(node -> validateAnnotation(ctx, node, fieldNode.expression(), fieldDescriptors));
+                metadataNode.ifPresent(node -> validateAnnotation(ctx, node,
+                        fieldNode.expression().toSourceCode().trim(), fieldNode.typeName().toSourceCode().trim(),
+                        fieldNode.readonlyKeyword().isPresent(), fieldNode.location(), fieldDescriptors));
             }
         }
     }
 
-    private void validateAnnotation(SyntaxNodeAnalysisContext ctx, MetadataNode metadataNode, Node fieldNode,
+    private void validateAnnotation(SyntaxNodeAnalysisContext ctx, MetadataNode metadataNode, String filedValue,
+                                    String filedType, Boolean isReadOnly, Location location,
                                     Map<String, RecordFieldSymbol> fieldDescriptors) {
         NodeList<AnnotationNode> annotations = metadataNode.annotations();
         for (AnnotationNode annotation : annotations) {
             SeparatedNodeList<MappingFieldNode> annotationFields = annotation.annotValue().get().fields();
-            if (annotation.annotReference().toSourceCode().equals(Constants.AUTO_INCREMENT)) {
-                if (fieldNode != null && Integer.parseInt(fieldNode.toSourceCode().trim()) < 0) {
-                    reportDiagnosticInfo(ctx, fieldNode.location(),
-                            DiagnosticsCodes.PERSIST_106.getCode(), DiagnosticsCodes.PERSIST_106.getMessage(),
-                            DiagnosticsCodes.PERSIST_106.getSeverity());
+            if (annotation.annotReference().toSourceCode().trim().equals(Constants.AUTO_INCREMENT)) {
+                if (!filedType.trim().equals("int")) {
+                    reportDiagnosticInfo(ctx, location, DiagnosticsCodes.PERSIST_107.getCode(),
+                            DiagnosticsCodes.PERSIST_107.getMessage(), DiagnosticsCodes.PERSIST_107.getSeverity());
+                } else if (filedValue != null && Integer.parseInt(filedValue) < 0) {
+                    reportDiagnosticInfo(ctx, location, DiagnosticsCodes.PERSIST_106.getCode(),
+                            DiagnosticsCodes.PERSIST_106.getMessage(), DiagnosticsCodes.PERSIST_106.getSeverity());
+                }
+                if (!isReadOnly) {
+                    reportDiagnosticInfo(ctx, location, DiagnosticsCodes.PERSIST_108.getCode(),
+                            DiagnosticsCodes.PERSIST_108.getMessage(), DiagnosticsCodes.PERSIST_108.getSeverity());
                 }
                 validateAutoIncrementAnnotation(ctx, annotationFields);
             }
-            if (annotation.annotReference().toSourceCode().equals(Constants.RELATION)) {
+            if (annotation.annotReference().toSourceCode().trim().equals(Constants.RELATION)) {
                 validateRelationAnnotation(ctx, annotationFields, fieldDescriptors.keySet());
             }
         }

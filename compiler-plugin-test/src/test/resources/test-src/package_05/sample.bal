@@ -20,22 +20,22 @@ import ballerina/time;
 import ballerina/persist;
 
 public type MedicalNeed record {|
-    @persist:AutoIncrement{ increment: 2 }
+    @persist:AutoIncrement {increment: 2}
     readonly int needId = 1;
     int itemId;
     int beneficiaryId;
     time:Civil period;
     string urgency;
     int quantity;
-    @persist:Relation{key: ["itemId"], reference: ["id"], cascadeDelete: true}
+    @persist:Relation {key: ["itemId"], reference: ["id"], cascadeDelete: true}
     Item item?;
 |};
 
-@persist:Entity { key: ["id"] }
-public type Item record  {
- @persist:AutoIncrement
- int id = -1;
- string name;
+@persist:Entity {key: ["id"]}
+public type Item record {
+    @persist:AutoIncrement
+    int id = -1;
+    string name;
 };
 
 configurable string USER = ?;
