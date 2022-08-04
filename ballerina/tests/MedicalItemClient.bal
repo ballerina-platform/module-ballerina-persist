@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerinax/mysql;
-import ballerinax/mysql.driver as _;
 import ballerina/sql;
 
 client class MedicalItemClient {
