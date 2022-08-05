@@ -192,6 +192,28 @@ public class CompilerPluginTest {
                 DiagnosticsCodes.PERSIST_103.getCode(), 1);
     }
 
+    @Test
+    public void testRelationAnnotation3() {
+        DiagnosticResult diagnosticResult = loadPackage("package_16").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList,
+                "invalid field name: the given field name is not in the record definition",
+                DiagnosticsCodes.PERSIST_103.getCode(), 1);
+    }
+
+    @Test
+    public void testOptionalField() {
+        DiagnosticResult diagnosticResult = loadPackage("package_15").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList,
+                "invalid field type: the record field does not support the union type",
+                DiagnosticsCodes.PERSIST_101.getCode(), 1);
+    }
+
     private void assertValues(List<Diagnostic> errorDiagnosticsList, String msg, String code, int count) {
         long availableErrors = errorDiagnosticsList.size();
         Assert.assertEquals(availableErrors, count);

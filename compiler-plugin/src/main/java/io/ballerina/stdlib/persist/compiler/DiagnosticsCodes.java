@@ -28,7 +28,7 @@ import static io.ballerina.tools.diagnostics.DiagnosticSeverity.ERROR;
 public enum DiagnosticsCodes {
 
     PERSIST_101("PERSIST_101",
-            "invalid field type: the record field does not support the optional value type", ERROR),
+            "invalid field type: the record field does not support the union type", ERROR),
     PERSIST_102("PERSIST_102",
             "missing annotation: the record does not have `persist:Entity` annotation", ERROR),
     PERSIST_103("PERSIST_103",
