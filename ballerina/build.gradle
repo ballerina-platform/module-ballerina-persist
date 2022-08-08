@@ -183,5 +183,5 @@ updateTomlFiles.dependsOn copyStdlibs
 startTestDockerContainer.dependsOn createTestDockerImage
 
 build.dependsOn "generatePomFileForMavenPublication"
-test.dependsOn startTestDockerContainer
-build.finalizedBy stopTestDockerContainer
+//test.dependsOn startTestDockerContainer
+//build.finalizedBy stopTestDockerContainer

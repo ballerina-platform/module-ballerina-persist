@@ -1,0 +1,10 @@
+[package]
+org = "wso2"
+name = "persist_redcross"
+version = "0.1.0"
+
+[[dependency]]
+org = "ballerina"
+name = "persist"
+version = "0.1.0"
+repository = "local"
