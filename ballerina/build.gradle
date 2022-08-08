@@ -184,4 +184,4 @@ startTestDockerContainer.dependsOn createTestDockerImage
 
 build.dependsOn "generatePomFileForMavenPublication"
 test.dependsOn startTestDockerContainer
-test.finalizedBy stopTestDockerContainer
+build.finalizedBy stopTestDockerContainer
