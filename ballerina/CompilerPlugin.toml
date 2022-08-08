@@ -1,6 +1,0 @@
-[plugin]
-id = "persist-compiler-plugin"
-class = "io.ballerina.stdlib.persist.compiler.PersistCompilerPlugin"
-
-[[dependency]]
-path = "../compiler-plugin/build/libs/persist-compiler-plugin-0.1.0-SNAPSHOT.jar"
