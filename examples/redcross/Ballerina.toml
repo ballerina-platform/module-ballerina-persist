@@ -8,3 +8,6 @@ org = "ballerina"
 name = "persist"
 version = "0.1.0"
 repository = "local"
+
+[[platform.java11.dependency]]
+path = "../../ballerina/lib/mysql-connector-java-8.0.29.jar"
