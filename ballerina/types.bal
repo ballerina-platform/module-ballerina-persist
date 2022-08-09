@@ -27,7 +27,7 @@ public type FilterQuery distinct sql:ParameterizedQuery;
 # Defines the entities of the table.
 #
 # + key - The primary key of the table
-# + unique - The unique index of the tavle
+# + unique - The unique index of the table
 # + tableName - The table name
 public type EntityConfig record {|
     string[] key;
@@ -40,9 +40,9 @@ public annotation EntityConfig Entity on type;
 
 # Defines the auto-increment field configuration.
 #
-# + startValue - The starting value of that
-# + increment - The value is an positive integer, which is used to generate the unique number
-#               in the field when the new row is entered
+# + startValue - The starting value the field
+# + increment - It is a positive integer, which is used to generate
+#               the unique number in the field when the new row is entered
 public type AutoIncrementConfig record {|
     int startValue = 1;
     int increment = 1;

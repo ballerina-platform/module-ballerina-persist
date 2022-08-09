@@ -74,6 +74,7 @@ subprojects {
     dependencies {
 
         ballerinaStdLibs "io.ballerina.stdlib:sql-ballerina:${stdlibSqlVersion}"
+        ballerinaStdLibs "io.ballerina.stdlib:mysql-ballerina:${stdlibMysqlVersion}"
         ballerinaStdLibs "io.ballerina.stdlib:io-ballerina:${stdlibIoVersion}"
         ballerinaStdLibs "io.ballerina.stdlib:time-ballerina:${stdlibTimeVersion}"
         ballerinaStdLibs "io.ballerina.stdlib:regex-ballerina:${stdlibRegexVersion}"
@@ -93,6 +94,10 @@ subprojects {
         ballerinaStdLibs "io.ballerina.stdlib:url-ballerina:${stdlibUrlVersion}"
         ballerinaStdLibs "io.ballerina.stdlib:http-ballerina:${stdlibHttpVersion}"
         ballerinaStdLibs "io.ballerina.stdlib:observe-ballerina:${observeVersion}"
+
+        externalJars (group: 'mysql', name: 'mysql-connector-java', version: "${mySQLDriverVersion}") {
+            transitive = false
+        }
     }
 }
 
