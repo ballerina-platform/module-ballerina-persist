@@ -67,7 +67,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
     public void perform(SyntaxNodeAnalysisContext ctx) {
         List<Diagnostic> diagnostics = ctx.semanticModel().diagnostics();
         for (Diagnostic diagnostic : diagnostics) {
-            if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
+            if (diagnostic.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
                 return;
             }
         }

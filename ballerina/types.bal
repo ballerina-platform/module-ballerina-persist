@@ -24,7 +24,7 @@ public type FieldMetadata record {|
 
 public type FilterQuery distinct sql:ParameterizedQuery;
 
-# Defines the entities of the table.
+# Defines the attributes of an Entity
 #
 # + key - The primary key of the table
 # + unique - The unique index of the table
@@ -35,7 +35,8 @@ public type EntityConfig record {|
     string tableName?;
 |};
 
-# The annotation is used to represent entities such as primary keys, unique indexes, and table name.
+# The annotation is used to represent attributes of an entity such as primary keys,
+# unique indexes, and table name.
 public annotation EntityConfig Entity on type;
 
 # Defines the auto-increment field configuration.

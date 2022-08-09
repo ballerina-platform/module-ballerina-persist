@@ -30,8 +30,10 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -169,6 +171,18 @@ public class CompilerPluginTest {
                 collect(Collectors.toList());
         assertValues(errorDiagnosticsList, "invalid type: the field type should be in integer",
                 DiagnosticsCodes.PERSIST_107.getCode(), 1);
+    }
+
+    @Test
+    public void testAutoIncrementAnnotation5() {
+        DiagnosticResult diagnosticResult = loadPackage("package_09").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        PrintStream asd = System.out;
+        asd.println(Arrays.toString(diagnosticResult.diagnostics().toArray()));
+        assertValues(errorDiagnosticsList, "invalid value: the value does not support negative integer",
+                DiagnosticsCodes.PERSIST_106.getCode(), 1);
     }
 
     @Test
