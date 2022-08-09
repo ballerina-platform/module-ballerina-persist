@@ -23,7 +23,7 @@ apply plugin: 'java'
 description = 'Ballerina - Persist Examples'
 
 def ballerinaDist = "${project.rootDir}/target/ballerina-runtime"
-def examples = ["redcross"]
+def examples = ["medical-center"]
 
 clean {
     examples.forEach { example ->

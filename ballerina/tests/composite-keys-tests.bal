@@ -19,7 +19,7 @@ import ballerina/test;
 @test:Config {
     groups: ["composite-keys"]
 }
-function compositeTestCreate() returns error? {
+function compositeCreateTest() returns error? {
     DepartmentClient dClient = check new ();
     Department department = {
         hospitalCode: "CMB01",
@@ -29,4 +29,19 @@ function compositeTestCreate() returns error? {
     [string, int]? id = check dClient->create(department);
     check dClient.close();
     test:assertTrue(id is [string, int]);
+}
+
+@test:Config {
+    groups: ["composite-keys"]
+}
+function compositeRetrieveByKeyTest() returns error? {
+    DepartmentClient dClient = check new ();
+    Department retrieved = check dClient->readByKey("CMB01", 1);
+    Department department = {
+        hospitalCode: "CMB01",
+        departmentId: 1,
+        name: "ICU"
+    };
+    check dClient.close();
+    test:assertEquals(retrieved, department);
 }

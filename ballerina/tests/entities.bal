@@ -41,3 +41,13 @@ public type MedicalItem record {|
     string 'type;
     string unit;
 |};
+
+@Entity {
+    key: ["hospitalCode", "departmentId"],
+    tableName: "Departments"
+}
+public type Department record {|
+    string hospitalCode;
+    int departmentId;
+    string name;
+|};

@@ -99,7 +99,7 @@ modules = [
 
 [[package]]
 org = "wso2"
-name = "persist_redcross"
+name = "medical_center"
 version = "0.1.0"
 dependencies = [
 	{org = "ballerina", name = "io"},
@@ -109,7 +109,7 @@ dependencies = [
 	{org = "ballerinax", name = "mysql"}
 ]
 modules = [
-	{org = "wso2", packageName = "persist_redcross", moduleName = "persist_redcross"}
+	{org = "wso2", packageName = "medical_center", moduleName = "medical_center"}
 ]
 
 
