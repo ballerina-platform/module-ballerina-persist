@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/sql;
-
 public type FieldMetadata record {|
     string columnName;
     typedesc 'type;
