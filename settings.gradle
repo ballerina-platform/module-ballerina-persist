@@ -17,11 +17,9 @@ include ':checkstyle'
 include ':persist-ballerina'
 include ':persist-examples'
 
-
 project(':checkstyle').projectDir = file("build-config${File.separator}checkstyle")
 project(':persist-ballerina').projectDir = file('ballerina')
 project(':persist-examples').projectDir = file('examples')
-
 
 gradleEnterprise {
     buildScan {
