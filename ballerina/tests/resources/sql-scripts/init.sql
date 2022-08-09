@@ -15,3 +15,10 @@ CREATE Table test.MedicalNeeds (
     urgency VARCHAR(10),
     quantity INTEGER
 );
+
+CREATE TABLE test.Departments (
+    hospitalCode VARCHAR(5),
+    departmentId INTEGER,
+    name VARCHAR(255),
+    PRIMARY KEY (hospitalCode, departmentId)
+);
