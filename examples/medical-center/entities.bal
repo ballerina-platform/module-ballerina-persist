@@ -15,13 +15,14 @@
 // under the License.
 
 import ballerina/time;
+import ballerina/persist;
 
-@Entity {
+@persist:Entity {
     key: ["needId"],
     tableName: "MedicalNeeds"
 }
 public type MedicalNeed record {|
-    @AutoIncrement
+    @persist:AutoIncrement
     readonly int needId = -1;
 
     int itemId;
@@ -31,7 +32,7 @@ public type MedicalNeed record {|
     int quantity;
 |};
 
-@Entity {
+@persist:Entity {
     key: ["itemId"],
     tableName: "MedicalItems"
 }
