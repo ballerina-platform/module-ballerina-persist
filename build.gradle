@@ -118,7 +118,9 @@ release {
 }
 
 task build {
+    dependsOn(":${packageName}-compiler-plugin:build")
     dependsOn("${packageName}-ballerina:build")
+    dependsOn(":${packageName}-compiler-plugin-test:build")
 }
 
 publishToMavenLocal.dependsOn build

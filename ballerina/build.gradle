@@ -39,7 +39,9 @@ def packageOrg = 'ballerina'
 def tomlVersion = stripBallerinaExtensionVersion("${project.version}")
 
 def ballerinaTomlFilePlaceHolder = new File("${project.rootDir}/build-config/resources/Ballerina.toml")
+def compilerPluginTomlFilePlaceHolder = new File("${project.rootDir}/build-config/resources/CompilerPlugin.toml")
 def ballerinaTomlFile = new File("$project.projectDir/Ballerina.toml")
+def compilerPluginTomlFile = new File("$project.projectDir/CompilerPlugin.toml")
 
 def stripBallerinaExtensionVersion(String extVersion) {
     if (extVersion.matches(project.ext.timestampedVersionRegex)) {
@@ -180,8 +182,11 @@ task stopTestDockerContainer() {
 }
 
 updateTomlFiles.dependsOn copyStdlibs
-startTestDockerContainer.dependsOn createTestDockerImage
+//startTestDockerContainer.dependsOn createTestDockerImage
 
 build.dependsOn "generatePomFileForMavenPublication"
-test.dependsOn startTestDockerContainer
-build.finalizedBy stopTestDockerContainer
+build.dependsOn ":${packageName}-compiler-plugin:build"
+//build.finalizedBy stopTestDockerContainer
+
+test.dependsOn ":${packageName}-compiler-plugin:build"
+//test.dependsOn startTestDockerContainer
