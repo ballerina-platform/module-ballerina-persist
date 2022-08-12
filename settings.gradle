@@ -17,11 +17,13 @@ include ':checkstyle'
 include 'persist-compiler-plugin'
 include ':persist-ballerina'
 include 'persist-compiler-plugin-test'
+include ':persist-examples'
 
 project(':checkstyle').projectDir = file("build-config${File.separator}checkstyle")
 project(':persist-compiler-plugin').projectDir = file('compiler-plugin')
 project(':persist-ballerina').projectDir = file('ballerina')
 project(':persist-compiler-plugin-test').projectDir = file('compiler-plugin-test')
+project(':persist-examples').projectDir = file('examples')
 
 gradleEnterprise {
     buildScan {

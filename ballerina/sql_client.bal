@@ -160,7 +160,7 @@ public client class SQLClient {
         return stringToParameterizedQuery(fieldMetadata.columnName);
     }
 
-    function close() returns error? {
+    public function close() returns error? {
         return self.dbClient.close();
     }
 }
