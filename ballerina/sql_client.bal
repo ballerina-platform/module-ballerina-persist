@@ -42,11 +42,11 @@ public client class SQLClient {
         return check self.dbClient->execute(query);
     }
 
-    public function runReadByKeyQuery(anydata... keys) returns record {}|error {
+    public function runReadByKeyQuery(typedesc<record {}> t, anydata... keys) returns record {}|error {
         sql:ParameterizedQuery query = sql:queryConcat(
             `SELECT `, self.getColumnNames(), ` FROM `, self.tableName, ` WHERE `, check self.getGetKeyWhereClauses(keys)
         );
-        record {}|error result = self.dbClient->queryRow(query);
+        record {}|error result = self.dbClient->queryRow(query, t);
         if result is sql:NoRowsError {
             if keys.length() > 1 {
                 return <InvalidKey>error("A record does not exist for '" + self.entityName + "' for key " + keys.toBalString() + ".");
