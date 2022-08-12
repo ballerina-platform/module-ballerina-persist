@@ -33,8 +33,7 @@ dependencies {
     testImplementation group: 'org.ballerinalang', name: 'ballerina-lang', version: "${ballerinaLangVersion}"
     testImplementation group: 'org.ballerinalang', name: 'ballerina-tools-api', version: "${ballerinaLangVersion}"
     testImplementation group: 'org.ballerinalang', name: 'ballerina-parser', version: "${ballerinaLangVersion}"
-    implementation group: 'org.testng', name: 'testng', version: "${testngVersion}"
-
+    implementation group: 'org.testng', name: 'testng', version: "${testngVersion}"\
 }
 
 tasks.withType(JavaCompile) {
