@@ -125,7 +125,7 @@ public client class SQLClient {
     private function getGetKeyWhereClauses(anydata... keys) returns sql:ParameterizedQuery|error {
         keys = <anydata[]>keys[0];
         map<anydata> filter = {};
-        foreach int i in 0 ..<keys.length() {
+        foreach int i in 0 ..< keys.length() {
             filter[self.keyFields[i]] = keys[i];
         }
         return check self.getWhereClauses(filter);
