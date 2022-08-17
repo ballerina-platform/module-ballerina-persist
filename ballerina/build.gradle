@@ -185,11 +185,11 @@ task stopTestDockerContainer() {
 }
 
 updateTomlFiles.dependsOn copyStdlibs
-//startTestDockerContainer.dependsOn createTestDockerImage
+startTestDockerContainer.dependsOn createTestDockerImage
 
 build.dependsOn "generatePomFileForMavenPublication"
 build.dependsOn ":${packageName}-compiler-plugin:build"
-//build.finalizedBy stopTestDockerContainer
+build.finalizedBy stopTestDockerContainer
 
 test.dependsOn ":${packageName}-compiler-plugin:build"
-//test.dependsOn startTestDockerContainer
+test.dependsOn startTestDockerContainer
