@@ -24,7 +24,7 @@ package io.ballerina.stdlib.persist.compiler;
 public class Constants {
     public static final String BALLERINA = "ballerina";
     public static final String PERSIST = "persist";
-    public static final String METHOD_NAME = "runInsertQuery";
+    public static final String INSERT_METHOD_NAME = "runInsertQuery";
     public static final String ENTITY = "persist:Entity ";
     public static final String UNNECESSARY_CHARS_REGEX = "\"|\\n";
     public static final String TABLE_NAME = "tableName";
