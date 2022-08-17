@@ -19,7 +19,7 @@ import ballerina/sql;
 
 client class MedicalItemClient {
 
-    private final string entityName = "MedicalItems";
+    private final string entityName = "MedicalItem";
     private final sql:ParameterizedQuery tableName = `MedicalItems`;
     private final map<FieldMetadata> fieldMetadata = {
         itemId: {columnName: "itemId", 'type: int},
