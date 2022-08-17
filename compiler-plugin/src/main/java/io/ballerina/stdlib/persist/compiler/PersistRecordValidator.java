@@ -123,7 +123,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         SeparatedNodeList<ParameterNode> parameters = functionSignatureNode.parameters();
         String recordName = typeDefinitionNode.typeName().toSourceCode().trim();
         if (functionDefinitionNode.functionBody().toSourceCode().
-                contains(Constants.METHOD_NAME) && parameters.size() > 0 &&
+                contains(Constants.INSERT_METHOD_NAME) && parameters.size() > 0 &&
                 parameters.get(0).toSourceCode().split(" ")[0].trim().equals(recordName)) {
             validateRecordFieldType(ctx, recordTypeSymbol.fieldDescriptors());
         } else {
@@ -131,7 +131,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                     statements();
             for (StatementNode statement : statements) {
                 if (statement instanceof VariableDeclarationNode &&
-                        statement.toSourceCode().trim().contains(Constants.METHOD_NAME)) {
+                        statement.toSourceCode().trim().contains(Constants.INSERT_METHOD_NAME)) {
                     VariableDeclarationNode variableDeclarationNode = (VariableDeclarationNode) statement;
                     Optional<ExpressionNode> initializer = variableDeclarationNode.initializer();
                     if (initializer.isPresent()) {
