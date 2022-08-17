@@ -19,35 +19,20 @@ import ballerinax/mysql;
 import ballerina/time;
 import ballerina/persist;
 
-@persist:Entity {
-    key: ["needId"],
-    unique: [["itemId", "needId"]],
-    tableName: "EMPLOYEE"
-}
 public type MedicalNeed record {|
-    @persist:AutoIncrement {increment: 1, startValue: 1}
-    readonly int needId = -1;
-    int itemId;
+    readonly int needId = 1;
+    int|string itemId;
     int beneficiaryId;
     time:Civil period;
     string urgency;
     int quantity;
-    @persist:Relation {key: ["itemId"], reference: ["id"], cascadeDelete: true}
     Item item?;
 |};
 
-@persist:Entity {key: ["id"]}
 public type Item record {
-    @persist:AutoIncrement
-    int id = -1;
+    readonly int id = -1;
     string name;
 };
-
-configurable string USER = ?;
-configurable string PASSWORD = ?;
-configurable string HOST = ?;
-configurable string DATABASE = ?;
-configurable int PORT = ?;
 
 client class MedicalNeedClient {
 
@@ -67,8 +52,8 @@ client class MedicalNeedClient {
     private persist:SQLClient persistClient;
 
     public function init() returns error? {
-        mysql:Client dbClient = check new (host = HOST, user = USER, password = PASSWORD, database = DATABASE,
-        port = PORT);
+        mysql:Client dbClient = check new (host = "HOST", user = "USER", password = "PASSWORD", database = "DATABASE",
+        port = 4321);
         self.persistClient = check new (self.entityName, self.tableName, self.fieldMetadata, self.keyFields, dbClient);
     }
 

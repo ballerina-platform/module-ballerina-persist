@@ -29,6 +29,6 @@ public class PersistCodeAnalyzer extends CodeAnalyzer  {
 
     @Override
     public void init(CodeAnalysisContext codeAnalysisContext) {
-        codeAnalysisContext.addSyntaxNodeAnalysisTask(new PersistRecordValidator(), SyntaxKind.METHOD_CALL);
+        codeAnalysisContext.addSyntaxNodeAnalysisTask(new PersistRecordValidator(), SyntaxKind.TYPE_DEFINITION);
     }
 }

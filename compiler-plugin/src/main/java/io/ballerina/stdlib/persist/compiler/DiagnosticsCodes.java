@@ -28,20 +28,16 @@ import static io.ballerina.tools.diagnostics.DiagnosticSeverity.ERROR;
 public enum DiagnosticsCodes {
 
     PERSIST_101("PERSIST_101",
-            "invalid field type: the record field does not support the union type", ERROR),
+            "invalid field type: the persist client does not support the union type", ERROR),
     PERSIST_102("PERSIST_102",
-            "missing annotation: the record does not have `persist:Entity` annotation", ERROR),
+            "invalid key: the given key is not in the record definition", ERROR),
     PERSIST_103("PERSIST_103",
-            "invalid field name: the given field name is not in the record definition", ERROR),
-    PERSIST_104("PERSIST_104",
-            "empty value: At least one key is expected", ERROR),
-    PERSIST_105("PERSIST_105",
             "invalid value: the value only supports positive integer", ERROR),
-    PERSIST_106("PERSIST_106",
+    PERSIST_104("PERSIST_104",
             "invalid value: the value does not support negative integer", ERROR),
-    PERSIST_107("PERSIST_107",
+    PERSIST_105("PERSIST_105",
             "invalid type: the field type should be in integer", ERROR),
-    PERSIST_108("PERSIST_108",
+    PERSIST_106("PERSIST_106",
             "invalid initialization: the field is not specified as read-only", ERROR);
 
     private final String code;
