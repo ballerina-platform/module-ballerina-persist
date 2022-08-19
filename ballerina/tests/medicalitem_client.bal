@@ -28,6 +28,7 @@ client class MedicalItemClient {
         unit: {columnName: "unit", 'type: string}
     };
     private string[] keyFields = ["itemId"];
+    // separate field for relations
 
     private SQLClient persistClient;
 

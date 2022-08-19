@@ -51,3 +51,54 @@ public type Department record {|
     int departmentId;
     string name;
 |};
+
+// One-to-one relation
+@Entity { key: ["id"] }
+type User record  {	
+ readonly int id;
+ string name;
+ Profile profile?;
+};
+ 
+@Entity { key: ["id"] }
+type Profile record  {	
+ readonly int id;
+ string name;
+ @Relation {keyColumns: ["userId"], reference: ["id"]}
+ User user?;
+};
+
+//One to many relation
+@Entity { key: ["id"] }
+type Author record  {	
+ readonly int id;
+ string name;
+ Post[] posts?;
+};
+
+@Entity { key: ["id"] }
+type Post record  {	
+ readonly int id;
+ string name;
+ @Relation {key: ["authorId"], reference: ["id"]}
+ Author author?;
+ int authorId = -1; // not needed
+};
+
+//Many to many relation
+@Entity { key: ["id"] }
+type Post2 record  {	
+ readonly int id;
+ string name;
+ @Relation {key: ["categoryID"], reference: ["id"], tableName: "post-category"}
+ Category[] categories;
+};
+
+@Entity { key: ["id"] }
+type Category record  {	
+ readonly int id;
+ 
+ Post[] posts?; 
+ // Relation annotation not required?
+ // Should the association table be defined (post-category)
+};
