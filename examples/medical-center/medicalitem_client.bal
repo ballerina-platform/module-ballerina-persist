@@ -16,13 +16,12 @@
 
 import ballerinax/mysql;
 import ballerina/sql;
-import ballerina/persist;
 
 client class MedicalItemClient {
 
     private final string entityName = "MedicalItem";
     private final sql:ParameterizedQuery tableName = `MedicalItems`;
-    private final map<persist:FieldMetadata> fieldMetadata = {
+    private final map<FieldMetadata> fieldMetadata = {
         itemId: {columnName: "itemId", 'type: int},
         name: {columnName: "name", 'type: string},
         'type: {columnName: "type", 'type: string},
@@ -30,7 +29,7 @@ client class MedicalItemClient {
     };
     private string[] keyFields = ["itemId"];
 
-    private persist:SQLClient persistClient;
+    private SQLClient persistClient;
 
     public function init() returns error? {
         mysql:Client dbClient = check new (host = HOST, user = USER, password = PASSWORD, database = DATABASE, port = PORT);
@@ -47,7 +46,7 @@ client class MedicalItemClient {
     }
 
     remote function readByKey(int key) returns MedicalItem|error {
-        return (check self.persistClient.runReadByKeyQuery(key)).cloneWithType(MedicalItem);
+        return (check self.persistClient.runReadByKeyQuery(MedicalItem, key)).cloneWithType(MedicalItem);
     }
 
     remote function read(map<anydata>? filter = ()) returns stream<MedicalItem, error?>|error {
