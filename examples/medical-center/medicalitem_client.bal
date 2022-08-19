@@ -16,12 +16,13 @@
 
 import ballerinax/mysql;
 import ballerina/sql;
+import ballerina/persist;
 
 client class MedicalItemClient {
 
     private final string entityName = "MedicalItem";
     private final sql:ParameterizedQuery tableName = `MedicalItems`;
-    private final map<FieldMetadata> fieldMetadata = {
+    private final map<persist:FieldMetadata> fieldMetadata = {
         itemId: {columnName: "itemId", 'type: int},
         name: {columnName: "name", 'type: string},
         'type: {columnName: "type", 'type: string},
@@ -29,7 +30,7 @@ client class MedicalItemClient {
     };
     private string[] keyFields = ["itemId"];
 
-    private SQLClient persistClient;
+    private persist:SQLClient persistClient;
 
     public function init() returns error? {
         mysql:Client dbClient = check new (host = HOST, user = USER, password = PASSWORD, database = DATABASE, port = PORT);
