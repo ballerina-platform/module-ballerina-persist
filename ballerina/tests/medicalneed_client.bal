@@ -47,7 +47,7 @@ client class MedicalNeedClient {
     }
 
     remote function readByKey(int key) returns MedicalNeed|error {
-        return (check self.persistClient.runReadByKeyQuery(key)).cloneWithType(MedicalNeed);
+        return (check self.persistClient.runReadByKeyQuery(MedicalNeed, key)).cloneWithType(MedicalNeed);
     }
 
     remote function read(map<anydata>? filter = ()) returns stream<MedicalNeed, error?>|error {
