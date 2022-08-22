@@ -38,7 +38,9 @@ public enum DiagnosticsCodes {
     PERSIST_105("PERSIST_105",
             "invalid type: the field type should be in integer", ERROR),
     PERSIST_106("PERSIST_106",
-            "invalid initialization: the field is not specified as read-only", ERROR);
+            "invalid initialization: the field is not specified as read-only", ERROR),
+    PERSIST_107("PERSIST_107", "duplicate annotation: the entity does not allow " +
+            "multiple field with auto increment annotation", ERROR);
 
     private final String code;
     private final String message;

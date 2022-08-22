@@ -30,8 +30,10 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -82,6 +84,17 @@ public class CompilerPluginTest {
                 collect(Collectors.toList());
         assertValues(errorDiagnosticsList, "invalid initialization: the field is not specified as read-only",
                 DiagnosticsCodes.PERSIST_106.getCode(), 2);
+    }
+
+    @Test
+    public void testMultipleAutoIncrementAnnotation() {
+        DiagnosticResult diagnosticResult = loadPackage("package_04").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList, "duplicate annotation: the entity does not allow " +
+                        "multiple field with auto increment annotation",
+                DiagnosticsCodes.PERSIST_107.getCode(), 1);
     }
 
     @Test
@@ -139,6 +152,9 @@ public class CompilerPluginTest {
 
     private void assertValues(List<Diagnostic> errorDiagnosticsList, String msg, String code, int count) {
         long availableErrors = errorDiagnosticsList.size();
+        PrintStream asd = System.out;
+        asd.println(Arrays.toString(errorDiagnosticsList.toArray()));
+        asd.println(count);
         Assert.assertEquals(availableErrors, count);
         DiagnosticInfo error = errorDiagnosticsList.get(0).diagnosticInfo();
         Assert.assertEquals(error.code(), code);

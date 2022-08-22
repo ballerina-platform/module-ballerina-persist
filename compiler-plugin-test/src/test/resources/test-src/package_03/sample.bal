@@ -19,7 +19,7 @@ import ballerina/persist;
 
 @persist:Entity {
     key: ["itemId"],
-    unique: [["itemId", "needId"]],
+    uniqueConstraints: [["itemId", "needId"]],
     tableName: "EMPLOYEE"
 }
 public type MedicalNeed record {|

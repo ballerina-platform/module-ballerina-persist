@@ -23,11 +23,11 @@ public type FieldMetadata record {|
 # Defines the attributes of an Entity
 #
 # + key - The primary key of the table
-# + unique - The unique index of the table
+# + uniqueConstraints - The set of single or multiple columns of a table that uniquely identify a each row in the table.
 # + tableName - The table name
 public type EntityConfig record {|
     string[] key;
-    string[][] unique?;
+    string[][] uniqueConstraints?;
     string tableName?;
 |};
 
