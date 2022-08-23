@@ -40,7 +40,9 @@ public enum DiagnosticsCodes {
     PERSIST_106("PERSIST_106",
             "invalid initialization: the field is not specified as read-only", ERROR),
     PERSIST_107("PERSIST_107", "duplicate annotation: the entity does not allow " +
-            "multiple field with auto increment annotation", ERROR);
+            "multiple field with auto increment annotation", ERROR),
+    PERSIST_108("PERSIST_108", "invalid initialization: auto increment field" +
+            " must be defined as a key", ERROR);
 
     private final String code;
     private final String message;

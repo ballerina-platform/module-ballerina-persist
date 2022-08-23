@@ -30,10 +30,8 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -150,11 +148,19 @@ public class CompilerPluginTest {
                 DiagnosticsCodes.PERSIST_101.getCode(), 1);
     }
 
+    @Test
+    public void testAutoIncrementField() {
+        DiagnosticResult diagnosticResult = loadPackage("package_10").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList,
+                "invalid initialization: auto increment field must be defined as a key",
+                DiagnosticsCodes.PERSIST_108.getCode(), 1);
+    }
+
     private void assertValues(List<Diagnostic> errorDiagnosticsList, String msg, String code, int count) {
         long availableErrors = errorDiagnosticsList.size();
-        PrintStream asd = System.out;
-        asd.println(Arrays.toString(errorDiagnosticsList.toArray()));
-        asd.println(count);
         Assert.assertEquals(availableErrors, count);
         DiagnosticInfo error = errorDiagnosticsList.get(0).diagnosticInfo();
         Assert.assertEquals(error.code(), code);
