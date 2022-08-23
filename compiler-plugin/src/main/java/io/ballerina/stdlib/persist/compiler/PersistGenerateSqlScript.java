@@ -17,6 +17,7 @@
  */
 package io.ballerina.stdlib.persist.compiler;
 
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
@@ -31,15 +32,13 @@ import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
-import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
-import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -51,21 +50,15 @@ import java.util.Optional;
 /**
  * Sql script generator.
  */
-public class PersistGenerateSqlScript implements AnalysisTask<SyntaxNodeAnalysisContext> {
+public class PersistGenerateSqlScript {
 
     @Override
     public void perform(SyntaxNodeAnalysisContext ctx) {
-        List<Diagnostic> diagnostics = ctx.semanticModel().diagnostics();
-        for (Diagnostic diagnostic : diagnostics) {
-            if (diagnostic.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
-                return;
-            }
-        }
         Node node = ctx.node();
         if (node instanceof VariableDeclarationNode) {
             VariableDeclarationNode variableDeclarationNode = (VariableDeclarationNode) ctx.node();
             TypedBindingPatternNode typedBindingPatternNode = variableDeclarationNode.typedBindingPattern();
-            if (typedBindingPatternNode.typeDescriptor().toSourceCode().trim().equals(Constants.PERSIST_SQLCLIENT)) {
+            if (typedBindingPatternNode.typeDescriptor().toSourceCode().trim().equals(Constants.PERSIST_SQL_CLIENT)) {
                 Optional<ExpressionNode> optionalInitializer = variableDeclarationNode.initializer();
                 if (optionalInitializer.isPresent()) {
                     ExpressionNode expressionNode = optionalInitializer.get();
@@ -86,6 +79,11 @@ public class PersistGenerateSqlScript implements AnalysisTask<SyntaxNodeAnalysis
             }
         }
     }
+    protected void generateSqlScript(RecordTypeDescriptorNode recordNode, RecordTypeSymbol recordTypeSymbol) {
+        recordNode.fields();
+
+    }
+
 
     private String createTableQuery(SyntaxNodeAnalysisContext ctx, FunctionArgumentNode field,
                                   NodeList<ModuleMemberDeclarationNode> memberNodes) {

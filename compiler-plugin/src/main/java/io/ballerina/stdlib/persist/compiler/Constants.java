@@ -23,11 +23,20 @@ package io.ballerina.stdlib.persist.compiler;
  */
 public class Constants {
 
-    public static final String PERSIST_SQLCLIENT = "persist:SQLClient";
+    public static final String PERSIST_SQL_CLIENT = "persist:SQLClient";
     public static final String TRUE = "true";
     public static final String AUTO_INCREMENT = "AUTO_INCREMENT";
     public static final String COLUMN_NAME = "columnName";
     public static final String TYPE = "'type";
+    public static final String INSERT_METHOD_NAME = "runInsertQuery";
+    public static final String ENTITY = "persist:Entity ";
+    public static final String UNNECESSARY_CHARS_REGEX = "\"|\\n";
+    public static final String TABLE_NAME = "tableName";
+    public static final String PER_AUTO_INCREMENT = "persist:AutoIncrement";
+    public static final String INCREMENT = "increment";
+    public static final String RELATION = "persist:Relation";
+    public static final String KEY = "key";
+    public static final String REFERENCE = "reference";
 
     /**
      * Constants related to Ballerina types.

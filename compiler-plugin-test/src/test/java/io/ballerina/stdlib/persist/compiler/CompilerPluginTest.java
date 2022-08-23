@@ -34,6 +34,21 @@ import java.nio.file.Paths;
 
 /**
  * Persist compiler plugin tests.
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+import java.io.PrintStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * Tests the persist compiler plugin.
  */
 public class CompilerPluginTest {
 
@@ -52,6 +67,108 @@ public class CompilerPluginTest {
     }
 
     @Test
+    public void testEntityAnnotation1() {
+        DiagnosticResult diagnosticResult = loadPackage("package_01").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList, "invalid key: the given key is not in the record definition",
+                DiagnosticsCodes.PERSIST_102.getCode(), 2);
+    }
+
+    @Test
+    public void testEntityAnnotation2() {
+        DiagnosticResult diagnosticResult = loadPackage("package_02").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList, "invalid key: the given key is not in the record definition",
+                DiagnosticsCodes.PERSIST_102.getCode(), 2);
+    }
+
+    @Test
+    public void testPrimaryKeyMarkReadOnly() {
+        DiagnosticResult diagnosticResult = loadPackage("package_03").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList, "invalid initialization: the field is not specified as read-only",
+                DiagnosticsCodes.PERSIST_106.getCode(), 2);
+    }
+
+    @Test
+    public void testMultipleAutoIncrementAnnotation() {
+        DiagnosticResult diagnosticResult = loadPackage("package_04").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList, "duplicate annotation: the entity does not allow " +
+                        "multiple field with auto increment annotation",
+                DiagnosticsCodes.PERSIST_107.getCode(), 1);
+    }
+
+    @Test
+    public void testAutoIncrementAnnotation1() {
+        DiagnosticResult diagnosticResult = loadPackage("package_05").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList, "invalid value: the value only supports positive integer",
+                DiagnosticsCodes.PERSIST_103.getCode(), 1);
+    }
+
+    @Test
+    public void testRelationAnnotation1() {
+        DiagnosticResult diagnosticResult = loadPackage("package_06").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList, "invalid key: the given key is not in the record definition",
+                DiagnosticsCodes.PERSIST_102.getCode(), 1);
+    }
+
+    @Test
+    public void testOptionalField() {
+        DiagnosticResult diagnosticResult = loadPackage("package_07").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList,
+                "invalid field type: the persist client does not support the union type",
+                DiagnosticsCodes.PERSIST_101.getCode(), 1);
+    }
+
+    @Test
+    public void testOptionalField2() {
+        DiagnosticResult diagnosticResult = loadPackage("package_08").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList,
+                "invalid field type: the persist client does not support the union type",
+                DiagnosticsCodes.PERSIST_101.getCode(), 1);
+    }
+
+    @Test
+    public void testOptionalField3() {
+        DiagnosticResult diagnosticResult = loadPackage("package_09").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList,
+                "invalid field type: the persist client does not support the union type",
+                DiagnosticsCodes.PERSIST_101.getCode(), 1);
+    }
+
+    private void assertValues(List<Diagnostic> errorDiagnosticsList, String msg, String code, int count) {
+        long availableErrors = errorDiagnosticsList.size();
+        PrintStream asd = System.out;
+        asd.println(Arrays.toString(errorDiagnosticsList.toArray()));
+        asd.println(count);
+        Assert.assertEquals(availableErrors, count);
+        DiagnosticInfo error = errorDiagnosticsList.get(0).diagnosticInfo();
+        Assert.assertEquals(error.code(), code);
+        Assert.assertEquals(error.messageFormat(), msg);
     public void test17() {
         assertTest(loadPackage("package_17").getCompilation().diagnosticResult());
     }

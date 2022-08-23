@@ -22,7 +22,7 @@ import io.ballerina.projects.plugins.CompilerPlugin;
 import io.ballerina.projects.plugins.CompilerPluginContext;
 
 /**
- *
+ * Persist compiler plugin.
  */
 public class PersistCompilerPlugin extends CompilerPlugin {
 

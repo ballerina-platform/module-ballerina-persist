@@ -22,15 +22,13 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.plugins.CodeAnalysisContext;
 import io.ballerina.projects.plugins.CodeAnalyzer;
 
-import java.util.List;
-
 /**
- * File code analyser.
+ * Persist Code Analyzer.
  */
-public class PersistCodeAnalyzer extends CodeAnalyzer {
+public class PersistCodeAnalyzer extends CodeAnalyzer  {
+
     @Override
-    public void init(CodeAnalysisContext ctx) {
-        ctx.addSyntaxNodeAnalysisTask(new PersistGenerateSqlScript(),
-                List.of(SyntaxKind.LOCAL_VAR_DECL, SyntaxKind.MODULE_VAR_DECL));
+    public void init(CodeAnalysisContext codeAnalysisContext) {
+        codeAnalysisContext.addSyntaxNodeAnalysisTask(new PersistRecordValidator(), SyntaxKind.TYPE_DEFINITION);
     }
 }
