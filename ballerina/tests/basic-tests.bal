@@ -205,3 +205,30 @@ function testDeleteNegative() returns error? {
     }
     check miClient.close();
 }
+
+@test:Config {
+    groups: ["basic"]
+}
+function testComplexTypes() returns error? {
+    MedicalNeed need = {
+        itemId: 1,
+        beneficiaryId: 1,
+        period: {year: 2022, month: 10, day: 10, hour: 1, minute: 2, second: 3},
+        urgency: "URGENT",
+        quantity: 5
+    };
+    MedicalNeedClient mnClient = check new ();
+    int? id = check mnClient->create(need);
+    test:assertTrue(id is int);
+
+    if id is int {
+        MedicalNeed need2 = check mnClient->readByKey(id);
+        test:assertEquals(need.itemId, need2.itemId);
+        test:assertEquals(need.beneficiaryId, need2.beneficiaryId);
+        test:assertEquals(need.period, need2.period);
+        test:assertEquals(need.urgency, need2.urgency);
+        test:assertEquals(need.quantity, need2.quantity);
+    }
+
+    check mnClient.close();
+}
