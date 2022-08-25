@@ -15,21 +15,6 @@
 // under the License.
 
 import ballerina/test;
-import ballerinax/mysql;
-
-configurable string USER = ?;
-configurable string PASSWORD = ?;
-configurable string HOST = ?;
-configurable string DATABASE = ?;
-configurable int PORT = ?;
-
-@test:BeforeSuite
-function truncate() returns error? {
-    mysql:Client dbClient = check new (host = HOST, user = USER, password = PASSWORD, database = DATABASE, port = PORT);
-    _ = check dbClient->execute(`TRUNCATE MedicalNeeds`);
-    _ = check dbClient->execute(`TRUNCATE MedicalItems`);
-    check dbClient.close();
-}
 
 @test:Config {
     groups: ["basic"]
@@ -87,7 +72,7 @@ function testReadByKeyNegative() returns error? {
     MedicalItemClient miClient = check new ();
     MedicalItem|error item = miClient->readByKey(20);
     if item is InvalidKey {
-        test:assertEquals(item.message(), "A record does not exist for 'MedicalItems' for key 20.");
+        test:assertEquals(item.message(), "A record does not exist for 'MedicalItem' for key 20.");
     } else {
         test:assertFail("Error expected.");
     }
@@ -145,7 +130,7 @@ function testReadNegative() returns error? {
     MedicalItemClient miClient = check new ();
     stream<MedicalItem, error?>|error itemStream = miClient->read({typex: "type1"});
     if itemStream is FieldDoesNotExist {
-        test:assertEquals(itemStream.message(), "Field 'typex' does not exist in entity 'MedicalItems'.");
+        test:assertEquals(itemStream.message(), "Field 'typex' does not exist in entity 'MedicalItem'.");
     } else {
         test:assertFail("Error expected");
     }
@@ -182,7 +167,7 @@ function testUpdateNegative() returns error? {
     MedicalItemClient miClient = check new ();
     error? result = miClient->update({"units": "kg"}, {'type: "type2"});
     if result is FieldDoesNotExist {
-        test:assertEquals(result.message(), "Field 'units' does not exist in entity 'MedicalItems'.");
+        test:assertEquals(result.message(), "Field 'units' does not exist in entity 'MedicalItem'.");
     } else {
         test:assertFail("Error expected.");
     }
@@ -214,9 +199,36 @@ function testDeleteNegative() returns error? {
     MedicalItemClient miClient = check new ();
     error? result = miClient->delete({'types: "type2"});
     if result is FieldDoesNotExist {
-        test:assertEquals(result.message(), "Field 'types' does not exist in entity 'MedicalItems'.");
+        test:assertEquals(result.message(), "Field 'types' does not exist in entity 'MedicalItem'.");
     } else {
         test:assertFail("Error expected.");
     }
     check miClient.close();
+}
+
+@test:Config {
+    groups: ["basic"]
+}
+function testComplexTypes() returns error? {
+    MedicalNeed need = {
+        itemId: 1,
+        beneficiaryId: 1,
+        period: {year: 2022, month: 10, day: 10, hour: 1, minute: 2, second: 3},
+        urgency: "URGENT",
+        quantity: 5
+    };
+    MedicalNeedClient mnClient = check new ();
+    int? id = check mnClient->create(need);
+    test:assertTrue(id is int);
+
+    if id is int {
+        MedicalNeed need2 = check mnClient->readByKey(id);
+        test:assertEquals(need.itemId, need2.itemId);
+        test:assertEquals(need.beneficiaryId, need2.beneficiaryId);
+        test:assertEquals(need.period, need2.period);
+        test:assertEquals(need.urgency, need2.urgency);
+        test:assertEquals(need.quantity, need2.quantity);
+    }
+
+    check mnClient.close();
 }

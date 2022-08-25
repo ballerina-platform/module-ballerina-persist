@@ -16,43 +16,37 @@
 
 import ballerinax/mysql;
 import ballerina/sql;
-import ballerina/persist;
 
-client class MedicalItemClient {
+client class DepartmentClient {
 
-    private final string entityName = "MedicalItem";
-    private final sql:ParameterizedQuery tableName = `MedicalItems`;
-    private final map<persist:FieldMetadata> fieldMetadata = {
-        itemId: {columnName: "itemId", 'type: int},
-        name: {columnName: "name", 'type: string},
-        'type: {columnName: "type", 'type: string},
-        unit: {columnName: "unit", 'type: string}
+    private final string entityName = "Department";
+    private final sql:ParameterizedQuery tableName = `Departments`;
+    private final map<FieldMetadata> fieldMetadata = {
+        hospitalCode: {columnName: "hospitalCode", 'type: string},
+        departmentId: {columnName: "departmentId", 'type: int},
+        name: {columnName: "name", 'type: string}
     };
-    private string[] keyFields = ["itemId"];
+    private string[] keyFields = ["hospitalCode", "departmentId"];
 
-    private persist:SQLClient persistClient;
+    private SQLClient persistClient;
 
     public function init() returns error? {
         mysql:Client dbClient = check new (host = HOST, user = USER, password = PASSWORD, database = DATABASE, port = PORT);
         self.persistClient = check new (self.entityName, self.tableName, self.fieldMetadata, self.keyFields, dbClient);
     }
 
-    remote function create(MedicalItem value) returns int|error? {
-        sql:ExecutionResult result = check self.persistClient.runInsertQuery(value);
-
-        if result.lastInsertId is () {
-            return value.itemId;
-        }
-        return <int>result.lastInsertId;
+    remote function create(Department value) returns [string, int]|error? {
+        sql:ExecutionResult _ = check self.persistClient.runInsertQuery(value);
+        return [value.hospitalCode, value.departmentId];
     }
 
-    remote function readByKey(int key) returns MedicalItem|error {
-        return (check self.persistClient.runReadByKeyQuery(MedicalItem, key)).cloneWithType(MedicalItem);
+    remote function readByKey(string hospitalCode, int departmentId) returns Department|error {
+        return (check self.persistClient.runReadByKeyQuery(Department, hospitalCode, departmentId)).cloneWithType(Department);
     }
 
-    remote function read(map<anydata>? filter = ()) returns stream<MedicalItem, error?>|error {
+    remote function read(map<anydata>? filter = ()) returns stream<Department, error?>|error {
         stream<anydata, error?> result = check self.persistClient.runReadQuery(filter);
-        return new stream<MedicalItem, error?>(new MedicalItemStream(result));
+        return new stream<Department, error?>(new DepartmentStream(result));
     }
 
     remote function update(record {} 'object, map<anydata> filter) returns error? {
@@ -69,21 +63,21 @@ client class MedicalItemClient {
 
 }
 
-public class MedicalItemStream {
+public class DepartmentStream {
     private stream<anydata, error?> anydataStream;
 
     public isolated function init(stream<anydata, error?> anydataStream) {
         self.anydataStream = anydataStream;
     }
 
-    public isolated function next() returns record {|MedicalItem value;|}|error? {
+    public isolated function next() returns record {|Department value;|}|error? {
         var streamValue = self.anydataStream.next();
         if streamValue is () {
             return streamValue;
         } else if (streamValue is error) {
             return streamValue;
         } else {
-            record {|MedicalItem value;|} nextRecord = {value: check streamValue.value.cloneWithType(MedicalItem)};
+            record {|Department value;|} nextRecord = {value: check streamValue.value.cloneWithType(Department)};
             return nextRecord;
         }
     }
@@ -92,4 +86,3 @@ public class MedicalItemStream {
         return self.anydataStream.close();
     }
 }
-
