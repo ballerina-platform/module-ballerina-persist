@@ -1,13 +1,13 @@
 CREATE Database test;
 
-CREATE Table test.MedicalItems (
+CREATE TABLE test.MedicalItems (
     itemId INTEGER PRIMARY KEY,
     name VARCHAR(50),
     type VARCHAR(20),
     unit VARCHAR(5)
 );
 
-CREATE Table test.MedicalNeeds (
+CREATE TABLE test.MedicalNeeds (
     needId INTEGER PRIMARY KEY AUTO_INCREMENT,
     itemId INTEGER,
     beneficiaryId INTEGER,
@@ -21,4 +21,16 @@ CREATE TABLE test.Departments (
     departmentId INTEGER,
     name VARCHAR(255),
     PRIMARY KEY (hospitalCode, departmentId)
+);
+
+CREATE TABLE test.Users (
+    id INTEGER PRIMARY KEY,
+    name VARCHAR(20)
+);
+
+CREATE TABLE test.Profiles (
+    id INTEGER PRIMARY KEY,
+    name VARCHAR(20),
+    userId INTEGER,
+    FOREIGN KEY (userId) REFERENCES test.Users(id)
 );

@@ -54,14 +54,14 @@ public type Department record {|
 
 // One-to-one relation
 @Entity { key: ["id"] }
-type User record  {	
+public type User record  {	
  readonly int id;
  string name;
  Profile profile?;
 };
  
 @Entity { key: ["id"] }
-type Profile record  {	
+public type Profile record  {	
  readonly int id;
  string name;
  @Relation {keyColumns: ["userId"], reference: ["id"]}
@@ -80,7 +80,7 @@ type Author record  {
 type Post record  {	
  readonly int id;
  string name;
- @Relation {key: ["authorId"], reference: ["id"]}
+ @Relation {keyColumns: ["authorId"], reference: ["id"]}
  Author author?;
  int authorId = -1; // not needed
 };
@@ -90,7 +90,7 @@ type Post record  {
 type Post2 record  {	
  readonly int id;
  string name;
- @Relation {key: ["categoryID"], reference: ["id"], tableName: "post-category"}
+ //@Relation {keyColumns: ["categoryID"], reference: ["id"], tableName: "post-category"}
  Category[] categories;
 };
 
