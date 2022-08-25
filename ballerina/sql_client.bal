@@ -56,14 +56,14 @@ public client class SQLClient {
         return result;
     }
 
-    public function runReadQuery(map<anydata>? filter) returns stream<record {}, sql:Error?>|error {
+    public function runReadQuery(typedesc<record {}> t, map<anydata>? filter) returns stream<record {}, sql:Error?>|error {
         sql:ParameterizedQuery query = sql:queryConcat(`SELECT `, self.getColumnNames(), ` FROM `, self.tableName);
 
         if !(filter is ()) {
             query = sql:queryConcat(query, ` WHERE `, check self.getWhereClauses(filter));
         }
 
-        stream<record {}, sql:Error?> resultStream = self.dbClient->query(query);
+        stream<record {}, sql:Error?> resultStream = self.dbClient->query(query, t);
         return resultStream;
     }
 
