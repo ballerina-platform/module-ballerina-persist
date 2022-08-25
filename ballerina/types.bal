@@ -34,18 +34,19 @@ public type JoinMetadata record {|
 |};
 
 
-# Defines the entities of the table.
+# Defines the attributes of an Entity
 #
 # + key - The primary key of the table
-# + unique - The unique index of the table
+# + uniqueConstraints - The set of single or multiple columns of a table that uniquely identify a each row in the table.
 # + tableName - The table name
 public type EntityConfig record {|
     string[] key;
-    string[][] unique?;
+    string[][] uniqueConstraints?;
     string tableName?;
 |};
 
-# The annotation is used to represent entities such as primary keys, unique indexes, and table name.
+# The annotation is used to represent attributes of an entity such as primary keys,
+# unique indexes, and table name.
 public annotation EntityConfig Entity on type;
 
 # Defines the auto-increment field configuration.
@@ -68,7 +69,7 @@ public annotation AutoIncrementConfig AutoIncrement on record field;
 # + cascadeDelete - If it is true, the corresponding records in the other table
 #                   will be deleted when deleting a record from one table
 # + cascadeUpdate - If it is true, the corresponding records in the other table
-#                   will be updated when deleting a record from one table
+#                   will be updated when updating a record from one table
 public type RelationConfig record {|
     string[] keyColumns;
     string[] reference = [];
