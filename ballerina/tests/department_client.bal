@@ -45,7 +45,7 @@ client class DepartmentClient {
     }
 
     remote function read(map<anydata>? filter = ()) returns stream<Department, error?>|error {
-        stream<anydata, error?> result = check self.persistClient.runReadQuery(filter);
+        stream<anydata, error?> result = check self.persistClient.runReadQuery(Department, filter);
         return new stream<Department, error?>(new DepartmentStream(result));
     }
 

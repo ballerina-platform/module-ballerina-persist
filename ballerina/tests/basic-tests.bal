@@ -232,3 +232,33 @@ function testComplexTypes() returns error? {
 
     check mnClient.close();
 }
+
+@test:Config {
+    groups: ["basic"]
+}
+function testComplexTypes2() returns error? {
+    MedicalNeed need = {
+        itemId: 1,
+        beneficiaryId: 1,
+        period: {year: 2022, month: 10, day: 10, hour: 1, minute: 2, second: 3},
+        urgency: "URGENT",
+        quantity: 5
+    };
+    MedicalNeedClient mnClient = check new ();
+    int? id = check mnClient->create(need);
+    test:assertTrue(id is int);
+
+    if id is int {
+        stream<MedicalNeed, error?> needStream = check mnClient->read({itemId: 1});
+        int count = 0;
+        _ = check from MedicalNeed need2 in needStream
+            do {
+                test:assertEquals(need2.itemId, 1);
+                count = count + 1;
+            };
+        test:assertTrue(count > 0);
+    }
+
+    check mnClient.close();
+}
+
