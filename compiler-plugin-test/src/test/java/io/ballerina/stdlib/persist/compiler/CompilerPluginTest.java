@@ -202,13 +202,13 @@ public class CompilerPluginTest {
         Path path = Paths.get("target").toAbsolutePath();
         Files.createDirectories(path);
         assertTest(loadPackage(packagePath).getCompilation().diagnosticResult());
-        Files.deleteIfExists(Paths.get("target", "sql_script.sql").toAbsolutePath());
+        Files.deleteIfExists(Paths.get("target", "script.sql").toAbsolutePath());
         Files.deleteIfExists(path);
     }
 
     private void assertTest(DiagnosticResult result) {
         Assert.assertEquals(result.diagnostics().size(), 0);
-        Path path = Paths.get("target", "sql_script.sql").toAbsolutePath();
+        Path path = Paths.get("target", "script.sql").toAbsolutePath();
         Assert.assertTrue(Files.exists(path), "The file doesn't exist");
         try {
             Assert.assertNotEquals(Files.readString(path), "", "The file content mismatched");

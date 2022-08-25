@@ -291,7 +291,7 @@ public class PersistGenerateSqlScript {
     private static void createSqFile(String script, SyntaxNodeAnalysisContext ctx, Location location) {
         try {
             String content = "";
-            Path path = Paths.get("target", "sql_script.sql").toAbsolutePath();
+            Path path = Paths.get("target", "script.sql").toAbsolutePath();
             if (Files.exists(path)) {
                 byte[] bytes = Files.readAllBytes(path);
                 content = new String(bytes, StandardCharsets.UTF_8);
