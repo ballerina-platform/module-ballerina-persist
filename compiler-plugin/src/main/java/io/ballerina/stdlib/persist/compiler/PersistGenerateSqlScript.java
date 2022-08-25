@@ -40,7 +40,6 @@ import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.tools.diagnostics.Location;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -293,8 +292,6 @@ public class PersistGenerateSqlScript {
         try {
             String content = "";
             Path path = Paths.get("target", "sql_script.sql").toAbsolutePath();
-            PrintStream asd = System.out;
-            asd.println(path);
             if (Files.exists(path)) {
                 byte[] bytes = Files.readAllBytes(path);
                 content = new String(bytes, StandardCharsets.UTF_8);
@@ -302,9 +299,6 @@ public class PersistGenerateSqlScript {
             }
             Files.writeString(path, content.concat(script));
         } catch (IOException e) {
-            PrintStream asd = System.out;
-            asd.println(e.getMessage());
-            asd.println("#################################");
             Utils.reportDiagnosticInfo(ctx, location, DiagnosticsCodes.PERSIST_110.getCode(), e.getMessage(),
                     DiagnosticsCodes.PERSIST_110.getSeverity());
         }

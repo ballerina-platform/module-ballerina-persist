@@ -61,7 +61,6 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -125,18 +124,13 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         this.uniqueConstraints.clear();
         this.tableName = "";
         this.isPersistEntity = false;
-        this.noOfReportDiagnostic = 0;
     }
 
     private void validateRecordField(SyntaxNodeAnalysisContext ctx, TypeDefinitionNode typeDefinitionNode,
                                      RecordTypeSymbol recordTypeSymbol,
                                      NodeList<ModuleMemberDeclarationNode> memberNodes) {
-        PrintStream asd = System.out;
         String recordName = typeDefinitionNode.typeName().toSourceCode().trim();
-        asd.println(recordName);
-        asd.println(this.recordNamesOfForeignKey);
         if (this.recordNamesOfForeignKey.contains(recordName)) {
-            asd.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
             isPersistEntity = true;
             validateRecordFieldType(ctx, recordTypeSymbol.fieldDescriptors());
         } else if (hasPersistAnnotation) {
