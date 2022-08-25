@@ -37,6 +37,9 @@ public class Constants {
     public static final String RELATION = "persist:Relation";
     public static final String KEY = "key";
     public static final String REFERENCE = "reference";
+    public static final String START_VALUE = "startValue";
+    public static final String ONE = "1";
+    public static final String CASCADE_DELETE = "cascadeDelete";
 
     /**
      * Constants related to Ballerina types.
@@ -46,6 +49,10 @@ public class Constants {
         public static final String BOOLEAN = "boolean";
         public static final String DECIMAL = "decimal";
         public static final String FLOAT = "float";
+        public static final String DATE = "time:Date";
+        public static final String TIME_OF_DAY = "time:TimeOfDay";
+        public static final String UTC = "time:Utc";
+        public static final String CIVIL = "time:Civil";
     }
 
     /**
@@ -56,6 +63,10 @@ public class Constants {
         public static final String BOOLEAN = "BOOLEAN";
         public static final String DECIMAL = "DECIMAL";
         public static final String FLOAT = "FLOAT";
-        public static final String VARCHAR = "FLOAT";
+        public static final String VARCHAR = "VARCHAR(191)";
+        public static final String DATE = "DATE";
+        public static final String TIME = "TIME";
+        public static final String TIME_STAMP = "TIMESTAMP";
+        public static final String DATE_TIME = "DATETIME";
     }
 }
