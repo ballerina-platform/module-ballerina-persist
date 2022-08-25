@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/sql;
-import ballerina/io;
 
 public client class SQLClient {
 
@@ -71,14 +70,14 @@ public client class SQLClient {
         return result;
     }
 
-    public function runReadQuery(map<anydata>? filter) returns stream<record {}, sql:Error?>|error {
-        sql:ParameterizedQuery query = sql:queryConcat(`SELECT `, self.getSelectColumnNames([]), ` FROM `, self.tableName, ` AS `, stringToParameterizedQuery(self.entityName));
+    public function runReadQuery(typedesc<record {}> t, map<anydata>? filter) returns stream<record {}, sql:Error?>|error {
+        sql:ParameterizedQuery query = sql:queryConcat(`SELECT `, self.getSelectColumnNames(), ` FROM `, self.tableName);
 
         if !(filter is ()) {
             query = sql:queryConcat(query, ` WHERE `, check self.getWhereClauses(filter));
         }
 
-        stream<record {}, sql:Error?> resultStream = self.dbClient->query(query);
+        stream<record {}, sql:Error?> resultStream = self.dbClient->query(query, t);
         return resultStream;
     }
 
@@ -175,7 +174,7 @@ public client class SQLClient {
                 }
                 params = sql:queryConcat(params, stringToParameterizedQuery(
                     (<RelationMetadata>self.fieldMetadata.get(key).relation).entityName + "." +
-                    (<RelationMetadata>self.fieldMetadata.get(key).relation).refField + 
+                    (<RelationMetadata>self.fieldMetadata.get(key).relation).refField +
                     " AS `" + (<RelationMetadata>self.fieldMetadata.get(key).relation).entityName + "." + (<RelationMetadata>self.fieldMetadata.get(key).relation).refField + "`"
                 ));
                 columnCount = columnCount + 1;

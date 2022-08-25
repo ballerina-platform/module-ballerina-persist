@@ -51,7 +51,7 @@ client class MedicalItemClient {
     }
 
     remote function read(map<anydata>? filter = ()) returns stream<MedicalItem, error?>|error {
-        stream<anydata, error?> result = check self.persistClient.runReadQuery(filter);
+        stream<anydata, error?> result = check self.persistClient.runReadQuery(MedicalItem, filter);
         return new stream<MedicalItem, error?>(new MedicalItemStream(result));
     }
 
