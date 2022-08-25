@@ -72,8 +72,8 @@ client class UserClient {
         return (check self.persistClient.runReadByKeyQuery(User, include, key)).cloneWithType(User);
     }
 
-    remote function read(map<anydata>? filter = ()) returns stream<User, error?>|error {
-        stream<anydata, error?> result = check self.persistClient.runReadQuery(filter);
+    remote function read(map<anydata>? filter = (), UserRelations[] include = []) returns stream<User, error?>|error {
+        stream<anydata, error?> result = check self.persistClient.runReadQuery(User, filter, include);
         return new stream<User, error?>(new UserStream(result));
     }
 

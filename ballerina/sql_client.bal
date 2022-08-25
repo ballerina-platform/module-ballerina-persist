@@ -59,7 +59,6 @@ public client class SQLClient {
         }
 
         query = sql:queryConcat(query, ` WHERE `, check self.getGetKeyWhereClauses(keys));
-        io:println(query);
         record {}|error result = self.dbClient->queryRow(query, t);
         if result is sql:NoRowsError {
             if keys.length() > 1 {
@@ -70,8 +69,8 @@ public client class SQLClient {
         return result;
     }
 
-    public function runReadQuery(typedesc<record {}> t, map<anydata>? filter) returns stream<record {}, sql:Error?>|error {
-        sql:ParameterizedQuery query = sql:queryConcat(`SELECT `, self.getSelectColumnNames(), ` FROM `, self.tableName);
+    public function runReadQuery(typedesc<record {}> t, map<anydata>? filter, string[] include = []) returns stream<record {}, sql:Error?>|error {
+        sql:ParameterizedQuery query = sql:queryConcat(`SELECT `, self.getSelectColumnNames(include), ` FROM `, self.tableName, stringToParameterizedQuery(" " + self.entityName));
 
         if !(filter is ()) {
             query = sql:queryConcat(query, ` WHERE `, check self.getWhereClauses(filter));
@@ -92,7 +91,7 @@ public client class SQLClient {
     }
 
     public function runDeleteQuery(map<anydata>? filter) returns error? {
-        sql:ParameterizedQuery query = sql:queryConcat(`DELETE FROM `, self.tableName);
+        sql:ParameterizedQuery query = sql:queryConcat(`DELETE FROM `, self.tableName, stringToParameterizedQuery(" " + self.entityName));
 
         if !(filter is ()) {
             query = sql:queryConcat(query, ` WHERE`, check self.getWhereClauses(filter));
@@ -102,7 +101,7 @@ public client class SQLClient {
     }
 
     public function checkExists(map<anydata>? filter) returns error? {
-        sql:ParameterizedQuery query = sql:queryConcat(`DELETE FROM `, self.tableName);
+        sql:ParameterizedQuery query = sql:queryConcat(`SELECT * FROM `, self.tableName, stringToParameterizedQuery(" " + self.entityName));
 
         if !(filter is ()) {
             query = sql:queryConcat(query, ` WHERE`, check self.getWhereClauses(filter));

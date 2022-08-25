@@ -71,7 +71,7 @@ client class ProfileClient {
     }
 
     remote function read(map<anydata>? filter = (), ProfileRelations[] include = []) returns stream<Profile, error?>|error {
-        stream<anydata, error?> result = check self.persistClient.runReadQuery(filter);
+        stream<anydata, error?> result = check self.persistClient.runReadQuery(Profile, filter, include);
         return new stream<Profile, error?>(new ProfileStream(result, include));
     }
 
