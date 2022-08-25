@@ -64,7 +64,7 @@ function oneToOneCreateTest2() returns error? {
 }
 
 @test:Config {
-    groups: ["associations"]
+    groups: ["associationsx"]
 }
 function oneToOneCreateTest3() returns error? {
     User user = {

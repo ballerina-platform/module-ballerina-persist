@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/sql;
+import ballerina/io;
 
 public client class SQLClient {
 
@@ -59,6 +60,7 @@ public client class SQLClient {
         }
 
         query = sql:queryConcat(query, ` WHERE `, check self.getGetKeyWhereClauses(keys));
+        io:println(query);
         record {}|error result = self.dbClient->queryRow(query, t);
         if result is sql:NoRowsError {
             if keys.length() > 1 {
@@ -81,7 +83,7 @@ public client class SQLClient {
     }
 
     public function runUpdateQuery(record {} 'object, map<anydata>? filter) returns error? {
-        sql:ParameterizedQuery query = sql:queryConcat(`UPDATE `, self.tableName, ` SET`, check self.getSetClauses('object));
+        sql:ParameterizedQuery query = sql:queryConcat(`UPDATE `, self.tableName, stringToParameterizedQuery(" " + self.entityName), ` SET`, check self.getSetClauses('object));
 
         if !(filter is ()) {
             query = sql:queryConcat(query, ` WHERE`, check self.getWhereClauses(filter));

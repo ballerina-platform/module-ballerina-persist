@@ -29,7 +29,7 @@ client class UserClient {
     };
     private string[] keyFields = ["id"];
     private final map<JoinMetadata> joinMetadata = {
-        profile: {refTable: "Profiles", refFields: ["id"], joinColumns: ["id"]}
+        profile: {refTable: "Profiles", refFields: ["userId"], joinColumns: ["id"]}
     };
 
     private SQLClient persistClient;
@@ -48,7 +48,11 @@ client class UserClient {
         } else {
             key = <int>result.lastInsertId;
         }
-        User user = check self->readByKey(key);
+
+        User user = {
+            id: key,
+            name: value.name
+        };
 
         if value.profile is Profile {
             ProfileClient profileClient = check new ProfileClient();
@@ -57,6 +61,8 @@ client class UserClient {
             boolean exists = check profileClient->exists(<Profile>value.profile);
             if !exists {
                 user.profile = check profileClient->create(profile);
+            } else {
+                check profileClient->update({"user.id": user.id}, {id: profile.id});
             }
         }
         return user;

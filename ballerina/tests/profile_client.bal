@@ -57,7 +57,12 @@ client class ProfileClient {
             key = <int> result.lastInsertId;
         }
 
-        return check self->readByKey(key);
+        Profile profile = {
+            id: key,
+            name: value.name
+        };
+
+        return profile;
     }
 
     remote function readByKey(int key, ProfileRelations[] include = []) returns Profile|error {
