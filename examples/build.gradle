@@ -39,9 +39,9 @@ task testExamples {
                 exec {
                     workingDir "${project.projectDir}/${example}"
                     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                        commandLine 'cmd', '/c', "${ballerinaDist}/bin/bal.bat pack --offline && exit %%ERRORLEVEL%%"
+                        commandLine 'cmd', '/c', "${ballerinaDist}/bin/bal.bat test --offline && exit %%ERRORLEVEL%%"
                     } else {
-                        commandLine 'sh', '-c', "${ballerinaDist}/bin/bal pack --offline"
+                        commandLine 'sh', '-c', "${ballerinaDist}/bin/bal test --offline"
                     }
                 }
             } catch (Exception e) {
@@ -53,20 +53,15 @@ task testExamples {
 }
 
 task buildExamples {
-    gradle.taskGraph.whenReady { graph ->
-        if (graph.hasTask(":persist-examples:test")) {
-            buildExamples.enabled = false
-        }
-    }
     doLast {
         examples.each { example ->
             try {
                 exec {
-                    workingDir project.projectDir
+                    workingDir "${project.projectDir}/${example}"
                     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                        commandLine 'cmd', '/c', "${ballerinaDist}/bin/bal.bat pack --offline ${example} && exit %%ERRORLEVEL%%"
+                        commandLine 'cmd', '/c', "${ballerinaDist}/bin/bal.bat build --offline && exit %%ERRORLEVEL%%"
                     } else {
-                        commandLine 'sh', '-c', "${ballerinaDist}/bin/bal pack --offline ${example}"
+                        commandLine 'sh', '-c', "${ballerinaDist}/bin/bal build --offline"
                     }
                 }
             } catch (Exception e) {
@@ -77,7 +72,8 @@ task buildExamples {
     }
 }
 
-testExamples.dependsOn ":persist-ballerina:build"
-test.dependsOn testExamples
 buildExamples.dependsOn ":persist-ballerina:build"
-build.dependsOn buildExamples
+
+testExamples.dependsOn ":persist-ballerina:build"
+testExamples.dependsOn buildExamples
+test.dependsOn testExamples
