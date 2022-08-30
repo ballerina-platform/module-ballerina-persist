@@ -120,7 +120,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
     }
 
     private void validateRecordType(SyntaxNodeAnalysisContext ctx, TypeDefinitionNode typeDefinitionNode) {
-
         if (typeDefinitionNode.visibilityQualifier().isEmpty()) {
             reportDiagnosticInfo(ctx, typeDefinitionNode.location(),
                     DiagnosticsCodes.PERSIST_111.getCode(), DiagnosticsCodes.PERSIST_111.getMessage(),
