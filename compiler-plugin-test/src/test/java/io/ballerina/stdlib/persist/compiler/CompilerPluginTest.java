@@ -159,6 +159,28 @@ public class CompilerPluginTest {
                 DiagnosticsCodes.PERSIST_108.getCode(), 1);
     }
 
+    @Test
+    public void testRecordType() {
+        DiagnosticResult diagnosticResult = loadPackage("package_16").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList,
+                "invalid initialization: the entity should be public",
+                DiagnosticsCodes.PERSIST_111.getCode(), 1);
+    }
+
+    @Test
+    public void testRecordType1() {
+        DiagnosticResult diagnosticResult = loadPackage("package_17").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList,
+                "invalid initialization: the entity should be public",
+                DiagnosticsCodes.PERSIST_111.getCode(), 1);
+    }
+
     private void assertValues(List<Diagnostic> errorDiagnosticsList, String msg, String code, int count) {
         long availableErrors = errorDiagnosticsList.size();
         Assert.assertEquals(availableErrors, count);

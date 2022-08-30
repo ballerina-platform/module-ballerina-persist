@@ -63,6 +63,7 @@ import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -74,10 +75,19 @@ import java.util.Set;
  */
 public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisContext> {
 
-    private final List<String> primaryKeys = new ArrayList<>();
-    private final List<String> uniqueConstraints = new ArrayList<>();
-    private boolean hasPersistAnnotation = false;
-    private boolean hasAutoIncrementAnnotation = false;
+    private final List<String> primaryKeys;
+    private final List<String> uniqueConstraints;
+    private boolean hasPersistAnnotation;
+    private boolean hasAutoIncrementAnnotation;
+    private boolean isPersistEntity;
+
+    public PersistRecordValidator() {
+        primaryKeys = new ArrayList<>();
+        uniqueConstraints = new ArrayList<>();
+        hasPersistAnnotation = false;
+        hasAutoIncrementAnnotation = false;
+        isPersistEntity = false;
+    }
 
     @Override
     public void perform(SyntaxNodeAnalysisContext ctx) {
@@ -98,12 +108,25 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 validateRecordFieldsAnnotation(ctx, recordNode, recordTypeSymbol.fieldDescriptors(),
                         ((ModulePartNode) ctx.syntaxTree().rootNode()).members());
                 validateRecordField(ctx, typeDefinitionNode, recordTypeSymbol);
+                if ((hasPersistAnnotation || isPersistEntity)) {
+                    validateRecordType(ctx, typeDefinitionNode);
+                }
             }
         }
         this.hasAutoIncrementAnnotation = false;
         this.hasPersistAnnotation = false;
         this.primaryKeys.clear();
         this.uniqueConstraints.clear();
+        this.isPersistEntity = false;
+    }
+
+    private void validateRecordType(SyntaxNodeAnalysisContext ctx, TypeDefinitionNode typeDefinitionNode) {
+
+        if (typeDefinitionNode.visibilityQualifier().isEmpty()) {
+            reportDiagnosticInfo(ctx, typeDefinitionNode.location(),
+                    DiagnosticsCodes.PERSIST_111.getCode(), DiagnosticsCodes.PERSIST_111.getMessage(),
+                    DiagnosticsCodes.PERSIST_111.getSeverity());
+        }
     }
 
     private void validateRecordField(SyntaxNodeAnalysisContext ctx, TypeDefinitionNode typeDefinitionNode,
@@ -138,6 +161,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         if (functionDefinitionNode.functionBody().toSourceCode().
                 contains(Constants.INSERT_METHOD_NAME) && parameters.size() > 0 &&
                 parameters.get(0).toSourceCode().split(" ")[0].trim().equals(recordName)) {
+            isPersistEntity = true;
             validateRecordFieldType(ctx, recordTypeSymbol.fieldDescriptors());
         } else {
             NodeList<StatementNode> statements = ((FunctionBodyBlockNode) functionDefinitionNode.functionBody()).
@@ -162,6 +186,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                                 Optional<String> referenceTypeSymbol =
                                         ((TypeReferenceTypeSymbol) (referenceType.get())).definition().getName();
                                 if (referenceTypeSymbol.isPresent() && referenceTypeSymbol.get().equals(recordName)) {
+                                    isPersistEntity = true;
                                     validateRecordFieldType(ctx, recordTypeSymbol.fieldDescriptors());
                                 }
                             }
