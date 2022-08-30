@@ -67,6 +67,11 @@ public client class SQLClient {
         return resultStream;
     }
 
+    public function runExecuteQuery(sql:ParameterizedQuery filterClause, typedesc<record {}> t) returns stream<record {}, sql:Error?>|error {
+        sql:ParameterizedQuery query = sql:queryConcat(`SELECT `, self.getColumnNames(), ` FROM `, self.tableName, filterClause);
+        return self.dbClient->query(query, t);
+    }
+
     public function runUpdateQuery(record {} 'object, map<anydata>? filter) returns error? {
         sql:ParameterizedQuery query = sql:queryConcat(`UPDATE `, self.tableName, ` SET`, check self.getSetClauses('object));
 

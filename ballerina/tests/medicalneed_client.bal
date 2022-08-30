@@ -55,6 +55,10 @@ client class MedicalNeedClient {
         return new stream<MedicalNeed, error?>(new MedicalNeedStream(result));
     }
 
+    remote function execute(sql:ParameterizedQuery filterClause) returns stream<MedicalNeed, error?>|error {
+        return check self.persistClient.runExecuteQuery(filterClause, MedicalNeed);
+    }
+
     remote function update(record {} 'object, map<anydata> filter) returns error? {
         _ = check self.persistClient.runUpdateQuery('object, filter);
     }
