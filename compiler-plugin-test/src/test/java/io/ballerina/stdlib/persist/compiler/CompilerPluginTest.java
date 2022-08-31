@@ -48,7 +48,7 @@ public class CompilerPluginTest {
     }
 
     private Package loadPackage(String path) {
-        Path projectDirPath = Paths.get("src", "test", "resources", "test-src").
+        Path projectDirPath = Paths.get("src", "test", "resources", "test-src", "plugin").
                 toAbsolutePath().resolve(path);
         BuildProject project = BuildProject.load(getEnvironmentBuilder(), projectDirPath);
         return project.currentPackage();
