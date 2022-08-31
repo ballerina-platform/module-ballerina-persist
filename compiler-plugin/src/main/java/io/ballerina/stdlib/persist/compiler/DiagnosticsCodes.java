@@ -42,7 +42,8 @@ public enum DiagnosticsCodes {
     PERSIST_107("PERSIST_107", "duplicate annotation: the entity does not allow " +
             "multiple field with auto increment annotation", ERROR),
     PERSIST_108("PERSIST_108", "invalid initialization: auto increment field" +
-            " must be defined as a key", ERROR);
+            " must be defined as a key", ERROR),
+    PERSIST_111("PERSIST_111", "invalid initialization: the entity should be public", ERROR);
 
     private final String code;
     private final String message;
