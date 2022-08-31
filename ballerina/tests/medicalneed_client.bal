@@ -18,7 +18,7 @@ import ballerina/sql;
 import ballerinax/mysql;
 import ballerina/time;
 
-client class MedicalNeedClient {
+public client class MedicalNeedClient {
 
     private final string entityName = "MedicalNeed";
     private final sql:ParameterizedQuery tableName = `MedicalNeeds`;
@@ -76,7 +76,7 @@ client class MedicalNeedClient {
         _ = check self.persistClient.runDeleteQuery(filter);
     }
 
-    function close() returns error? {
+    public function close() returns error? {
         return self.persistClient.close();
     }
 
