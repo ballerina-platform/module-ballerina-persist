@@ -34,7 +34,7 @@ client class MedicalItemClient {
 
     public function init() returns error? {
         mysql:Client dbClient = check new (host = HOST, user = USER, password = PASSWORD, database = DATABASE, port = PORT);
-        self.persistClient = check new (self.entityName, self.tableName, self.fieldMetadata, self.keyFields, dbClient);
+        self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata);
     }
 
     remote function create(MedicalItem value) returns int|error? {
@@ -47,7 +47,7 @@ client class MedicalItemClient {
     }
 
     remote function readByKey(int key) returns MedicalItem|error {
-        return (check self.persistClient.runReadByKeyQuery(MedicalItem, key)).cloneWithType(MedicalItem);
+        return (check self.persistClient.runReadByKeyQuery(MedicalItem, key, [])).cloneWithType(MedicalItem);
     }
 
     remote function read(map<anydata>? filter = ()) returns stream<MedicalItem, error?>|error {
