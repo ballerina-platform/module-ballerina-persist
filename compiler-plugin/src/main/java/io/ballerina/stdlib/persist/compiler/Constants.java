@@ -32,6 +32,6 @@ public class Constants {
     public static final String INCREMENT = "increment";
     public static final String START_VALUE = "startValue";
     public static final String RELATION = "persist:Relation";
-    public static final String KEY = "key";
+    public static final String KEY_COLUMNS = "keyColumns";
     public static final String REFERENCE = "reference";
 }

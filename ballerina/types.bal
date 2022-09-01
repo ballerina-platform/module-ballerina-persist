@@ -30,7 +30,7 @@ public type RelationMetadata record {|
 public type JoinMetadata record {|
     string refTable;
     string[] refFields;
-    string[]? joinColumns= ();
+    string[]? joinColumns = ();
 |};
 
 
