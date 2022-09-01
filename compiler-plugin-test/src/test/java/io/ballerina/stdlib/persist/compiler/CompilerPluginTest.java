@@ -48,7 +48,7 @@ public class CompilerPluginTest {
     }
 
     private Package loadPackage(String path) {
-        Path projectDirPath = Paths.get("src", "test", "resources", "test-src").
+        Path projectDirPath = Paths.get("src", "test", "resources", "test-src", "plugin").
                 toAbsolutePath().resolve(path);
         BuildProject project = BuildProject.load(getEnvironmentBuilder(), projectDirPath);
         return project.currentPackage();
@@ -157,6 +157,28 @@ public class CompilerPluginTest {
         assertValues(errorDiagnosticsList,
                 "invalid initialization: auto increment field must be defined as a key",
                 DiagnosticsCodes.PERSIST_108.getCode(), 1);
+    }
+
+    @Test
+    public void testRecordType() {
+        DiagnosticResult diagnosticResult = loadPackage("package_16").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList,
+                "invalid initialization: the entity should be public",
+                DiagnosticsCodes.PERSIST_111.getCode(), 1);
+    }
+
+    @Test
+    public void testRecordType1() {
+        DiagnosticResult diagnosticResult = loadPackage("package_17").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList,
+                "invalid initialization: the entity should be public",
+                DiagnosticsCodes.PERSIST_111.getCode(), 1);
     }
 
     private void assertValues(List<Diagnostic> errorDiagnosticsList, String msg, String code, int count) {
