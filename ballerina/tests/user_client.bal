@@ -36,7 +36,7 @@ client class UserClient {
 
     public function init() returns error? {
         mysql:Client dbClient = check new (host = HOST, user = USER, password = PASSWORD, database = DATABASE, port = PORT);
-        self.persistClient = check new (self.entityName, self.tableName, self.fieldMetadata, self.keyFields, dbClient, self.joinMetadata);
+        self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata, self.joinMetadata);
     }
 
     remote function create(User value) returns User|error {
@@ -69,7 +69,7 @@ client class UserClient {
     }
 
     remote function readByKey(int key, UserRelations[] include = []) returns User|error {
-        return (check self.persistClient.runReadByKeyQuery(User, include, key)).cloneWithType(User);
+        return (check self.persistClient.runReadByKeyQuery(User, key, include)).cloneWithType(User);
     }
 
     remote function read(map<anydata>? filter = (), UserRelations[] include = []) returns stream<User, error?>|error {

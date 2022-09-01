@@ -36,7 +36,7 @@ client class ProfileClient {
 
     public function init() returns error? {
         mysql:Client dbClient = check new (host = HOST, user = USER, password = PASSWORD, database = DATABASE, port = PORT);
-        self.persistClient = check new (self.entityName, self.tableName, self.fieldMetadata, self.keyFields, dbClient, self.joinMetadata);
+        self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata, self.joinMetadata);
     }
 
     remote function create(Profile value) returns Profile|error {
@@ -66,7 +66,7 @@ client class ProfileClient {
     }
 
     remote function readByKey(int key, ProfileRelations[] include = []) returns Profile|error {
-        Profile profile = <Profile> check self.persistClient.runReadByKeyQuery(Profile, include, key);
+        Profile profile = <Profile> check self.persistClient.runReadByKeyQuery(Profile, key, include);
         return profile;
     }
 

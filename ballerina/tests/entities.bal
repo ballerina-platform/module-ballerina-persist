@@ -22,7 +22,7 @@ import ballerina/time;
 }
 public type MedicalNeed record {|
     @AutoIncrement
-    readonly int needId = -1;
+    readonly int needId = 1;
 
     int itemId;
     int beneficiaryId;
@@ -66,39 +66,4 @@ public type Profile record  {
  string name;
  @Relation {keyColumns: ["userId"], reference: ["id"]}
  User user?;
-};
-
-//One to many relation
-@Entity { key: ["id"] }
-type Author record  {	
- readonly int id;
- string name;
- Post[] posts?;
-};
-
-@Entity { key: ["id"] }
-type Post record  {	
- readonly int id;
- string name;
- @Relation {keyColumns: ["authorId"], reference: ["id"]}
- Author author?;
- int authorId = -1; // not needed
-};
-
-//Many to many relation
-@Entity { key: ["id"] }
-type Post2 record  {	
- readonly int id;
- string name;
- //@Relation {keyColumns: ["categoryID"], reference: ["id"], tableName: "post-category"}
- Category[] categories;
-};
-
-@Entity { key: ["id"] }
-type Category record  {	
- readonly int id;
- 
- Post[] posts?; 
- // Relation annotation not required?
- // Should the association table be defined (post-category)
 };

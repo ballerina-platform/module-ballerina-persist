@@ -26,8 +26,8 @@ public client class SQLClient {
     private string[] keyFields;
     private map<JoinMetadata> joinMetadata;
 
-    public function init(string entityName, sql:ParameterizedQuery tableName, map<FieldMetadata> fieldMetadata, string[] keyFields,
-                         sql:Client dbClient, map<JoinMetadata> joinMetadata = {}) returns error? {
+    public function init(sql:Client dbClient, string entityName, sql:ParameterizedQuery tableName, string[] keyFields, map<FieldMetadata> fieldMetadata, 
+                         map<JoinMetadata> joinMetadata = {}) returns error? {
         self.entityName = entityName;
         self.tableName = tableName;
         self.fieldMetadata = fieldMetadata;
@@ -45,7 +45,7 @@ public client class SQLClient {
         return check self.dbClient->execute(query);
     }
 
-    public function runReadByKeyQuery(typedesc<record {}> t, string[] include = [], anydata... keys) returns record {}|error {
+    public function runReadByKeyQuery(typedesc<record {}> t, anydata key, string[] include = []) returns record {}|error {
         sql:ParameterizedQuery query = sql:queryConcat(
             `SELECT `, self.getSelectColumnNames(include), ` FROM `, self.tableName, ` AS `, stringToParameterizedQuery(self.entityName)
         );
@@ -58,13 +58,10 @@ public client class SQLClient {
             }
         }
 
-        query = sql:queryConcat(query, ` WHERE `, check self.getGetKeyWhereClauses(keys));
+        query = sql:queryConcat(query, ` WHERE `, check self.getGetKeyWhereClauses(key));
         record {}|error result = self.dbClient->queryRow(query, t);
         if result is sql:NoRowsError {
-            if keys.length() > 1 {
-                return <InvalidKey>error("A record does not exist for '" + self.entityName + "' for key " + keys.toBalString() + ".");
-            }
-            return <InvalidKey>error("A record does not exist for '" + self.entityName + "' for key " + keys[0].toBalString() + ".");
+            return <InvalidKey>error("A record does not exist for '" + self.entityName + "' for key " + key.toBalString() + ".");
         }
         return result;
     }
@@ -182,12 +179,15 @@ public client class SQLClient {
         return params;
     }
 
-    private function getGetKeyWhereClauses(anydata... keys) returns sql:ParameterizedQuery|error {
-        keys = <anydata[]>keys[0];
+    private function getGetKeyWhereClauses(anydata key) returns sql:ParameterizedQuery|error {
         map<anydata> filter = {};
-        foreach int i in 0 ..< keys.length() {
-            filter[self.keyFields[i]] = keys[i];
+        
+        if key is record {} {
+            filter = key;
+        } else {
+            filter[self.keyFields[0]] = key;
         }
+      
         return check self.getWhereClauses(filter);
     }
 
