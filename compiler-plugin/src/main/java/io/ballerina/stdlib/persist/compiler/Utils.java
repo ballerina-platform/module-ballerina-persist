@@ -33,7 +33,7 @@ public class Utils {
         return text.substring(1, text.length() - 1);
     }
 
-    public static void reportDiagnosticInfo(SyntaxNodeAnalysisContext ctx, Location location, String code,
+    public static void reportErrorOrWarning(SyntaxNodeAnalysisContext ctx, Location location, String code,
                                             String message, DiagnosticSeverity diagnosticSeverity) {
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(code, message, diagnosticSeverity);
         ctx.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo, location));

@@ -19,23 +19,19 @@
 package io.ballerina.stdlib.persist.compiler;
 
 /**
- *
+ * Constants for Persist compiler plugin.
  */
 public class Constants {
 
-    public static final String PERSIST_SQL_CLIENT = "persist:SQLClient";
     public static final String TRUE = "true";
-    public static final String AUTO_INCREMENT = "AUTO_INCREMENT";
-    public static final String COLUMN_NAME = "columnName";
-    public static final String TYPE = "'type";
     public static final String INSERT_METHOD_NAME = "runInsertQuery";
     public static final String ENTITY = "persist:Entity ";
     public static final String UNNECESSARY_CHARS_REGEX = "\"|\\n";
     public static final String TABLE_NAME = "tableName";
-    public static final String PER_AUTO_INCREMENT = "persist:AutoIncrement";
+    public static final String AUTO_INCREMENT = "persist:AutoIncrement";
     public static final String INCREMENT = "increment";
     public static final String RELATION = "persist:Relation";
-    public static final String KEY = "key";
+    public static final String KEY = "keyColumns";
     public static final String REFERENCE = "reference";
     public static final String START_VALUE = "startValue";
     public static final String ONE = "1";
@@ -46,6 +42,7 @@ public class Constants {
      */
     public static final class BallerinaTypes {
         public static final String INT = "int";
+        public static final String STRING = "string";
         public static final String BOOLEAN = "boolean";
         public static final String DECIMAL = "decimal";
         public static final String FLOAT = "float";
