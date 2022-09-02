@@ -48,4 +48,3 @@ public type Item1 record {
     readonly int id = 5;
     string name;
 };
-
