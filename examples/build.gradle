@@ -53,6 +53,11 @@ task testExamples {
 }
 
 task buildExamples {
+    gradle.taskGraph.whenReady { graph ->
+        if (graph.hasTask(":persist-examples:testExamples")) {
+            buildExamples.enabled = false
+        }
+    }
     doLast {
         examples.each { example ->
             try {
@@ -73,7 +78,4 @@ task buildExamples {
 }
 
 buildExamples.dependsOn ":persist-ballerina:build"
-
-testExamples.dependsOn ":persist-ballerina:build"
-testExamples.dependsOn buildExamples
-test.dependsOn testExamples
+build.dependsOn buildExamples

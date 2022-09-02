@@ -25,7 +25,7 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 
 /**
- *
+ * This class includes utility functions.
  */
 public class Utils {
 
