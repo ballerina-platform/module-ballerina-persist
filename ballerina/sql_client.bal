@@ -25,7 +25,8 @@ public client class SQLClient {
     private map<FieldMetadata> fieldMetadata;
     private string[] keyFields;
 
-    public function init(string entityName, sql:ParameterizedQuery tableName, map<FieldMetadata> fieldMetadata, string[] keyFields, sql:Client dbClient) returns error? {
+    public function init(string entityName, sql:ParameterizedQuery tableName, map<FieldMetadata> fieldMetadata,
+                        string[] keyFields, sql:Client dbClient) returns error? {
         self.entityName = entityName;
         self.tableName = tableName;
         self.fieldMetadata = fieldMetadata;
@@ -42,33 +43,45 @@ public client class SQLClient {
         return check self.dbClient->execute(query);
     }
 
-    public function runReadByKeyQuery(typedesc<record {}> t, anydata... keys) returns record {}|error {
+    public function runReadByKeyQuery(typedesc<record {}> rowType, anydata... keys) returns record {}|error {
         sql:ParameterizedQuery query = sql:queryConcat(
-            `SELECT `, self.getColumnNames(), ` FROM `, self.tableName, ` WHERE `, check self.getGetKeyWhereClauses(keys)
+            `SELECT `, self.getColumnNames(), ` FROM `, self.tableName,
+            ` WHERE `, check self.getGetKeyWhereClauses(keys)
         );
-        record {}|error result = self.dbClient->queryRow(query, t);
+        record {}|error result = self.dbClient->queryRow(query, rowType);
         if result is sql:NoRowsError {
             if keys.length() > 1 {
-                return <InvalidKey>error("A record does not exist for '" + self.entityName + "' for key " + keys.toBalString() + ".");
+                return <InvalidKey>error(
+                    string `A record does not exist for '${self.entityName}' for key ${keys.toBalString()}.`);
             }
-            return <InvalidKey>error("A record does not exist for '" + self.entityName + "' for key " + keys[0].toBalString() + ".");
+            return <InvalidKey>error(
+                string `A record does not exist for '${self.entityName}' for key ${keys[0].toBalString()}.`);
         }
         return result;
     }
 
-    public function runReadQuery(typedesc<record {}> t, map<anydata>? filter) returns stream<record {}, sql:Error?>|error {
+    public function runReadQuery(typedesc<record {}> rowType, map<anydata>? filter)
+    returns stream<record {}, sql:Error?>|error {
         sql:ParameterizedQuery query = sql:queryConcat(`SELECT `, self.getColumnNames(), ` FROM `, self.tableName);
 
         if !(filter is ()) {
             query = sql:queryConcat(query, ` WHERE `, check self.getWhereClauses(filter));
         }
 
-        stream<record {}, sql:Error?> resultStream = self.dbClient->query(query, t);
+        stream<record {}, sql:Error?> resultStream = self.dbClient->query(query, rowType);
         return resultStream;
     }
 
+    public function runExecuteQuery(sql:ParameterizedQuery filterClause, typedesc<record {}> rowType)
+    returns stream<record {}, sql:Error?>|error {
+        sql:ParameterizedQuery query = sql:queryConcat(`SELECT `, self.getColumnNames(), ` FROM `, self.tableName,
+        filterClause);
+        return self.dbClient->query(query, rowType);
+    }
+
     public function runUpdateQuery(record {} 'object, map<anydata>? filter) returns error? {
-        sql:ParameterizedQuery query = sql:queryConcat(`UPDATE `, self.tableName, ` SET`, check self.getSetClauses('object));
+        sql:ParameterizedQuery query = sql:queryConcat(`UPDATE `, self.tableName,
+        ` SET`, check self.getSetClauses('object));
 
         if !(filter is ()) {
             query = sql:queryConcat(query, ` WHERE`, check self.getWhereClauses(filter));
@@ -159,7 +172,8 @@ public client class SQLClient {
     function getFieldParamQuery(string fieldName) returns sql:ParameterizedQuery|FieldDoesNotExist {
         FieldMetadata? fieldMetadata = self.fieldMetadata[fieldName];
         if fieldMetadata is () {
-            return <FieldDoesNotExist>error("Field '" + fieldName + "' does not exist in entity '" + self.entityName + "'.");
+            return <FieldDoesNotExist>error(
+                string `Field '${fieldName}' does not exist in entity '${self.entityName}'.`);
         }
         return stringToParameterizedQuery(fieldMetadata.columnName);
     }
