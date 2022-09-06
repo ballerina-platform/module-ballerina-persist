@@ -40,36 +40,12 @@ client class UserClient {
     }
 
     remote function create(User value) returns User|error {
-        sql:ExecutionResult result = check self.persistClient.runInsertQuery(value);
-        
-        int key;
-        if result.lastInsertId is () {
-            key = value.id;
-        } else {
-            key = <int>result.lastInsertId;
-        }
-
-        User user = {
-            id: key,
-            name: value.name
-        };
-
-        if value.profile is Profile {
-            ProfileClient profileClient = check new ProfileClient();
-            Profile profile = <Profile>value.profile.clone();
-            profile.user = user;
-            boolean exists = check profileClient->exists(<Profile>value.profile);
-            if !exists {
-                user.profile = check profileClient->create(profile);
-            } else {
-                check profileClient->update({"user.id": user.id}, {id: profile.id});
-            }
-        }
-        return user;
+        sql:ExecutionResult _ = check self.persistClient.runInsertQuery(value);
+        return value;
     }
 
     remote function readByKey(int key, UserRelations[] include = []) returns User|error {
-        return (check self.persistClient.runReadByKeyQuery(User, key, include)).cloneWithType(User);
+        return <User> check self.persistClient.runReadByKeyQuery(User, key, include);
     }
 
     remote function read(map<anydata>? filter = (), UserRelations[] include = []) returns stream<User, error?>|error {

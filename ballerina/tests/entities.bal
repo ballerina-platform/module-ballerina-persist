@@ -54,16 +54,16 @@ public type Department record {|
 
 // One-to-one relation
 @Entity { key: ["id"] }
-public type User record  {	
+public type User record  {|	
  readonly int id;
  string name;
  Profile profile?;
-};
+|};
  
 @Entity { key: ["id"] }
-public type Profile record  {	
+public type Profile record  {|
  readonly int id;
  string name;
  @Relation {keyColumns: ["userId"], reference: ["id"]}
  User user?;
-};
+|};

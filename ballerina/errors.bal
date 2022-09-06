@@ -17,5 +17,7 @@
 public type Error distinct error;
 
 public type FieldDoesNotExist distinct Error;
+public type InvalidInsertion distinct Error;
+public type ForeignKeyConstraintViolation distinct Error;
 
 public type InvalidKey distinct Error;

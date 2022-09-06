@@ -43,49 +43,6 @@ function oneToOneCreateTest1() returns error? {
     groups: ["associations"]
 }
 function oneToOneCreateTest2() returns error? {
-    Profile profile = {
-        id: 9,
-        name: "TestProfile2"
-    };
-    ProfileClient profileClient = check new();
-    _ = check profileClient->create(profile);
-
-    User user = {
-        id: 9,
-        name: "TestUser2",
-        profile: profile
-    };
-    UserClient userClient = check new();
-    _ = check userClient->create(user);
-    
-
-    User user2 = check userClient->readByKey(9, ["profile"]);
-    test:assertEquals(user, user2);
-}
-
-@test:Config {
-    groups: ["associationsx"]
-}
-function oneToOneCreateTest3() returns error? {
-    User user = {
-        id: 2,
-        name: "TestUser",
-        profile: {
-            id: 15,
-            name: "TestProfile"
-        }
-    };
-    UserClient userClient = check new();
-    _ = check userClient->create(user);
-    User user2 = check userClient->readByKey(2, [profile]);
-
-    test:assertEquals(user, user2);
-}
-
-@test:Config {
-    groups: ["associations"]
-}
-function oneToOneCreateTest4() returns error? {
     User user = {
         id: 3,
         name: "TestUser"
@@ -100,7 +57,7 @@ function oneToOneCreateTest4() returns error? {
 @test:Config {
     groups: ["associations"]
 }
-function oneToOneCreateTest5() returns error? {
+function oneToOneCreateTest3() returns error? {
     Profile profile = {
         id: 3,
         name: "TestProfile"
@@ -115,7 +72,7 @@ function oneToOneCreateTest5() returns error? {
 @test:Config {
     groups: ["associations"]
 }
-function oneToOneCreateTest6() returns error? {
+function oneToOneCreateTest4() returns error? {
     Profile profile = {
         id: 4,
         name: "TestProfile",
@@ -129,4 +86,81 @@ function oneToOneCreateTest6() returns error? {
     Profile profile2 = check profileClient->readByKey(4, [user]);
 
     test:assertEquals(profile, profile2);
+}
+
+@test:Config {
+    groups: ["associations"]
+}
+function oneToOneUpdateTest1() returns error? {
+    Profile profile = {
+        id: 5,
+        name: "TestProfile",
+        user: {
+            id: 4,
+            name: "TestUser"
+        }
+    };
+    ProfileClient profileClient = check new();
+    _ = check profileClient->create(profile);
+
+    _ = check profileClient->update({"name": "TestUpdatedProfile", "user": {name: "TestUpdatedUser"}}, {id: 5});
+
+    Profile profile2 = check profileClient->readByKey(5, [user]);
+    Profile expectedProfile = {
+        id: 5,
+        name: "TestUpdatedProfile",
+        user: {
+            id: 4,
+            name: "TestUpdatedUser"
+        }
+    };
+    test:assertEquals(profile2, expectedProfile);
+}
+
+@test:Config {
+    groups: ["associations"]
+}
+function oneToOneUpdateTest2() returns error? {
+    Profile profile = {
+        id: 6,
+        name: "TestProfile",
+        user: {
+            id: 5,
+            name: "TestUser"
+        }
+    };
+    ProfileClient profileClient = check new();
+    _ = check profileClient->create(profile);
+
+    _ = check profileClient->update({"name": "TestUpdatedProfile", "user": {id: 4, name: "TestUpdatedUser2"}}, {id: 6});
+
+    Profile profile2 = check profileClient->readByKey(6, [user]);
+    Profile expectedProfile = {
+        id: 6,
+        name: "TestUpdatedProfile",
+        user: {
+            id: 4,
+            name: "TestUpdatedUser2"
+        }
+    };
+    test:assertEquals(profile2, expectedProfile);
+}
+
+@test:Config {
+    groups: ["associations"]
+}
+function oneToOneUpdateTest3() returns error? {
+    Profile profile = {
+        id: 7,
+        name: "TestProfile",
+        user: {
+            id: 6,
+            name: "TestUser"
+        }
+    };
+    ProfileClient profileClient = check new();
+    _ = check profileClient->create(profile);
+
+    ForeignKeyConstraintViolation|error? result = profileClient->update({"name": "TestUpdatedProfile", "user": {id: 7, name: "TestUpdatedUser2"}}, {id: 7});
+    test:assertTrue(result is ForeignKeyConstraintViolation);
 }

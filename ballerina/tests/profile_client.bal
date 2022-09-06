@@ -48,26 +48,12 @@ client class ProfileClient {
             }
         }
     
-        sql:ExecutionResult result = check self.persistClient.runInsertQuery(value);
-
-        int key;
-        if result.lastInsertId is () {
-            key = value.id;
-        } else {
-            key = <int> result.lastInsertId;
-        }
-
-        Profile profile = {
-            id: key,
-            name: value.name
-        };
-
-        return profile;
+        sql:ExecutionResult _ = check self.persistClient.runInsertQuery(value);
+        return value;
     }
 
     remote function readByKey(int key, ProfileRelations[] include = []) returns Profile|error {
-        Profile profile = <Profile> check self.persistClient.runReadByKeyQuery(Profile, key, include);
-        return profile;
+        return <Profile> check self.persistClient.runReadByKeyQuery(Profile, key, include);
     }
 
     remote function read(map<anydata>? filter = (), ProfileRelations[] include = []) returns stream<Profile, error?>|error {
@@ -77,6 +63,20 @@ client class ProfileClient {
 
     remote function update(record {} 'object, map<anydata> filter) returns error? {
         _ = check self.persistClient.runUpdateQuery('object, filter);
+        
+        if 'object["user"] is record {} {
+            record {} userEntity = <record {}> 'object["user"];
+            UserClient userClient = check new UserClient();
+            stream<Profile, error?> profileStream = check self->read(filter, [user]);
+
+            // TODO: replace this with more optimized code after adding support for advanced queries
+            error? e = from Profile p in profileStream
+                do {
+                    if p.user is User {
+                        check userClient->update(userEntity, {"id": (<User> p.user).id});
+                    }
+                };
+        }
     }
 
     remote function delete(map<anydata> filter) returns error? {

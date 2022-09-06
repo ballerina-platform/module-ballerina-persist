@@ -69,6 +69,14 @@ public client class SQLClient {
     public function runReadQuery(typedesc<record {}> t, map<anydata>? filter, string[] include = []) returns stream<record {}, sql:Error?>|error {
         sql:ParameterizedQuery query = sql:queryConcat(`SELECT `, self.getSelectColumnNames(include), ` FROM `, self.tableName, stringToParameterizedQuery(" " + self.entityName));
 
+        string[] joinKeys = self.joinMetadata.keys();
+        foreach string joinKey in joinKeys {
+            if include.indexOf(joinKey) != () {
+                JoinMetadata joinMetadata = self.joinMetadata.get(joinKey);
+                query = sql:queryConcat(query, ` LEFT JOIN `, stringToParameterizedQuery(joinMetadata.refTable + " " + joinKey), ` ON `, stringToParameterizedQuery(joinKey + "." + joinMetadata.refFields[0]), ` = `, stringToParameterizedQuery(self.entityName + "." + (<string[]>joinMetadata.joinColumns)[0]));
+            }
+        }
+
         if !(filter is ()) {
             query = sql:queryConcat(query, ` WHERE `, check self.getWhereClauses(filter));
         }
@@ -77,14 +85,22 @@ public client class SQLClient {
         return resultStream;
     }
 
-    public function runUpdateQuery(record {} 'object, map<anydata>? filter) returns error? {
+    public function runUpdateQuery(record {} 'object, map<anydata>? filter) returns ForeignKeyConstraintViolation|error? {
         sql:ParameterizedQuery query = sql:queryConcat(`UPDATE `, self.tableName, stringToParameterizedQuery(" " + self.entityName), ` SET`, check self.getSetClauses('object));
 
         if !(filter is ()) {
             query = sql:queryConcat(query, ` WHERE`, check self.getWhereClauses(filter));
         }
 
-        _ = check self.dbClient->execute(query);
+        sql:ExecutionResult|sql:Error? e = self.dbClient->execute(query);
+        if e is sql:Error {
+            if e.message().indexOf("a foreign key constraint fails ") is () {
+                return e;
+            }
+            else {
+                return <ForeignKeyConstraintViolation>error(e.message());
+            }
+        }
     }
 
     public function runDeleteQuery(map<anydata>? filter) returns error? {
@@ -205,23 +221,32 @@ public client class SQLClient {
     }
 
     function getSetClauses(record {} 'object) returns sql:ParameterizedQuery|error {
+        record {} r = flattenRecord('object);
         sql:ParameterizedQuery query = ` `;
-        string[] keys = 'object.keys();
-        foreach int i in 0 ..< keys.length() {
-            if i > 0 {
-                query = sql:queryConcat(query, `, `);
+        int count = 0;
+        foreach string key in r.keys() {
+            sql:ParameterizedQuery|InvalidInsertion|FieldDoesNotExist fieldName = self.getFieldParamQuery(key);
+            if fieldName is sql:ParameterizedQuery {
+                if count > 0 {
+                    query = sql:queryConcat(query, `, `);
+                }
+                query = sql:queryConcat(query, fieldName, ` = ${<sql:Value>r[key]}`);
+                count = count + 1;
+            } else if fieldName is FieldDoesNotExist {
+                return fieldName;
             }
-            query = sql:queryConcat(query, check self.getFieldParamQuery(keys[i]), ` = ${<sql:Value>'object[keys[i]]}`);
         }
         return query;
     }
 
-    function getFieldParamQuery(string fieldName) returns sql:ParameterizedQuery|FieldDoesNotExist {
+    function getFieldParamQuery(string fieldName) returns sql:ParameterizedQuery|FieldDoesNotExist|InvalidInsertion {
         FieldMetadata? fieldMetadata = self.fieldMetadata[fieldName];
-        if fieldMetadata is () || (<FieldMetadata>fieldMetadata).columnName is () {
+        if fieldMetadata is () {
             return <FieldDoesNotExist>error("Field '" + fieldName + "' does not exist in entity '" + self.entityName + "'.");
+        } else if (<FieldMetadata>fieldMetadata).columnName is () {
+            return <InvalidInsertion>error("Unable to directly insert into field " + fieldName);
         }
-        return stringToParameterizedQuery(<string>fieldMetadata.columnName);
+        return stringToParameterizedQuery(<string>(<FieldMetadata>fieldMetadata).columnName);
     }
 
     public function close() returns error? {
