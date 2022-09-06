@@ -41,7 +41,7 @@ client class DepartmentClient {
     }
 
     remote function readByKey(record{|string hospitalCode; int departmentId;|} key) returns Department|error {
-        return (check self.persistClient.runReadByKeyQuery(Department, key, [])).cloneWithType(Department);
+        return (check self.persistClient.runReadByKeyQuery(Department, key)).cloneWithType(Department);
     }
 
     remote function read(map<anydata>? filter = ()) returns stream<Department, error?>|error {

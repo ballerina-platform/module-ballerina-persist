@@ -71,8 +71,8 @@ public annotation AutoIncrementConfig AutoIncrement on record field;
 # + cascadeUpdate - If it is true, the corresponding records in the other table
 #                   will be updated when updating a record from one table
 public type RelationConfig record {|
-    string[] keyColumns;
-    string[] reference = [];
+    string[] keyColumns?;
+    string[] reference?;
     boolean cascadeDelete = false;
     boolean cascadeUpdate = true;
 |};
