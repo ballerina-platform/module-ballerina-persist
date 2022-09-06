@@ -22,7 +22,7 @@ import ballerina/time;
 }
 public type MedicalNeed record {|
     @AutoIncrement
-    readonly int needId = 1;
+    readonly int needId = -1;
 
     int itemId;
     int beneficiaryId;

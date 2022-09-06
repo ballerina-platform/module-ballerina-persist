@@ -123,6 +123,10 @@ public client class SQLClient {
         _ = check self.dbClient->execute(query);
     }
 
+    public function close() returns error? {
+        return self.dbClient.close();
+    }
+
     private function getInsertQueryParams(record {} 'object) returns sql:ParameterizedQuery {
         sql:ParameterizedQuery params = `(`;
         string[] keys = self.fieldMetadata.keys();
@@ -207,7 +211,7 @@ public client class SQLClient {
         return check self.getWhereClauses(filter);
     }
 
-    function getWhereClauses(map<anydata> filter) returns sql:ParameterizedQuery|error {
+    private function getWhereClauses(map<anydata> filter) returns sql:ParameterizedQuery|error {
         sql:ParameterizedQuery query = ` `;
 
         string[] keys = filter.keys();
@@ -220,7 +224,7 @@ public client class SQLClient {
         return query;
     }
 
-    function getSetClauses(record {} 'object) returns sql:ParameterizedQuery|error {
+    private function getSetClauses(record {} 'object) returns sql:ParameterizedQuery|error {
         record {} r = flattenRecord('object);
         sql:ParameterizedQuery query = ` `;
         int count = 0;
@@ -239,7 +243,7 @@ public client class SQLClient {
         return query;
     }
 
-    function getFieldParamQuery(string fieldName) returns sql:ParameterizedQuery|FieldDoesNotExist|InvalidInsertion {
+    private function getFieldParamQuery(string fieldName) returns sql:ParameterizedQuery|FieldDoesNotExist|InvalidInsertion {
         FieldMetadata? fieldMetadata = self.fieldMetadata[fieldName];
         if fieldMetadata is () {
             return <FieldDoesNotExist>error("Field '" + fieldName + "' does not exist in entity '" + self.entityName + "'.");
@@ -247,9 +251,5 @@ public client class SQLClient {
             return <InvalidInsertion>error("Unable to directly insert into field " + fieldName);
         }
         return stringToParameterizedQuery(<string>(<FieldMetadata>fieldMetadata).columnName);
-    }
-
-    public function close() returns error? {
-        return self.dbClient.close();
     }
 }
