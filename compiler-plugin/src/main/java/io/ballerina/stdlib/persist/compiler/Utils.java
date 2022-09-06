@@ -29,12 +29,12 @@ import io.ballerina.tools.diagnostics.Location;
  */
 public class Utils {
 
-    protected static String getValue(String text) {
+    protected static String eliminateDoubleQuotes(String text) {
         return text.substring(1, text.length() - 1);
     }
 
-    public static void reportErrorOrWarning(SyntaxNodeAnalysisContext ctx, Location location, String code,
-                                            String message, DiagnosticSeverity diagnosticSeverity) {
+    public static void reportDiagnostic(SyntaxNodeAnalysisContext ctx, Location location, String code,
+                                        String message, DiagnosticSeverity diagnosticSeverity) {
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(code, message, diagnosticSeverity);
         ctx.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo, location));
     }

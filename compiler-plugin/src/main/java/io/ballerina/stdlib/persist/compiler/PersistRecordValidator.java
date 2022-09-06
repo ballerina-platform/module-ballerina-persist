@@ -312,7 +312,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                                 if (!name.equals(Constants.TABLE_NAME)) {
                                     validateEntityProperties(ctx, expressionNode.get(), tableFields);
                                 } else {
-                                    tableName = Utils.getValue(expressionNode.get().toSourceCode().trim());
+                                    tableName = Utils.eliminateDoubleQuotes(expressionNode.get().toSourceCode().trim());
                                 }
                             }
                         }
@@ -330,7 +330,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             SeparatedNodeList<Node> expressions = listConstructorExpressionNode.expressions();
             for (Node expression : expressions) {
                 if (expression instanceof BasicLiteralNode) {
-                    this.primaryKeys.add(Utils.getValue(expression.toSourceCode().trim()));
+                    this.primaryKeys.add(Utils.eliminateDoubleQuotes(expression.toSourceCode().trim()));
                     validateFieldWithFieldRecord(ctx, expression, tableFields);
                 } else {
                     listConstructorExpressionNode = (ListConstructorExpressionNode) expression;
@@ -338,7 +338,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                     List<String> uniqueConstraint = new ArrayList<>();
                     for (Node exp : exps) {
                         if (exp instanceof BasicLiteralNode) {
-                            uniqueConstraint.add(Utils.getValue(exp.toSourceCode().trim()));
+                            uniqueConstraint.add(Utils.eliminateDoubleQuotes(exp.toSourceCode().trim()));
                             validateFieldWithFieldRecord(ctx, exp, tableFields);
                         }
                     }
@@ -350,7 +350,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
 
     private void validateFieldWithFieldRecord(SyntaxNodeAnalysisContext ctx, Node valueNode,
                                               Set<String> recordFields) {
-        if (!recordFields.contains(Utils.getValue(((BasicLiteralNode) valueNode).literalToken().text()))) {
+        if (!recordFields.contains(Utils.eliminateDoubleQuotes(((BasicLiteralNode) valueNode).literalToken().text()))) {
             reportDiagnosticInfo(ctx, valueNode.location(),
                     DiagnosticsCodes.PERSIST_102.getCode(), DiagnosticsCodes.PERSIST_102.getMessage(),
                     DiagnosticsCodes.PERSIST_102.getSeverity());
@@ -476,7 +476,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
 
     public void reportDiagnosticInfo(SyntaxNodeAnalysisContext ctx, Location location, String code, String message,
                                      DiagnosticSeverity diagnosticSeverity) {
-        Utils.reportErrorOrWarning(ctx, location, code, message, diagnosticSeverity);
+        Utils.reportDiagnostic(ctx, location, code, message, diagnosticSeverity);
         this.noOfReportDiagnostic++;
     }
 }

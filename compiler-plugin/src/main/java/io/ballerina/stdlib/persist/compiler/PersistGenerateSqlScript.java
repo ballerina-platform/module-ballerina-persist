@@ -205,7 +205,7 @@ public class PersistGenerateSqlScript {
                     Optional<ExpressionNode> valueExpr = specificFieldNode.valueExpr();
                     if (valueExpr.isPresent()) {
                         if (!valueExpr.get().toSourceCode().trim().equals(Constants.ONE)) {
-                            Utils.reportErrorOrWarning(ctx, specificFieldNode.location(),
+                            Utils.reportDiagnostic(ctx, specificFieldNode.location(),
                                     DiagnosticsCodes.PERSIST_112.getCode(),
                                     DiagnosticsCodes.PERSIST_112.getMessage(),
                                     DiagnosticsCodes.PERSIST_112.getSeverity());
@@ -257,11 +257,12 @@ public class PersistGenerateSqlScript {
                 SeparatedNodeList<Node> referenceValueNode = reference.expressions();
                 int i = 0;
                 for (Node node : foreignKeys.expressions()) {
-                    String referenceKey = Utils.getValue(referenceValueNode.get(i).toSourceCode().trim());
+                    String referenceKey = Utils.eliminateDoubleQuotes(referenceValueNode.get(i).toSourceCode().trim());
                     String foreignKeyType = getForeignKeyType(memberNodes, referenceKey, referenceTableName);
                     relationScript = relationScript.concat(
-                            constructForeignKeyScript(Utils.getValue(node.toSourceCode().trim()), foreignKeyType,
-                                    tableName, fieldType, String.valueOf(i), referenceKey, delete, update));
+                            constructForeignKeyScript(Utils.eliminateDoubleQuotes(node.toSourceCode().trim()),
+                                    foreignKeyType, tableName, fieldType, String.valueOf(i), referenceKey, delete,
+                                    update));
                     i++;
                 }
             } else { // todo this logic is used to get the missing foreign key and reference key
@@ -270,7 +271,7 @@ public class PersistGenerateSqlScript {
                 String foreignKeyType;
                 String foreignKey;
                 if (reference != null && reference.expressions().size() != 0) {
-                    referenceKey = Utils.getValue(reference.expressions().get(0).toSourceCode().trim());
+                    referenceKey = Utils.eliminateDoubleQuotes(reference.expressions().get(0).toSourceCode().trim());
                     foreignKey = referenceTableName.toLowerCase(Locale.ENGLISH) +
                             referenceKey.substring(0, 1).toUpperCase(Locale.ENGLISH) +
                             referenceKey.substring(1);
@@ -278,7 +279,7 @@ public class PersistGenerateSqlScript {
                     relationScript = relationScript + constructForeignKeyScript(foreignKey,
                             foreignKeyType, tableName, fieldType, "0", referenceKey, delete, update);
                 } else if (foreignKeys != null && foreignKeys.expressions().size() != 0) {
-                    foreignKey = Utils.getValue(foreignKeys.expressions().get(0).toSourceCode().trim());
+                    foreignKey = Utils.eliminateDoubleQuotes(foreignKeys.expressions().get(0).toSourceCode().trim());
                     referenceInfo = getReferenceKeyAndType(memberNodes, referenceTableName);
                     relationScript = relationScript + constructForeignKeyScript(foreignKey,
                             referenceInfo.get(1).get(0), tableName, fieldType, "0", referenceInfo.get(0).get(0),
@@ -343,7 +344,8 @@ public class PersistGenerateSqlScript {
                                                 for (Node expression : expressions) {
                                                     if (expression instanceof BasicLiteralNode) {
                                                         primaryKeys.add(Utils.
-                                                                getValue(expression.toSourceCode().trim()));
+                                                                eliminateDoubleQuotes(
+                                                                        expression.toSourceCode().trim()));
                                                     } else {
                                                         listConstructorExpressionNode =
                                                                 (ListConstructorExpressionNode) expression;
@@ -353,7 +355,8 @@ public class PersistGenerateSqlScript {
                                                         for (Node exp : exps) {
                                                             if (exp instanceof BasicLiteralNode) {
                                                                 uniqueConstraint.add(Utils.
-                                                                        getValue(exp.toSourceCode().trim()));
+                                                                        eliminateDoubleQuotes(
+                                                                                exp.toSourceCode().trim()));
                                                             }
                                                         }
                                                         uniqueConstraints.add(uniqueConstraint);
@@ -608,7 +611,7 @@ public class PersistGenerateSqlScript {
             }
             Files.writeString(path, content.concat(script));
         } catch (IOException e) {
-            Utils.reportErrorOrWarning(ctx, location, DiagnosticsCodes.PERSIST_110.getCode(),
+            Utils.reportDiagnostic(ctx, location, DiagnosticsCodes.PERSIST_110.getCode(),
                     "error in read or write a script file: " + e.getMessage(),
                     DiagnosticsCodes.PERSIST_110.getSeverity());
         }
