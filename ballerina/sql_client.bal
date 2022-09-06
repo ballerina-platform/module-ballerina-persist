@@ -26,7 +26,7 @@ public client class SQLClient {
     private string[] keyFields;
     private map<JoinMetadata> joinMetadata;
 
-    public function init(sql:Client dbClient, string entityName, sql:ParameterizedQuery tableName, string[] keyFields, map<FieldMetadata> fieldMetadata, 
+    public function init(sql:Client dbClient, string entityName, sql:ParameterizedQuery tableName, string[] keyFields, map<FieldMetadata> fieldMetadata,
                          map<JoinMetadata> joinMetadata = {}) returns error? {
         self.entityName = entityName;
         self.tableName = tableName;
@@ -45,11 +45,10 @@ public client class SQLClient {
         return check self.dbClient->execute(query);
     }
 
-    public function runReadByKeyQuery(typedesc<record {}> t, anydata key, string[] include = []) returns record {}|error {
+    public function runReadByKeyQuery(typedesc<record {}> rowType, anydata key, string[] include = []) returns record {}|error {
         sql:ParameterizedQuery query = sql:queryConcat(
             `SELECT `, self.getSelectColumnNames(include), ` FROM `, self.tableName, ` AS `, stringToParameterizedQuery(self.entityName)
         );
-
         string[] joinKeys = self.joinMetadata.keys();
         foreach string joinKey in joinKeys {
             if include.indexOf(joinKey) != () {
@@ -59,15 +58,19 @@ public client class SQLClient {
         }
 
         query = sql:queryConcat(query, ` WHERE `, check self.getGetKeyWhereClauses(key));
-        record {}|error result = self.dbClient->queryRow(query, t);
+        record {}|error result = self.dbClient->queryRow(query, rowType);
         if result is sql:NoRowsError {
-            return <InvalidKey>error("A record does not exist for '" + self.entityName + "' for key " + key.toBalString() + ".");
+            return <InvalidKey>error(
+                string `A record does not exist for '${self.entityName}' for key ${key.toBalString()}.`);
         }
         return result;
     }
 
-    public function runReadQuery(typedesc<record {}> t, map<anydata>? filter, string[] include = []) returns stream<record {}, sql:Error?>|error {
-        sql:ParameterizedQuery query = sql:queryConcat(`SELECT `, self.getSelectColumnNames(include), ` FROM `, self.tableName, stringToParameterizedQuery(" " + self.entityName));
+    public function runReadQuery(typedesc<record {}> rowType, map<anydata>? filter, string[] include = [])
+    returns stream<record {}, sql:Error?>|error {
+        sql:ParameterizedQuery query = sql:queryConcat(
+            `SELECT `, self.getSelectColumnNames(include),` FROM `, self.tableName, stringToParameterizedQuery(" " + self.entityName)
+        );
 
         string[] joinKeys = self.joinMetadata.keys();
         foreach string joinKey in joinKeys {
@@ -81,8 +84,15 @@ public client class SQLClient {
             query = sql:queryConcat(query, ` WHERE `, check self.getWhereClauses(filter));
         }
 
-        stream<record {}, sql:Error?> resultStream = self.dbClient->query(query, t);
+        stream<record {}, sql:Error?> resultStream = self.dbClient->query(query, rowType);
         return resultStream;
+    }
+
+    public function runExecuteQuery(sql:ParameterizedQuery filterClause, typedesc<record {}> rowType, string[] include = [])
+    returns stream<record {}, sql:Error?>|error {
+        sql:ParameterizedQuery query = sql:queryConcat(`SELECT `, self.getSelectColumnNames(include), ` FROM `, self.tableName,
+        filterClause);
+        return self.dbClient->query(query, rowType);
     }
 
     public function runUpdateQuery(record {} 'object, map<anydata>? filter) returns ForeignKeyConstraintViolation|error? {
@@ -152,7 +162,7 @@ public client class SQLClient {
             }
             columnCount = columnCount + 1;
         }
-        params = sql:queryConcat(params, `)`);
+            params = sql:queryConcat(params, `)`);
         return params;
     }
 
@@ -201,13 +211,13 @@ public client class SQLClient {
 
     private function getGetKeyWhereClauses(anydata key) returns sql:ParameterizedQuery|error {
         map<anydata> filter = {};
-        
+
         if key is record {} {
             filter = key;
         } else {
             filter[self.keyFields[0]] = key;
         }
-      
+
         return check self.getWhereClauses(filter);
     }
 
@@ -246,9 +256,11 @@ public client class SQLClient {
     private function getFieldParamQuery(string fieldName) returns sql:ParameterizedQuery|FieldDoesNotExist|InvalidInsertion {
         FieldMetadata? fieldMetadata = self.fieldMetadata[fieldName];
         if fieldMetadata is () {
-            return <FieldDoesNotExist>error("Field '" + fieldName + "' does not exist in entity '" + self.entityName + "'.");
+            return <FieldDoesNotExist>error(
+                string `Field '${fieldName}' does not exist in entity '${self.entityName}'.`);
         } else if (<FieldMetadata>fieldMetadata).columnName is () {
-            return <InvalidInsertion>error("Unable to directly insert into field " + fieldName);
+            return <InvalidInsertion>error(
+                string `Unable to directly insert into field ${fieldName}`);
         }
         return stringToParameterizedQuery(<string>(<FieldMetadata>fieldMetadata).columnName);
     }
