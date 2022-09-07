@@ -34,3 +34,13 @@ CREATE TABLE test.Profiles (
     userId INTEGER,
     FOREIGN KEY (userId) REFERENCES test.Users(id)
 );
+
+CREATE TABLE test.MultipleAssociations (
+    id INTEGER PRIMARY KEY,
+    name VARCHAR(40),
+    profileId INTEGER,
+    userId INTEGER,
+    FOREIGN KEY (profileId) REFERENCES test.Profiles(id),
+    FOREIGN KEY (userId) REFERENCES test.Users(id)
+);
+
