@@ -35,16 +35,16 @@ client class ProfileClient {
     private SQLClient persistClient;
 
     public function init() returns error? {
-        mysql:Client dbClient = check new (host = HOST, user = USER, password = PASSWORD, database = DATABASE, port = PORT);
+        mysql:Client dbClient = check new (host = host, user = user, password = password, database = database, port = port);
         self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata, self.joinMetadata);
     }
 
     remote function create(Profile value) returns Profile|error {
         if value.user is User {
             UserClient userClient = check new UserClient();
-            boolean exists = check userClient->exists(check value.user.ensureType(User));
+            boolean exists = check userClient->exists(<User> value.user);
             if !exists {
-                value.user = check userClient->create(check value.user.ensureType(User));
+                value.user = check userClient->create(<User> value.user);
             }
         }
     
@@ -67,10 +67,10 @@ client class ProfileClient {
         if 'object["user"] is record {} {
             record {} userEntity = <record {}> 'object["user"];
             UserClient userClient = check new UserClient();
-            stream<Profile, error?> profileStream = check self->read(filter, [user]);
+            stream<Profile, error?> profileStream = check self->read(filter, [UserEntity]);
 
             // TODO: replace this with more optimized code after adding support for advanced queries
-            error? e = from Profile p in profileStream
+            check from Profile p in profileStream
                 do {
                     if p.user is User {
                         check userClient->update(userEntity, {"id": (<User> p.user).id});
@@ -101,7 +101,7 @@ client class ProfileClient {
 }
 
 public enum ProfileRelations {
-    user
+    UserEntity = "user"
 }
 
 public class ProfileStream {

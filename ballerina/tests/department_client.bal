@@ -31,7 +31,7 @@ client class DepartmentClient {
     private SQLClient persistClient;
 
     public function init() returns error? {
-        mysql:Client dbClient = check new (host = HOST, user = USER, password = PASSWORD, database = DATABASE, port = PORT);
+        mysql:Client dbClient = check new (host = host, user = user, password = password, database = database, port = port);
         self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata);
     }
 

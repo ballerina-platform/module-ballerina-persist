@@ -67,3 +67,14 @@ public type Profile record  {|
  @Relation {keyColumns: ["userId"], reference: ["id"]}
  User user?;
 |};
+
+public type MultipleAssociations record {|
+    readonly int id;
+    string name;
+
+    @Relation {keyColumns: ["profileId"], reference: ["id"]}
+    Profile profile?;
+
+    @Relation {keyColumns: ["userId"], reference: ["id"]}
+    User user?;
+|};

@@ -1,5 +1,5 @@
-USER="root"
-PASSWORD="Test123#"
-HOST="localhost"
-PORT=3305
-DATABASE="test"
+user="root"
+password="Test123#"
+host="localhost"
+port=3305
+database="test"
