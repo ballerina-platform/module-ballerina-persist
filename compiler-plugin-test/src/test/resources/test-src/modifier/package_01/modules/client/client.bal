@@ -46,7 +46,7 @@ public client class MedicalNeedClient {
 
     public function init() returns error? {
         mysql:Client dbClient = check new (host = HOST, user = USER, password = PASSWORD, database = DATABASE, port = PORT);
-        self.persistClient = check new (self.entityName, self.tableName, self.fieldMetadata, self.keyFields, dbClient);
+        self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata);
     }
 
     remote function create(entity:MedicalNeed value) returns int|error? {
@@ -101,9 +101,9 @@ public class MedicalNeedStream {
 
     public isolated function next() returns record {|entity:MedicalNeed value;|}|error? {
         if self.err is error {
-            return <error> self.err;
+            return <error>self.err;
         } else if self.anydataStream is stream<anydata, error?> {
-            var anydataStream = <stream<anydata, error?>> self.anydataStream;
+            var anydataStream = <stream<anydata, error?>>self.anydataStream;
             var streamValue = anydataStream.next();
             if streamValue is () {
                 return streamValue;
@@ -121,7 +121,7 @@ public class MedicalNeedStream {
 
     public isolated function close() returns error? {
         if self.anydataStream is stream<anydata, error?> {
-            var anydataStream = <stream<anydata, error?>> self.anydataStream;
+            var anydataStream = <stream<anydata, error?>>self.anydataStream;
             return anydataStream.close();
         }
     }
