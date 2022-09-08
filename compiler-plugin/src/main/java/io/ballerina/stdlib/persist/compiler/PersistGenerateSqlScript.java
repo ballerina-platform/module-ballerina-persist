@@ -63,7 +63,6 @@ public class PersistGenerateSqlScript {
     private static final String PRIMARY_KEY_START_SCRIPT = NEW_LINE + TAB + "PRIMARY KEY(";
     private static final String UNIQUE_KEY_START_SCRIPT = NEW_LINE + TAB + "UNIQUE KEY(";
 
-
     protected static void generateSqlScript(RecordTypeDescriptorNode recordNode, TypeDefinitionNode typeDefinitionNode,
                                             String tableName, NodeList<ModuleMemberDeclarationNode> memberNodes,
                                             List<String> primaryKeys, List<List<String>> uniqueConstraints,
