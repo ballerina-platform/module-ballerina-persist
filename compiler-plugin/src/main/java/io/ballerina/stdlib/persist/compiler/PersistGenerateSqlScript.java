@@ -47,6 +47,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -62,17 +63,19 @@ public class PersistGenerateSqlScript {
     private static final String PRIMARY_KEY_START_SCRIPT = NEW_LINE + TAB + "PRIMARY KEY(";
     private static final String UNIQUE_KEY_START_SCRIPT = NEW_LINE + TAB + "UNIQUE KEY(";
 
+
     protected static void generateSqlScript(RecordTypeDescriptorNode recordNode, TypeDefinitionNode typeDefinitionNode,
                                             String tableName, NodeList<ModuleMemberDeclarationNode> memberNodes,
                                             List<String> primaryKeys, List<List<String>> uniqueConstraints,
-                                            SyntaxNodeAnalysisContext ctx) {
+                                            SyntaxNodeAnalysisContext ctx, HashMap<String,
+            List<String>> referenceTables) {
         if (tableName.isEmpty()) {
             tableName = typeDefinitionNode.typeName().text();
         }
         String sqlScript = generateTableQuery(tableName);
         sqlScript = sqlScript + generateFieldsQuery(recordNode, tableName, memberNodes, primaryKeys, uniqueConstraints,
-                ctx);
-        createSqFile(sqlScript, ctx, recordNode.location());
+                ctx, referenceTables);
+        createSqFile(sqlScript, ctx, recordNode.location(), tableName, referenceTables);
     }
 
     private static String generateTableQuery(String tableName) {
@@ -82,7 +85,8 @@ public class PersistGenerateSqlScript {
     private static String generateFieldsQuery(RecordTypeDescriptorNode recordNode, String tableName,
                                               NodeList<ModuleMemberDeclarationNode> memberNodes,
                                               List<String> primaryKeys, List<List<String>> uniqueConstraints,
-                                              SyntaxNodeAnalysisContext ctx) {
+                                              SyntaxNodeAnalysisContext ctx,
+                                              HashMap<String, List<String>> referenceTables) {
         NodeList<Node> fields = recordNode.fields();
         String type;
         String end = NEW_LINE + ");";
@@ -139,6 +143,7 @@ public class PersistGenerateSqlScript {
                             end = MessageFormat.format("{0}) {1} = {2};", NEW_LINE, autoIncrement, startValue);
                         }
                     } else if (annotationName.equals(Constants.RELATION)) {
+                        updateReferenceTable(tableName, type, referenceTables);
                         relationScript = processRelationAnnotation(annotationNode, type, tableName, memberNodes, type);
                     }
                 }
@@ -153,6 +158,18 @@ public class PersistGenerateSqlScript {
         }
         sqlScript = sqlScript + addPrimaryKeyUniqueKey(primaryKeys, uniqueConstraints);
         return MessageFormat.format("{0} {1}", sqlScript.substring(0, sqlScript.length() - 1) , end);
+    }
+
+    private static void updateReferenceTable(String tableName, String referenceTableName,
+                                             HashMap<String, List<String>> referenceTables) {
+        List<String> setOfReferenceTables;
+        if (referenceTables.containsKey(referenceTableName)) {
+            setOfReferenceTables = referenceTables.get(referenceTableName);
+        } else {
+            setOfReferenceTables = new ArrayList<>();
+        }
+        setOfReferenceTables.add(tableName);
+        referenceTables.put(referenceTableName, setOfReferenceTables);
     }
 
     private static String eliminateSingleQuote(String fieldName) {
@@ -616,16 +633,39 @@ public class PersistGenerateSqlScript {
         }
     }
 
-    private static void createSqFile(String script, SyntaxNodeAnalysisContext ctx, Location location) {
+    private static void createSqFile(String script, SyntaxNodeAnalysisContext ctx, Location location,
+                                     String tableName, HashMap<String, List<String>> referenceTables) {
         try {
             String content = EMPTY;
             Path path = Paths.get("target", "persist_db_scripts.sql").toAbsolutePath();
             if (Files.exists(path)) {
                 byte[] bytes = Files.readAllBytes(path);
                 content = new String(bytes, StandardCharsets.UTF_8);
-                content = content.concat(NEW_LINE + NEW_LINE);
+                String tableNames = "";
+                int firstIndex = 0;
+                if (referenceTables.containsKey(tableName)) {
+                    List<String> tables = referenceTables.get(tableName);
+                    for (String table : tables) {
+                        String name = table + ";";
+                        int index = content.indexOf(name);
+                        if ((firstIndex == 0 || index < firstIndex) && index > 1) {
+                            tableNames = name;
+                            firstIndex = index;
+                        }
+                    }
+                }
+                if (firstIndex != 0) {
+                    int index = firstIndex + tableNames.length();
+                    content = content.substring(0, index) + NEW_LINE + NEW_LINE + script + NEW_LINE  +
+                            content.substring(index);
+                } else {
+                    script = script.concat(NEW_LINE + NEW_LINE);
+                    content = script.concat(content);
+                }
+            }  else {
+                content = content.concat(script);
             }
-            Files.writeString(path, content.concat(script));
+            Files.writeString(path, content);
         } catch (IOException e) {
             Utils.reportDiagnostic(ctx, location, DiagnosticsCodes.PERSIST_110.getCode(),
                     "error in read or write a script file: " + e.getMessage(),

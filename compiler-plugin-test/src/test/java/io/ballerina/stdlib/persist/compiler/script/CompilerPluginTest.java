@@ -54,6 +54,14 @@ public class CompilerPluginTest {
     @Test
     public void testGenerateSqlScript() throws IOException {
         String fileContent = "DROP TABLE IF EXISTS Medical_Need;\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS Item;\n" +
+                "CREATE TABLE Item ( \n" +
+                "\tid INT NOT NULL AUTO_INCREMENT, \n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\tPRIMARY KEY(id) \n" +
+                ")  AUTO_INCREMENT = 15;\n" +
+                "\n" +
                 "CREATE TABLE Medical_Need ( \n" +
                 "\tneedId INT NOT NULL AUTO_INCREMENT, \n" +
                 "\tbeneficiaryId INT NOT NULL, \n" +
@@ -64,14 +72,7 @@ public class CompilerPluginTest {
                 "\tCONSTRAINT FK_MEDICAL_NEED_ITEM_0 FOREIGN KEY(itemId) REFERENCES Item(id) ON DELETE CASCADE,\n" +
                 "\tPRIMARY KEY(needId),\n" +
                 "\tUNIQUE KEY(needId) \n" +
-                ")  AUTO_INCREMENT = 12;\n" +
-                "\n" +
-                "DROP TABLE IF EXISTS Item;\n" +
-                "CREATE TABLE Item ( \n" +
-                "\tid INT NOT NULL AUTO_INCREMENT, \n" +
-                "\tname VARCHAR(191) NOT NULL,\n" +
-                "\tPRIMARY KEY(id) \n" +
-                ")  AUTO_INCREMENT = 15;";
+                ")  AUTO_INCREMENT = 12;";
         testSqlScript("package_01", fileContent, 0, "");
     }
 
@@ -92,6 +93,14 @@ public class CompilerPluginTest {
     @Test
     public void testGenerateSqlScript2() throws IOException {
         String fileContent = "DROP TABLE IF EXISTS Medical_Need;\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS Medicine;\n" +
+                "CREATE TABLE Medicine ( \n" +
+                "\tid INT NOT NULL, \n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\tUNIQUE KEY(id) \n" +
+                ");\n" +
+                "\n" +
                 "CREATE TABLE Medical_Need ( \n" +
                 "\tneedId INT NOT NULL, \n" +
                 "\tbeneficiaryId INT NOT NULL, \n" +
@@ -101,12 +110,6 @@ public class CompilerPluginTest {
                 "\titemId INT, \n" +
                 "\tCONSTRAINT FK_MEDICAL_NEED_MEDICINE_0 FOREIGN KEY(itemId) REFERENCES Medicine(id) " +
                 "ON DELETE CASCADE \n" +
-                ");\n" +
-                "\n" +
-                "DROP TABLE IF EXISTS Medicine;\n" +
-                "CREATE TABLE Medicine ( \n" +
-                "\tid INT NOT NULL, \n" +
-                "\tname VARCHAR(191) NOT NULL \n" +
                 ");";
         testSqlScript("package_03", fileContent, 0, "");
     }
@@ -114,6 +117,14 @@ public class CompilerPluginTest {
     @Test
     public void testGenerateSqlScript3() throws IOException {
         String fileContent = "DROP TABLE IF EXISTS Medical_Need2;\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS Medicine2;\n" +
+                "CREATE TABLE Medicine2 ( \n" +
+                "\tid INT NOT NULL, \n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\tUNIQUE KEY(id) \n" +
+                ");\n" +
+                "\n" +
                 "CREATE TABLE Medical_Need2 ( \n" +
                 "\tneedId INT NOT NULL AUTO_INCREMENT, \n" +
                 "\tbeneficiaryId INT NOT NULL, \n" +
@@ -121,22 +132,24 @@ public class CompilerPluginTest {
                 "\turgency VARCHAR(191), \n" +
                 "\tquantity INT NOT NULL,\n" +
                 "\titemId INT, \n" +
-                "\tCONSTRAINT FK_MEDICAL_NEED2_MEDICINE2_0 FOREIGN KEY(itemId) REFERENCES Medicine2(id) ON " +
-                "DELETE CASCADE ON UPDATE CASCADE,\n" +
+                "\tCONSTRAINT FK_MEDICAL_NEED2_MEDICINE2_0 FOREIGN KEY(itemId) REFERENCES Medicine2(id) " +
+                "ON DELETE CASCADE ON UPDATE CASCADE,\n" +
                 "\tPRIMARY KEY(needId) \n" +
-                ")  AUTO_INCREMENT = 12;\n" +
-                "\n" +
-                "DROP TABLE IF EXISTS Medicine2;\n" +
-                "CREATE TABLE Medicine2 ( \n" +
-                "\tid INT NOT NULL, \n" +
-                "\tname VARCHAR(191) NOT NULL \n" +
-                ");";
+                ")  AUTO_INCREMENT = 12;";
         testSqlScript("package_04", fileContent, 0, "");
     }
 
     @Test
     public void testGenerateSqlScript4() throws IOException {
         String fileContent = "DROP TABLE IF EXISTS EMPLOYEE;\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS Item;\n" +
+                "CREATE TABLE Item ( \n" +
+                "\tname VARCHAR(191) NOT NULL, \n" +
+                "\tid INT NOT NULL AUTO_INCREMENT,\n" +
+                "\tPRIMARY KEY(id) \n" +
+                ");\n" +
+                "\n" +
                 "CREATE TABLE EMPLOYEE ( \n" +
                 "\tneedId INT NOT NULL AUTO_INCREMENT, \n" +
                 "\tbeneficiaryId INT NOT NULL, \n" +
@@ -147,13 +160,6 @@ public class CompilerPluginTest {
                 "\tCONSTRAINT FK_EMPLOYEE_ITEM_0 FOREIGN KEY(itemId) REFERENCES Item(id) ON DELETE CASCADE,\n" +
                 "\tPRIMARY KEY(needId),\n" +
                 "\tUNIQUE KEY(beneficiaryId) \n" +
-                ");\n" +
-                "\n" +
-                "DROP TABLE IF EXISTS Item;\n" +
-                "CREATE TABLE Item ( \n" +
-                "\tname VARCHAR(191) NOT NULL, \n" +
-                "\tid INT NOT NULL AUTO_INCREMENT,\n" +
-                "\tPRIMARY KEY(id) \n" +
                 ");";
         testSqlScript("package_05", fileContent, 1,
                 "the mysql only allow increment of auto generate value by one");
@@ -162,6 +168,37 @@ public class CompilerPluginTest {
     @Test
     public void testGenerateSqlScript5() throws IOException {
         String fileContent = "DROP TABLE IF EXISTS MedicalNeeds;\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS Item1;\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS Item2;\n" +
+                "CREATE TABLE Item2 ( \n" +
+                "\tid INT NOT NULL AUTO_INCREMENT, \n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\tPRIMARY KEY(id),\n" +
+                "\tUNIQUE KEY(name) \n" +
+                ")  AUTO_INCREMENT = 2;\n" +
+                "\n" +
+                "CREATE TABLE Item1 ( \n" +
+                "\tid INT NOT NULL AUTO_INCREMENT, \n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\titemId INT, \n" +
+                "\tCONSTRAINT FK_ITEM1_ITEM2_0 FOREIGN KEY(itemId) REFERENCES Item2(id) ON DELETE CASCADE,\n" +
+                "\titemName VARCHAR(191), \n" +
+                "\tCONSTRAINT FK_ITEM1_ITEM2_1 FOREIGN KEY(itemName) REFERENCES Item2(name) ON DELETE CASCADE,\n" +
+                "\tPRIMARY KEY(id),\n" +
+                "\tUNIQUE KEY(name) \n" +
+                ")  AUTO_INCREMENT = 5;\n" +
+                "\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS Item;\n" +
+                "CREATE TABLE Item ( \n" +
+                "\tid INT NOT NULL AUTO_INCREMENT, \n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\tPRIMARY KEY(id),\n" +
+                "\tUNIQUE KEY(name) \n" +
+                ")  AUTO_INCREMENT = 3;\n" +
+                "\n" +
                 "CREATE TABLE MedicalNeeds ( \n" +
                 "\tneedId INT NOT NULL AUTO_INCREMENT, \n" +
                 "\tbeneficiaryId INT NOT NULL, \n" +
@@ -178,7 +215,21 @@ public class CompilerPluginTest {
                 "\tCONSTRAINT FK_MEDICALNEEDS_ITEM1_1 FOREIGN KEY(name1) REFERENCES Item1(name) ON DELETE CASCADE,\n" +
                 "\tPRIMARY KEY(needId),\n" +
                 "\tUNIQUE KEY(beneficiaryId, urgency) \n" +
-                ");\n" +
+                ");";
+        testSqlScript("package_06", fileContent, 0, "");
+    }
+
+    @Test
+    public void testGenerateSqlScript6() throws IOException {
+        String fileContent = "DROP TABLE IF EXISTS MedicalNeeds;\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS Item1;\n" +
+                "CREATE TABLE Item1 ( \n" +
+                "\tid INT NOT NULL AUTO_INCREMENT, \n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\tPRIMARY KEY(id) \n" +
+                ")  AUTO_INCREMENT = 5;\n" +
+                "\n" +
                 "\n" +
                 "DROP TABLE IF EXISTS Item;\n" +
                 "CREATE TABLE Item ( \n" +
@@ -187,29 +238,6 @@ public class CompilerPluginTest {
                 "\tPRIMARY KEY(id) \n" +
                 ")  AUTO_INCREMENT = 3;\n" +
                 "\n" +
-                "DROP TABLE IF EXISTS Item1;\n" +
-                "CREATE TABLE Item1 ( \n" +
-                "\tid INT NOT NULL AUTO_INCREMENT, \n" +
-                "\tname VARCHAR(191) NOT NULL,\n" +
-                "\titemId INT, \n" +
-                "\tCONSTRAINT FK_ITEM1_ITEM2_0 FOREIGN KEY(itemId) REFERENCES Item2(id) ON DELETE CASCADE,\n" +
-                "\tname VARCHAR(191), \n" +
-                "\tCONSTRAINT FK_ITEM1_ITEM2_1 FOREIGN KEY(name) REFERENCES Item2(name) ON DELETE CASCADE,\n" +
-                "\tPRIMARY KEY(id) \n" +
-                ")  AUTO_INCREMENT = 5;\n" +
-                "\n" +
-                "DROP TABLE IF EXISTS Item2;\n" +
-                "CREATE TABLE Item2 ( \n" +
-                "\tid INT NOT NULL AUTO_INCREMENT, \n" +
-                "\tname VARCHAR(191) NOT NULL,\n" +
-                "\tPRIMARY KEY(id) \n" +
-                ")  AUTO_INCREMENT = 2;";
-        testSqlScript("package_06", fileContent, 0, "");
-    }
-
-    @Test
-    public void testGenerateSqlScript6() throws IOException {
-        String fileContent = "DROP TABLE IF EXISTS MedicalNeeds;\n" +
                 "CREATE TABLE MedicalNeeds ( \n" +
                 "\tneedId INT NOT NULL AUTO_INCREMENT, \n" +
                 "\tbeneficiaryId INT NOT NULL, \n" +
@@ -222,22 +250,77 @@ public class CompilerPluginTest {
                 "\tCONSTRAINT FK_MEDICALNEEDS_ITEM1_0 FOREIGN KEY(itemId1) REFERENCES Item1(id) ON DELETE CASCADE,\n" +
                 "\tPRIMARY KEY(needId),\n" +
                 "\tUNIQUE KEY(beneficiaryId, urgency) \n" +
-                ");\n" +
+                ");";
+        testSqlScript("package_07", fileContent, 0, "");
+    }
+
+    @Test
+    public void testGenerateSqlScript7() throws IOException {
+        String fileContent = "DROP TABLE IF EXISTS Item1;\n" +
+                "CREATE TABLE Item1 ( \n" +
+                "\tid INT NOT NULL AUTO_INCREMENT, \n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\tPRIMARY KEY(id) \n" +
+                ")  AUTO_INCREMENT = 5;\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS MedicalNeeds;\n" +
                 "\n" +
                 "DROP TABLE IF EXISTS Item;\n" +
                 "CREATE TABLE Item ( \n" +
                 "\tid INT NOT NULL AUTO_INCREMENT, \n" +
                 "\tname VARCHAR(191) NOT NULL,\n" +
+                "\titemId1 INT, \n" +
+                "\tCONSTRAINT FK_ITEM_ITEM1_0 FOREIGN KEY(itemId1) REFERENCES Item1(id) ON DELETE CASCADE,\n" +
                 "\tPRIMARY KEY(id) \n" +
                 ")  AUTO_INCREMENT = 3;\n" +
+                "\n" +
+                "CREATE TABLE MedicalNeeds ( \n" +
+                "\tneedId INT NOT NULL AUTO_INCREMENT, \n" +
+                "\tbeneficiaryId INT NOT NULL, \n" +
+                "\tperiod VARCHAR(191) NOT NULL, \n" +
+                "\turgency VARCHAR(191) NOT NULL, \n" +
+                "\tquantity INT NOT NULL,\n" +
+                "\titemId INT, \n" +
+                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM_0 FOREIGN KEY(itemId) REFERENCES Item(id) ON DELETE CASCADE,\n" +
+                "\tPRIMARY KEY(needId),\n" +
+                "\tUNIQUE KEY(beneficiaryId, urgency) \n" +
+                ");";
+        testSqlScript("package_08", fileContent, 0, "");
+    }
+
+    @Test
+    public void testGenerateSqlScript8() throws IOException {
+        String fileContent = "DROP TABLE IF EXISTS MedicalNeeds;\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS Item;\n" +
                 "\n" +
                 "DROP TABLE IF EXISTS Item1;\n" +
                 "CREATE TABLE Item1 ( \n" +
                 "\tid INT NOT NULL AUTO_INCREMENT, \n" +
                 "\tname VARCHAR(191) NOT NULL,\n" +
                 "\tPRIMARY KEY(id) \n" +
-                ")  AUTO_INCREMENT = 5;";
-        testSqlScript("package_07", fileContent, 0, "");
+                ")  AUTO_INCREMENT = 5;\n" +
+                "\n" +
+                "CREATE TABLE Item ( \n" +
+                "\tid INT NOT NULL AUTO_INCREMENT, \n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\titemId1 INT, \n" +
+                "\tCONSTRAINT FK_ITEM_ITEM1_0 FOREIGN KEY(itemId1) REFERENCES Item1(id) ON DELETE CASCADE,\n" +
+                "\tPRIMARY KEY(id) \n" +
+                ")  AUTO_INCREMENT = 3;\n" +
+                "\n" +
+                "CREATE TABLE MedicalNeeds ( \n" +
+                "\tneedId INT NOT NULL AUTO_INCREMENT, \n" +
+                "\tbeneficiaryId INT NOT NULL, \n" +
+                "\tperiod VARCHAR(191) NOT NULL, \n" +
+                "\turgency VARCHAR(191) NOT NULL, \n" +
+                "\tquantity INT NOT NULL,\n" +
+                "\titemId INT, \n" +
+                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM_0 FOREIGN KEY(itemId) REFERENCES Item(id) ON DELETE CASCADE,\n" +
+                "\tPRIMARY KEY(needId),\n" +
+                "\tUNIQUE KEY(beneficiaryId, urgency) \n" +
+                ");";
+        testSqlScript("package_09", fileContent, 0, "");
     }
 
     private void testSqlScript(String packagePath, String fileContent, int count,

@@ -62,6 +62,7 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -80,6 +81,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
     private String tableName;
     private int noOfReportDiagnostic;
     private final List<String> recordNamesOfForeignKey;
+    private final HashMap<String, List<String>> referenceTables;
 
     public PersistRecordValidator() {
         primaryKeys = new ArrayList<>();
@@ -90,6 +92,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         isPersistEntity = false;
         tableName = "";
         noOfReportDiagnostic = 0;
+        referenceTables = new HashMap<>();
     }
 
     @Override
@@ -117,7 +120,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                     if (this.noOfReportDiagnostic == 0) {
                         PersistGenerateSqlScript.generateSqlScript((RecordTypeDescriptorNode) recordNode,
                                 typeDefinitionNode, tableName, memberNodes, this.primaryKeys,
-                                this.uniqueConstraints, ctx);
+                                this.uniqueConstraints, ctx, referenceTables);
                     }
                 }
             }

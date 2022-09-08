@@ -31,6 +31,10 @@ public type Medical_Need2 record {|
     Medicine2 item?;
 |};
 
+@persist:Entity {
+    uniqueConstraints: [["id"]],
+    key: []
+}
 public type Medicine2 record {
     int id;
     string name;

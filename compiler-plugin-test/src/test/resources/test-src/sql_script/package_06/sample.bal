@@ -35,23 +35,32 @@ public type MedicalNeed record {|
     Item1 item1?;
 |};
 
-@persist:Entity {key: ["id"]}
+@persist:Entity {
+    key: ["id"],
+    uniqueConstraints: [["name"]]
+}
 public type Item record {
     @persist:AutoIncrement
     readonly int id = 3;
     string name;
 };
 
-@persist:Entity {key: ["id"]}
+@persist:Entity {
+    key: ["id"],
+    uniqueConstraints: [["name"]]
+}
 public type Item1 record {
     @persist:AutoIncrement
     readonly int id = 5;
     string name;
-    @persist:Relation {keyColumns: ["itemId" , "name"], reference: ["id" , "name"], cascadeDelete: true}
+    @persist:Relation {keyColumns: ["itemId" , "itemName"], reference: ["id" , "name"], cascadeDelete: true}
     Item2 item?;
 };
 
-@persist:Entity {key: ["id"]}
+@persist:Entity {
+    key: ["id"],
+    uniqueConstraints: [["name"]]
+}
 public type Item2 record {
     @persist:AutoIncrement
     readonly int id = 2;
