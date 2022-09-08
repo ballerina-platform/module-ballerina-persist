@@ -48,7 +48,8 @@ public enum DiagnosticsCodes {
             "with reference key count", ERROR),
     PERSIST_110("PERSIST_110", "", WARNING),
     PERSIST_111("PERSIST_111", "invalid initialization: the entity should be public", ERROR),
-    PERSIST_112("PERSIST_112", "the mysql only allow increment of auto generate value by one", WARNING);
+    PERSIST_112("PERSIST_112", "mysql db only allow increment value by one in auto generated field",
+            WARNING);
 
     private final String code;
     private final String message;

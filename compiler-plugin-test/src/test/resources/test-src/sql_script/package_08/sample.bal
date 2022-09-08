@@ -48,4 +48,3 @@ public type Item record {
     @persist:Relation {keyColumns: ["itemId1"], cascadeDelete: true}
     Item1 item1?;
 };
-

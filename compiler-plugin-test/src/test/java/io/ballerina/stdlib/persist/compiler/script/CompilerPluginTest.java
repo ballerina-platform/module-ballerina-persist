@@ -162,7 +162,7 @@ public class CompilerPluginTest {
                 "\tUNIQUE KEY(beneficiaryId)\n" +
                 ");";
         testSqlScript("package_05", fileContent, 1,
-                "the mysql only allow increment of auto generate value by one");
+                "mysql db only allow increment value by one in auto generated field");
     }
 
     @Test
