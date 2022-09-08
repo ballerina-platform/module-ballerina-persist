@@ -17,36 +17,40 @@
 import ballerinax/mysql;
 import ballerina/sql;
 
-client class DepartmentClient {
+client class UserClient {
 
-    private final string entityName = "Department";
-    private final sql:ParameterizedQuery tableName = `Departments`;
+    private final string entityName = "User";
+    private final sql:ParameterizedQuery tableName = `Users`;
     private final map<FieldMetadata> fieldMetadata = {
-        hospitalCode: {columnName: "hospitalCode", 'type: string},
-        departmentId: {columnName: "departmentId", 'type: int},
-        name: {columnName: "name", 'type: string}
+        id: {columnName: "id", 'type: int},
+        name: {columnName: "name", 'type: string},
+        "profile.id": {'type: int, relation: {entityName: "profile", refTable: "Profiles", refField: "id"}},
+        "profile.name": {'type: string, relation: {entityName: "profile", refTable: "Profiles", refField: "name"}}
     };
-    private string[] keyFields = ["hospitalCode", "departmentId"];
+    private string[] keyFields = ["id"];
+    private final map<JoinMetadata> joinMetadata = {
+        profile: {refTable: "Profiles", refFields: ["userId"], joinColumns: ["id"]}
+    };
 
     private SQLClient persistClient;
 
     public function init() returns error? {
         mysql:Client dbClient = check new (host = host, user = user, password = password, database = database, port = port);
-        self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata);
+        self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata, self.joinMetadata);
     }
 
-    remote function create(Department value) returns [string, int]|error? {
+    remote function create(User value) returns User|error {
         sql:ExecutionResult _ = check self.persistClient.runInsertQuery(value);
-        return [value.hospitalCode, value.departmentId];
+        return value;
     }
 
-    remote function readByKey(record{|string hospitalCode; int departmentId;|} key) returns Department|error {
-        return (check self.persistClient.runReadByKeyQuery(Department, key)).cloneWithType(Department);
+    remote function readByKey(int key, UserRelations[] include = []) returns User|error {
+        return <User> check self.persistClient.runReadByKeyQuery(User, key, include);
     }
 
-    remote function read(map<anydata>? filter = ()) returns stream<Department, error?>|error {
-        stream<anydata, error?> result = check self.persistClient.runReadQuery(Department, filter);
-        return new stream<Department, error?>(new DepartmentStream(result));
+    remote function read(map<anydata>? filter = (), UserRelations[] include = []) returns stream<User, error?>|error {
+        stream<anydata, error?> result = check self.persistClient.runReadQuery(User, filter, include);
+        return new stream<User, error?>(new UserStream(result));
     }
 
     remote function update(record {} 'object, map<anydata> filter) returns error? {
@@ -57,27 +61,42 @@ client class DepartmentClient {
         _ = check self.persistClient.runDeleteQuery(filter);
     }
 
+    remote function exists(User user) returns boolean|error {
+        User|error result = self->readByKey(user.id);
+        if result is User {
+            return true;
+        } else if result is InvalidKey {
+            return false;
+        } else {
+            return result;
+        }
+    }
+
     function close() returns error? {
         return self.persistClient.close();
     }
 
 }
 
-public class DepartmentStream {
+public enum UserRelations {
+    ProfileEntity = "profile"
+}
+
+public class UserStream {
     private stream<anydata, error?> anydataStream;
 
     public isolated function init(stream<anydata, error?> anydataStream) {
         self.anydataStream = anydataStream;
     }
 
-    public isolated function next() returns record {|Department value;|}|error? {
+    public isolated function next() returns record {|User value;|}|error? {
         var streamValue = self.anydataStream.next();
         if streamValue is () {
             return streamValue;
         } else if (streamValue is error) {
             return streamValue;
         } else {
-            record {|Department value;|} nextRecord = {value: check streamValue.value.cloneWithType(Department)};
+            record {|User value;|} nextRecord = {value: check streamValue.value.cloneWithType(User)};
             return nextRecord;
         }
     }

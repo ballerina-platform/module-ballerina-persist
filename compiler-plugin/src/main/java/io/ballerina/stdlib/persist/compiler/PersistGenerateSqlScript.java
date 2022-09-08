@@ -246,7 +246,7 @@ public class PersistGenerateSqlScript {
         if (annotationFieldNode.isPresent()) {
             for (MappingFieldNode mappingFieldNode : annotationFieldNode.get().fields()) {
                 SpecificFieldNode specificFieldNode = (SpecificFieldNode) mappingFieldNode;
-                if (specificFieldNode.fieldName().toSourceCode().trim().equals(Constants.KEY)) {
+                if (specificFieldNode.fieldName().toSourceCode().trim().equals(Constants.KEY_COLUMNS)) {
                     Optional<ExpressionNode> node = specificFieldNode.valueExpr();
                     if (node.isPresent()) {
                         foreignKeys = (ListConstructorExpressionNode) node.get();

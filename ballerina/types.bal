@@ -50,7 +50,7 @@ public annotation AutoIncrementConfig AutoIncrement on record field;
 
 # Defines the configuration to indicate the associations of an entity.
 #
-# + keyColumns - The foreign key columns
+# + keyColumns - The foreign key column
 # + reference - The primary key of the other table
 # + cascadeDelete - If it is true, the corresponding records in the other table
 #                   will be deleted when deleting a record from one table
@@ -58,7 +58,7 @@ public annotation AutoIncrementConfig AutoIncrement on record field;
 #                   will be updated when updating a record from one table
 public type RelationConfig record {|
     string[] keyColumns?;
-    string[] reference = [];
+    string[] reference?;
     boolean cascadeDelete = false;
     boolean cascadeUpdate = true;
 |};

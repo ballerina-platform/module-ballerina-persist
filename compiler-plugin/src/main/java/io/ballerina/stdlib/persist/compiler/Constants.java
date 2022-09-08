@@ -31,7 +31,7 @@ public class Constants {
     public static final String AUTO_INCREMENT = "persist:AutoIncrement";
     public static final String INCREMENT = "increment";
     public static final String RELATION = "persist:Relation";
-    public static final String KEY = "keyColumns";
+    public static final String KEY_COLUMNS = "keyColumns";
     public static final String REFERENCE = "reference";
     public static final String START_VALUE = "startValue";
     public static final String ONE = "1";

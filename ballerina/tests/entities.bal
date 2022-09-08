@@ -51,3 +51,30 @@ public type Department record {|
     int departmentId;
     string name;
 |};
+
+// One-to-one relation
+@Entity { key: ["id"] }
+public type User record  {|	
+ readonly int id;
+ string name;
+ Profile profile?;
+|};
+ 
+@Entity { key: ["id"] }
+public type Profile record  {|
+ readonly int id;
+ string name;
+ @Relation {keyColumns: ["userId"], reference: ["id"]}
+ User user?;
+|};
+
+public type MultipleAssociations record {|
+    readonly int id;
+    string name;
+
+    @Relation {keyColumns: ["profileId"], reference: ["id"]}
+    Profile profile?;
+
+    @Relation {keyColumns: ["userId"], reference: ["id"]}
+    User user?;
+|};

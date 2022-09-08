@@ -402,14 +402,14 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             SpecificFieldNode annotationFieldNode = (SpecificFieldNode) annotationField;
             String key = annotationFieldNode.fieldName().toSourceCode().trim().replaceAll(
                     Constants.UNNECESSARY_CHARS_REGEX, "");
-            if (key.equals(Constants.KEY) || key.equals(Constants.REFERENCE)) {
+            if (key.equals(Constants.KEY_COLUMNS) || key.equals(Constants.REFERENCE)) {
                 Optional<ExpressionNode> expressionNode = annotationFieldNode.valueExpr();
                 if (expressionNode.isPresent()) {
                     ExpressionNode valueNode = expressionNode.get();
                     ListConstructorExpressionNode listConstructorExpressionNode =
                             (ListConstructorExpressionNode) valueNode;
                     SeparatedNodeList<Node> expressions = listConstructorExpressionNode.expressions();
-                    if (key.equals(Constants.KEY)) {
+                    if (key.equals(Constants.KEY_COLUMNS)) {
                         noOfForeignKeys = expressions.size();
                         location = valueNode.location();
                     } else {

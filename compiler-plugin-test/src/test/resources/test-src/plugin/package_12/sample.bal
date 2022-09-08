@@ -52,6 +52,6 @@ MedicalNeed medicalNeed = {
 public function main() returns error? {
     mysql:Client dbClient = check new (host = "localhost", user = "root", password = "Test123#",
                 database = "test", port = 3305);
-    persist:SQLClient persistClient = check new ("MedicalNeed", `MedicalNeeds`, fieldMetadata, ["needId"], dbClient);
+    persist:SQLClient persistClient = check new (dbClient, "MedicalNeed", `MedicalNeeds`, ["needId"], fieldMetadata);
     sql:ExecutionResult _ = check persistClient.runInsertQuery(medicalNeed);
 }
