@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,17 +18,17 @@
 
 package io.ballerina.stdlib.persist.compiler;
 
-import io.ballerina.projects.plugins.CompilerPlugin;
-import io.ballerina.projects.plugins.CompilerPluginContext;
+import io.ballerina.projects.plugins.CodeModifier;
+import io.ballerina.projects.plugins.CodeModifierContext;
 
 /**
- * Persist compiler plugin.
+ * Code modifier for stream invoking.
  */
-public class PersistCompilerPlugin extends CompilerPlugin {
+public class PersistCodeModifier extends CodeModifier {
 
     @Override
-    public void init(CompilerPluginContext compilerPluginContext) {
-        compilerPluginContext.addCodeAnalyzer(new PersistCodeAnalyzer());
-        compilerPluginContext.addCodeModifier(new PersistCodeModifier());
+    public void init(CodeModifierContext codeModifierContext) {
+        codeModifierContext.addSourceModifierTask(new QueryCodeModifierTask());
     }
+
 }
