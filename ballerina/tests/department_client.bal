@@ -31,8 +31,8 @@ client class DepartmentClient {
     private SQLClient persistClient;
 
     public function init() returns error? {
-        mysql:Client dbClient = check new (host = HOST, user = USER, password = PASSWORD, database = DATABASE, port = PORT);
-        self.persistClient = check new (self.entityName, self.tableName, self.fieldMetadata, self.keyFields, dbClient);
+        mysql:Client dbClient = check new (host = host, user = user, password = password, database = database, port = port);
+        self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata);
     }
 
     remote function create(Department value) returns [string, int]|error? {
@@ -40,8 +40,8 @@ client class DepartmentClient {
         return [value.hospitalCode, value.departmentId];
     }
 
-    remote function readByKey(string hospitalCode, int departmentId) returns Department|error {
-        return (check self.persistClient.runReadByKeyQuery(Department, hospitalCode, departmentId)).cloneWithType(Department);
+    remote function readByKey(record{|string hospitalCode; int departmentId;|} key) returns Department|error {
+        return (check self.persistClient.runReadByKeyQuery(Department, key)).cloneWithType(Department);
     }
 
     remote function read(map<anydata>? filter = ()) returns stream<Department, error?>|error {

@@ -21,3 +21,18 @@ function stringToParameterizedQuery(string queryStr) returns sql:ParameterizedQu
     query.strings = [queryStr];
     return query;
 }
+
+function flattenRecord(record {} r) returns record {} {
+    record {} returnRecord = {};
+    foreach string key in r.keys() {
+        if r[key] is record {} {
+            record {} innerFlattenedRecord = flattenRecord(<record {}> r[key]);
+            foreach string innerKey in innerFlattenedRecord.keys() {
+                returnRecord[key + "." + innerKey] = innerFlattenedRecord[innerKey];
+            }
+        } else {
+            returnRecord[key] = r[key];
+        }
+    }
+    return returnRecord;
+}

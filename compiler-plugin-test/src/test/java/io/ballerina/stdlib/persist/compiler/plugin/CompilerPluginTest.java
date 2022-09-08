@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.stdlib.persist.compiler;
+package io.ballerina.stdlib.persist.compiler.plugin;
 
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Package;
@@ -24,6 +24,7 @@ import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
+import io.ballerina.stdlib.persist.compiler.DiagnosticsCodes;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
@@ -65,16 +66,6 @@ public class CompilerPluginTest {
     }
 
     @Test
-    public void testEntityAnnotation2() {
-        DiagnosticResult diagnosticResult = loadPackage("package_02").getCompilation().diagnosticResult();
-        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
-                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
-                collect(Collectors.toList());
-        assertValues(errorDiagnosticsList, "invalid key: the given key is not in the record definition",
-                DiagnosticsCodes.PERSIST_102.getCode(), 2);
-    }
-
-    @Test
     public void testPrimaryKeyMarkReadOnly() {
         DiagnosticResult diagnosticResult = loadPackage("package_03").getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
@@ -106,13 +97,13 @@ public class CompilerPluginTest {
     }
 
     @Test
-    public void testRelationAnnotation1() {
+    public void testRelationAnnotationMismatchReference() {
         DiagnosticResult diagnosticResult = loadPackage("package_06").getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
                 filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
                 collect(Collectors.toList());
-        assertValues(errorDiagnosticsList, "invalid key: the given key is not in the record definition",
-                DiagnosticsCodes.PERSIST_102.getCode(), 1);
+        assertValues(errorDiagnosticsList, "mismatch reference: the given key count is mismatched " +
+                "with reference key count", DiagnosticsCodes.PERSIST_109.getCode(), 1);
     }
 
     @Test
@@ -161,7 +152,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testRecordType() {
-        DiagnosticResult diagnosticResult = loadPackage("package_16").getCompilation().diagnosticResult();
+        DiagnosticResult diagnosticResult = loadPackage("package_11").getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
                 filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
                 collect(Collectors.toList());
@@ -172,7 +163,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testRecordType1() {
-        DiagnosticResult diagnosticResult = loadPackage("package_17").getCompilation().diagnosticResult();
+        DiagnosticResult diagnosticResult = loadPackage("package_12").getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
                 filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
                 collect(Collectors.toList());

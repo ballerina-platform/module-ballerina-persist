@@ -1,4 +1,3 @@
-
 <!--
   ~ Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
@@ -22,7 +21,8 @@
 <suite name="BallerinaPersistCompilerPluginTests">
     <test name="UnitTests">
         <classes>
-            <class name="io.ballerina.stdlib.persist.compiler.CompilerPluginTest"/>
+            <class name="io.ballerina.stdlib.persist.compiler.plugin.CompilerPluginTest"/>
+            <class name="io.ballerina.stdlib.persist.compiler.script.CompilerPluginTest"/>
         </classes>
     </test>
 </suite>

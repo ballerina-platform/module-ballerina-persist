@@ -54,11 +54,21 @@ client class MedicalNeedClient {
     public function init() returns error? {
         mysql:Client dbClient = check new (host = "HOST", user = "USER", password = "PASSWORD", database = "DATABASE",
         port = 4321);
-        self.persistClient = check new (self.entityName, self.tableName, self.fieldMetadata, self.keyFields, dbClient);
+        self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata);
     }
 
-    remote function create(MedicalNeed value) returns int|error? {
-        sql:ExecutionResult result = check self.persistClient.runInsertQuery(value);
-        return <int>result.lastInsertId;
-    }
+    remote function create(MedicalNeed value) returns MedicalNeed|error? {
+            sql:ExecutionResult result = check self.persistClient.runInsertQuery(value);
+            if result.lastInsertId is () {
+                return value;
+            }
+            return {
+                needId: <int>result.lastInsertId,
+                itemId: value.itemId,
+                beneficiaryId: value.beneficiaryId,
+                period: value.period,
+                urgency: value.urgency,
+                quantity: value.quantity
+            };
+        }
 }
