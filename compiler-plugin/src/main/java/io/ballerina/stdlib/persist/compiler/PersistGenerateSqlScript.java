@@ -282,7 +282,7 @@ public class PersistGenerateSqlScript {
                                     update)));
                     i++;
                 }
-            } else { // todo this logic is used to get the missing foreign key and reference key
+            } else {
                 List<List<String>> referenceInfo;
                 String referenceKey;
                 String foreignKeyType;
