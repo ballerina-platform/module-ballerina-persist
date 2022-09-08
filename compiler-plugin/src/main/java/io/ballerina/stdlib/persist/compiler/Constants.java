@@ -73,4 +73,9 @@ public class Constants {
         public static final String TIME_STAMP = "TIMESTAMP";
         public static final String DATE_TIME = "DATETIME";
     }
+
+    public static final String READ_FUNCTION = "read";
+    public static final String EXECUTE_FUNCTION = "execute";
+    public static final String BACKTICK = "`";
+
 }

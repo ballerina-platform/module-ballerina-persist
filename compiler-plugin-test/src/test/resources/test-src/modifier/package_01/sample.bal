@@ -46,6 +46,34 @@ public function main() returns error? {
 
     io:println(mns);
 
+    if mns !is () {
+        check from record {int needId; string period; int quantity;} medicalNeed in mns
+            do {
+                io:println(medicalNeed);
+            };
+    }
+
+    record {int needId; string period; int quantity;}[]? mnsFiltered =
+    check from entity:MedicalNeed medicalNeed in mnClient->read({quantity: 5})
+        where medicalNeed.quantity > 5
+        limit 5
+        order by medicalNeed.quantity descending
+        select {
+            needId: medicalNeed.needId,
+            period: medicalNeed.period,
+            quantity: medicalNeed.quantity
+        };
+    io:println(mnsFiltered);
+
+    record {int needId; string period; int quantity;}[]? mnsUnfiltered =
+    check from entity:MedicalNeed medicalNeed in mnClient->read()
+        select {
+            needId: medicalNeed.needId,
+            period: medicalNeed.period,
+            quantity: medicalNeed.quantity
+        };
+    io:println(mnsUnfiltered);
+
     entity:MedicalNeed[]? mns1 = check from entity:MedicalNeed medicalNeed in mnClient->execute(`quantity > ${quantityMinValue}`)
         select medicalNeed;
     io:println(mns1);

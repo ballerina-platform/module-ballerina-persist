@@ -31,6 +31,7 @@ import org.testng.annotations.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 /**
  * Tests the persist compiler plugin.
@@ -67,8 +68,9 @@ public class CodeModifierTest {
             Document document = newPackage.getDefaultModule().document(documentId);
 
             if (document.name().equals("sample.bal")) {
-                String specificFunction =
-                        "check from entity:MedicalNeed medicalNeed in mnClient->read()\n" +
+                // Positive test
+                String modifiedFunction =
+                        "check from entity:MedicalNeed medicalNeed in mnClient->execute(``)\n" +
                         "        where medicalNeed.quantity > 5\n" +
                         "        limit 5\n" +
                         "        order by medicalNeed.quantity descending\n" +
@@ -77,7 +79,23 @@ public class CodeModifierTest {
                         "            period: medicalNeed.period,\n" +
                         "            quantity: medicalNeed.quantity\n" +
                         "        };";
-                Assert.assertTrue(document.syntaxTree().toSourceCode().contains(specificFunction));
+                Assert.assertTrue(document.syntaxTree().toSourceCode().contains(modifiedFunction));
+
+                // Negative Tests
+                List<String> unmodifiedFunction = List.of(
+                        "from record {int needId; string period; int quantity;} medicalNeed in mns",
+                        "from entity:MedicalNeed medicalNeed in mnClient->read({quantity: 5})",
+                        "from entity:MedicalNeed medicalNeed in mnClient->execute(`quantity > ${quantityMinValue}`)",
+                        "check from entity:MedicalNeed medicalNeed in mnClient->read()\n" +
+                                "        select {\n" +
+                                "            needId: medicalNeed.needId,\n" +
+                                "            period: medicalNeed.period,\n" +
+                                "            quantity: medicalNeed.quantity\n" +
+                                "        };"
+                );
+
+                unmodifiedFunction.forEach(codeSnippet ->
+                        Assert.assertTrue(document.syntaxTree().toSourceCode().contains(codeSnippet), codeSnippet));
             }
         }
     }
