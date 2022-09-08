@@ -14,29 +14,27 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/time;
 import ballerina/persist;
+import ballerina/time;
 
 @persist:Entity {
-    key: ["needId"],
-    uniqueConstraints: [["itemId", "needId"]],
-    tableName: "EMPLOYEE"
+    key: ["needId"]
 }
-public type MedicalNeed record {|
-    @persist:AutoIncrement {increment: 1, startValue: 1}
-    readonly int needId;
-    int itemId;
+type Medical_Need2 record {|
+    @persist:AutoIncrement
+    readonly int needId = 12;
     int beneficiaryId;
-    time:Civil period;
-    string urgency;
+    time:Civil period?;
+    string urgency?;
     int quantity;
-    @persist:Relation {keyColumns: ["userId", "itemId"], reference: ["id"], cascadeDelete: true}
-    Item item?;
 |};
 
-@persist:Entity {key: ["id"]}
-public type Item record {
-    @persist:AutoIncrement
-    readonly int id = -1;
+public type Medicine2 record {
+    int id;
+    string name;
+};
+
+public type Medicine1 record {
+    int id;
     string name;
 };

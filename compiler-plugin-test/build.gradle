@@ -34,7 +34,6 @@ dependencies {
     testImplementation group: 'org.ballerinalang', name: 'ballerina-tools-api', version: "${ballerinaLangVersion}"
     testImplementation group: 'org.ballerinalang', name: 'ballerina-parser', version: "${ballerinaLangVersion}"
     implementation group: 'org.testng', name: 'testng', version: "${testngVersion}"
-
 }
 
 tasks.withType(JavaCompile) {
@@ -62,7 +61,7 @@ test {
     }
 }
 
-spotbugsTest {
+spotbugsMain {
     effort "max"
     reportLevel "low"
     reportsDir = file("$project.buildDir/reports/spotbugs")

@@ -21,7 +21,7 @@ plugins {
     id 'com.github.spotbugs'
 }
 
-description = 'Ballerina - persist Compiler Plugin'
+description = 'Ballerina - Persist Compiler Plugin'
 
 dependencies {
     checkstyle project(':checkstyle')

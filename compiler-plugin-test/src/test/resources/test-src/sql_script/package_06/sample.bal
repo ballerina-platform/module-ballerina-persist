@@ -19,24 +19,50 @@ import ballerina/persist;
 
 @persist:Entity {
     key: ["needId"],
-    uniqueConstraints: [["itemId", "needId"]],
-    tableName: "EMPLOYEE"
+    uniqueConstraints: [["beneficiaryId", "urgency"]],
+    tableName: "MedicalNeeds"
 }
 public type MedicalNeed record {|
-    @persist:AutoIncrement {increment: 1, startValue: 1}
-    readonly int needId;
-    int itemId;
+    @persist:AutoIncrement
+    readonly int needId = 1;
     int beneficiaryId;
     time:Civil period;
     string urgency;
     int quantity;
-    @persist:Relation {keyColumns: ["userId", "itemId"], reference: ["id"], cascadeDelete: true}
+    @persist:Relation {keyColumns: ["itemId" , "name"], reference: ["id" , "name"], cascadeDelete: true}
     Item item?;
+    @persist:Relation {keyColumns: ["itemId1" , "name1"], reference: ["id" , "name"], cascadeDelete: true}
+    Item1 item1?;
 |};
 
-@persist:Entity {key: ["id"]}
+@persist:Entity {
+    key: ["id"],
+    uniqueConstraints: [["name"]]
+}
 public type Item record {
     @persist:AutoIncrement
-    readonly int id = -1;
+    readonly int id = 3;
+    string name;
+};
+
+@persist:Entity {
+    key: ["id"],
+    uniqueConstraints: [["name"]]
+}
+public type Item1 record {
+    @persist:AutoIncrement
+    readonly int id = 5;
+    string name;
+    @persist:Relation {keyColumns: ["itemId" , "itemName"], reference: ["id" , "name"], cascadeDelete: true}
+    Item2 item?;
+};
+
+@persist:Entity {
+    key: ["id"],
+    uniqueConstraints: [["name"]]
+}
+public type Item2 record {
+    @persist:AutoIncrement
+    readonly int id = 2;
     string name;
 };

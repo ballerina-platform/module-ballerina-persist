@@ -19,17 +19,21 @@ import ballerinax/mysql;
 import ballerina/time;
 import ballerina/persist;
 
+public type Item1 record {
+    readonly int id = -1;
+    string name;
+};
+
 public type MedicalNeed record {|
     readonly int needId = 1;
-    int|string itemId;
+    int itemId;
     int beneficiaryId;
     time:Civil period;
     string urgency;
     int quantity;
-    Item item?;
 |};
 
-public type Item record {
+public type Item2 record {
     readonly int id = -1;
     string name;
 };
@@ -58,17 +62,17 @@ client class MedicalNeedClient {
     }
 
     remote function create(MedicalNeed value) returns MedicalNeed|error? {
-            sql:ExecutionResult result = check self.persistClient.runInsertQuery(value);
-            if result.lastInsertId is () {
-                return value;
-            }
-            return {
-                needId: <int>result.lastInsertId,
-                itemId: value.itemId,
-                beneficiaryId: value.beneficiaryId,
-                period: value.period,
-                urgency: value.urgency,
-                quantity: value.quantity
-            };
+        sql:ExecutionResult result = check self.persistClient.runInsertQuery(value);
+        if result.lastInsertId is () {
+            return value;
         }
+        return {
+            needId: <int>result.lastInsertId,
+            itemId: value.itemId,
+            beneficiaryId: value.beneficiaryId,
+            period: value.period,
+            urgency: value.urgency,
+            quantity: value.quantity
+        };
+    }
 }
