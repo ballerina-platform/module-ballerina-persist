@@ -139,7 +139,8 @@ public class PersistGenerateSqlScript {
                         autoIncrement = Constants.AUTO_INCREMENT_WITH_SPACE;
                         startValue = processAutoIncrementAnnotations(annotationNode, startValue, ctx);
                         if (!startValue.isEmpty() && Integer.parseInt(startValue) > 1) {
-                            end = MessageFormat.format("{0}) {1} = {2};", NEW_LINE, autoIncrement, startValue);
+                            end = MessageFormat.format("{0}){1} = {2};", NEW_LINE,
+                                    Constants.AUTO_INCREMENT_WITH_TAB, startValue);
                         }
                     } else if (annotationName.equals(Constants.RELATION)) {
                         updateReferenceTable(tableName, type, referenceTables);
@@ -149,14 +150,14 @@ public class PersistGenerateSqlScript {
             }
             fieldName = eliminateSingleQuote(fieldName);
             if (relationScript.isEmpty()) {
-                sqlScript = MessageFormat.format("{0} {1}{2}{3} {4}{5}{6},", sqlScript, NEW_LINE, TAB,
+                sqlScript = MessageFormat.format("{0}{1}{2}{3} {4}{5}{6},", sqlScript, NEW_LINE, TAB,
                         fieldName, type, notNull, autoIncrement);
             } else {
                 sqlScript = sqlScript.concat(relationScript);
             }
         }
         sqlScript = sqlScript + addPrimaryKeyUniqueKey(primaryKeys, uniqueConstraints);
-        return MessageFormat.format("{0} {1}", sqlScript.substring(0, sqlScript.length() - 1) , end);
+        return MessageFormat.format("{0}{1}", sqlScript.substring(0, sqlScript.length() - 1) , end);
     }
 
     private static void updateReferenceTable(String tableName, String referenceTableName,
@@ -193,7 +194,7 @@ public class PersistGenerateSqlScript {
             for (String unique : uniqueConstraint) {
                 uniqueKeyScript = MessageFormat.format(stringFormat, uniqueKeyScript, unique);
             }
-            if (!uniqueKeyScript.equals(PRIMARY_KEY_START_SCRIPT)) {
+            if (!uniqueKeyScript.equals(UNIQUE_KEY_START_SCRIPT)) {
                 script = script.concat(uniqueKeyScript.substring(0, uniqueKeyScript.length() - 2).concat("),"));
             }
             uniqueKeyScript = UNIQUE_KEY_START_SCRIPT;
@@ -322,7 +323,7 @@ public class PersistGenerateSqlScript {
     private static String constructForeignKeyScript(String fieldName, String fieldType, String tableName,
                                                     String referenceTableName,
                                                     String value, String referenceKey, String delete, String update) {
-        return MessageFormat.format("{10}{11}{0} {1}, {10}{11}CONSTRAINT " +
+        return MessageFormat.format("{10}{11}{0} {1},{10}{11}CONSTRAINT " +
                         "FK_{2}_{3}_{4} FOREIGN KEY({5}) REFERENCES {6}({7}){8}{9},", fieldName, getType(fieldType),
                 tableName.toUpperCase(Locale.ENGLISH), referenceTableName.toUpperCase(Locale.ENGLISH), value, fieldName,
                 referenceTableName, referenceKey, delete, update, NEW_LINE, TAB);

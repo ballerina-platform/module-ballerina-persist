@@ -40,6 +40,7 @@ public class Constants {
     public static final String ON_UPDATE_CASCADE = " ON UPDATE CASCADE";
     public static final String NOT_NULL = " NOT NULL";
     public static final String AUTO_INCREMENT_WITH_SPACE = " AUTO_INCREMENT";
+    public static final String AUTO_INCREMENT_WITH_TAB = "\tAUTO_INCREMENT";
 
     /**
      * Constants related to Ballerina types.
