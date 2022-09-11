@@ -79,7 +79,6 @@ public class Constants {
     public static final String BACKTICK = "`";
     public static final String SPACE = " ";
     public static final String ASCENDING = "ascending";
-    public static final String DECENDING = "descending";
 
     /**
      * SQL keywords used to construct the query.

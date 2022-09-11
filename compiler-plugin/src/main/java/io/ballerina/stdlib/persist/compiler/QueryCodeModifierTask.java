@@ -23,10 +23,12 @@ import io.ballerina.compiler.syntax.tree.BindingPatternNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.FieldBindingPatternVarnameNode;
 import io.ballerina.compiler.syntax.tree.FromClauseNode;
 import io.ballerina.compiler.syntax.tree.IntermediateClauseNode;
 import io.ballerina.compiler.syntax.tree.LimitClauseNode;
 import io.ballerina.compiler.syntax.tree.LiteralValueToken;
+import io.ballerina.compiler.syntax.tree.MappingBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeFactory;
 import io.ballerina.compiler.syntax.tree.NodeList;
@@ -58,7 +60,6 @@ import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createEmptyM
 import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createSeparatedNodeList;
 import static io.ballerina.stdlib.persist.compiler.Constants.ASCENDING;
 import static io.ballerina.stdlib.persist.compiler.Constants.BACKTICK;
-import static io.ballerina.stdlib.persist.compiler.Constants.DECENDING;
 import static io.ballerina.stdlib.persist.compiler.Constants.EXECUTE_FUNCTION;
 import static io.ballerina.stdlib.persist.compiler.Constants.READ_FUNCTION;
 import static io.ballerina.stdlib.persist.compiler.Constants.SPACE;
@@ -258,6 +259,10 @@ public class QueryCodeModifierTask implements ModifierTask<SourceModifierContext
                 ExpressionNode expression = orderKeyNodes.get(i).expression();
                 if (expression instanceof FieldAccessExpressionNode) {
                     FieldAccessExpressionNode fieldAccessNode = (FieldAccessExpressionNode) expression;
+                    if (!(bindingPatternNode instanceof CaptureBindingPatternNode)) {
+                        // If this is not capture pattern there is compilation error
+                        return null;
+                    }
                     String bindingVariableName = ((CaptureBindingPatternNode) bindingPatternNode).variableName().text();
                     String recordName = ((SimpleNameReferenceNode) fieldAccessNode.expression()).name().text();
                     if (!bindingVariableName.equals(recordName)) {
@@ -267,8 +272,24 @@ public class QueryCodeModifierTask implements ModifierTask<SourceModifierContext
                     String fieldName = ((SimpleNameReferenceNode) fieldAccessNode.fieldName()).name().text();
                     orderByClause.append(fieldName);
                 } else if (expression instanceof SimpleNameReferenceNode) {
-                    // todo Validate column name is valid
                     String fieldName = ((SimpleNameReferenceNode) expression).name().text();
+
+                    if (!(bindingPatternNode instanceof MappingBindingPatternNode)) {
+                        // If this is not mapping pattern there is compilation error
+                        return null;
+                    }
+                    boolean isCorrectField = false;
+                    SeparatedNodeList<BindingPatternNode> bindingPatternNodes =
+                            ((MappingBindingPatternNode) bindingPatternNode).fieldBindingPatterns();
+                    for (BindingPatternNode patternNode : bindingPatternNodes) {
+                        String field = ((FieldBindingPatternVarnameNode) patternNode).variableName().name().text();
+                        if (fieldName.equals(field)) {
+                            isCorrectField = true;
+                        }
+                    }
+                    if (!isCorrectField) {
+                        return null;
+                    }
                     orderByClause.append(fieldName);
                 } else {
                     // Persistent client does not support order by using parameters
@@ -278,12 +299,10 @@ public class QueryCodeModifierTask implements ModifierTask<SourceModifierContext
                     Token orderDirection = orderKeyNodes.get(i).orderDirection().get();
                     if (orderDirection.text().equals(ASCENDING)) {
                         orderByClause.append(SPACE).append(ORDER_BY_ASCENDING);
-                    } else if (orderDirection.text().equals(DECENDING)) {
-                        orderByClause.append(SPACE).append(ORDER_BY_DECENDING);
                     } else {
-                        // The ascending/decending keyword are not validated at this point, we can get different token
-                        return null;
+                        orderByClause.append(SPACE).append(ORDER_BY_DECENDING);
                     }
+                    // Any typos are recognised as order by direction missing
                 }
                 orderByClause.append(SPACE);
             }
