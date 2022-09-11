@@ -84,11 +84,11 @@ public class Constants {
      * SQL keywords used to construct the query.
      */
     public static final class SQLKeyWords {
+        public static final String WHERE = "WHERE";
         public static final String LIMIT = "LIMIT";
         public static final String ORDERBY = "ORDER BY";
         public static final String ORDER_BY_ASCENDING = "ASC";
         public static final String ORDER_BY_DECENDING = "DESC";
-
     }
 
 }

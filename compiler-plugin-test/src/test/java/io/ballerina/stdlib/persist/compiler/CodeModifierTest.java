@@ -71,8 +71,7 @@ public class CodeModifierTest {
                 // Positive test
                 String modifiedFunction =
                         "check from entity:MedicalNeed medicalNeed in mnClient->execute" +
-                                "(`ORDER BY quantity DESC LIMIT 5`)\n" +
-                                "        where medicalNeed.quantity > 5\n" +
+                                "(`WHERE quantity > 5 ORDER BY quantity DESC LIMIT 5`)\n" +
                                 "        select {\n" +
                                 "            needId: medicalNeed.needId,\n" +
                                 "            period: medicalNeed.period,\n" +

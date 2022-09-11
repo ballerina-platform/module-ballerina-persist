@@ -52,6 +52,8 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.plugins.ModifierTask;
 import io.ballerina.projects.plugins.SourceModifierContext;
+import io.ballerina.stdlib.persist.compiler.expression.ExpressionBuilder;
+import io.ballerina.stdlib.persist.compiler.expression.ExpressionVisitor;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -134,6 +136,15 @@ public class QueryCodeModifierTask implements ModifierTask<SourceModifierContext
             }
 
             StringBuilder filterQuery = new StringBuilder();
+            if (isWhereClauseUsed) {
+                StringBuilder whereClause = processWhereClause(((WhereClauseNode) whereClauseNode.get(0)));
+                if (whereClause != null) {
+                    filterQuery.append(whereClause);
+                } else {
+                    // If we cannot process where clause, query syntax is left as it is
+                    return queryExpressionNode;
+                }
+            }
             if (isOrderByClauseUsed) {
                 StringBuilder orderByClause = processOrderByClause(((OrderByClauseNode) orderByClauseNode.get(0)),
                         fromClauseNode.typedBindingPattern().bindingPattern());
@@ -196,25 +207,26 @@ public class QueryCodeModifierTask implements ModifierTask<SourceModifierContext
             );
 
             NodeList<IntermediateClauseNode> processedClauses = intermediateClauseNodes;
-            if (isOrderByClauseUsed) {
-                int orderByClauseIndex = 0;
-                for (int i = 0; i < intermediateClauseNodes.size(); i++) {
-                    if (intermediateClauseNodes.get(i) instanceof OrderByClauseNode) {
-                        orderByClauseIndex = i;
-                        break;
+            if (isWhereClauseUsed) {
+                for (int i = 0; i < processedClauses.size(); i++) {
+                    if (processedClauses.get(i) instanceof WhereClauseNode) {
+                        processedClauses = processedClauses.remove(i);
                     }
                 }
-                processedClauses = processedClauses.remove(orderByClauseIndex);
+            }
+            if (isOrderByClauseUsed) {
+                for (int i = 0; i < processedClauses.size(); i++) {
+                    if (processedClauses.get(i) instanceof OrderByClauseNode) {
+                        processedClauses = processedClauses.remove(i);
+                    }
+                }
             }
             if (isLimitClauseUsed) {
-                int limitByClauseIndex = 0;
-                for (int i = 0; i < intermediateClauseNodes.size(); i++) {
-                    if (intermediateClauseNodes.get(i) instanceof LimitClauseNode) {
-                        limitByClauseIndex = i;
-                        break;
+                for (int i = 0; i < processedClauses.size(); i++) {
+                    if (processedClauses.get(i) instanceof LimitClauseNode) {
+                        processedClauses = processedClauses.remove(i);
                     }
                 }
-                processedClauses = processedClauses.remove(limitByClauseIndex);
             }
 
             QueryPipelineNode updatedQueryPipeline = queryPipelineNode.modify(
@@ -246,6 +258,17 @@ public class QueryCodeModifierTask implements ModifierTask<SourceModifierContext
                 }
             }
             return false;
+        }
+
+        private StringBuilder processWhereClause(WhereClauseNode whereClauseNode) {
+            try {
+                ExpressionBuilder expressionBuilder = new ExpressionBuilder(whereClauseNode.expression());
+                ExpressionVisitor expressionVisitor = new ExpressionVisitor();
+                expressionBuilder.build(expressionVisitor);
+                return expressionVisitor.getExpression();
+            } catch (Exception e) {
+                return null;
+            }
         }
 
         private StringBuilder processOrderByClause(OrderByClauseNode orderByClauseNode,
