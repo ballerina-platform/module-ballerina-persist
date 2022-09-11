@@ -70,9 +70,8 @@ public class CodeModifierTest {
             if (document.name().equals("sample.bal")) {
                 // Positive test
                 String modifiedFunction =
-                        "check from entity:MedicalNeed medicalNeed in mnClient->execute(``)\n" +
+                        "check from entity:MedicalNeed medicalNeed in mnClient->execute(`LIMIT 5`)\n" +
                         "        where medicalNeed.quantity > 5\n" +
-                        "        limit 5\n" +
                         "        order by medicalNeed.quantity descending\n" +
                         "        select {\n" +
                         "            needId: medicalNeed.needId,\n" +

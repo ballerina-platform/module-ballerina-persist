@@ -18,6 +18,8 @@
 
 package io.ballerina.stdlib.persist.compiler;
 
+import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FromClauseNode;
 import io.ballerina.compiler.syntax.tree.IntermediateClauseNode;
 import io.ballerina.compiler.syntax.tree.LimitClauseNode;
@@ -50,6 +52,7 @@ import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createSepara
 import static io.ballerina.stdlib.persist.compiler.Constants.BACKTICK;
 import static io.ballerina.stdlib.persist.compiler.Constants.EXECUTE_FUNCTION;
 import static io.ballerina.stdlib.persist.compiler.Constants.READ_FUNCTION;
+import static io.ballerina.stdlib.persist.compiler.Constants.SQLKeyWords.LIMIT;
 
 /**
  * Code Modifier task for stream invoking.
@@ -96,20 +99,35 @@ public class QueryCodeModifierTask implements ModifierTask<SourceModifierContext
 
             // Check if the query contains where/ orderby / limit clause
             NodeList<IntermediateClauseNode> intermediateClauseNodes = queryPipelineNode.intermediateClauses();
-            List<IntermediateClauseNode> whereClauseNodes = intermediateClauseNodes.stream()
+            List<IntermediateClauseNode> whereClauseNode = intermediateClauseNodes.stream()
                     .filter((node) -> node instanceof WhereClauseNode)
                     .collect(Collectors.toList());
 
-            List<IntermediateClauseNode> orderByClause = intermediateClauseNodes.stream()
+            List<IntermediateClauseNode> orderByClauseNode = intermediateClauseNodes.stream()
                     .filter((node) -> node instanceof OrderByClauseNode)
                     .collect(Collectors.toList());
 
-            List<IntermediateClauseNode> limitClause = intermediateClauseNodes.stream()
+            List<IntermediateClauseNode> limitClauseNode = intermediateClauseNodes.stream()
                     .filter((node) -> node instanceof LimitClauseNode)
                     .collect(Collectors.toList());
 
-            if (whereClauseNodes.size() == 0 && orderByClause.size() == 0 && limitClause.size() == 0) {
+            boolean isWhereClauseUsed = whereClauseNode.size() != 0;
+            boolean isOrderByClauseUsed = orderByClauseNode.size() != 0;
+            boolean isLimitClauseUsed = limitClauseNode.size() != 0;
+
+            if (!isWhereClauseUsed && !isOrderByClauseUsed && !isLimitClauseUsed) {
                 return queryExpressionNode;
+            }
+
+            StringBuilder filterQuery = new StringBuilder();
+            if (isLimitClauseUsed) {
+                StringBuilder limitClause = processLimitClause(((LimitClauseNode) limitClauseNode.get(0)));
+                if (limitClause.length() != 0) {
+                    filterQuery.append(limitClause);
+                } else {
+                    // If we cannot process limit clause, query syntax is left as it is
+                    return queryExpressionNode;
+                }
             }
 
             LiteralValueToken backTickLiteral = NodeFactory.createLiteralValueToken(
@@ -119,7 +137,7 @@ public class QueryCodeModifierTask implements ModifierTask<SourceModifierContext
                     createEmptyMinutiaeList());
             LiteralValueToken emptyStringLiteral = NodeFactory.createLiteralValueToken(
                     SyntaxKind.STRING_LITERAL,
-                    "",
+                    filterQuery.toString(),
                     createEmptyMinutiaeList(),
                     createEmptyMinutiaeList());
             PositionalArgumentNode firstArgument = NodeFactory.createPositionalArgumentNode(
@@ -153,9 +171,14 @@ public class QueryCodeModifierTask implements ModifierTask<SourceModifierContext
                     )
             );
 
+            NodeList<IntermediateClauseNode> processedClauses = intermediateClauseNodes;
+            if (isLimitClauseUsed) {
+                processedClauses = processedClauses.remove(limitClauseNode.get(0));
+            }
+
             QueryPipelineNode updatedQueryPipeline = queryPipelineNode.modify(
                     modifiedFromClause,
-                    intermediateClauseNodes
+                    processedClauses
             );
 
             return NodeFactory.createQueryExpressionNode(
@@ -182,6 +205,17 @@ public class QueryCodeModifierTask implements ModifierTask<SourceModifierContext
                 }
             }
             return false;
+        }
+
+        private StringBuilder processLimitClause(LimitClauseNode limitClauseNode) {
+            StringBuilder limitClause = new StringBuilder();
+            ExpressionNode limitByExpression = limitClauseNode.expression();
+            if (limitByExpression instanceof BasicLiteralNode &&
+                    limitByExpression.kind() == SyntaxKind.NUMERIC_LITERAL) {
+                limitClause.append(LIMIT)
+                        .append(((BasicLiteralNode) limitByExpression).literalToken().text());
+            }
+            return limitClause;
         }
     }
 }

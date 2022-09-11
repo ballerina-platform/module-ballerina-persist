@@ -78,4 +78,12 @@ public class Constants {
     public static final String EXECUTE_FUNCTION = "execute";
     public static final String BACKTICK = "`";
 
+    /**
+     * SQL keywords used to construct the query.
+     */
+    public static final class SQLKeyWords {
+        public static final String LIMIT = "LIMIT ";
+
+    }
+
 }
