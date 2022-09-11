@@ -72,12 +72,12 @@ public class CodeModifierTest {
                 String modifiedFunction =
                         "check from entity:MedicalNeed medicalNeed in mnClient->execute" +
                                 "(`ORDER BY quantity DESC LIMIT 5`)\n" +
-                        "        where medicalNeed.quantity > 5\n" +
-                        "        select {\n" +
-                        "            needId: medicalNeed.needId,\n" +
-                        "            period: medicalNeed.period,\n" +
-                        "            quantity: medicalNeed.quantity\n" +
-                        "        };";
+                                "        where medicalNeed.quantity > 5\n" +
+                                "        select {\n" +
+                                "            needId: medicalNeed.needId,\n" +
+                                "            period: medicalNeed.period,\n" +
+                                "            quantity: medicalNeed.quantity\n" +
+                                "        };";
                 Assert.assertTrue(document.syntaxTree().toSourceCode().contains(modifiedFunction));
 
                 // Negative Tests
@@ -117,12 +117,12 @@ public class CodeModifierTest {
             if (document.name().equals("sample.bal")) {
                 // Positive test
                 String modifiedFunction =
-                       "check from entity:MedicalNeed medicalNeed in mnClient->execute(`LIMIT 5`)\n" +
-                               "        select {\n" +
-                               "            needId: medicalNeed.needId,\n" +
-                               "            period: medicalNeed.period,\n" +
-                               "            quantity: medicalNeed.quantity\n" +
-                               "        };";
+                        "check from entity:MedicalNeed medicalNeed in mnClient->execute(`LIMIT 5`)\n" +
+                                "        select {\n" +
+                                "            needId: medicalNeed.needId,\n" +
+                                "            period: medicalNeed.period,\n" +
+                                "            quantity: medicalNeed.quantity\n" +
+                                "        };";
                 Assert.assertTrue(document.syntaxTree().toSourceCode().contains(modifiedFunction));
 
                 // Negative Tests
