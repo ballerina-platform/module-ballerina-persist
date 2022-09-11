@@ -98,5 +98,54 @@ public class CodeModifierTest {
             }
         }
     }
+
+    @Test
+    public void limitClauseNegativeTest() {
+
+        Package currentPackage = loadPackage("package_02");
+
+        //  Running the compilation
+        currentPackage.getCompilation();
+
+        // Running the code generation
+        CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
+        Package newPackage = codeModifierResult.updatedPackage().orElse(currentPackage);
+
+        for (DocumentId documentId : newPackage.getDefaultModule().documentIds()) {
+            Document document = newPackage.getDefaultModule().document(documentId);
+
+            if (document.name().equals("sample.bal")) {
+                // Positive test
+                String modifiedFunction =
+                       "check from entity:MedicalNeed medicalNeed in mnClient->execute(`LIMIT 5`)\n" +
+                               "        select {\n" +
+                               "            needId: medicalNeed.needId,\n" +
+                               "            period: medicalNeed.period,\n" +
+                               "            quantity: medicalNeed.quantity\n" +
+                               "        };";
+                Assert.assertTrue(document.syntaxTree().toSourceCode().contains(modifiedFunction));
+
+                // Negative Tests
+                List<String> unmodifiedFunction = List.of(
+                        "check from entity:MedicalNeed medicalNeed in mnClient->read()\n" +
+                                "        limit quantityMinValue\n" +
+                                "        select {\n" +
+                                "            needId: medicalNeed.needId,\n" +
+                                "            period: medicalNeed.period,\n" +
+                                "            quantity: medicalNeed.quantity\n" +
+                                "        };",
+                        "check from entity:MedicalNeed medicalNeed in mnClient->read()\n" +
+                                "        limit \"5\"\n" +
+                                "        select {\n" +
+                                "            needId: medicalNeed.needId,\n" +
+                                "            period: medicalNeed.period,\n" +
+                                "            quantity: medicalNeed.quantity\n" +
+                                "        };"
+                );
+                unmodifiedFunction.forEach(codeSnippet ->
+                        Assert.assertTrue(document.syntaxTree().toSourceCode().contains(codeSnippet), codeSnippet));
+            }
+        }
+    }
 }
 
