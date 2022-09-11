@@ -100,7 +100,7 @@ public class CodeModifierTest {
     }
 
     @Test
-    public void limitClauseNegativeTest() {
+    public void limitClauseTest() {
 
         Package currentPackage = loadPackage("package_02");
 
@@ -140,6 +140,83 @@ public class CodeModifierTest {
                                 "            needId: medicalNeed.needId,\n" +
                                 "            period: medicalNeed.period,\n" +
                                 "            quantity: medicalNeed.quantity\n" +
+                                "        };"
+                );
+                unmodifiedFunction.forEach(codeSnippet ->
+                        Assert.assertTrue(document.syntaxTree().toSourceCode().contains(codeSnippet), codeSnippet));
+            }
+        }
+    }
+
+    @Test
+    public void orderByClauseTest() {
+
+        Package currentPackage = loadPackage("package_03");
+
+        //  Running the compilation
+        currentPackage.getCompilation();
+
+        // Running the code generation
+        CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
+        Package newPackage = codeModifierResult.updatedPackage().orElse(currentPackage);
+
+        for (DocumentId documentId : newPackage.getDefaultModule().documentIds()) {
+            Document document = newPackage.getDefaultModule().document(documentId);
+
+            if (document.name().equals("sample.bal")) {
+                // Positive test
+                List<String> modifiedFunctions = List.of(
+                        "check from entity:MedicalNeed medicalNeed in mnClient->execute(`ORDER BY quantity `)\n" +
+                                "        select {\n" +
+                                "            needId: medicalNeed.needId,\n" +
+                                "            period: medicalNeed.period,\n" +
+                                "            quantity: medicalNeed.quantity\n" +
+                                "        };",
+                        "check from entity:MedicalNeed medicalNeed in mnClient->execute(`ORDER BY quantity ASC `)\n" +
+                                "        select {\n" +
+                                "            needId: medicalNeed.needId,\n" +
+                                "            period: medicalNeed.period,\n" +
+                                "            quantity: medicalNeed.quantity\n" +
+                                "        };",
+                        "check from entity:MedicalNeed medicalNeed in mnClient->execute(`ORDER BY needId DESC `)\n" +
+                                "        select {\n" +
+                                "            needId: medicalNeed.needId,\n" +
+                                "            period: medicalNeed.period,\n" +
+                                "            quantity: medicalNeed.quantity\n" +
+                                "        };",
+                        "check from entity:MedicalNeed medicalNeed in mnClient->execute" +
+                                "(`ORDER BY quantity ASC , needId DESC `)\n" +
+                                "        select {\n" +
+                                "            needId: medicalNeed.needId,\n" +
+                                "            period: medicalNeed.period,\n" +
+                                "            quantity: medicalNeed.quantity\n" +
+                                "        };",
+                        "check from var {needId, period, quantity} in mnClient->execute" +
+                                "(`ORDER BY quantity , needId DESC `)\n" +
+                                "        select {\n" +
+                                "            needId: needId,\n" +
+                                "            period: period,\n" +
+                                "            quantity: quantity\n" +
+                                "        };"
+                );
+                modifiedFunctions.forEach(codeSnippet ->
+                        Assert.assertTrue(document.syntaxTree().toSourceCode().contains(codeSnippet), codeSnippet));
+
+                // Negative Tests
+                List<String> unmodifiedFunction = List.of(
+                        "check from entity:MedicalNeed medicalNeed in mnClient->read()\n" +
+                                "        order by \"medicalNeed.quantity\"\n" +
+                                "        select {\n" +
+                                "            needId: medicalNeed.needId,\n" +
+                                "            period: medicalNeed.period,\n" +
+                                "            quantity: medicalNeed.quantity\n" +
+                                "        };",
+                        "check from entity:MedicalNeed medicalNeed in mnClient->read()\n" +
+                                "        order by quantity\n" +
+                                "        select {\n" +
+                                "            needId: needId,\n" +
+                                "            period: period,\n" +
+                                "            quantity: quantity\n" +
                                 "        };"
                 );
                 unmodifiedFunction.forEach(codeSnippet ->
