@@ -19,7 +19,10 @@
 package io.ballerina.stdlib.persist.compiler;
 
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
+import io.ballerina.compiler.syntax.tree.BindingPatternNode;
+import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FromClauseNode;
 import io.ballerina.compiler.syntax.tree.IntermediateClauseNode;
 import io.ballerina.compiler.syntax.tree.LimitClauseNode;
@@ -28,12 +31,16 @@ import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeFactory;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.OrderByClauseNode;
+import io.ballerina.compiler.syntax.tree.OrderKeyNode;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.QueryPipelineNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
+import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TreeModifier;
 import io.ballerina.compiler.syntax.tree.WhereClauseNode;
 import io.ballerina.projects.Document;
@@ -49,10 +56,16 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createEmptyMinutiaeList;
 import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createSeparatedNodeList;
+import static io.ballerina.stdlib.persist.compiler.Constants.ASCENDING;
 import static io.ballerina.stdlib.persist.compiler.Constants.BACKTICK;
+import static io.ballerina.stdlib.persist.compiler.Constants.DECENDING;
 import static io.ballerina.stdlib.persist.compiler.Constants.EXECUTE_FUNCTION;
 import static io.ballerina.stdlib.persist.compiler.Constants.READ_FUNCTION;
+import static io.ballerina.stdlib.persist.compiler.Constants.SPACE;
 import static io.ballerina.stdlib.persist.compiler.Constants.SQLKeyWords.LIMIT;
+import static io.ballerina.stdlib.persist.compiler.Constants.SQLKeyWords.ORDERBY;
+import static io.ballerina.stdlib.persist.compiler.Constants.SQLKeyWords.ORDER_BY_ASCENDING;
+import static io.ballerina.stdlib.persist.compiler.Constants.SQLKeyWords.ORDER_BY_DECENDING;
 
 /**
  * Code Modifier task for stream invoking.
@@ -120,6 +133,16 @@ public class QueryCodeModifierTask implements ModifierTask<SourceModifierContext
             }
 
             StringBuilder filterQuery = new StringBuilder();
+            if (isOrderByClauseUsed) {
+                StringBuilder orderByClause = processOrderByClause(((OrderByClauseNode) orderByClauseNode.get(0)),
+                        fromClauseNode.typedBindingPattern().bindingPattern());
+                if (orderByClause != null) {
+                    filterQuery.append(orderByClause);
+                } else {
+                    // If we cannot process orderby clause, query syntax is left as it is
+                    return queryExpressionNode;
+                }
+            }
             if (isLimitClauseUsed) {
                 StringBuilder limitClause = processLimitClause(((LimitClauseNode) limitClauseNode.get(0)));
                 if (limitClause.length() != 0) {
@@ -172,8 +195,25 @@ public class QueryCodeModifierTask implements ModifierTask<SourceModifierContext
             );
 
             NodeList<IntermediateClauseNode> processedClauses = intermediateClauseNodes;
+            if (isOrderByClauseUsed) {
+                int orderByClauseIndex = 0;
+                for (int i = 0; i < intermediateClauseNodes.size(); i++) {
+                    if (intermediateClauseNodes.get(i) instanceof OrderByClauseNode) {
+                        orderByClauseIndex = i;
+                        break;
+                    }
+                }
+                processedClauses = processedClauses.remove(orderByClauseIndex);
+            }
             if (isLimitClauseUsed) {
-                processedClauses = processedClauses.remove(limitClauseNode.get(0));
+                int limitByClauseIndex = 0;
+                for (int i = 0; i < intermediateClauseNodes.size(); i++) {
+                    if (intermediateClauseNodes.get(i) instanceof LimitClauseNode) {
+                        limitByClauseIndex = i;
+                        break;
+                    }
+                }
+                processedClauses = processedClauses.remove(limitByClauseIndex);
             }
 
             QueryPipelineNode updatedQueryPipeline = queryPipelineNode.modify(
@@ -207,12 +247,55 @@ public class QueryCodeModifierTask implements ModifierTask<SourceModifierContext
             return false;
         }
 
+        private StringBuilder processOrderByClause(OrderByClauseNode orderByClauseNode,
+                                                   BindingPatternNode bindingPatternNode) {
+            StringBuilder orderByClause = new StringBuilder(ORDERBY).append(SPACE);
+            SeparatedNodeList<OrderKeyNode> orderKeyNodes = orderByClauseNode.orderKey();
+            for (int i = 0; i < orderKeyNodes.size(); i++) {
+                if (i != 0) {
+                    orderByClause.append(", ");
+                }
+                ExpressionNode expression = orderKeyNodes.get(i).expression();
+                if (expression instanceof FieldAccessExpressionNode) {
+                    FieldAccessExpressionNode fieldAccessNode = (FieldAccessExpressionNode) expression;
+                    String bindingVariableName = ((CaptureBindingPatternNode) bindingPatternNode).variableName().text();
+                    String recordName = ((SimpleNameReferenceNode) fieldAccessNode.expression()).name().text();
+                    if (!bindingVariableName.equals(recordName)) {
+                        return null;
+                    }
+                    // todo Validate column name is valid
+                    String fieldName = ((SimpleNameReferenceNode) fieldAccessNode.fieldName()).name().text();
+                    orderByClause.append(fieldName);
+                } else if (expression instanceof SimpleNameReferenceNode) {
+                    // todo Validate column name is valid
+                    String fieldName = ((SimpleNameReferenceNode) expression).name().text();
+                    orderByClause.append(fieldName);
+                } else {
+                    // Persistent client does not support order by using parameters
+                    return null;
+                }
+                if (orderKeyNodes.get(i).orderDirection().isPresent()) {
+                    Token orderDirection = orderKeyNodes.get(i).orderDirection().get();
+                    if (orderDirection.text().equals(ASCENDING)) {
+                        orderByClause.append(SPACE).append(ORDER_BY_ASCENDING);
+                    } else if (orderDirection.text().equals(DECENDING)) {
+                        orderByClause.append(SPACE).append(ORDER_BY_DECENDING);
+                    } else {
+                        // The ascending/decending keyword are not validated at this point, we can get different token
+                        return null;
+                    }
+                }
+                orderByClause.append(SPACE);
+            }
+            return orderByClause;
+        }
+
         private StringBuilder processLimitClause(LimitClauseNode limitClauseNode) {
             StringBuilder limitClause = new StringBuilder();
             ExpressionNode limitByExpression = limitClauseNode.expression();
             if (limitByExpression instanceof BasicLiteralNode &&
                     limitByExpression.kind() == SyntaxKind.NUMERIC_LITERAL) {
-                limitClause.append(LIMIT)
+                limitClause.append(LIMIT).append(SPACE)
                         .append(((BasicLiteralNode) limitByExpression).literalToken().text());
             }
             return limitClause;

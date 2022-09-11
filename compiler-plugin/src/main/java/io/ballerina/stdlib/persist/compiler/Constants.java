@@ -77,12 +77,18 @@ public class Constants {
     public static final String READ_FUNCTION = "read";
     public static final String EXECUTE_FUNCTION = "execute";
     public static final String BACKTICK = "`";
+    public static final String SPACE = " ";
+    public static final String ASCENDING = "ascending";
+    public static final String DECENDING = "descending";
 
     /**
      * SQL keywords used to construct the query.
      */
     public static final class SQLKeyWords {
-        public static final String LIMIT = "LIMIT ";
+        public static final String LIMIT = "LIMIT";
+        public static final String ORDERBY = "ORDER BY";
+        public static final String ORDER_BY_ASCENDING = "ASC";
+        public static final String ORDER_BY_DECENDING = "DESC";
 
     }
 
