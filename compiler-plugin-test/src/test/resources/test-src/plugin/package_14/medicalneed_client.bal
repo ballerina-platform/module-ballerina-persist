@@ -2,7 +2,6 @@ import ballerina/sql;
 import ballerinax/mysql;
 import ballerina/time;
 import ballerina/persist;
-import persist/package_13 as entities;
 
 public client class MedicalNeedClient {
 
@@ -27,7 +26,7 @@ public client class MedicalNeedClient {
         self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata);
     }
 
-    remote function create(entities:MedicalItem value) returns entities:MedicalItem|error? {
+    remote function create(MedicalItem value) returns MedicalItem|error? {
         sql:ExecutionResult result = check self.persistClient.runInsertQuery(value);
         return {itemId: <int>result.lastInsertId, name: value.name, 'type: value.'type, unit: value.unit};
     }
