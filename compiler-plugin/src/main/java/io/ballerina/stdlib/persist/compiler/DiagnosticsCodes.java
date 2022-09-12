@@ -49,7 +49,8 @@ public enum DiagnosticsCodes {
     PERSIST_110("PERSIST_110", "", WARNING),
     PERSIST_111("PERSIST_111", "invalid initialization: the entity should be public", ERROR),
     PERSIST_112("PERSIST_112", "mysql db only allow increment value by one in auto generated field",
-            WARNING);
+            WARNING),
+    PERSIST_113("PERSIST_113", "A specific entity can be used by one client only", ERROR);
 
     private final String code;
     private final String message;

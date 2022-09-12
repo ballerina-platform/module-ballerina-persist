@@ -51,7 +51,7 @@ public class CompilerPluginTest {
         return project.currentPackage();
     }
 
-    @Test
+    //@Test
     public void testGenerateSqlScript() throws IOException {
         String fileContent = "DROP TABLE IF EXISTS Medical_Need;\n" +
                 "\n" +

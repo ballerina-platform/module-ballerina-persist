@@ -1,5 +1,5 @@
 [package]
-org = "persist_test"
+org = "persist"
 name = "package_12"
 version = "0.1.0"
 

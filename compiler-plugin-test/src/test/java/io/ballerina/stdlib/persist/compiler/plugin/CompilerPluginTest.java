@@ -172,6 +172,17 @@ public class CompilerPluginTest {
                 DiagnosticsCodes.PERSIST_111.getCode(), 1);
     }
 
+    @Test
+    public void testClientValidation() {
+        DiagnosticResult diagnosticResult = loadPackage("package_13").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList,
+                "A specific entity can be used by one client only",
+                DiagnosticsCodes.PERSIST_113.getCode(), 1);
+    }
+
     private void assertValues(List<Diagnostic> errorDiagnosticsList, String msg, String code, int count) {
         long availableErrors = errorDiagnosticsList.size();
         Assert.assertEquals(availableErrors, count);

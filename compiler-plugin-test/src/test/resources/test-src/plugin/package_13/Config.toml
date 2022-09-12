@@ -1,0 +1,6 @@
+[foo.perist_generate_5]
+host = "localhost"
+port = 3306
+user = "root"
+password = ""
+database = ""
