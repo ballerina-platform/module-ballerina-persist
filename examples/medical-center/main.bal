@@ -101,6 +101,8 @@ function runExample() returns error? {
     io:println("\n========== type2 ==========");
     _ = check from MedicalItem itemx in miClient->read()
         where itemx.'type == "type2"
+        order by itemx.itemId
+        limit 2
         do {
             io:println(itemx);
         };
