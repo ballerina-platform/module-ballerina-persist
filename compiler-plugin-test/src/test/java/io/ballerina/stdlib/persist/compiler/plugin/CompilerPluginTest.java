@@ -173,24 +173,24 @@ public class CompilerPluginTest {
     }
 
     @Test
-    public void testClientValidation() {
+    public void testTableName() {
         DiagnosticResult diagnosticResult = loadPackage("package_13").getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
                 filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
                 collect(Collectors.toList());
         assertValues(errorDiagnosticsList,
-                "A specific entity can be used by one client only",
+                "duplicate table name: the table name is already used in another entity",
                 DiagnosticsCodes.PERSIST_113.getCode(), 1);
     }
 
     @Test
-    public void testClientValidation1() {
+    public void testTableName1() {
         DiagnosticResult diagnosticResult = loadPackage("package_14").getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
                 filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
                 collect(Collectors.toList());
         assertValues(errorDiagnosticsList,
-                "A specific entity can be used by one client only",
+                "duplicate table name: the table name is already used in another entity",
                 DiagnosticsCodes.PERSIST_113.getCode(), 1);
     }
 

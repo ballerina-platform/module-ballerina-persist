@@ -3,7 +3,7 @@ import ballerina/persist;
 
 @persist:Entity {
     key: ["needId"],
-    tableName: "MedicalNeeds"
+    tableName: "Stores"
 }
 public type MedicalNeed record {|
     @persist:AutoIncrement
@@ -19,7 +19,7 @@ public type MedicalNeed record {|
 
 @persist:Entity {
     key: ["itemId"],
-    tableName: "MedicalItems"
+    tableName: "Stores"
 }
 public type MedicalItem record {|
     readonly int itemId;
