@@ -35,7 +35,6 @@ import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.OrderByClauseNode;
 import io.ballerina.compiler.syntax.tree.OrderKeyNode;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
-import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.QueryPipelineNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
@@ -104,13 +103,12 @@ public class QueryCodeModifierTask implements ModifierTask<SourceModifierContext
     private static class QueryConstructModifier extends TreeModifier {
 
         @Override
-        public QueryExpressionNode transform(QueryExpressionNode queryExpressionNode) {
+        public QueryPipelineNode transform(QueryPipelineNode queryPipelineNode) {
 
-            QueryPipelineNode queryPipelineNode = queryExpressionNode.queryPipeline();
             FromClauseNode fromClauseNode = queryPipelineNode.fromClause();
             // verify if node invokes persist client read() method
             if (!isQueryUsingPersistentClient(fromClauseNode)) {
-                return queryExpressionNode;
+                return queryPipelineNode;
             }
 
             // Check if the query contains where/ orderby / limit clause
@@ -132,7 +130,7 @@ public class QueryCodeModifierTask implements ModifierTask<SourceModifierContext
             boolean isLimitClauseUsed = limitClauseNode.size() != 0;
 
             if (!isWhereClauseUsed && !isOrderByClauseUsed && !isLimitClauseUsed) {
-                return queryExpressionNode;
+                return queryPipelineNode;
             }
 
             StringBuilder filterQuery = new StringBuilder();
@@ -142,7 +140,7 @@ public class QueryCodeModifierTask implements ModifierTask<SourceModifierContext
                     filterQuery.append(whereClause);
                 } else {
                     // If we cannot process where clause, query syntax is left as it is
-                    return queryExpressionNode;
+                    return queryPipelineNode;
                 }
             }
             if (isOrderByClauseUsed) {
@@ -152,7 +150,7 @@ public class QueryCodeModifierTask implements ModifierTask<SourceModifierContext
                     filterQuery.append(orderByClause);
                 } else {
                     // If we cannot process orderby clause, query syntax is left as it is
-                    return queryExpressionNode;
+                    return queryPipelineNode;
                 }
             }
             if (isLimitClauseUsed) {
@@ -161,7 +159,7 @@ public class QueryCodeModifierTask implements ModifierTask<SourceModifierContext
                     filterQuery.append(limitClause);
                 } else {
                     // If we cannot process limit clause, query syntax is left as it is
-                    return queryExpressionNode;
+                    return queryPipelineNode;
                 }
             }
 
@@ -229,16 +227,9 @@ public class QueryCodeModifierTask implements ModifierTask<SourceModifierContext
                 }
             }
 
-            QueryPipelineNode updatedQueryPipeline = queryPipelineNode.modify(
+            return queryPipelineNode.modify(
                     modifiedFromClause,
                     processedClauses
-            );
-
-            return NodeFactory.createQueryExpressionNode(
-                    queryExpressionNode.queryConstructType().orElse(null),
-                    updatedQueryPipeline,
-                    queryExpressionNode.selectClause(),
-                    queryExpressionNode.onConflictClause().orElse(null)
             );
         }
 
