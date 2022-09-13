@@ -17,6 +17,7 @@
 import ballerinax/mysql;
 import ballerina/sql;
 import ballerina/persist;
+import ballerina/io;
 
 public client class MedicalItemClient {
 
@@ -51,6 +52,7 @@ public client class MedicalItemClient {
     }
 
     remote function read(map<anydata>? filter = ()) returns stream<MedicalItem, error?> {
+        io:println(`Read all records in table.`);
         stream<anydata, error?>|error result = self.persistClient.runReadQuery(MedicalItem, filter);
         if result is error {
             return new stream<MedicalItem, error?>(new MedicalItemStream((), result));
@@ -60,6 +62,8 @@ public client class MedicalItemClient {
     }
 
     remote function execute(sql:ParameterizedQuery filterClause) returns stream<MedicalItem, error?> {
+        io:println(`Read records with filter query.`);
+        io:println(filterClause);
         stream<anydata, error?>|error result = self.persistClient.runExecuteQuery(filterClause, MedicalItem);
         if result is error {
             return new stream<MedicalItem, error?>(new MedicalItemStream((), result));
