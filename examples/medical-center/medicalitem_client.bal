@@ -18,7 +18,7 @@ import ballerinax/mysql;
 import ballerina/sql;
 import ballerina/persist;
 
-client class MedicalItemClient {
+public client class MedicalItemClient {
 
     private final string entityName = "MedicalItem";
     private final sql:ParameterizedQuery tableName = `MedicalItems`;
@@ -33,7 +33,7 @@ client class MedicalItemClient {
     private persist:SQLClient persistClient;
 
     public function init() returns error? {
-        mysql:Client dbClient = check new (host = HOST, user = USER, password = PASSWORD, database = DATABASE, port = PORT);
+        mysql:Client dbClient = check new (HOST, USER, PASSWORD, DATABASE, PORT);
         self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata);
     }
 
@@ -47,12 +47,25 @@ client class MedicalItemClient {
     }
 
     remote function readByKey(int key) returns MedicalItem|error {
-        return (check self.persistClient.runReadByKeyQuery(MedicalItem, key, [])).cloneWithType(MedicalItem);
+        return (check self.persistClient.runReadByKeyQuery(MedicalItem, key)).cloneWithType(MedicalItem);
     }
 
-    remote function read(map<anydata>? filter = ()) returns stream<MedicalItem, error?>|error {
-        stream<anydata, error?> result = check self.persistClient.runReadQuery(MedicalItem, filter);
-        return new stream<MedicalItem, error?>(new MedicalItemStream(result));
+    remote function read(map<anydata>? filter = ()) returns stream<MedicalItem, error?> {
+        stream<anydata, error?>|error result = self.persistClient.runReadQuery(MedicalItem, filter);
+        if result is error {
+            return new stream<MedicalItem, error?>(new MedicalItemStream((), result));
+        } else {
+            return new stream<MedicalItem, error?>(new MedicalItemStream(result));
+        }
+    }
+
+    remote function execute(sql:ParameterizedQuery filterClause) returns stream<MedicalItem, error?> {
+        stream<anydata, error?>|error result = self.persistClient.runExecuteQuery(filterClause, MedicalItem);
+        if result is error {
+            return new stream<MedicalItem, error?>(new MedicalItemStream((), result));
+        } else {
+            return new stream<MedicalItem, error?>(new MedicalItemStream(result));
+        }
     }
 
     remote function update(record {} 'object, map<anydata> filter) returns error? {
@@ -63,33 +76,45 @@ client class MedicalItemClient {
         _ = check self.persistClient.runDeleteQuery(filter);
     }
 
-    function close() returns error? {
+    public function close() returns error? {
         return self.persistClient.close();
     }
 
 }
 
 public class MedicalItemStream {
-    private stream<anydata, error?> anydataStream;
+    private stream<anydata, error?>? anydataStream;
+    private error? err;
 
-    public isolated function init(stream<anydata, error?> anydataStream) {
+    public isolated function init(stream<anydata, error?>? anydataStream, error? err = ()) {
         self.anydataStream = anydataStream;
+        self.err = err;
     }
 
     public isolated function next() returns record {|MedicalItem value;|}|error? {
-        var streamValue = self.anydataStream.next();
-        if streamValue is () {
-            return streamValue;
-        } else if (streamValue is error) {
-            return streamValue;
+        if self.err is error {
+            return <error>self.err;
+        } else if self.anydataStream is stream<anydata, error?> {
+            var anydataStream = <stream<anydata, error?>>self.anydataStream;
+            var streamValue = anydataStream.next();
+            if streamValue is () {
+                return streamValue;
+            } else if (streamValue is error) {
+                return streamValue;
+            } else {
+                record {|MedicalItem value;|} nextRecord = {value: check streamValue.value.cloneWithType(MedicalItem)};
+                return nextRecord;
+            }
         } else {
-            record {|MedicalItem value;|} nextRecord = {value: check streamValue.value.cloneWithType(MedicalItem)};
-            return nextRecord;
+            // Unreachable code
+            return ();
         }
     }
 
     public isolated function close() returns error? {
-        return self.anydataStream.close();
+        if self.anydataStream is stream<anydata, error?> {
+            var anydataStream = <stream<anydata, error?>>self.anydataStream;
+            return anydataStream.close();
+        }
     }
 }
-
