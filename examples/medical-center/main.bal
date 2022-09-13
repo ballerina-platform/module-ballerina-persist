@@ -92,31 +92,29 @@ function runExample() returns error? {
     });
 
     io:println("\n========== type1 ==========");
-    stream<MedicalItem, error?> itemStream = check miClient->read({'type: "type1"});
-    _ = check from MedicalItem itemx in itemStream
+    _ = check from MedicalItem itemx in miClient->read()
+        where itemx.'type == "type1"
         do {
             io:println(itemx);
         };
 
     io:println("\n========== type2 ==========");
-    itemStream = check miClient->read({'type: "type2"});
-    _ = check from MedicalItem itemx in itemStream
+    _ = check from MedicalItem itemx in miClient->read()
+        where itemx.'type == "type2"
         do {
             io:println(itemx);
         };
 
     io:println("\n========== update type2's unit to kg ==========");
     check miClient->update({"unit": "kg"}, {'type: "type2"});
-    itemStream = check miClient->read();
-    _ = check from MedicalItem itemx in itemStream
+    _ = check from MedicalItem itemx in miClient->read()
         do {
             io:println(itemx);
         };
 
     io:println("\n========== delete type2 ==========");
     check miClient->delete({'type: "type2"});
-    itemStream = check miClient->read();
-    _ = check from MedicalItem itemx in itemStream
+    _ = check from MedicalItem itemx in miClient->read()
         do {
             io:println(itemx);
         };
