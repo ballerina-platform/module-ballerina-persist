@@ -71,7 +71,7 @@ public class CodeModifierTest {
                 // Positive test
                 String modifiedFunction =
                         "check from entity:MedicalNeed medicalNeed in mnClient->execute" +
-                                "(`WHERE quantity > 5 ORDER BY quantity DESC LIMIT 5`)\n" +
+                                "(` WHERE quantity > 5 ORDER BY quantity DESC LIMIT 5`)\n" +
                                 "        select {\n" +
                                 "            needId: medicalNeed.needId,\n" +
                                 "            period: medicalNeed.period,\n" +
@@ -116,7 +116,7 @@ public class CodeModifierTest {
             if (document.name().equals("sample.bal")) {
                 // Positive test
                 String modifiedFunction =
-                        "check from entity:MedicalNeed medicalNeed in mnClient->execute(`LIMIT 5`)\n" +
+                        "check from entity:MedicalNeed medicalNeed in mnClient->execute(` LIMIT 5`)\n" +
                                 "        select {\n" +
                                 "            needId: medicalNeed.needId,\n" +
                                 "            period: medicalNeed.period,\n" +
@@ -165,33 +165,33 @@ public class CodeModifierTest {
             if (document.name().equals("sample.bal")) {
                 // Positive test
                 List<String> modifiedFunctions = List.of(
-                        "check from entity:MedicalNeed medicalNeed in mnClient->execute(`ORDER BY quantity `)\n" +
+                        "check from entity:MedicalNeed medicalNeed in mnClient->execute(` ORDER BY quantity `)\n" +
                                 "        select {\n" +
                                 "            needId: medicalNeed.needId,\n" +
                                 "            period: medicalNeed.period,\n" +
                                 "            quantity: medicalNeed.quantity\n" +
                                 "        };",
-                        "check from entity:MedicalNeed medicalNeed in mnClient->execute(`ORDER BY quantity ASC `)\n" +
+                        "check from entity:MedicalNeed medicalNeed in mnClient->execute(` ORDER BY quantity ASC `)\n" +
                                 "        select {\n" +
                                 "            needId: medicalNeed.needId,\n" +
                                 "            period: medicalNeed.period,\n" +
                                 "            quantity: medicalNeed.quantity\n" +
                                 "        };",
-                        "check from entity:MedicalNeed medicalNeed in mnClient->execute(`ORDER BY needId DESC `)\n" +
+                        "check from entity:MedicalNeed medicalNeed in mnClient->execute(` ORDER BY needId DESC `)\n" +
                                 "        select {\n" +
                                 "            needId: medicalNeed.needId,\n" +
                                 "            period: medicalNeed.period,\n" +
                                 "            quantity: medicalNeed.quantity\n" +
                                 "        };",
                         "check from entity:MedicalNeed medicalNeed in mnClient->execute" +
-                                "(`ORDER BY quantity ASC , needId DESC `)\n" +
+                                "(` ORDER BY quantity ASC , needId DESC `)\n" +
                                 "        select {\n" +
                                 "            needId: medicalNeed.needId,\n" +
                                 "            period: medicalNeed.period,\n" +
                                 "            quantity: medicalNeed.quantity\n" +
                                 "        };",
                         "check from var {needId, period, quantity} in mnClient->execute" +
-                                "(`ORDER BY quantity , needId DESC `)\n" +
+                                "(` ORDER BY quantity , needId DESC `)\n" +
                                 "        select {\n" +
                                 "            needId: needId,\n" +
                                 "            period: period,\n" +

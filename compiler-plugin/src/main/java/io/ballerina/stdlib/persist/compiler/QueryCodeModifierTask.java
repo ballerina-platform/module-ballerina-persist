@@ -133,7 +133,7 @@ public class QueryCodeModifierTask implements ModifierTask<SourceModifierContext
                 return queryPipelineNode;
             }
 
-            StringBuilder filterQuery = new StringBuilder();
+            StringBuilder filterQuery = new StringBuilder(SPACE);
             if (isWhereClauseUsed) {
                 StringBuilder whereClause = processWhereClause(((WhereClauseNode) whereClauseNode.get(0)));
                 if (whereClause != null) {
@@ -209,6 +209,7 @@ public class QueryCodeModifierTask implements ModifierTask<SourceModifierContext
                 for (int i = 0; i < processedClauses.size(); i++) {
                     if (processedClauses.get(i) instanceof WhereClauseNode) {
                         processedClauses = processedClauses.remove(i);
+                        break;
                     }
                 }
             }
@@ -216,6 +217,7 @@ public class QueryCodeModifierTask implements ModifierTask<SourceModifierContext
                 for (int i = 0; i < processedClauses.size(); i++) {
                     if (processedClauses.get(i) instanceof OrderByClauseNode) {
                         processedClauses = processedClauses.remove(i);
+                        break;
                     }
                 }
             }
@@ -223,6 +225,7 @@ public class QueryCodeModifierTask implements ModifierTask<SourceModifierContext
                 for (int i = 0; i < processedClauses.size(); i++) {
                     if (processedClauses.get(i) instanceof LimitClauseNode) {
                         processedClauses = processedClauses.remove(i);
+                        break;
                     }
                 }
             }

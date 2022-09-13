@@ -155,7 +155,11 @@ public class ExpressionVisitor {
 
     /*Constant*/
     void beginVisitStoreVariable(String attributeName) {
-        this.expression.append(attributeName).append(" ");
+        String processedAttributeName = attributeName;
+        if (attributeName.startsWith("'")) {
+            processedAttributeName = processedAttributeName.substring(1);
+        }
+        this.expression.append(processedAttributeName).append(" ");
     }
 
     void endVisitStoreVariable(String attributeName) {
