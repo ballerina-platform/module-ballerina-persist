@@ -41,6 +41,9 @@ public class Constants {
     public static final String NOT_NULL = " NOT NULL";
     public static final String AUTO_INCREMENT_WITH_SPACE = " AUTO_INCREMENT";
     public static final String AUTO_INCREMENT_WITH_TAB = "\tAUTO_INCREMENT";
+    public static final String CONSTRAINT_STRING = "constraint:String";
+    public static final String LENGTH = "length";
+    public static final String MAX_LENGTH = "maxLength";
 
     /**
      * Constants related to Ballerina types.
@@ -65,7 +68,7 @@ public class Constants {
         public static final String BOOLEAN = "BOOLEAN";
         public static final String DECIMAL = "DECIMAL";
         public static final String FLOAT = "FLOAT";
-        public static final String VARCHAR = "VARCHAR(191)";
+        public static final String VARCHAR = "VARCHAR";
         public static final String DATE = "DATE";
         public static final String TIME = "TIME";
         public static final String TIME_STAMP = "TIMESTAMP";

@@ -323,6 +323,95 @@ public class CompilerPluginTest {
         testSqlScript("package_09", fileContent, 0, "");
     }
 
+    @Test
+    public void testGenerateSqlScript9() throws IOException {
+        String fileContent = "DROP TABLE IF EXISTS MedicalNeeds;\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS Item;\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS Item1;\n" +
+                "CREATE TABLE Item1 (\n" +
+                "\tid INT NOT NULL AUTO_INCREMENT,\n" +
+                "\tname VARCHAR(20) NOT NULL,\n" +
+                "\tPRIMARY KEY(id)\n" +
+                ")\tAUTO_INCREMENT = 5;\n" +
+                "\n" +
+                "CREATE TABLE Item (\n" +
+                "\tid INT NOT NULL AUTO_INCREMENT,\n" +
+                "\tname VARCHAR(50) NOT NULL,\n" +
+                "\titemId1 INT,\n" +
+                "\tCONSTRAINT FK_ITEM_ITEM1_0 FOREIGN KEY(itemId1) REFERENCES Item1(id) ON DELETE CASCADE,\n" +
+                "\tPRIMARY KEY(id)\n" +
+                ")\tAUTO_INCREMENT = 3;\n" +
+                "\n" +
+                "CREATE TABLE MedicalNeeds (\n" +
+                "\tneedId INT NOT NULL AUTO_INCREMENT,\n" +
+                "\tbeneficiaryId INT NOT NULL,\n" +
+                "\tperiod VARCHAR(191) NOT NULL,\n" +
+                "\turgency VARCHAR(20) NOT NULL,\n" +
+                "\tquantity INT NOT NULL,\n" +
+                "\titemId INT,\n" +
+                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM_0 FOREIGN KEY(itemId) REFERENCES Item(id) ON DELETE CASCADE,\n" +
+                "\tPRIMARY KEY(needId),\n" +
+                "\tUNIQUE KEY(beneficiaryId, urgency)\n" +
+                ");";
+        testSqlScript("package_10", fileContent, 0, "");
+    }
+
+    @Test
+    public void testGenerateSqlScript10() throws IOException {
+        String fileContent = "DROP TABLE IF EXISTS MedicalNeeds;\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS Item1;\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS Item2;\n" +
+                "CREATE TABLE Item2 (\n" +
+                "\tid INT NOT NULL AUTO_INCREMENT,\n" +
+                "\tname VARCHAR(20) NOT NULL,\n" +
+                "\tPRIMARY KEY(id),\n" +
+                "\tUNIQUE KEY(name)\n" +
+                ")\tAUTO_INCREMENT = 2;\n" +
+                "\n" +
+                "CREATE TABLE Item1 (\n" +
+                "\tid INT NOT NULL AUTO_INCREMENT,\n" +
+                "\tname VARCHAR(20) NOT NULL,\n" +
+                "\titemId INT,\n" +
+                "\tCONSTRAINT FK_ITEM1_ITEM2_0 FOREIGN KEY(itemId) REFERENCES Item2(id) ON DELETE CASCADE,\n" +
+                "\titemName VARCHAR(20),\n" +
+                "\tCONSTRAINT FK_ITEM1_ITEM2_1 FOREIGN KEY(itemName) REFERENCES Item2(name) ON DELETE CASCADE,\n" +
+                "\tPRIMARY KEY(id),\n" +
+                "\tUNIQUE KEY(name)\n" +
+                ")\tAUTO_INCREMENT = 5;\n" +
+                "\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS Item;\n" +
+                "CREATE TABLE Item (\n" +
+                "\tid INT NOT NULL AUTO_INCREMENT,\n" +
+                "\tname VARCHAR(10) NOT NULL,\n" +
+                "\tPRIMARY KEY(id),\n" +
+                "\tUNIQUE KEY(name)\n" +
+                ")\tAUTO_INCREMENT = 3;\n" +
+                "\n" +
+                "CREATE TABLE MedicalNeeds (\n" +
+                "\tneedId INT NOT NULL AUTO_INCREMENT,\n" +
+                "\tbeneficiaryId INT NOT NULL,\n" +
+                "\tperiod VARCHAR(191) NOT NULL,\n" +
+                "\turgency VARCHAR(191) NOT NULL,\n" +
+                "\tquantity INT NOT NULL,\n" +
+                "\titemId INT,\n" +
+                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM_0 FOREIGN KEY(itemId) REFERENCES Item(id) ON DELETE CASCADE,\n" +
+                "\tname VARCHAR(191),\n" +
+                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM_1 FOREIGN KEY(name) REFERENCES Item(name) ON DELETE CASCADE,\n" +
+                "\titemId1 INT,\n" +
+                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM1_0 FOREIGN KEY(itemId1) REFERENCES Item1(id) ON DELETE CASCADE,\n" +
+                "\tname1 VARCHAR(191),\n" +
+                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM1_1 FOREIGN KEY(name1) REFERENCES Item1(name) ON DELETE CASCADE,\n" +
+                "\tPRIMARY KEY(needId),\n" +
+                "\tUNIQUE KEY(beneficiaryId, urgency)\n" +
+                ");";
+        testSqlScript("package_11", fileContent, 0, "");
+    }
+
     private void testSqlScript(String packagePath, String fileContent, int count,
                                String warningMsg) throws IOException {
         Path path = Paths.get("target").toAbsolutePath();
