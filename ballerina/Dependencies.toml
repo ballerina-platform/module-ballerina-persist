@@ -46,7 +46,7 @@ dependencies = [
 [[package]]
 org = "ballerina"
 name = "persist"
-version = "0.1.0"
+version = "0.1.3"
 dependencies = [
 	{org = "ballerina", name = "sql"},
 	{org = "ballerina", name = "test"},
