@@ -32,6 +32,9 @@ modules = [
 org = "ballerina"
 name = "jballerina.java"
 version = "0.0.0"
+modules = [
+	{org = "ballerina", packageName = "jballerina.java", moduleName = "jballerina.java"}
+]
 
 [[package]]
 org = "ballerina"
@@ -52,6 +55,7 @@ name = "persist"
 version = "0.1.0"
 dependencies = [
 	{org = "ballerina", name = "io"},
+	{org = "ballerina", name = "jballerina.java"},
 	{org = "ballerina", name = "sql"},
 	{org = "ballerina", name = "test"},
 	{org = "ballerina", name = "time"},
