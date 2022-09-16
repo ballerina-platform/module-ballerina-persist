@@ -82,6 +82,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
     private int noOfReportDiagnostic;
     private final List<String> recordNamesOfForeignKey;
     private final HashMap<String, List<String>> referenceTables;
+    private final List<String> tableNames;
 
     public PersistRecordValidator() {
         primaryKeys = new ArrayList<>();
@@ -93,6 +94,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         tableName = "";
         noOfReportDiagnostic = 0;
         referenceTables = new HashMap<>();
+        tableNames = new ArrayList<>();
     }
 
     @Override
@@ -316,6 +318,14 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                                     validateEntityProperties(ctx, expressionNode.get(), tableFields);
                                 } else {
                                     tableName = Utils.eliminateDoubleQuotes(expressionNode.get().toSourceCode().trim());
+                                    if (tableNames.contains(tableName)) {
+                                        Utils.reportDiagnostic(ctx, mappingFieldNode.location(),
+                                                DiagnosticsCodes.PERSIST_113.getCode(),
+                                                DiagnosticsCodes.PERSIST_113.getMessage(),
+                                                DiagnosticsCodes.PERSIST_113.getSeverity());
+                                    } else {
+                                        tableNames.add(tableName);
+                                    }
                                 }
                             }
                         }

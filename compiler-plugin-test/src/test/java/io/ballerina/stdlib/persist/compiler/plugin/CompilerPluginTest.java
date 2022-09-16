@@ -172,6 +172,17 @@ public class CompilerPluginTest {
                 DiagnosticsCodes.PERSIST_111.getCode(), 1);
     }
 
+    @Test
+    public void testTableName() {
+        DiagnosticResult diagnosticResult = loadPackage("package_13").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList,
+                "duplicate table name: the table name is already used in another entity",
+                DiagnosticsCodes.PERSIST_113.getCode(), 1);
+    }
+
     private void assertValues(List<Diagnostic> errorDiagnosticsList, String msg, String code, int count) {
         long availableErrors = errorDiagnosticsList.size();
         Assert.assertEquals(availableErrors, count);
