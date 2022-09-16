@@ -319,7 +319,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                                 } else {
                                     tableName = Utils.eliminateDoubleQuotes(expressionNode.get().toSourceCode().trim());
                                     if (tableNames.contains(tableName)) {
-                                        Utils.reportDiagnostic(ctx, mappingFieldNode.location(),
+                                        reportDiagnosticInfo(ctx, mappingFieldNode.location(),
                                                 DiagnosticsCodes.PERSIST_113.getCode(),
                                                 DiagnosticsCodes.PERSIST_113.getMessage(),
                                                 DiagnosticsCodes.PERSIST_113.getSeverity());
