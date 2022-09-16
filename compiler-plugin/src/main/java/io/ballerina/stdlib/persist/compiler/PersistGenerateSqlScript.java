@@ -44,7 +44,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -637,9 +636,10 @@ public class PersistGenerateSqlScript {
                                      String tableName, HashMap<String, List<String>> referenceTables) {
         try {
             String content = EMPTY;
-            Path path = Paths.get("target", "persist_db_scripts.sql").toAbsolutePath();
-            if (Files.exists(path)) {
-                byte[] bytes = Files.readAllBytes(path);
+            Path directoryPath = ctx.currentPackage().project().targetDir().toAbsolutePath();
+            Path filePath = Path.of(directoryPath + "/persist_db_scripts.sql").toAbsolutePath();
+            if (Files.exists(filePath)) {
+                byte[] bytes = Files.readAllBytes(filePath);
                 content = new String(bytes, StandardCharsets.UTF_8);
                 String tableNames = "";
                 int firstIndex = 0;
@@ -656,16 +656,19 @@ public class PersistGenerateSqlScript {
                 }
                 if (firstIndex != 0) {
                     int index = firstIndex + tableNames.length();
-                    content = content.substring(0, index) + NEW_LINE + NEW_LINE + script + NEW_LINE  +
+                    content = content.substring(0, index) + NEW_LINE + NEW_LINE + script + NEW_LINE +
                             content.substring(index);
                 } else {
                     script = script.concat(NEW_LINE + NEW_LINE);
                     content = script.concat(content);
                 }
-            }  else {
+            } else {
+                if (Files.notExists(directoryPath)) {
+                    Files.createDirectories(directoryPath);
+                }
                 content = content.concat(script);
             }
-            Files.writeString(path, content);
+            Files.writeString(filePath, content);
         } catch (IOException e) {
             Utils.reportDiagnostic(ctx, location, DiagnosticsCodes.PERSIST_110.getCode(),
                     "error in read or write a script file: " + e.getMessage(),
