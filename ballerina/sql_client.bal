@@ -15,12 +15,6 @@
 // under the License.
 
 import ballerina/sql;
-import ballerina/io;
-
-type ManyRelation record {|
-    string name;
-    string[] fields;
-|};
 
 public client class SQLClient {
 
@@ -68,41 +62,13 @@ public client class SQLClient {
 
         record {}|error result = self.dbClient->queryRow(query, rowType);
 
-        io:println("L72: ", query);
-        io:println("L73: ", result);
-
-        if result is record {} {
-            io:println("L76: ", typeof result["employees"]);
-            //io:println("L76: ", <record {}[]>(<record {}>result)["employees"]);
-            //result["employees"] = check result["employees"].cloneWithType(string[]);
-            //array:
-        }
-
         if result is sql:NoRowsError {
             return <InvalidKey>error(
                 string `A record does not exist for '${self.entityName}' for key ${key.toBalString()}.`);
         }
 
-        // Fetch `MANY` relations
         if result is record {} {
             check self.getManyRelations(result, include);
-            // foreach string joinKey in self.joinMetadata.keys() {
-            //     JoinMetadata joinMetadata = self.joinMetadata.get(joinKey);
-            //     if include.indexOf(joinKey) != () && joinMetadata.'type == MANY {
-            //         query = sql:queryConcat(`SELECT `, self.getManyRelationColumnNames(joinMetadata.fieldName),
-            //                                 ` FROM `, stringToParameterizedQuery(joinMetadata.refTable), 
-            //                                 ` WHERE `, stringToParameterizedQuery(joinMetadata.refFields[0]), ` = `, stringToParameterizedQuery(result["id"].toBalString()));
-                    
-            //         stream<record {}, sql:Error?> joinStream = self.dbClient->query(query, joinMetadata.entity);
-            //         record {}[] arr = [];
-            //         check from record {} item in joinStream
-            //             do {
-            //                 io:println("L83: ", item.cloneWithType(joinMetadata.entity));
-            //                 arr.push(check item.cloneWithType(joinMetadata.entity));
-            //             };
-            //         result[joinMetadata.fieldName] = convertToArray(joinMetadata.entity, arr);
-            //     }
-            // }
         }
 
         return result;
@@ -121,7 +87,6 @@ public client class SQLClient {
                 record {}[] arr = [];
                 check from record {} item in joinStream
                     do {
-                        io:println("L83: ", item.cloneWithType(joinMetadata.entity));
                         arr.push(check item.cloneWithType(joinMetadata.entity));
                     };
                 result[joinMetadata.fieldName] = convertToArray(joinMetadata.entity, arr);
@@ -251,10 +216,6 @@ public client class SQLClient {
     private function getSelectColumnNames(string[] include) returns sql:ParameterizedQuery {
         sql:ParameterizedQuery params = ` `;
         int columnCount = 0;
-        // map<record {|
-        //     string entityName;
-        //     map<string> fieldColumnMap;
-        // |}> manyRelationFields = {};
 
         foreach string key in self.fieldMetadata.keys() {
             if self.fieldMetadata.get(key).relation is () {
@@ -274,44 +235,9 @@ public client class SQLClient {
                         " AS `" + (<RelationMetadata>self.fieldMetadata.get(key).relation).entityName + "." + (<RelationMetadata>self.fieldMetadata.get(key).relation).refField + "`"
                     ));
                     columnCount = columnCount + 1;
-                } else {
-                    // string keyName = key.substring(0, <int>key.indexOf("[]."));
-                    // string fieldName = key.substring(<int>key.indexOf("[].") + 3);
-                    // if manyRelationFields[keyName] is () {
-                    //     manyRelationFields[keyName] = {
-                    //         entityName: (<RelationMetadata>self.fieldMetadata.get(key).relation).entityName,
-                    //         fieldColumnMap: {}
-                    //     };
-                    // }
-                    // map<string> fieldColumnMap = manyRelationFields.get(keyName).fieldColumnMap;
-                    // fieldColumnMap[fieldName] = (<RelationMetadata>self.fieldMetadata.get(key).relation).refField;
                 }
             }
         }
-        // io:println("L261: ", manyRelationFields);
-
-        // foreach string key in manyRelationFields.keys() {
-        //     if columnCount > 0 {
-        //         params = sql:queryConcat(params, `, `);
-        //     }
-            
-        //     int fieldCount = 0;
-        //     sql:ParameterizedQuery fieldMapping = ` `;
-        //     map<string> fieldColumnMap = manyRelationFields.get(key).fieldColumnMap;
-
-        //     foreach string fieldKey in fieldColumnMap {
-        //         if fieldCount > 0 {
-        //             fieldMapping = sql:queryConcat(fieldMapping, `, `);
-        //         }
-        //         fieldMapping = sql:queryConcat(fieldMapping, `'`, stringToParameterizedQuery(fieldKey), `', `, stringToParameterizedQuery(manyRelationFields.get(key).entityName + "." + fieldColumnMap.get(fieldKey)));
-        //         fieldCount = fieldCount + 1;
-        //     }
-
-        //     //params = sql:queryConcat(params, `CAST(concat('[', group_concat(JSON_OBJECT(`, fieldMapping, `)), ']') AS JSON) AS `, stringToParameterizedQuery(key));
-        //     params = sql:queryConcat(params, `concat('[', group_concat(JSON_OBJECT(`, fieldMapping, `)), ']') AS `, stringToParameterizedQuery(key));
-        //     columnCount = columnCount + 1;
-        // }
-
         return params;
     }
 
@@ -320,7 +246,6 @@ public client class SQLClient {
         string[] keys = self.fieldMetadata.keys();
         int columnCount = 0;
         foreach string key in keys {
-            io:println("L243: ", key, " === ", prefix + "[].");
             int? splitIndex = key.indexOf(prefix + "[].");
             if splitIndex is () {
                 continue;
@@ -329,7 +254,6 @@ public client class SQLClient {
                 params = sql:queryConcat(params, `, `);
             }
 
-            io:println("L251: ", (prefix + "[].").length());
             string fieldName = key.substring((prefix + "[].").length());
             string columnName = (<RelationMetadata>(<FieldMetadata>self.fieldMetadata[key]).relation).refField;  
             params = sql:queryConcat(params, stringToParameterizedQuery(columnName + " AS " + fieldName));  
