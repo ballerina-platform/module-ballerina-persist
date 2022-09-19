@@ -44,3 +44,14 @@ CREATE TABLE test.MultipleAssociations (
     FOREIGN KEY (userId) REFERENCES test.Users(id)
 );
 
+CREATE TABLE test.Companies (
+    id INTEGER PRIMARY KEY,
+    name VARCHAR(20)
+);
+
+CREATE TABLE test.Employees (
+    id INTEGER PRIMARY KEY,
+    name VARCHAR(20),
+    companyId INTEGER,
+    FOREIGN KEY (companyId) REFERENCES test.Companies(id)
+);

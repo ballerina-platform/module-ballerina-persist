@@ -53,21 +53,31 @@ public type Department record {|
 |};
 
 // One-to-one relation
-@Entity { key: ["id"] }
+@Entity { 
+    key: ["id"],
+    tableName: "Users"
+}
 public type User record  {|	
- readonly int id;
- string name;
- Profile profile?;
+    readonly int id;
+    string name;
+    Profile profile?;
 |};
  
-@Entity { key: ["id"] }
+@Entity {
+    key: ["id"],
+    tableName: "Profiles"
+}
 public type Profile record  {|
- readonly int id;
- string name;
- @Relation {keyColumns: ["userId"], reference: ["id"]}
- User user?;
+    readonly int id;
+    string name;
+    @Relation {keyColumns: ["userId"], reference: ["id"]}
+    User user?;
 |};
 
+@Entity { 
+    key: ["id"],
+    tableName: "MultipleAssociations"
+}
 public type MultipleAssociations record {|
     readonly int id;
     string name;
@@ -77,4 +87,27 @@ public type MultipleAssociations record {|
 
     @Relation {keyColumns: ["userId"], reference: ["id"]}
     User user?;
+|};
+
+// One-to-many relation
+@Entity { 
+    key: ["id"],
+    tableName: "Companies"
+}
+public type Company record  {|	
+    readonly int id;
+    string name;
+    Employee[] employees?;
+|};
+
+@Entity { 
+    key: ["id"],
+    tableName: "Employees" 
+}
+public type Employee record  {|	
+    readonly int id;
+    string name;
+
+    @Relation {keyColumns: ["companyId"], reference: ["id"]}
+    Company company?;
 |};

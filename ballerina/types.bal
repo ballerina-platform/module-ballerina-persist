@@ -28,11 +28,18 @@ public type RelationMetadata record {|
 |};
 
 public type JoinMetadata record {|
+    typedesc<record {}> entity;
+    string fieldName;
     string refTable;
     string[] refFields;
     string[]? joinColumns = ();
+    JoinType 'type = ONE;
 |};
 
+public enum JoinType {
+    ONE,
+    MANY
+}
 
 # Defines the attributes of an Entity
 #

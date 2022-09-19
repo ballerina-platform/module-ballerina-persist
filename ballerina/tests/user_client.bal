@@ -29,7 +29,7 @@ client class UserClient {
     };
     private string[] keyFields = ["id"];
     private final map<JoinMetadata> joinMetadata = {
-        profile: {refTable: "Profiles", refFields: ["userId"], joinColumns: ["id"]}
+        profile: {entity: Profile, fieldName: "profile", refTable: "Profiles", refFields: ["userId"], joinColumns: ["id"]}
     };
 
     private SQLClient persistClient;
