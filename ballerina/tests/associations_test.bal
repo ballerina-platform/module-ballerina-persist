@@ -406,5 +406,5 @@ function oneToManyUpdateTest4() returns error? {
         id: 5,
         name: "TestCompanyUpdated5",
         employees: [{id: 8, name: "TestEmployeeUpdated8"}, {id: 9, name: "TestEmployee9"}]
-    });}
-
+    });
+}
