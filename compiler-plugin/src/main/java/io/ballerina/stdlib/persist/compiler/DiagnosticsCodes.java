@@ -21,6 +21,7 @@ package io.ballerina.stdlib.persist.compiler;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import static io.ballerina.tools.diagnostics.DiagnosticSeverity.ERROR;
+import static io.ballerina.tools.diagnostics.DiagnosticSeverity.WARNING;
 
 /**
  * Enum class to hold persis module diagnostic codes.
@@ -43,7 +44,14 @@ public enum DiagnosticsCodes {
             "multiple field with auto increment annotation", ERROR),
     PERSIST_108("PERSIST_108", "invalid initialization: auto increment field" +
             " must be defined as a key", ERROR),
-    PERSIST_111("PERSIST_111", "invalid initialization: the entity should be public", ERROR);
+    PERSIST_109("PERSIST_109", "mismatch reference: the given key count is mismatched " +
+            "with reference key count", ERROR),
+    PERSIST_110("PERSIST_110", "", WARNING),
+    PERSIST_111("PERSIST_111", "invalid initialization: the entity should be public", ERROR),
+    PERSIST_112("PERSIST_112", "mysql db only allow increment value by one in auto generated field",
+            WARNING),
+    PERSIST_113("PERSIST_113", "duplicate table name: the table name is already used in another entity",
+            ERROR);
 
     private final String code;
     private final String message;

@@ -26,8 +26,8 @@ public client class SQLClient {
     private string[] keyFields;
     private map<JoinMetadata> joinMetadata;
 
-    public isolated function init(sql:Client dbClient, string entityName, sql:ParameterizedQuery tableName, string[] keyFields, map<FieldMetadata> fieldMetadata,
-                         map<JoinMetadata> joinMetadata = {}) returns error? {
+    public function init(sql:Client dbClient, string entityName, sql:ParameterizedQuery tableName, string[] keyFields, map<FieldMetadata> fieldMetadata,
+                        map<JoinMetadata> joinMetadata = {}) returns error? {
         self.entityName = entityName;
         self.tableName = tableName;
         self.fieldMetadata = fieldMetadata;
@@ -49,7 +49,7 @@ public client class SQLClient {
         sql:ParameterizedQuery query = sql:queryConcat(
             `SELECT `, self.getSelectColumnNames(include), ` FROM `, self.tableName, ` AS `, stringToParameterizedQuery(self.entityName)
         );
-        
+
         foreach string joinKey in self.joinMetadata.keys() {
             JoinMetadata joinMetadata = self.joinMetadata.get(joinKey);
             if include.indexOf(joinKey) != () {
@@ -76,14 +76,14 @@ public client class SQLClient {
     public isolated function runReadQuery(typedesc<record {}> rowType, map<anydata>? filter, string[] include = [])
     returns stream<record {}, sql:Error?>|error {
         sql:ParameterizedQuery query = sql:queryConcat(
-            `SELECT `, self.getSelectColumnNames(include),` FROM `, self.tableName, stringToParameterizedQuery(" " + self.entityName)
+            `SELECT `, self.getSelectColumnNames(include), ` FROM `, self.tableName, stringToParameterizedQuery(" " + self.entityName)
         );
 
         string[] joinKeys = self.joinMetadata.keys();
         foreach string joinKey in joinKeys {
             if include.indexOf(joinKey) != () {
                 JoinMetadata joinMetadata = self.joinMetadata.get(joinKey);
-                query = sql:queryConcat(query, ` LEFT JOIN `, stringToParameterizedQuery(joinMetadata.refTable + " " + joinKey), 
+                query = sql:queryConcat(query, ` LEFT JOIN `, stringToParameterizedQuery(joinMetadata.refTable + " " + joinKey),
                                         ` ON `, check self.getJoinFilters(joinKey, joinMetadata.refFields, <string[]>joinMetadata.joinColumns));
             }
         }
@@ -98,8 +98,8 @@ public client class SQLClient {
 
     public isolated function runExecuteQuery(sql:ParameterizedQuery filterClause, typedesc<record {}> rowType, string[] include = [])
     returns stream<record {}, sql:Error?>|error {
-        sql:ParameterizedQuery query = sql:queryConcat(`SELECT `, self.getSelectColumnNames(include), ` FROM `, self.tableName,
-        filterClause);
+        sql:ParameterizedQuery query = sql:queryConcat(`SELECT `, self.getSelectColumnNames(include), ` FROM `,
+        self.tableName, ` AS `, stringToParameterizedQuery(self.entityName), filterClause);
         return self.dbClient->query(query, rowType);
     }
 
@@ -147,9 +147,9 @@ public client class SQLClient {
             JoinMetadata joinMetadata = self.joinMetadata.get(joinKey);
             if include.indexOf(joinKey) != () && joinMetadata.'type == MANY {
                 query = sql:queryConcat(`SELECT `, self.getManyRelationColumnNames(joinMetadata.fieldName),
-                                        ` FROM `, stringToParameterizedQuery(joinMetadata.refTable), 
+                                        ` FROM `, stringToParameterizedQuery(joinMetadata.refTable),
                                         ` WHERE `, stringToParameterizedQuery(joinMetadata.refFields[0]), ` = `, stringToParameterizedQuery(result["id"].toBalString()));
-                
+
                 stream<record {}, sql:Error?> joinStream = self.dbClient->query(query, joinMetadata.entity);
                 record {}[] arr = [];
                 check from record {} item in joinStream
@@ -181,7 +181,7 @@ public client class SQLClient {
             if key.includes(".") {
                 int splitPosition = <int>key.indexOf(".", 0);
                 string entity = key.substring(0, splitPosition);
-                string fieldName = key.substring(splitPosition+1, key.length());
+                string fieldName = key.substring(splitPosition + 1, key.length());
                 if 'object[entity] is () {
                     params = sql:queryConcat(params, `NULL`);
                 } else {
@@ -192,7 +192,7 @@ public client class SQLClient {
             }
             columnCount = columnCount + 1;
         }
-            params = sql:queryConcat(params, `)`);
+        params = sql:queryConcat(params, `)`);
         return params;
     }
 
@@ -224,7 +224,7 @@ public client class SQLClient {
                 }
                 params = sql:queryConcat(params, stringToParameterizedQuery(self.entityName + "." + <string>self.fieldMetadata.get(key).columnName + " AS `" + <string>self.fieldMetadata.get(key).columnName + "`"));
                 columnCount = columnCount + 1;
-            } else if include.indexOf((<RelationMetadata>self.fieldMetadata.get(key).relation).entityName) != (){                
+            } else if include.indexOf((<RelationMetadata>self.fieldMetadata.get(key).relation).entityName) != (){
                 if !key.includes("[]") {
                     if columnCount > 0 {
                         params = sql:queryConcat(params, `, `);
@@ -255,9 +255,9 @@ public client class SQLClient {
             }
 
             string fieldName = key.substring((prefix + "[].").length());
-            string columnName = (<RelationMetadata>(<FieldMetadata>self.fieldMetadata[key]).relation).refField;  
-            params = sql:queryConcat(params, stringToParameterizedQuery(columnName + " AS " + fieldName));  
-            columnCount = columnCount + 1;       
+            string columnName = (<RelationMetadata>(<FieldMetadata>self.fieldMetadata[key]).relation).refField;
+            params = sql:queryConcat(params, stringToParameterizedQuery(columnName + " AS " + fieldName));
+            columnCount = columnCount + 1;
         }
         return params;
     }
@@ -308,7 +308,7 @@ public client class SQLClient {
 
     private isolated function getJoinFilters(string joinKey, string[] refFields, string[] joinColumns) returns sql:ParameterizedQuery|error {
         sql:ParameterizedQuery query = ` `;
-        foreach int i in 0..<refFields.length() {
+        foreach int i in 0 ..< refFields.length() {
             if i > 0 {
                 query = sql:queryConcat(query, ` AND `);
             }
