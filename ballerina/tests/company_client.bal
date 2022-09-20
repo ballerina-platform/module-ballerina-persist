@@ -40,20 +40,12 @@ client class CompanyClient {
     }
 
     remote function create(Company value) returns Company|error {
-        sql:ExecutionResult _ = check self.persistClient.runInsertQuery(value);
+        _ = check self.persistClient.runInsertQuery(value);
         return value;
     }
 
     remote function readByKey(int key, CompanyRelations[] include = []) returns Company|error {
-        Company company = <Company> check self.persistClient.runReadByKeyQuery(Company, key, include);
-
-        // Fetch `MANY` relations
-        // if include.indexOf(<CompanyRelations> EmployeeEntity) != () {
-        //     EmployeeClient eClient = check new EmployeeClient();
-        //     company.employees = eClient->read({});
-        // }
-
-        return company;
+        return <Company> check self.persistClient.runReadByKeyQuery(Company, key, include);
     }
 
     remote function read(map<anydata>? filter = (), CompanyRelations[] include = []) returns stream<Company, error?>|error {

@@ -337,3 +337,74 @@ function oneToManyCreateTest3() returns error? {
             });
         };
 }
+
+@test:Config {
+    groups: ["associations", "one-to-manyx"]
+}
+function oneToManyCreateTest4() returns error? {
+    Company company = {
+        id: 4,
+        name: "TestCompany4"
+    };
+    CompanyClient companyClient = check new();
+    _ = check companyClient->create(company);
+    
+    EmployeeClient employeeClient = check new();
+
+    Employee employee1 = {
+        id: 6,
+        name: "TestEmployee6",
+        company: company
+    };
+    _ = check employeeClient->create(employee1);
+
+    Employee employee2 = {
+        id: 7,
+        name: "TestEmployee7",
+        company: company
+    };
+    _ = check employeeClient->create(employee2);
+
+    Employee employee = check employeeClient->readByKey(6, [CompanyEntity]);
+    test:assertEquals(employee, <Employee>{
+        id: 6,
+        name: "TestEmployee6",
+        company: {id: 4, name: "TestCompany4"}
+    });
+}
+
+@test:Config {
+    groups: ["associations", "one-to-manyx"]
+}
+function oneToManyUpdateTest4() returns error? {
+    Company company = {
+        id: 5,
+        name: "TestCompany5"
+    };
+    CompanyClient companyClient = check new();
+    _ = check companyClient->create(company);
+    
+    EmployeeClient employeeClient = check new();
+
+    Employee employee1 = {
+        id: 8,
+        name: "TestEmployee8",
+        company: company
+    };
+    _ = check employeeClient->create(employee1);
+
+    Employee employee2 = {
+        id: 9,
+        name: "TestEmployee9",
+        company: company
+    };
+    _ = check employeeClient->create(employee2);
+
+    _ = check employeeClient->update({"name": "TestEmployeeUpdated8", "company": {name: "TestCompanyUpdated5"}}, {id: 8});
+    Company company2 = check companyClient->readByKey(5, [EmployeeEntity]);
+    test:assertEquals(company2, <Company>{
+        id: 5,
+        name: "TestCompanyUpdated5",
+        employees: [{id: 8, name: "TestEmployeeUpdated8"}, {id: 9, name: "TestEmployee9"}]
+    });}
+

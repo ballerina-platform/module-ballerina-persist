@@ -26,7 +26,7 @@ public client class SQLClient {
     private string[] keyFields;
     private map<JoinMetadata> joinMetadata;
 
-    public function init(sql:Client dbClient, string entityName, sql:ParameterizedQuery tableName, string[] keyFields, map<FieldMetadata> fieldMetadata,
+    public isolated function init(sql:Client dbClient, string entityName, sql:ParameterizedQuery tableName, string[] keyFields, map<FieldMetadata> fieldMetadata,
                          map<JoinMetadata> joinMetadata = {}) returns error? {
         self.entityName = entityName;
         self.tableName = tableName;
@@ -36,7 +36,7 @@ public client class SQLClient {
         self.joinMetadata = joinMetadata;
     }
 
-    public function runInsertQuery(record {} 'object) returns sql:ExecutionResult|error {
+    public isolated function runInsertQuery(record {} 'object) returns sql:ExecutionResult|error {
         sql:ParameterizedQuery query = sql:queryConcat(
             `INSERT INTO `, self.tableName, ` (`,
             self.getInsertColumnNames(), ` ) `,
@@ -45,7 +45,7 @@ public client class SQLClient {
         return check self.dbClient->execute(query);
     }
 
-    public function runReadByKeyQuery(typedesc<record {}> rowType, anydata key, string[] include = []) returns record {}|error {
+    public isolated function runReadByKeyQuery(typedesc<record {}> rowType, anydata key, string[] include = []) returns record {}|error {
         sql:ParameterizedQuery query = sql:queryConcat(
             `SELECT `, self.getSelectColumnNames(include), ` FROM `, self.tableName, ` AS `, stringToParameterizedQuery(self.entityName)
         );
@@ -59,7 +59,6 @@ public client class SQLClient {
         }
 
         query = sql:queryConcat(query, ` WHERE `, check self.getGetKeyWhereClauses(key));
-
         record {}|error result = self.dbClient->queryRow(query, rowType);
 
         if result is sql:NoRowsError {
@@ -74,27 +73,7 @@ public client class SQLClient {
         return result;
     }
 
-    public isolated function getManyRelations(record {} result, string[] include) returns error? {
-        foreach string joinKey in self.joinMetadata.keys() {
-            sql:ParameterizedQuery query = ``;
-            JoinMetadata joinMetadata = self.joinMetadata.get(joinKey);
-            if include.indexOf(joinKey) != () && joinMetadata.'type == MANY {
-                query = sql:queryConcat(`SELECT `, self.getManyRelationColumnNames(joinMetadata.fieldName),
-                                        ` FROM `, stringToParameterizedQuery(joinMetadata.refTable), 
-                                        ` WHERE `, stringToParameterizedQuery(joinMetadata.refFields[0]), ` = `, stringToParameterizedQuery(result["id"].toBalString()));
-                
-                stream<record {}, sql:Error?> joinStream = self.dbClient->query(query, joinMetadata.entity);
-                record {}[] arr = [];
-                check from record {} item in joinStream
-                    do {
-                        arr.push(check item.cloneWithType(joinMetadata.entity));
-                    };
-                result[joinMetadata.fieldName] = convertToArray(joinMetadata.entity, arr);
-            }
-        }
-    }
-
-    public function runReadQuery(typedesc<record {}> rowType, map<anydata>? filter, string[] include = [])
+    public isolated function runReadQuery(typedesc<record {}> rowType, map<anydata>? filter, string[] include = [])
     returns stream<record {}, sql:Error?>|error {
         sql:ParameterizedQuery query = sql:queryConcat(
             `SELECT `, self.getSelectColumnNames(include),` FROM `, self.tableName, stringToParameterizedQuery(" " + self.entityName)
@@ -117,14 +96,14 @@ public client class SQLClient {
         return resultStream;
     }
 
-    public function runExecuteQuery(sql:ParameterizedQuery filterClause, typedesc<record {}> rowType, string[] include = [])
+    public isolated function runExecuteQuery(sql:ParameterizedQuery filterClause, typedesc<record {}> rowType, string[] include = [])
     returns stream<record {}, sql:Error?>|error {
         sql:ParameterizedQuery query = sql:queryConcat(`SELECT `, self.getSelectColumnNames(include), ` FROM `, self.tableName,
         filterClause);
         return self.dbClient->query(query, rowType);
     }
 
-    public function runUpdateQuery(record {} 'object, map<anydata>? filter) returns ForeignKeyConstraintViolation|error? {
+    public isolated function runUpdateQuery(record {} 'object, map<anydata>? filter) returns ForeignKeyConstraintViolation|error? {
         sql:ParameterizedQuery query = sql:queryConcat(`UPDATE `, self.tableName, stringToParameterizedQuery(" " + self.entityName), ` SET`, check self.getSetClauses('object));
 
         if !(filter is ()) {
@@ -142,7 +121,7 @@ public client class SQLClient {
         }
     }
 
-    public function runDeleteQuery(map<anydata>? filter) returns error? {
+    public isolated function runDeleteQuery(map<anydata>? filter) returns error? {
         sql:ParameterizedQuery query = sql:queryConcat(`DELETE FROM `, self.tableName, stringToParameterizedQuery(" " + self.entityName));
 
         if !(filter is ()) {
@@ -152,7 +131,7 @@ public client class SQLClient {
         _ = check self.dbClient->execute(query);
     }
 
-    public function checkExists(map<anydata>? filter) returns error? {
+    public isolated function checkExists(map<anydata>? filter) returns error? {
         sql:ParameterizedQuery query = sql:queryConcat(`SELECT * FROM `, self.tableName, stringToParameterizedQuery(" " + self.entityName));
 
         if !(filter is ()) {
@@ -162,11 +141,32 @@ public client class SQLClient {
         _ = check self.dbClient->execute(query);
     }
 
-    public function close() returns error? {
+    public isolated function getManyRelations(record {} result, string[] include) returns error? {
+        foreach string joinKey in self.joinMetadata.keys() {
+            sql:ParameterizedQuery query = ``;
+            JoinMetadata joinMetadata = self.joinMetadata.get(joinKey);
+            if include.indexOf(joinKey) != () && joinMetadata.'type == MANY {
+                query = sql:queryConcat(`SELECT `, self.getManyRelationColumnNames(joinMetadata.fieldName),
+                                        ` FROM `, stringToParameterizedQuery(joinMetadata.refTable), 
+                                        ` WHERE `, stringToParameterizedQuery(joinMetadata.refFields[0]), ` = `, stringToParameterizedQuery(result["id"].toBalString()));
+                
+                stream<record {}, sql:Error?> joinStream = self.dbClient->query(query, joinMetadata.entity);
+                record {}[] arr = [];
+                check from record {} item in joinStream
+                    do {
+                        arr.push(check item.cloneWithType(joinMetadata.entity));
+                    };
+                result[joinMetadata.fieldName] = convertToArray(joinMetadata.entity, arr);
+            }
+        }
+    }
+
+
+    public isolated function close() returns error? {
         return self.dbClient.close();
     }
 
-    private function getInsertQueryParams(record {} 'object) returns sql:ParameterizedQuery {
+    private isolated function getInsertQueryParams(record {} 'object) returns sql:ParameterizedQuery {
         sql:ParameterizedQuery params = `(`;
         string[] keys = self.fieldMetadata.keys();
         int columnCount = 0;
@@ -196,7 +196,7 @@ public client class SQLClient {
         return params;
     }
 
-    private function getInsertColumnNames() returns sql:ParameterizedQuery {
+    private isolated function getInsertColumnNames() returns sql:ParameterizedQuery {
         sql:ParameterizedQuery params = ` `;
         string[] keys = self.fieldMetadata.keys();
         int columnCount = 0;
@@ -213,7 +213,7 @@ public client class SQLClient {
         return params;
     }
 
-    private function getSelectColumnNames(string[] include) returns sql:ParameterizedQuery {
+    private isolated function getSelectColumnNames(string[] include) returns sql:ParameterizedQuery {
         sql:ParameterizedQuery params = ` `;
         int columnCount = 0;
 
@@ -262,7 +262,7 @@ public client class SQLClient {
         return params;
     }
 
-    private function getGetKeyWhereClauses(anydata key) returns sql:ParameterizedQuery|error {
+    private isolated function getGetKeyWhereClauses(anydata key) returns sql:ParameterizedQuery|error {
         map<anydata> filter = {};
 
         if key is record {} {
@@ -274,7 +274,7 @@ public client class SQLClient {
         return check self.getWhereClauses(filter);
     }
 
-    private function getWhereClauses(map<anydata> filter) returns sql:ParameterizedQuery|error {
+    private isolated function getWhereClauses(map<anydata> filter) returns sql:ParameterizedQuery|error {
         sql:ParameterizedQuery query = ` `;
 
         string[] keys = filter.keys();
@@ -287,7 +287,7 @@ public client class SQLClient {
         return query;
     }
 
-    private function getSetClauses(record {} 'object) returns sql:ParameterizedQuery|error {
+    private isolated function getSetClauses(record {} 'object) returns sql:ParameterizedQuery|error {
         record {} r = flattenRecord('object);
         sql:ParameterizedQuery query = ` `;
         int count = 0;
@@ -306,7 +306,7 @@ public client class SQLClient {
         return query;
     }
 
-    private function getJoinFilters(string joinKey, string[] refFields, string[] joinColumns) returns sql:ParameterizedQuery|error {
+    private isolated function getJoinFilters(string joinKey, string[] refFields, string[] joinColumns) returns sql:ParameterizedQuery|error {
         sql:ParameterizedQuery query = ` `;
         foreach int i in 0..<refFields.length() {
             if i > 0 {
@@ -318,7 +318,7 @@ public client class SQLClient {
         return query;
     }
 
-    private function getFieldParamQuery(string fieldName) returns sql:ParameterizedQuery|FieldDoesNotExist|InvalidInsertion {
+    private isolated function getFieldParamQuery(string fieldName) returns sql:ParameterizedQuery|FieldDoesNotExist|InvalidInsertion {
         FieldMetadata? fieldMetadata = self.fieldMetadata[fieldName];
         if fieldMetadata is () {
             return <FieldDoesNotExist>error(
