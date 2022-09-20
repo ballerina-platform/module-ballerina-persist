@@ -288,7 +288,7 @@ public class CompilerPluginTest {
         testSqlScript("package_08", fileContent, 0, "");
     }
 
-    //@Test
+    @Test
     public void testGenerateSqlScript8() throws IOException {
         String fileContent = "DROP TABLE IF EXISTS MedicalNeeds;\n" +
                 "\n" +
