@@ -51,7 +51,7 @@ public class CompilerPluginTest {
         return project.currentPackage();
     }
 
-    //@Test
+    @Test
     public void testGenerateSqlScript() throws IOException {
         String fileContent = "DROP TABLE IF EXISTS Medical_Need;\n" +
                 "\n" +
@@ -76,7 +76,7 @@ public class CompilerPluginTest {
         testSqlScript("package_01", fileContent, 0, "");
     }
 
-    //@Test
+    @Test
     public void testGenerateSqlScript1() throws IOException {
         String content = "DROP TABLE IF EXISTS MedicalNeed;\n" +
                 "CREATE TABLE MedicalNeed (\n" +
@@ -90,7 +90,7 @@ public class CompilerPluginTest {
         testSqlScript("package_02", content, 0, "");
     }
 
-    //@Test
+    @Test
     public void testGenerateSqlScript2() throws IOException {
         String fileContent = "DROP TABLE IF EXISTS Medical_Need;\n" +
                 "\n" +
@@ -114,7 +114,7 @@ public class CompilerPluginTest {
         testSqlScript("package_03", fileContent, 0, "");
     }
 
-    //@Test
+    @Test
     public void testGenerateSqlScript3() throws IOException {
         String fileContent = "DROP TABLE IF EXISTS Medical_Need2;\n" +
                 "\n" +
@@ -139,7 +139,7 @@ public class CompilerPluginTest {
         testSqlScript("package_04", fileContent, 0, "");
     }
 
-    //@Test
+    @Test
     public void testGenerateSqlScript4() throws IOException {
         String fileContent = "DROP TABLE IF EXISTS EMPLOYEE;\n" +
                 "\n" +
@@ -165,7 +165,7 @@ public class CompilerPluginTest {
                 "mysql db only allow increment value by one in auto generated field");
     }
 
-    //@Test
+    @Test
     public void testGenerateSqlScript5() throws IOException {
         String fileContent = "DROP TABLE IF EXISTS MedicalNeeds;\n" +
                 "\n" +
@@ -219,7 +219,7 @@ public class CompilerPluginTest {
         testSqlScript("package_06", fileContent, 0, "");
     }
 
-    //@Test
+    @Test
     public void testGenerateSqlScript6() throws IOException {
         String fileContent = "DROP TABLE IF EXISTS MedicalNeeds;\n" +
                 "\n" +
@@ -254,7 +254,7 @@ public class CompilerPluginTest {
         testSqlScript("package_07", fileContent, 0, "");
     }
 
-    //@Test
+    @Test
     public void testGenerateSqlScript7() throws IOException {
         String fileContent = "DROP TABLE IF EXISTS Item1;\n" +
                 "CREATE TABLE Item1 (\n" +
