@@ -110,12 +110,12 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             Path filePath = Paths.get(String.valueOf(directoryPath), Constants.FILE_NAME);
             try {
                 Files.deleteIfExists(filePath);
+                isNewBuild = false;
             } catch (IOException e) {
                 Utils.reportDiagnostic(ctx, ctx.node().location(), DiagnosticsCodes.PERSIST_110.getCode(),
                         "error in delete the existing script file: " + e.getMessage(),
                         DiagnosticsCodes.PERSIST_110.getSeverity());
             }
-            isNewBuild = false;
         }
         List<Diagnostic> diagnostics = ctx.semanticModel().diagnostics();
         for (Diagnostic diagnostic : diagnostics) {
