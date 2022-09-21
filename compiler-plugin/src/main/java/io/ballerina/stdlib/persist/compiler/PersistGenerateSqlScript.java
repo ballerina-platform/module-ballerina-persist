@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -637,7 +638,7 @@ public class PersistGenerateSqlScript {
         try {
             String content = EMPTY;
             Path directoryPath = ctx.currentPackage().project().targetDir().toAbsolutePath();
-            Path filePath = Path.of(directoryPath + "/persist_db_scripts.sql").toAbsolutePath();
+            Path filePath = Paths.get(String.valueOf(directoryPath), Constants.FILE_NAME);
             if (Files.exists(filePath)) {
                 byte[] bytes = Files.readAllBytes(filePath);
                 content = new String(bytes, StandardCharsets.UTF_8);

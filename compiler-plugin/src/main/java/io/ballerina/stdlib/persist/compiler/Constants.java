@@ -41,6 +41,7 @@ public class Constants {
     public static final String NOT_NULL = " NOT NULL";
     public static final String AUTO_INCREMENT_WITH_SPACE = " AUTO_INCREMENT";
     public static final String AUTO_INCREMENT_WITH_TAB = "\tAUTO_INCREMENT";
+    public static final String FILE_NAME = "persist_db_scripts.sql";
 
     /**
      * Constants related to Ballerina types.
