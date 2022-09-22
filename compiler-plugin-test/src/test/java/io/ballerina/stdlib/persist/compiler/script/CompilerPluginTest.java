@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Tests for sql script generator.
@@ -323,6 +325,104 @@ public class CompilerPluginTest {
         testSqlScript("package_09", fileContent, 0, "");
     }
 
+    @Test
+    public void testGenerateSqlScript9() throws IOException {
+        String fileContent = "DROP TABLE IF EXISTS MedicalItem;\n" +
+                "CREATE TABLE MedicalItem (\n" +
+                "\tneedId INT NOT NULL AUTO_INCREMENT,\n" +
+                "\titemId INT NOT NULL,\n" +
+                "\tbeneficiaryId INT NOT NULL,\n" +
+                "\tperiod VARCHAR(191) NOT NULL,\n" +
+                "\turgency VARCHAR(191) NOT NULL,\n" +
+                "\tquantity INT NOT NULL,\n" +
+                "\tPRIMARY KEY(needId)\n" +
+                ");\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS MedicalNeeds;\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS Item;\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS Item1;\n" +
+                "CREATE TABLE Item1 (\n" +
+                "\tid INT NOT NULL AUTO_INCREMENT,\n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\tPRIMARY KEY(id)\n" +
+                ")\tAUTO_INCREMENT = 5;\n" +
+                "\n" +
+                "CREATE TABLE Item (\n" +
+                "\tid INT NOT NULL AUTO_INCREMENT,\n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\titemId1 INT,\n" +
+                "\tCONSTRAINT FK_ITEM_ITEM1_0 FOREIGN KEY(itemId1) REFERENCES Item1(id) ON DELETE CASCADE,\n" +
+                "\tPRIMARY KEY(id)\n" +
+                ")\tAUTO_INCREMENT = 3;\n" +
+                "\n" +
+                "CREATE TABLE MedicalNeeds (\n" +
+                "\tneedId INT NOT NULL AUTO_INCREMENT,\n" +
+                "\tbeneficiaryId INT NOT NULL,\n" +
+                "\tperiod VARCHAR(191) NOT NULL,\n" +
+                "\turgency VARCHAR(191) NOT NULL,\n" +
+                "\tquantity INT NOT NULL,\n" +
+                "\titemId INT,\n" +
+                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM_0 FOREIGN KEY(itemId) REFERENCES Item(id) ON DELETE CASCADE,\n" +
+                "\tPRIMARY KEY(needId),\n" +
+                "\tUNIQUE KEY(beneficiaryId, urgency)\n" +
+                ");";
+        String fileContent1 = "DROP TABLE IF EXISTS MedicalNeeds;\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS Item;\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS Item1;\n" +
+                "CREATE TABLE Item1 (\n" +
+                "\tid INT NOT NULL AUTO_INCREMENT,\n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\tPRIMARY KEY(id)\n" +
+                ")\tAUTO_INCREMENT = 5;\n" +
+                "\n" +
+                "CREATE TABLE Item (\n" +
+                "\tid INT NOT NULL AUTO_INCREMENT,\n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\titemId1 INT,\n" +
+                "\tCONSTRAINT FK_ITEM_ITEM1_0 FOREIGN KEY(itemId1) REFERENCES Item1(id) ON DELETE CASCADE,\n" +
+                "\tPRIMARY KEY(id)\n" +
+                ")\tAUTO_INCREMENT = 3;\n" +
+                "\n" +
+                "CREATE TABLE MedicalNeeds (\n" +
+                "\tneedId INT NOT NULL AUTO_INCREMENT,\n" +
+                "\tbeneficiaryId INT NOT NULL,\n" +
+                "\tperiod VARCHAR(191) NOT NULL,\n" +
+                "\turgency VARCHAR(191) NOT NULL,\n" +
+                "\tquantity INT NOT NULL,\n" +
+                "\titemId INT,\n" +
+                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM_0 FOREIGN KEY(itemId) REFERENCES Item(id) ON DELETE CASCADE,\n" +
+                "\tPRIMARY KEY(needId),\n" +
+                "\tUNIQUE KEY(beneficiaryId, urgency)\n" +
+                ");\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS MedicalItem;\n" +
+                "CREATE TABLE MedicalItem (\n" +
+                "\tneedId INT NOT NULL AUTO_INCREMENT,\n" +
+                "\titemId INT NOT NULL,\n" +
+                "\tbeneficiaryId INT NOT NULL,\n" +
+                "\tperiod VARCHAR(191) NOT NULL,\n" +
+                "\turgency VARCHAR(191) NOT NULL,\n" +
+                "\tquantity INT NOT NULL,\n" +
+                "\tPRIMARY KEY(needId)\n" +
+                ");";
+        List<String> fileContents = new ArrayList<>();
+        fileContents.add(fileContent);
+        fileContents.add(fileContent1);
+        Package currentPackage = loadPackage("package_10");
+        currentPackage.getCompilation();
+        Path directoryPath = currentPackage.project().targetDir().toAbsolutePath();
+        Path filePath = Paths.get(String.valueOf(directoryPath), "persist_db_scripts.sql");
+        Assert.assertTrue(Files.exists(filePath), "The file doesn't exist");
+        String content = Files.readString(filePath);
+        Assert.assertTrue(fileContents.contains(content));
+        Files.deleteIfExists(filePath);
+        Files.deleteIfExists(directoryPath);
+    }
+
     private void testSqlScript(String packagePath, String fileContent, int count,
                                String warningMsg) throws IOException {
         Package currentPackage = loadPackage(packagePath);
@@ -346,3 +446,5 @@ public class CompilerPluginTest {
         }
     }
 }
+
+
