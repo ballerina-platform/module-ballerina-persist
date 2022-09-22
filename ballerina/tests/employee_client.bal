@@ -17,19 +17,19 @@
 import ballerinax/mysql;
 import ballerina/sql;
 
-client class ProfileClient {
+client class EmployeeClient {
 
-    private final string entityName = "Profile";
-    private final sql:ParameterizedQuery tableName = `Profiles`;
+    private final string entityName = "Employee";
+    private final sql:ParameterizedQuery tableName = `Employees`;
     private final map<FieldMetadata> fieldMetadata = {
         id: {columnName: "id", 'type: int},
         name: {columnName: "name", 'type: string},
-        "user.id": {columnName: "userId", 'type: int, relation: {entityName: "user", refTable: "Users", refField: "id"}},
-        "user.name": {'type: int, relation: {entityName: "user", refTable: "Users", refField: "name"}}
+        "company.id": {columnName: "companyId", 'type: int, relation: {entityName: "company", refTable: "Companies", refField: "id"}},
+        "company.name": {'type: string, relation: {entityName: "company", refTable: "Companies", refField: "name"}}
     };
     private string[] keyFields = ["id"];
     private final map<JoinMetadata> joinMetadata = {
-        user: {entity: User, fieldName: "user", refTable: "Users", refFields: ["id"], joinColumns: ["userId"]}
+        company: {entity: Company, fieldName: "company", refTable: "Companies", refFields: ["id"], joinColumns: ["companyId"]}
     };
 
     private SQLClient persistClient;
@@ -39,12 +39,12 @@ client class ProfileClient {
         self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata, self.joinMetadata);
     }
 
-    remote function create(Profile value) returns Profile|error {
-        if value.user is User {
-            UserClient userClient = check new UserClient();
-            boolean exists = check userClient->exists(<User> value.user);
+    remote function create(Employee value) returns Employee|error {
+        if value.company is Company {
+            CompanyClient companyClient = check new CompanyClient();
+            boolean exists = check companyClient->exists(<Company> value.company);
             if !exists {
-                value.user = check userClient->create(<User> value.user);
+                value.company = check companyClient->create(<Company> value.company);
             }
         }
     
@@ -52,28 +52,28 @@ client class ProfileClient {
         return value;
     }
 
-    remote function readByKey(int key, ProfileRelations[] include = []) returns Profile|error {
-        return <Profile> check self.persistClient.runReadByKeyQuery(Profile, key, include);
+    remote function readByKey(int key, EmployeeRelations[] include = []) returns Employee|error {
+        return <Employee> check self.persistClient.runReadByKeyQuery(Employee, key, include);
     }
 
-    remote function read(map<anydata>? filter = (), ProfileRelations[] include = []) returns stream<Profile, error?>|error {
-        stream<anydata, error?> result = check self.persistClient.runReadQuery(Profile, filter, include);
-        return new stream<Profile, error?>(new ProfileStream(result, include));
+    remote function read(map<anydata>? filter = (), EmployeeRelations[] include = []) returns stream<Employee, error?>|error {
+        stream<anydata, error?> result = check self.persistClient.runReadQuery(Employee, filter, include);
+        return new stream<Employee, error?>(new EmployeeStream(result, include));
     }
 
     remote function update(record {} 'object, map<anydata> filter) returns error? {
         _ = check self.persistClient.runUpdateQuery('object, filter);
         
-        if 'object["user"] is record {} {
-            record {} userEntity = <record {}> 'object["user"];
-            UserClient userClient = check new UserClient();
-            stream<Profile, error?> profileStream = check self->read(filter, [UserEntity]);
+        if 'object["company"] is record {} {
+            record {} companyEntity = <record {}> 'object["company"];
+            CompanyClient companyClient = check new CompanyClient();
+            stream<Employee, error?> employeeStream = check self->read(filter, [CompanyEntity]);
 
             // TODO: replace this with more optimized code after adding support for advanced queries
-            check from Profile p in profileStream
+            check from Employee employee in employeeStream
                 do {
-                    if p.user is User {
-                        check userClient->update(userEntity, {"id": (<User> p.user).id});
+                    if employee.company is Company {
+                        check companyClient->update(companyEntity, {"id": (<Company> employee.company).id});
                     }
                 };
         }
@@ -83,9 +83,9 @@ client class ProfileClient {
         _ = check self.persistClient.runDeleteQuery(filter);
     }
 
-    remote function exists(Profile profile) returns boolean|error {
-        Profile|error result = self->readByKey(profile.id);
-        if result is Profile {
+    remote function exists(Employee employee) returns boolean|error {
+        Employee|error result = self->readByKey(employee.id);
+        if result is Employee {
             return true;
         } else if result is InvalidKey {
             return false;
@@ -100,27 +100,27 @@ client class ProfileClient {
 
 }
 
-public enum ProfileRelations {
-    UserEntity = "user"
+public enum EmployeeRelations {
+    CompanyEntity = "company"
 }
 
-public class ProfileStream {
+public class EmployeeStream {
     private stream<anydata, error?> anydataStream;
-    private ProfileRelations[] include;
+    private EmployeeRelations[] include;
 
-    public isolated function init(stream<anydata, error?> anydataStream, ProfileRelations[] include = []) {
+    public isolated function init(stream<anydata, error?> anydataStream, EmployeeRelations[] include = []) {
         self.anydataStream = anydataStream;
         self.include = include;
     }
 
-    public isolated function next() returns record {|Profile value;|}|error? {
+    public isolated function next() returns record {|Employee value;|}|error? {
         var streamValue = self.anydataStream.next();
         if streamValue is () {
             return streamValue;
         } else if (streamValue is error) {
             return streamValue;
         } else {
-            record {|Profile value;|} nextRecord = {value: <Profile>streamValue.value};
+            record {|Employee value;|} nextRecord = {value: <Employee>streamValue.value};
             return nextRecord;
         }
     }

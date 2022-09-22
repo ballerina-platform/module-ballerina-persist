@@ -17,19 +17,19 @@
 import ballerinax/mysql;
 import ballerina/sql;
 
-client class UserClient {
+client class CompanyClient {
 
-    private final string entityName = "User";
-    private final sql:ParameterizedQuery tableName = `Users`;
+    private final string entityName = "Company";
+    private final sql:ParameterizedQuery tableName = `Companies`;
     private final map<FieldMetadata> fieldMetadata = {
         id: {columnName: "id", 'type: int},
         name: {columnName: "name", 'type: string},
-        "profile.id": {'type: int, relation: {entityName: "profile", refTable: "Profiles", refField: "id"}},
-        "profile.name": {'type: string, relation: {entityName: "profile", refTable: "Profiles", refField: "name"}}
+        "employees[].id": {'type: int, relation: {entityName: "employee", refTable: "Employees", refField: "id"}},
+        "employees[].name": {'type: string, relation: {entityName: "employee", refTable: "Employees", refField: "name"}}
     };
     private string[] keyFields = ["id"];
     private final map<JoinMetadata> joinMetadata = {
-        profile: {entity: Profile, fieldName: "profile", refTable: "Profiles", refFields: ["userId"], joinColumns: ["id"]}
+        employee: {entity: Employee, fieldName: "employees", refTable: "Employees", refFields: ["companyId"], joinColumns: ["id"], 'type: MANY}
     };
 
     private SQLClient persistClient;
@@ -39,18 +39,18 @@ client class UserClient {
         self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata, self.joinMetadata);
     }
 
-    remote function create(User value) returns User|error {
-        sql:ExecutionResult _ = check self.persistClient.runInsertQuery(value);
+    remote function create(Company value) returns Company|error {
+        _ = check self.persistClient.runInsertQuery(value);
         return value;
     }
 
-    remote function readByKey(int key, UserRelations[] include = []) returns User|error {
-        return <User> check self.persistClient.runReadByKeyQuery(User, key, include);
+    remote function readByKey(int key, CompanyRelations[] include = []) returns Company|error {
+        return <Company> check self.persistClient.runReadByKeyQuery(Company, key, include);
     }
 
-    remote function read(map<anydata>? filter = (), UserRelations[] include = []) returns stream<User, error?>|error {
-        stream<anydata, error?> result = check self.persistClient.runReadQuery(User, filter, include);
-        return new stream<User, error?>(new UserStream(result));
+    remote function read(map<anydata>? filter = (), CompanyRelations[] include = []) returns stream<Company, error?>|error {
+        stream<anydata, error?> result = check self.persistClient.runReadQuery(Company, filter, include);
+        return new stream<Company, error?>(new CompanyStream(result, include, self.persistClient));
     }
 
     remote function update(record {} 'object, map<anydata> filter) returns error? {
@@ -61,9 +61,9 @@ client class UserClient {
         _ = check self.persistClient.runDeleteQuery(filter);
     }
 
-    remote function exists(User user) returns boolean|error {
-        User|error result = self->readByKey(user.id);
-        if result is User {
+    remote function exists(Company company) returns boolean|error {
+        Company|error result = self->readByKey(company.id);
+        if result is Company {
             return true;
         } else if result is InvalidKey {
             return false;
@@ -78,25 +78,30 @@ client class UserClient {
 
 }
 
-public enum UserRelations {
-    ProfileEntity = "profile"
+public enum CompanyRelations {
+    EmployeeEntity = "employee"
 }
 
-public class UserStream {
+public class CompanyStream {
     private stream<anydata, error?> anydataStream;
+    private SQLClient persistClient;
+    private CompanyRelations[] include;
 
-    public isolated function init(stream<anydata, error?> anydataStream) {
+    public isolated function init(stream<anydata, error?> anydataStream, CompanyRelations[] include, SQLClient persistClient) {
         self.anydataStream = anydataStream;
+        self.include = include;
+        self.persistClient = persistClient;
     }
 
-    public isolated function next() returns record {|User value;|}|error? {
+    public isolated function next() returns record {|Company value;|}|error? {
         var streamValue = self.anydataStream.next();
         if streamValue is () {
             return streamValue;
         } else if (streamValue is error) {
             return streamValue;
         } else {
-            record {|User value;|} nextRecord = {value: check streamValue.value.cloneWithType(User)};
+            record {|Company value;|} nextRecord = {value: check streamValue.value.cloneWithType(Company)};
+            check self.persistClient.getManyRelations(nextRecord.value, self.include);
             return nextRecord;
         }
     }

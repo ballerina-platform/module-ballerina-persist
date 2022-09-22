@@ -15,14 +15,15 @@
 // under the License.
 
 import ballerina/sql;
+import ballerina/jballerina.java;
 
-function stringToParameterizedQuery(string queryStr) returns sql:ParameterizedQuery {
+isolated function stringToParameterizedQuery(string queryStr) returns sql:ParameterizedQuery {
     sql:ParameterizedQuery query = ``;
     query.strings = [queryStr];
     return query;
 }
 
-function flattenRecord(record {} r) returns record {} {
+isolated function flattenRecord(record {} r) returns record {} {
     record {} returnRecord = {};
     foreach string key in r.keys() {
         if r[key] is record {} {
@@ -36,3 +37,8 @@ function flattenRecord(record {} r) returns record {} {
     }
     return returnRecord;
 }
+
+isolated function convertToArray(typedesc<record {}> elementType, record {}[] arr) returns elementType[] = @java:Method {
+    'class: "io.ballerina.stdlib.persist.Utils"
+} external;
+
