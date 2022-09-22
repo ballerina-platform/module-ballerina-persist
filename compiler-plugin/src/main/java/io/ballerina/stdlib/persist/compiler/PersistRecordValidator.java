@@ -61,6 +61,10 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -82,6 +86,8 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
     private int noOfReportDiagnostic;
     private final List<String> recordNamesOfForeignKey;
     private final HashMap<String, List<String>> referenceTables;
+    private final List<String> tableNames;
+    private boolean isNewBuild = false;
 
     public PersistRecordValidator() {
         primaryKeys = new ArrayList<>();
@@ -93,10 +99,24 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         tableName = "";
         noOfReportDiagnostic = 0;
         referenceTables = new HashMap<>();
+        tableNames = new ArrayList<>();
+        isNewBuild = true;
     }
 
     @Override
     public void perform(SyntaxNodeAnalysisContext ctx) {
+        if (isNewBuild) {
+            Path directoryPath = ctx.currentPackage().project().targetDir().toAbsolutePath();
+            Path filePath = Paths.get(String.valueOf(directoryPath), Constants.FILE_NAME);
+            try {
+                Files.deleteIfExists(filePath);
+                isNewBuild = false;
+            } catch (IOException e) {
+                Utils.reportDiagnostic(ctx, ctx.node().location(), DiagnosticsCodes.PERSIST_110.getCode(),
+                        "error in delete the existing script file: " + e.getMessage(),
+                        DiagnosticsCodes.PERSIST_110.getSeverity());
+            }
+        }
         List<Diagnostic> diagnostics = ctx.semanticModel().diagnostics();
         for (Diagnostic diagnostic : diagnostics) {
             if (diagnostic.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
@@ -316,6 +336,14 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                                     validateEntityProperties(ctx, expressionNode.get(), tableFields);
                                 } else {
                                     tableName = Utils.eliminateDoubleQuotes(expressionNode.get().toSourceCode().trim());
+                                    if (tableNames.contains(tableName)) {
+                                        reportDiagnosticInfo(ctx, mappingFieldNode.location(),
+                                                DiagnosticsCodes.PERSIST_113.getCode(),
+                                                DiagnosticsCodes.PERSIST_113.getMessage(),
+                                                DiagnosticsCodes.PERSIST_113.getSeverity());
+                                    } else {
+                                        tableNames.add(tableName);
+                                    }
                                 }
                             }
                         }

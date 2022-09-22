@@ -44,6 +44,7 @@ public class Constants {
     public static final String CONSTRAINT_STRING = "constraint:String";
     public static final String LENGTH = "length";
     public static final String MAX_LENGTH = "maxLength";
+    public static final String FILE_NAME = "persist_db_scripts.sql";
 
     /**
      * Constants related to Ballerina types.

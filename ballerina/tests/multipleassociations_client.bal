@@ -31,8 +31,8 @@ client class MultipleAssociationsClient {
     };
     private string[] keyFields = ["id"];
     private final map<JoinMetadata> joinMetadata = {
-        profile: {refTable: "Profiles", refFields: ["id"], joinColumns: ["profileId"]},
-        user: {refTable: "Users", refFields: ["id"], joinColumns: ["userId"]}
+        profile: {entity: Profile, fieldName: "profile", refTable: "Profiles", refFields: ["id"], joinColumns: ["profileId"]},
+        user: {entity: User, fieldName: "user", refTable: "Users", refFields: ["id"], joinColumns: ["userId"]}
     };
 
     private SQLClient persistClient;
@@ -69,7 +69,7 @@ client class MultipleAssociationsClient {
 
     remote function read(map<anydata>? filter = (), MultipleAssociationsRelations[] include = []) returns stream<MultipleAssociations, error?>|error {
         stream<anydata, error?> result = check self.persistClient.runReadQuery(MultipleAssociations, filter, include);
-        return new stream<MultipleAssociations, error?>(new MultipleAssociationsStream(result, include));
+        return new stream<MultipleAssociations, error?>(new MultipleAssociationsStream(result));
     }
 
     remote function update(record {} 'object, map<anydata> filter) returns error? {
@@ -132,11 +132,9 @@ public enum MultipleAssociationsRelations {
 
 public class MultipleAssociationsStream {
     private stream<anydata, error?> anydataStream;
-    private MultipleAssociationsRelations[] include;
 
-    public isolated function init(stream<anydata, error?> anydataStream, MultipleAssociationsRelations[] include = []) {
+    public isolated function init(stream<anydata, error?> anydataStream) {
         self.anydataStream = anydataStream;
-        self.include = include;
     }
 
     public isolated function next() returns record {|MultipleAssociations value;|}|error? {

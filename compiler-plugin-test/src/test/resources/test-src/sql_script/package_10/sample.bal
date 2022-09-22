@@ -16,7 +16,6 @@
 
 import ballerina/time;
 import ballerina/persist;
-import ballerina/constraint;
 
 @persist:Entity {
     key: ["needId"],
@@ -28,9 +27,6 @@ public type MedicalNeed record {|
     readonly int needId = 1;
     int beneficiaryId;
     time:Civil period;
-    @constraint:String {
-        maxLength: 20
-    }
     string urgency;
     int quantity;
     @persist:Relation {reference: ["id"], cascadeDelete: true}
@@ -41,9 +37,6 @@ public type MedicalNeed record {|
 public type Item record {
     @persist:AutoIncrement
     readonly int id = 3;
-    @constraint:String {
-        length: 50
-    }
     string name;
     @persist:Relation {keyColumns: ["itemId1"], cascadeDelete: true}
     Item1 item1?;
@@ -53,8 +46,5 @@ public type Item record {
 public type Item1 record {
     @persist:AutoIncrement
     readonly int id = 5;
-    @constraint:String {
-        maxLength: 20
-    }
     string name;
 };

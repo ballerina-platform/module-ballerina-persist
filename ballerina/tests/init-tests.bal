@@ -17,6 +17,8 @@ function truncate() returns error? {
     _ = check dbClient->execute(`TRUNCATE Users`);
     _ = check dbClient->execute(`TRUNCATE Profiles`);
     _ = check dbClient->execute(`TRUNCATE MultipleAssociations`);
+    _ = check dbClient->execute(`TRUNCATE Companies`);
+    _ = check dbClient->execute(`TRUNCATE Employees`);
     _ = check dbClient->execute(`SET FOREIGN_KEY_CHECKS = 1`);
     check dbClient.close();
 }
