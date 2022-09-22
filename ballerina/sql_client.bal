@@ -224,7 +224,7 @@ public client class SQLClient {
                 }
                 params = sql:queryConcat(params, stringToParameterizedQuery(self.entityName + "." + <string>self.fieldMetadata.get(key).columnName + " AS `" + <string>self.fieldMetadata.get(key).columnName + "`"));
                 columnCount = columnCount + 1;
-            } else if include.indexOf((<RelationMetadata>self.fieldMetadata.get(key).relation).entityName) != (){
+            } else if include.indexOf((<RelationMetadata>self.fieldMetadata.get(key).relation).entityName) != () {
                 if !key.includes("[]") {
                     if columnCount > 0 {
                         params = sql:queryConcat(params, `, `);
