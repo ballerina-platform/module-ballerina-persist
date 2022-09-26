@@ -57,7 +57,7 @@ import java.util.Optional;
  */
 public class PersistGenerateSqlScript {
 
-    private static final String NEW_LINE = "\n";
+    private static final String NEW_LINE = System.lineSeparator();
     private static final String TAB = "\t";
     private static final String EMPTY = "";
     private static final String PRIMARY_KEY_START_SCRIPT = NEW_LINE + TAB + "PRIMARY KEY(";
