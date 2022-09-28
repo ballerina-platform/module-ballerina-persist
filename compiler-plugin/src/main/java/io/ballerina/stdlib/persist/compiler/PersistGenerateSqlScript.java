@@ -489,7 +489,7 @@ public class PersistGenerateSqlScript {
             }
             String unique = "";
             if (noOfForeignKeys == 1 && tableAssociationType.equals(Constants.ONE_TO_ONE)) {
-                unique = addUniqueKeyword(entityMetadata.get(), referenceKey);
+                unique = getUniqueKeyword(entityMetadata.get(), referenceKey);
             }
             for (Node recordField : recordTypeDescriptor.fields()) {
                 if (referenceKey.isEmpty()) {
@@ -703,7 +703,7 @@ public class PersistGenerateSqlScript {
             }
             String unique = "";
             if (noOfForeignKeys == 1 && tableAssociationType.equals(Constants.ONE_TO_ONE)) {
-                unique = addUniqueKeyword(entityMetadata.get(), referenceKey);
+                unique = getUniqueKeyword(entityMetadata.get(), referenceKey);
             }
             for (Node recordField : recordTypeDescriptor.fields()) {
                 String fieldType;
@@ -735,7 +735,7 @@ public class PersistGenerateSqlScript {
         return EMPTY;
     }
 
-    private static String addUniqueKeyword(MetadataNode metadataNode, String referenceKey) {
+    private static String getUniqueKeyword(MetadataNode metadataNode, String referenceKey) {
         for (AnnotationNode annotationNode : metadataNode.annotations()) {
             String annotationName = annotationNode.annotReference().toSourceCode().trim();
             if (annotationName.equals(Constants.ENTITY)) {
