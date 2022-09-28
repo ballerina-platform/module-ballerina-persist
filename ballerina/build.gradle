@@ -124,7 +124,7 @@ def checkExecResult(execResult, failText, standardOutput) {
 task createTestDockerImage(type: Exec) {
     if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
         def standardOutput = new ByteArrayOutputStream()
-        commandLine 'sh', '-c', "docker build -f $project.projectDir/tests/resources/Dockerfile -t ballerina-persist" +
+        commandLine 'sh', '-c', "docker build --platform linux/amd64 -f $project.projectDir/tests/resources/Dockerfile -t ballerina-persist" +
                 " -q $project.projectDir/tests/resources/"
         doLast {
             checkExecResult(execResult, 'Error', standardOutput)

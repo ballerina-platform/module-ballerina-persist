@@ -15,6 +15,6 @@ scope="testOnly"
 
 [[platform.java11.dependency]]
 groupId = "io.ballerina.persist"
-artifactId = "sql-persist"
+artifactId = "persist-native"
 version = "0.1.0"
 path = "../native/build/libs/persist-native-0.1.0-SNAPSHOT.jar"
