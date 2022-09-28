@@ -25,7 +25,7 @@ public class Constants {
 
     public static final String TRUE = "true";
     public static final String INSERT_METHOD_NAME = "runInsertQuery";
-    public static final String ENTITY = "persist:Entity ";
+    public static final String ENTITY = "persist:Entity";
     public static final String UNNECESSARY_CHARS_REGEX = "\"|\\n";
     public static final String TABLE_NAME = "tableName";
     public static final String AUTO_INCREMENT = "persist:AutoIncrement";
@@ -46,6 +46,10 @@ public class Constants {
     public static final String MAX_LENGTH = "maxLength";
     public static final String FILE_NAME = "persist_db_scripts.sql";
     public static final String VARCHAR_LENGTH = "191";
+    public static final String ONE_TO_ONE = "ONE";
+    public static final String ONE_TO_MANY = "MANY";
+    public static final String KEY = "key";
+    public static final String UNIQUE_CONSTRAINTS = "uniqueConstraints";
 
     /**
      * Constants related to Ballerina types.

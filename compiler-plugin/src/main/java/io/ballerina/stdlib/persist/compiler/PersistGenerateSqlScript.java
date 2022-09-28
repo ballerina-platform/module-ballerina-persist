@@ -18,6 +18,7 @@
 package io.ballerina.stdlib.persist.compiler;
 
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
@@ -62,6 +63,7 @@ public class PersistGenerateSqlScript {
     private static final String EMPTY = "";
     private static final String PRIMARY_KEY_START_SCRIPT = NEW_LINE + TAB + "PRIMARY KEY(";
     private static final String UNIQUE_KEY_START_SCRIPT = NEW_LINE + TAB + "UNIQUE KEY(";
+    private static final String UNIQUE = " UNIQUE";
 
     protected static void generateSqlScript(RecordTypeDescriptorNode recordNode, TypeDefinitionNode typeDefinitionNode,
                                             String tableName, NodeList<ModuleMemberDeclarationNode> memberNodes,
@@ -93,6 +95,7 @@ public class PersistGenerateSqlScript {
         Optional<MetadataNode> metadata;
         String fieldName;
         String sqlScript = EMPTY;
+        String tableAssociationType = Constants.ONE_TO_ONE;
         for (Node field : fields) {
             String length = Constants.VARCHAR_LENGTH;
             String notNull = Constants.NOT_NULL;
@@ -126,14 +129,14 @@ public class PersistGenerateSqlScript {
                 }
                 notNull = EMPTY;
             } else if (node instanceof QualifiedNameReferenceNode) {
-                QualifiedNameReferenceNode typeNode = (QualifiedNameReferenceNode) node;
-                type = getType(typeNode.identifier().text());
+                type = getType(((QualifiedNameReferenceNode) node).identifier().text());
             } else if (node instanceof SimpleNameReferenceNode) {
-                SimpleNameReferenceNode typeNode = (SimpleNameReferenceNode) node;
-                type = typeNode.name().text();
+                type = ((SimpleNameReferenceNode) node).name().text();
+            } else if (node instanceof ArrayTypeDescriptorNode) {
+                tableAssociationType = Constants.ONE_TO_MANY;
+                type = ((ArrayTypeDescriptorNode) node).memberTypeDesc().toString().trim();
             } else {
-                BuiltinSimpleNameReferenceNode typeNode = (BuiltinSimpleNameReferenceNode) node;
-                type = getType(typeNode.name().text());
+                type = getType(((BuiltinSimpleNameReferenceNode) node).name().text());
             }
             String relationScript = EMPTY;
             if (metadata.isPresent()) {
@@ -154,7 +157,7 @@ public class PersistGenerateSqlScript {
                     if (annotationName.equals(Constants.RELATION)) {
                         updateReferenceTable(tableName, type, referenceTables);
                         relationScript = processRelationAnnotation(annotationNode, type, tableName, memberNodes, type,
-                                length);
+                                tableAssociationType);
                     }
                 }
             }
@@ -273,7 +276,7 @@ public class PersistGenerateSqlScript {
 
     private static String processRelationAnnotation(AnnotationNode annotationNode, String fieldType, String tableName,
                                                     NodeList<ModuleMemberDeclarationNode> memberNodes,
-                                                    String referenceTableName, String length) {
+                                                    String referenceTableName, String tableAssociationType) {
         String delete = EMPTY;
         String update = EMPTY;
         StringBuilder relationScript = new StringBuilder(EMPTY);
@@ -311,7 +314,8 @@ public class PersistGenerateSqlScript {
                 int i = 0;
                 for (Node node : foreignKeys.expressions()) {
                     String referenceKey = Utils.eliminateDoubleQuotes(referenceValueNode.get(i).toSourceCode().trim());
-                    String foreignKeyType = getForeignKeyType(memberNodes, referenceKey, referenceTableName);
+                    String foreignKeyType = getForeignKeyType(memberNodes, referenceKey, referenceTableName,
+                            foreignKeys.expressions().size(), tableAssociationType);
                     relationScript = new StringBuilder(relationScript.toString().concat(
                             constructForeignKeyScript(Utils.eliminateDoubleQuotes(node.toSourceCode().trim()),
                                     foreignKeyType, tableName, fieldType, String.valueOf(i), referenceKey, delete,
@@ -328,28 +332,28 @@ public class PersistGenerateSqlScript {
                     foreignKey = referenceTableName.toLowerCase(Locale.ENGLISH) +
                             referenceKey.substring(0, 1).toUpperCase(Locale.ENGLISH) +
                             referenceKey.substring(1);
-                    foreignKeyType = getForeignKeyType(memberNodes, referenceKey, referenceTableName);
+                    foreignKeyType = getForeignKeyType(memberNodes, referenceKey, referenceTableName,
+                            reference.expressions().size(), tableAssociationType);
                     relationScript.append(constructForeignKeyScript(foreignKey,
                             foreignKeyType, tableName, fieldType, "0", referenceKey, delete, update));
                 } else if (foreignKeys != null && foreignKeys.expressions().size() != 0) {
                     foreignKey = Utils.eliminateDoubleQuotes(foreignKeys.expressions().get(0).toSourceCode().trim());
-                    referenceInfo = getReferenceKeyAndType(memberNodes, referenceTableName);
+                    referenceInfo = getReferenceKeyAndType(memberNodes, referenceTableName,
+                            foreignKeys.expressions().size(), tableAssociationType);
                     relationScript.append(constructForeignKeyScript(foreignKey,
                             referenceInfo.get(1).get(0), tableName, fieldType, "0", referenceInfo.get(0).get(0),
                             delete, update));
                 } else {
-                    referenceInfo = getReferenceKeyAndType(memberNodes, referenceTableName);
-                    List<String> referenceKeys = referenceInfo.get(0);
-                    List<String> referenceTypes = referenceInfo.get(1);
-                    int i = 0;
-                    for (String key : referenceKeys) {
-                        foreignKey = referenceTableName.toLowerCase(Locale.ENGLISH) +
-                                key.substring(0, 1).toUpperCase(Locale.ENGLISH) + key.substring(1);
+                    referenceInfo = getReferenceKeyAndType(memberNodes, referenceTableName, 1,
+                            tableAssociationType);
+                    String referenceKeyName = referenceInfo.get(0).get(0);
+                    String referenceType = referenceInfo.get(1).get(0);
+                    foreignKey = referenceTableName.toLowerCase(Locale.ENGLISH) +
+                            referenceKeyName.substring(0, 1).toUpperCase(Locale.ENGLISH) +
+                            referenceKeyName.substring(1);
                         relationScript.append(constructForeignKeyScript(foreignKey,
-                                referenceTypes.get(i), tableName, referenceTableName, String.valueOf(i),
-                                key, delete, update));
-                        i++;
-                    }
+                                referenceType, tableName, referenceTableName, String.valueOf(0),
+                                referenceKeyName, delete, update));
                 }
             }
         }
@@ -363,9 +367,6 @@ public class PersistGenerateSqlScript {
         if (fieldType.trim().equals(Constants.BallerinaTypes.STRING)) {
             sqlType = Constants.SqlTypes.VARCHAR + "(" + Constants.VARCHAR_LENGTH + ")";
         }
-        if (!sqlType.contains(Constants.SqlTypes.VARCHAR)) {
-            sqlType = getType(fieldType);
-        }
         return MessageFormat.format("{10}{11}{0} {1},{10}{11}CONSTRAINT " +
                         "FK_{2}_{3}_{4} FOREIGN KEY({5}) REFERENCES {6}({7}){8}{9},", fieldName, sqlType,
                 tableName.toUpperCase(Locale.ENGLISH), referenceTableName.toUpperCase(Locale.ENGLISH), value, fieldName,
@@ -373,7 +374,8 @@ public class PersistGenerateSqlScript {
     }
 
     private static List<List<String>> getReferenceKeyAndType(NodeList<ModuleMemberDeclarationNode> memberNodes,
-                                                             String referenceTableName) {
+                                                             String referenceTableName, int noOfForeignKeys,
+                                                             String tableAssociationType) {
         List<String> primaryKeys = new ArrayList<>();
         List<List<String>> uniqueConstraints = new ArrayList<>();
         for (ModuleMemberDeclarationNode memberNode : memberNodes) {
@@ -393,7 +395,7 @@ public class PersistGenerateSqlScript {
                 continue;
             }
             for (AnnotationNode annotation : metadata.get().annotations()) {
-                if (!(annotation.annotReference().toSourceCode().equals(Constants.ENTITY))) {
+                if (!(annotation.annotReference().toSourceCode().trim().equals(Constants.ENTITY))) {
                     continue;
                 }
                 Optional<MappingConstructorExpressionNode> mappingConstructorExpressionNode = annotation.annotValue();
@@ -441,7 +443,7 @@ public class PersistGenerateSqlScript {
         if (primaryKeys.size() > 0 || uniqueConstraints.size() > 0) {
             if (primaryKeys.size() == 1 || uniqueConstraints.size() == 1) {
                 referenceInfo = getInfoFromSinglePrimaryOrUniqueKeys(memberNodes, referenceTableName, primaryKeys,
-                        uniqueConstraints);
+                        uniqueConstraints, noOfForeignKeys, tableAssociationType);
             } else {
                 referenceInfo = getInfoFromCompositePrimaryOrUniqueKeys(referenceTableName, memberNodes, primaryKeys,
                         uniqueConstraints);
@@ -456,7 +458,7 @@ public class PersistGenerateSqlScript {
 
     private static List<List<String>> getInfoFromSinglePrimaryOrUniqueKeys (
             NodeList<ModuleMemberDeclarationNode> memberNodes, String referenceTableName, List<String> primaryKeys,
-            List<List<String>> uniqueConstraints) {
+            List<List<String>> uniqueConstraints, int noOfForeignKeys, String tableAssociationType) {
         List<List<String>> referenceInfo = new ArrayList<>();
         List<String> referenceKeys = new ArrayList<>();
         List<String> referenceTypes = new ArrayList<>();
@@ -481,18 +483,29 @@ public class PersistGenerateSqlScript {
             if (!typeDefinitionNode.typeName().text().equals(referenceTableName)) {
                 continue;
             }
+            Optional<MetadataNode>  entityMetadata = typeDefinitionNode.metadata();
+            if (entityMetadata.isEmpty()) {
+                continue;
+            }
+            String unique = "";
+            if (noOfForeignKeys == 1 && tableAssociationType.equals(Constants.ONE_TO_ONE)) {
+                unique = addUniqueKeyword(entityMetadata.get(), referenceKey);
+            }
             for (Node recordField : recordTypeDescriptor.fields()) {
                 if (referenceKey.isEmpty()) {
                     continue;
                 }
+                String fieldType;
+                NodeList<AnnotationNode> annotations = null;
                 if (recordField instanceof RecordFieldNode) {
                     RecordFieldNode recordFieldNode = (RecordFieldNode) recordField;
                     if (recordFieldNode.fieldName().text().equals(referenceKey)) {
-                        String fieldType = recordFieldNode.typeName().toSourceCode().trim();
+                        fieldType = recordFieldNode.typeName().toSourceCode().trim();
                         Optional<MetadataNode> metadata = recordFieldNode.metadata();
                         if (metadata.isPresent()) {
-                            fieldType = getForeignKeyFieldType(metadata.get(), fieldType);
+                            annotations = metadata.get().annotations();
                         }
+                        fieldType = getForeignKeyFieldType(annotations, fieldType) + unique;
                         referenceTypes.add(fieldType);
                         referenceInfo.add(referenceKeys);
                         referenceInfo.add(referenceTypes);
@@ -502,11 +515,12 @@ public class PersistGenerateSqlScript {
                     RecordFieldWithDefaultValueNode recordFieldNode =
                             (RecordFieldWithDefaultValueNode) recordField;
                     if (recordFieldNode.fieldName().text().equals(referenceKey)) {
-                        String fieldType = recordFieldNode.typeName().toSourceCode().trim();
+                        fieldType = recordFieldNode.typeName().toSourceCode().trim();
                         Optional<MetadataNode> metadata = recordFieldNode.metadata();
                         if (metadata.isPresent()) {
-                            fieldType = getForeignKeyFieldType(metadata.get(), fieldType);
+                            annotations = metadata.get().annotations();
                         }
+                        fieldType = getForeignKeyFieldType(annotations, fieldType) + unique;
                         referenceTypes.add(fieldType);
                         referenceInfo.add(referenceKeys);
                         referenceInfo.add(referenceTypes);
@@ -539,42 +553,47 @@ public class PersistGenerateSqlScript {
             if (!typeDefinitionNode.typeName().text().equals(referenceTableName)) {
                 for (Node recordField : recordTypeDescriptor.fields()) {
                     if (primaryKeys.size() > 1) {
+                        String fieldType;
+                        NodeList<AnnotationNode> annotations = null;
                         if (recordField instanceof RecordFieldNode) {
                             RecordFieldNode recordFieldNode = (RecordFieldNode) recordField;
                             if (!primaryKeys.contains(recordFieldNode.fieldName().text())) {
                                 continue;
                             }
                             referenceKeys.add(recordField.toSourceCode().trim());
-                            String fieldType = recordFieldNode.typeName().toSourceCode().trim();
+                            fieldType = recordFieldNode.typeName().toSourceCode().trim();
                             Optional<MetadataNode> metadata = recordFieldNode.metadata();
                             if (metadata.isPresent()) {
-                                fieldType = getForeignKeyFieldType(metadata.get(), fieldType);
+                                annotations = metadata.get().annotations();
                             }
-                            referenceTypes.add(fieldType);
                         } else {
                             RecordFieldWithDefaultValueNode recordFieldNode =
                                     (RecordFieldWithDefaultValueNode) recordField;
+                            fieldType = recordFieldNode.typeName().toSourceCode().trim();
                             if (primaryKeys.contains(recordFieldNode.fieldName().text())) {
                                 referenceKeys.add(recordField.toSourceCode().trim());
-                                String fieldType = recordFieldNode.typeName().toSourceCode().trim();
                                 Optional<MetadataNode> metadata = recordFieldNode.metadata();
                                 if (metadata.isPresent()) {
-                                    fieldType = getForeignKeyFieldType(metadata.get(), fieldType);
+                                    annotations = metadata.get().annotations();
                                 }
-                                referenceTypes.add(fieldType);
                             }
                         }
+                        fieldType = getForeignKeyFieldType(annotations, fieldType);
+                        referenceTypes.add(fieldType);
                     } else if (uniqueConstraints.size() > 1) {
+                        String fieldType;
+                        NodeList<AnnotationNode> annotations = null;
                         List<String> uniqueConstraint = uniqueConstraints.get(0);
                         if (recordField instanceof RecordFieldNode) {
                             RecordFieldNode recordFieldNode = (RecordFieldNode) recordField;
                             if (uniqueConstraint.contains(recordFieldNode.fieldName().text())) {
                                 referenceKeys.add(recordField.toSourceCode().trim());
-                                String fieldType = recordFieldNode.typeName().toSourceCode().trim();
+                                fieldType = recordFieldNode.typeName().toSourceCode().trim();
                                 Optional<MetadataNode> metadata = recordFieldNode.metadata();
                                 if (metadata.isPresent()) {
-                                    fieldType = getForeignKeyFieldType(metadata.get(), fieldType);
+                                    annotations = metadata.get().annotations();
                                 }
+                                fieldType = getForeignKeyFieldType(annotations, fieldType);
                                 referenceTypes.add(fieldType);
                             }
                         } else {
@@ -582,11 +601,12 @@ public class PersistGenerateSqlScript {
                                     (RecordFieldWithDefaultValueNode) recordField;
                             if (uniqueConstraint.contains(recordFieldNode.fieldName().text())) {
                                 referenceKeys.add(recordField.toSourceCode().trim());
-                                String fieldType = recordFieldNode.typeName().toSourceCode().trim();
+                                fieldType = recordFieldNode.typeName().toSourceCode().trim();
                                 Optional<MetadataNode> metadata = recordFieldNode.metadata();
                                 if (metadata.isPresent()) {
-                                    fieldType = getForeignKeyFieldType(metadata.get(), fieldType);
+                                    annotations = metadata.get().annotations();
                                 }
+                                fieldType = getForeignKeyFieldType(annotations, fieldType);
                                 referenceTypes.add(fieldType);
                             }
                         }
@@ -621,17 +641,20 @@ public class PersistGenerateSqlScript {
                 continue;
             }
             for (Node recordField : recordTypeDescriptor.fields()) {
+                String fieldType;
+                NodeList<AnnotationNode> annotations = null;
                 if (recordField instanceof RecordFieldNode) {
                     RecordFieldNode recordFieldNode = (RecordFieldNode) recordField;
-                    String recordType = recordFieldNode.typeName().toSourceCode().trim();
-                    if (recordType.equals(Constants.BallerinaTypes.INT) ||
-                            recordType.equals(Constants.BallerinaTypes.STRING)) {
+                    fieldType = recordFieldNode.typeName().toSourceCode().trim();
+                    if (fieldType.equals(Constants.BallerinaTypes.INT) ||
+                            fieldType.equals(Constants.BallerinaTypes.STRING)) {
                         referenceKeys.add(recordFieldNode.fieldName().toSourceCode().trim());
                         Optional<MetadataNode> metadata = recordFieldNode.metadata();
                         if (metadata.isPresent()) {
-                            recordType = getForeignKeyFieldType(metadata.get(), recordType);
+                            annotations = metadata.get().annotations();
                         }
-                        referenceTypes.add(recordType);
+                        fieldType = getForeignKeyFieldType(annotations, fieldType);
+                        referenceTypes.add(fieldType);
                         referenceInfo.add(referenceKeys);
                         referenceInfo.add(referenceTypes);
                         return referenceInfo;
@@ -639,15 +662,16 @@ public class PersistGenerateSqlScript {
                 } else {
                     RecordFieldWithDefaultValueNode recordFieldNode =
                             (RecordFieldWithDefaultValueNode) recordField;
-                    String recordType = recordFieldNode.typeName().toSourceCode().trim();
-                    if (recordType.equals(Constants.BallerinaTypes.INT) ||
-                            recordType.equals(Constants.BallerinaTypes.STRING)) {
+                    fieldType = recordFieldNode.typeName().toSourceCode().trim();
+                    if (fieldType.equals(Constants.BallerinaTypes.INT) ||
+                            fieldType.equals(Constants.BallerinaTypes.STRING)) {
                         referenceKeys.add(recordFieldNode.fieldName().toSourceCode().trim());
                         Optional<MetadataNode> metadata = recordFieldNode.metadata();
                         if (metadata.isPresent()) {
-                            recordType = getForeignKeyFieldType(metadata.get(), recordType);
+                            annotations = metadata.get().annotations();
                         }
-                        referenceTypes.add(recordType);
+                        fieldType = getForeignKeyFieldType(annotations, fieldType);
+                        referenceTypes.add(fieldType);
                         referenceInfo.add(referenceKeys);
                         referenceInfo.add(referenceTypes);
                         return referenceInfo;
@@ -659,7 +683,7 @@ public class PersistGenerateSqlScript {
     }
 
     private static String getForeignKeyType(NodeList<ModuleMemberDeclarationNode> memberNodes, String referenceKey,
-                                            String typeName) {
+                                            String typeName, int noOfForeignKeys, String tableAssociationType) {
         for (ModuleMemberDeclarationNode memberNode : memberNodes) {
             if (!(memberNode instanceof TypeDefinitionNode)) {
                 continue;
@@ -673,43 +697,107 @@ public class PersistGenerateSqlScript {
             if (!typeDefinitionNode.typeName().text().equals(typeName)) {
                 continue;
             }
+            Optional<MetadataNode>  entityMetadata = typeDefinitionNode.metadata();
+            if (entityMetadata.isEmpty()) {
+                continue;
+            }
+            String unique = "";
+            if (noOfForeignKeys == 1 && tableAssociationType.equals(Constants.ONE_TO_ONE)) {
+                unique = addUniqueKeyword(entityMetadata.get(), referenceKey);
+            }
             for (Node recordField : recordTypeDescriptor.fields()) {
+                String fieldType;
+                NodeList<AnnotationNode> annotations = null;
                 if (recordField instanceof RecordFieldNode) {
                     RecordFieldNode recordFieldNode = (RecordFieldNode) recordField;
                     if (recordFieldNode.fieldName().text().equals(referenceKey)) {
-                        String recordType = recordFieldNode.typeName().toSourceCode().trim();
+                        fieldType = recordFieldNode.typeName().toSourceCode().trim();
                         Optional<MetadataNode> metadata = recordFieldNode.metadata();
                         if (metadata.isPresent()) {
-                            recordType = getForeignKeyFieldType(metadata.get(), recordType);
+                            annotations = metadata.get().annotations();
                         }
-                        return recordType;
+                        return getForeignKeyFieldType(annotations, fieldType) + unique;
                     }
                 } else {
-                    RecordFieldWithDefaultValueNode recordFieldNode =
-                            (RecordFieldWithDefaultValueNode) recordField;
+                    RecordFieldWithDefaultValueNode recordFieldNode = (RecordFieldWithDefaultValueNode) recordField;
                     if (recordFieldNode.fieldName().text().equals(referenceKey)) {
-                        String recordType = recordFieldNode.typeName().toSourceCode().trim();
+                        fieldType = recordFieldNode.typeName().toSourceCode().trim();
                         Optional<MetadataNode> metadata = recordFieldNode.metadata();
                         if (metadata.isPresent()) {
-                            recordType = getForeignKeyFieldType(metadata.get(), recordType);
+                            annotations = metadata.get().annotations();
                         }
-                        return recordType;
+                        return getForeignKeyFieldType(annotations, fieldType) + unique;
                     }
                 }
+
             }
         }
         return EMPTY;
     }
 
-    private static String getForeignKeyFieldType(MetadataNode meatdataNode, String fieldType) {
-        for (AnnotationNode annotationNode : meatdataNode.annotations()) {
+    private static String addUniqueKeyword(MetadataNode metadataNode, String referenceKey) {
+        for (AnnotationNode annotationNode : metadataNode.annotations()) {
             String annotationName = annotationNode.annotReference().toSourceCode().trim();
-            if (annotationName.equals(Constants.CONSTRAINT_STRING) &&
-                    fieldType.trim().equals(Constants.BallerinaTypes.STRING)) {
-                return Constants.SqlTypes.VARCHAR + "(" + processConstraintAnnotations(annotationNode) + ")";
+            if (annotationName.equals(Constants.ENTITY)) {
+                Optional<MappingConstructorExpressionNode> mappingConstructorExpressionNode =
+                        annotationNode.annotValue();
+                if (mappingConstructorExpressionNode.isPresent()) {
+                    SeparatedNodeList<MappingFieldNode> fields = mappingConstructorExpressionNode.get().fields();
+                    for (MappingFieldNode mappingFieldNode : fields) {
+                        SpecificFieldNode fieldNode = (SpecificFieldNode) mappingFieldNode;
+                        String name = fieldNode.fieldName().toSourceCode().trim().
+                                replaceAll(Constants.UNNECESSARY_CHARS_REGEX, "");
+                        if (name.equals(Constants.KEY)) {
+                            Optional<ExpressionNode> expressionNode = fieldNode.valueExpr();
+                            if (expressionNode.isPresent()) {
+                                ListConstructorExpressionNode listConstructorExpressionNode =
+                                        (ListConstructorExpressionNode) expressionNode.get();
+                                SeparatedNodeList<Node> expressions = listConstructorExpressionNode.expressions();
+                                for (Node expression : expressions) {
+                                    if (expression instanceof BasicLiteralNode &&
+                                            Utils.eliminateDoubleQuotes(expression.toSourceCode().trim()).
+                                                    equals(referenceKey)) {
+                                        return UNIQUE;
+                                    }
+                                }
+                            }
+                        }
+                        if (name.equals(Constants.UNIQUE_CONSTRAINTS)) {
+                            Optional<ExpressionNode> expressionNode = fieldNode.valueExpr();
+                            if (expressionNode.isPresent()) {
+                                ListConstructorExpressionNode listConstructorExpressionNode =
+                                        (ListConstructorExpressionNode) expressionNode.get();
+                                SeparatedNodeList<Node> expressions = listConstructorExpressionNode.expressions();
+                                if (expressions.size() == 1) {
+                                    listConstructorExpressionNode = (ListConstructorExpressionNode) expressions.get(0);
+                                    if (listConstructorExpressionNode.expressions().size() == 1) {
+                                        return UNIQUE;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
-        return fieldType;
+        return "";
+    }
+
+    private static String getForeignKeyFieldType(NodeList<AnnotationNode> annotations, String fieldType) {
+        if (annotations != null) {
+            for (AnnotationNode annotationNode : annotations) {
+                String annotationName = annotationNode.annotReference().toSourceCode().trim();
+                if (annotationName.equals(Constants.CONSTRAINT_STRING) &&
+                        fieldType.trim().equals(Constants.BallerinaTypes.STRING)) {
+                    return Constants.SqlTypes.VARCHAR + "(" + processConstraintAnnotations(annotationNode) + ")";
+                }
+            }
+        }
+        String type = getType(fieldType);
+        if (type.equals(Constants.SqlTypes.VARCHAR)) {
+            type = type.concat("(" + Constants.VARCHAR_LENGTH + ")");
+        }
+        return type;
     }
 
     private static String getType(String type) {

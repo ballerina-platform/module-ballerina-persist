@@ -320,7 +320,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         Set<String> tableFields = recordTypeSymbol.fieldDescriptors().keySet();
         if (metadata.isPresent()) {
             for (AnnotationNode annotation : metadata.get().annotations()) {
-                if (annotation.annotReference().toSourceCode().equals(Constants.ENTITY)) {
+                if (annotation.annotReference().toSourceCode().trim().equals(Constants.ENTITY)) {
                     this.hasPersistAnnotation = true;
                     Optional<MappingConstructorExpressionNode> mappingConstructorExpressionNode =
                             annotation.annotValue();
