@@ -29,6 +29,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -54,7 +55,7 @@ public class CompilerPluginTest {
         return project.currentPackage();
     }
 
-    //@Test
+    @Test
     public void testEntityAnnotation1() {
         DiagnosticResult diagnosticResult = loadPackage("package_01").getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
@@ -64,7 +65,7 @@ public class CompilerPluginTest {
                 DiagnosticsCodes.PERSIST_102.getCode(), 2);
     }
 
-    //@Test
+    @Test
     public void testPrimaryKeyMarkReadOnly() {
         DiagnosticResult diagnosticResult = loadPackage("package_03").getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
@@ -74,7 +75,7 @@ public class CompilerPluginTest {
                 DiagnosticsCodes.PERSIST_106.getCode(), 2);
     }
 
-    //@Test
+    @Test
     public void testMultipleAutoIncrementAnnotation() {
         DiagnosticResult diagnosticResult = loadPackage("package_04").getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
@@ -85,7 +86,7 @@ public class CompilerPluginTest {
                 DiagnosticsCodes.PERSIST_107.getCode(), 1);
     }
 
-    //@Test
+    @Test
     public void testAutoIncrementAnnotation1() {
         DiagnosticResult diagnosticResult = loadPackage("package_05").getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
@@ -95,7 +96,7 @@ public class CompilerPluginTest {
                 DiagnosticsCodes.PERSIST_103.getCode(), 1);
     }
 
-    //@Test
+    @Test
     public void testRelationAnnotationMismatchReference() {
         DiagnosticResult diagnosticResult = loadPackage("package_06").getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
@@ -105,7 +106,7 @@ public class CompilerPluginTest {
                 "with reference key count", DiagnosticsCodes.PERSIST_109.getCode(), 1);
     }
 
-    //@Test
+    @Test
     public void testOptionalField() {
         DiagnosticResult diagnosticResult = loadPackage("package_07").getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
@@ -116,7 +117,7 @@ public class CompilerPluginTest {
                 DiagnosticsCodes.PERSIST_101.getCode(), 1);
     }
 
-    //@Test
+    @Test
     public void testOptionalField2() {
         DiagnosticResult diagnosticResult = loadPackage("package_08").getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
@@ -127,7 +128,7 @@ public class CompilerPluginTest {
                 DiagnosticsCodes.PERSIST_101.getCode(), 1);
     }
 
-    //@Test
+    @Test
     public void testOptionalField3() {
         DiagnosticResult diagnosticResult = loadPackage("package_09").getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
@@ -138,7 +139,7 @@ public class CompilerPluginTest {
                 DiagnosticsCodes.PERSIST_101.getCode(), 1);
     }
 
-    //@Test
+    @Test
     public void testAutoIncrementField() {
         DiagnosticResult diagnosticResult = loadPackage("package_10").getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
@@ -149,7 +150,7 @@ public class CompilerPluginTest {
                 DiagnosticsCodes.PERSIST_108.getCode(), 1);
     }
 
-    //@Test
+    @Test
     public void testRecordType() {
         DiagnosticResult diagnosticResult = loadPackage("package_11").getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
@@ -160,7 +161,7 @@ public class CompilerPluginTest {
                 DiagnosticsCodes.PERSIST_111.getCode(), 1);
     }
 
-    //@Test
+    @Test
     public void testRecordType1() {
         DiagnosticResult diagnosticResult = loadPackage("package_12").getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
@@ -171,7 +172,7 @@ public class CompilerPluginTest {
                 DiagnosticsCodes.PERSIST_111.getCode(), 1);
     }
 
-    //@Test
+    @Test
     public void testTableName() {
         DiagnosticResult diagnosticResult = loadPackage("package_13").getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
