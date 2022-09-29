@@ -51,6 +51,8 @@ public enum DiagnosticsCodes {
     PERSIST_112("PERSIST_112", "mysql db only allow increment value by one in auto generated field",
             WARNING),
     PERSIST_113("PERSIST_113", "duplicate table name: the table name is already used in another entity",
+            ERROR),
+    PERSIST_114("PERSIST_114", "unsupported feature: M:M relationship",
             ERROR);
 
     private final String code;

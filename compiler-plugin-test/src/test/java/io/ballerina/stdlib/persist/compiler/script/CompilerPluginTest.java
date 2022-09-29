@@ -24,6 +24,8 @@ import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -33,6 +35,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Tests for sql script generator.
@@ -328,15 +331,6 @@ public class CompilerPluginTest {
     @Test
     public void testGenerateSqlScript9() throws IOException {
         String fileContent = "DROP TABLE IF EXISTS MedicalItem;\n" +
-                "CREATE TABLE MedicalItem (\n" +
-                "\tneedId INT NOT NULL AUTO_INCREMENT,\n" +
-                "\titemId INT NOT NULL,\n" +
-                "\tbeneficiaryId INT NOT NULL,\n" +
-                "\tperiod VARCHAR(191) NOT NULL,\n" +
-                "\turgency VARCHAR(191) NOT NULL,\n" +
-                "\tquantity INT NOT NULL,\n" +
-                "\tPRIMARY KEY(needId)\n" +
-                ");\n" +
                 "\n" +
                 "DROP TABLE IF EXISTS MedicalNeeds;\n" +
                 "\n" +
@@ -367,6 +361,16 @@ public class CompilerPluginTest {
                 "\tCONSTRAINT FK_MEDICALNEEDS_ITEM_0 FOREIGN KEY(itemId) REFERENCES Item(id) ON DELETE CASCADE,\n" +
                 "\tPRIMARY KEY(needId),\n" +
                 "\tUNIQUE KEY(beneficiaryId, urgency)\n" +
+                ");\n" +
+                "\n" +
+                "CREATE TABLE MedicalItem (\n" +
+                "\tneedId INT NOT NULL AUTO_INCREMENT,\n" +
+                "\titemId INT NOT NULL,\n" +
+                "\tbeneficiaryId INT NOT NULL,\n" +
+                "\tperiod VARCHAR(191) NOT NULL,\n" +
+                "\turgency VARCHAR(191) NOT NULL,\n" +
+                "\tquantity INT NOT NULL,\n" +
+                "\tPRIMARY KEY(needId)\n" +
                 ");";
         String fileContent1 = "DROP TABLE IF EXISTS MedicalNeeds;\n" +
                 "\n" +
@@ -557,6 +561,59 @@ public class CompilerPluginTest {
                 "\tUNIQUE KEY(beneficiaryId, urgency)\n" +
                 ");";
         testSqlScript("package_13", fileContent, 0, "");
+    }
+
+    @Test
+    public void testGenerateSqlScript13() throws IOException {
+        String fileContent = "DROP TABLE IF EXISTS Profile;\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS User;\n" +
+                "CREATE TABLE User (\n" +
+                "\tid INT NOT NULL,\n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\tPRIMARY KEY(id)\n" +
+                ");\n" +
+                "\n" +
+                "CREATE TABLE Profile (\n" +
+                "\tid INT NOT NULL,\n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\tuserId INT UNIQUE,\n" +
+                "\tCONSTRAINT FK_PROFILE_USER_0 FOREIGN KEY(userId) REFERENCES User(id),\n" +
+                "\tPRIMARY KEY(id)\n" +
+                ");";
+        testSqlScript("package_14", fileContent, 0, "");
+    }
+
+    @Test
+    public void testGenerateSqlScript14() throws IOException {
+        String fileContent = "DROP TABLE IF EXISTS Post;\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS User;\n" +
+                "CREATE TABLE User (\n" +
+                "\tid INT NOT NULL,\n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\tPRIMARY KEY(id)\n" +
+                ");\n" +
+                "\n" +
+                "CREATE TABLE Post (\n" +
+                "\tid INT NOT NULL,\n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\tauthorId INT,\n" +
+                "\tCONSTRAINT FK_POST_USER_0 FOREIGN KEY(authorId) REFERENCES User(id),\n" +
+                "\tPRIMARY KEY(id)\n" +
+                ");";
+        testSqlScript("package_15", fileContent, 0, "");
+    }
+
+    @Test
+    public void testGenerateSqlScript15() throws IOException {
+        DiagnosticResult diagnosticResult = loadPackage("package_16").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        Assert.assertEquals(errorDiagnosticsList.size(), 2);
+        Assert.assertEquals(errorDiagnosticsList.get(0).diagnosticInfo().messageFormat(),
+                "unsupported feature: M:M relationship");
     }
 
     private void testSqlScript(String packagePath, String fileContent, int count,

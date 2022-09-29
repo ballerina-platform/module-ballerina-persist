@@ -87,7 +87,9 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
     private final List<String> recordNamesOfForeignKey;
     private final HashMap<String, List<String>> referenceTables;
     private final List<String> tableNames;
-    private boolean isNewBuild = false;
+
+    private final List<String> tableNamesInScript;
+    private boolean isNewBuild;
 
     public PersistRecordValidator() {
         primaryKeys = new ArrayList<>();
@@ -100,6 +102,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         noOfReportDiagnostic = 0;
         referenceTables = new HashMap<>();
         tableNames = new ArrayList<>();
+        tableNamesInScript = new ArrayList<>();
         isNewBuild = true;
     }
 
@@ -140,7 +143,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                     if (this.noOfReportDiagnostic == 0) {
                         PersistGenerateSqlScript.generateSqlScript((RecordTypeDescriptorNode) recordNode,
                                 typeDefinitionNode, tableName, memberNodes, this.primaryKeys,
-                                this.uniqueConstraints, ctx, referenceTables);
+                                this.uniqueConstraints, ctx, referenceTables, tableNamesInScript);
                     }
                 }
             }
