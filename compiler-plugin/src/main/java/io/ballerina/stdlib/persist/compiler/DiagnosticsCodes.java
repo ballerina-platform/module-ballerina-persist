@@ -52,8 +52,7 @@ public enum DiagnosticsCodes {
             WARNING),
     PERSIST_113("PERSIST_113", "duplicate table name: the table name is already used in another entity",
             ERROR),
-    PERSIST_114("PERSIST_114", "unsupported feature: M:M relationship",
-            ERROR);
+    PERSIST_114("PERSIST_114", "unsupported feature: M:M relationship", ERROR);
 
     private final String code;
     private final String message;

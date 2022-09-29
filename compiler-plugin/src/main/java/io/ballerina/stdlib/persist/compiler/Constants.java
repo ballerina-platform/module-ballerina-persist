@@ -48,7 +48,6 @@ public class Constants {
     public static final String VARCHAR_LENGTH = "191";
     public static final String ONE_TO_ONE = "ONE";
     public static final String ONE_TO_MANY = "MANY";
-    public static final String MANY_TO_MANY = "MANY_TO_MANY";
     public static final String KEY = "key";
     public static final String UNIQUE_CONSTRAINTS = "uniqueConstraints";
 
