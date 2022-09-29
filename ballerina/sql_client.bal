@@ -16,8 +16,8 @@
 
 import ballerina/sql;
 
-# Used by the generated persist clients to abstract and perform SQL operations that are 
-# required to perform CRUD operations with respect to a particular entity.
+# The client used by the generated persist clients to abstract and 
+# execute SQL queries that are required to perform CRUD operations.
 public client class SQLClient {
 
     private final sql:Client dbClient;
@@ -28,7 +28,7 @@ public client class SQLClient {
     private string[] keyFields;
     private map<JoinMetadata> joinMetadata;
 
-    # Initializes the SQLClient with respect to a particular entity.
+    # Initializes the SQLClient.
     #
     # + dbClient - The `sql:Client` which is used to execute SQL queries
     # + entityName - The name of the entity with which the client performs CRUD operations
