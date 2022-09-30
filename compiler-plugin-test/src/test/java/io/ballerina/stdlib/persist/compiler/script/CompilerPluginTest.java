@@ -71,7 +71,8 @@ public class CompilerPluginTest {
                 "\turgency VARCHAR(191),\n" +
                 "\tquantity INT NOT NULL,\n" +
                 "\titemId INT,\n" +
-                "\tCONSTRAINT FK_MEDICAL_NEED_ITEM_0 FOREIGN KEY(itemId) REFERENCES Item(id) ON DELETE CASCADE,\n" +
+                "\tCONSTRAINT FK_MEDICAL_NEED_ITEM_0 FOREIGN KEY(itemId) REFERENCES Item(id) " +
+                "ON DELETE RESTRICT ON UPDATE RESTRICT,\n" +
                 "\tPRIMARY KEY(needId),\n" +
                 "\tUNIQUE KEY(needId)\n" +
                 ")\tAUTO_INCREMENT = 12;";
@@ -110,8 +111,8 @@ public class CompilerPluginTest {
                 "\turgency VARCHAR(191),\n" +
                 "\tquantity INT NOT NULL,\n" +
                 "\titemId INT,\n" +
-                "\tCONSTRAINT FK_MEDICAL_NEED_MEDICINE_0 FOREIGN KEY(itemId) REFERENCES Medicine(id) ON " +
-                "DELETE CASCADE\n" +
+                "\tCONSTRAINT FK_MEDICAL_NEED_MEDICINE_0 FOREIGN KEY(itemId) REFERENCES Medicine(id) " +
+                "ON DELETE CASCADE\n" +
                 ");";
         testSqlScript("package_03", fileContent, 0, "");
     }
@@ -135,7 +136,7 @@ public class CompilerPluginTest {
                 "\tquantity INT NOT NULL,\n" +
                 "\titemId INT,\n" +
                 "\tCONSTRAINT FK_MEDICAL_NEED2_MEDICINE2_0 FOREIGN KEY(itemId) REFERENCES Medicine2(id) " +
-                "ON DELETE CASCADE ON UPDATE CASCADE,\n" +
+                "ON DELETE SET NULL ON UPDATE SET NULL,\n" +
                 "\tPRIMARY KEY(needId)\n" +
                 ")\tAUTO_INCREMENT = 12;";
         testSqlScript("package_04", fileContent, 0, "");
@@ -159,7 +160,7 @@ public class CompilerPluginTest {
                 "\turgency VARCHAR(191) NOT NULL,\n" +
                 "\tquantity INT NOT NULL,\n" +
                 "\titemId INT,\n" +
-                "\tCONSTRAINT FK_EMPLOYEE_ITEM_0 FOREIGN KEY(itemId) REFERENCES Item(id) ON DELETE CASCADE,\n" +
+                "\tCONSTRAINT FK_EMPLOYEE_ITEM_0 FOREIGN KEY(itemId) REFERENCES Item(id) ON DELETE NO ACTION,\n" +
                 "\tPRIMARY KEY(needId),\n" +
                 "\tUNIQUE KEY(beneficiaryId)\n" +
                 ");";
@@ -185,9 +186,9 @@ public class CompilerPluginTest {
                 "\tid INT NOT NULL AUTO_INCREMENT,\n" +
                 "\tname VARCHAR(191) NOT NULL,\n" +
                 "\titemId INT,\n" +
-                "\tCONSTRAINT FK_ITEM1_ITEM2_0 FOREIGN KEY(itemId) REFERENCES Item2(id) ON DELETE CASCADE,\n" +
+                "\tCONSTRAINT FK_ITEM1_ITEM2_0 FOREIGN KEY(itemId) REFERENCES Item2(id) ON DELETE SET DEFAULT,\n" +
                 "\titemName VARCHAR(191),\n" +
-                "\tCONSTRAINT FK_ITEM1_ITEM2_1 FOREIGN KEY(itemName) REFERENCES Item2(name) ON DELETE CASCADE,\n" +
+                "\tCONSTRAINT FK_ITEM1_ITEM2_1 FOREIGN KEY(itemName) REFERENCES Item2(name) ON DELETE SET DEFAULT,\n" +
                 "\tPRIMARY KEY(id),\n" +
                 "\tUNIQUE KEY(name)\n" +
                 ")\tAUTO_INCREMENT = 5;\n" +
@@ -208,13 +209,15 @@ public class CompilerPluginTest {
                 "\turgency VARCHAR(191) NOT NULL,\n" +
                 "\tquantity INT NOT NULL,\n" +
                 "\titemId INT,\n" +
-                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM_0 FOREIGN KEY(itemId) REFERENCES Item(id) ON DELETE CASCADE,\n" +
+                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM_0 FOREIGN KEY(itemId) REFERENCES Item(id) ON DELETE SET DEFAULT,\n" +
                 "\tname VARCHAR(191),\n" +
-                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM_1 FOREIGN KEY(name) REFERENCES Item(name) ON DELETE CASCADE,\n" +
+                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM_1 FOREIGN KEY(name) REFERENCES Item(name) ON DELETE SET DEFAULT,\n" +
                 "\titemId1 INT,\n" +
-                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM1_0 FOREIGN KEY(itemId1) REFERENCES Item1(id) ON DELETE CASCADE,\n" +
+                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM1_0 FOREIGN KEY(itemId1) REFERENCES Item1(id) " +
+                "ON DELETE SET DEFAULT,\n" +
                 "\tname1 VARCHAR(191),\n" +
-                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM1_1 FOREIGN KEY(name1) REFERENCES Item1(name) ON DELETE CASCADE,\n" +
+                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM1_1 FOREIGN KEY(name1) REFERENCES Item1(name) " +
+                "ON DELETE SET DEFAULT,\n" +
                 "\tPRIMARY KEY(needId),\n" +
                 "\tUNIQUE KEY(beneficiaryId, urgency)\n" +
                 ");";
@@ -247,9 +250,10 @@ public class CompilerPluginTest {
                 "\turgency VARCHAR(191) NOT NULL,\n" +
                 "\tquantity INT NOT NULL,\n" +
                 "\titemId INT,\n" +
-                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM_0 FOREIGN KEY(itemId) REFERENCES Item(id) ON DELETE CASCADE,\n" +
+                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM_0 FOREIGN KEY(itemId) REFERENCES Item(id) ON DELETE SET DEFAULT,\n" +
                 "\titemId1 INT,\n" +
-                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM1_0 FOREIGN KEY(itemId1) REFERENCES Item1(id) ON DELETE CASCADE,\n" +
+                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM1_0 FOREIGN KEY(itemId1) REFERENCES Item1(id) ON DELETE " +
+                "NO ACTION,\n" +
                 "\tPRIMARY KEY(needId),\n" +
                 "\tUNIQUE KEY(beneficiaryId, urgency)\n" +
                 ");";
@@ -272,7 +276,7 @@ public class CompilerPluginTest {
                 "\tid INT NOT NULL AUTO_INCREMENT,\n" +
                 "\tname VARCHAR(191) NOT NULL,\n" +
                 "\titemId1 INT,\n" +
-                "\tCONSTRAINT FK_ITEM_ITEM1_0 FOREIGN KEY(itemId1) REFERENCES Item1(id) ON DELETE CASCADE,\n" +
+                "\tCONSTRAINT FK_ITEM_ITEM1_0 FOREIGN KEY(itemId1) REFERENCES Item1(id) ON DELETE SET DEFAULT,\n" +
                 "\tPRIMARY KEY(id)\n" +
                 ")\tAUTO_INCREMENT = 3;\n" +
                 "\n" +
@@ -283,7 +287,7 @@ public class CompilerPluginTest {
                 "\turgency VARCHAR(191) NOT NULL,\n" +
                 "\tquantity INT NOT NULL,\n" +
                 "\titemId INT,\n" +
-                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM_0 FOREIGN KEY(itemId) REFERENCES Item(id) ON DELETE CASCADE,\n" +
+                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM_0 FOREIGN KEY(itemId) REFERENCES Item(id) ON DELETE SET DEFAULT,\n" +
                 "\tPRIMARY KEY(needId),\n" +
                 "\tUNIQUE KEY(beneficiaryId, urgency)\n" +
                 ");";
@@ -307,7 +311,7 @@ public class CompilerPluginTest {
                 "\tid INT NOT NULL AUTO_INCREMENT,\n" +
                 "\tname VARCHAR(191) NOT NULL,\n" +
                 "\titemId1 INT,\n" +
-                "\tCONSTRAINT FK_ITEM_ITEM1_0 FOREIGN KEY(itemId1) REFERENCES Item1(id) ON DELETE CASCADE,\n" +
+                "\tCONSTRAINT FK_ITEM_ITEM1_0 FOREIGN KEY(itemId1) REFERENCES Item1(id) ON DELETE SET DEFAULT,\n" +
                 "\tPRIMARY KEY(id)\n" +
                 ")\tAUTO_INCREMENT = 3;\n" +
                 "\n" +
@@ -318,7 +322,7 @@ public class CompilerPluginTest {
                 "\turgency VARCHAR(191) NOT NULL,\n" +
                 "\tquantity INT NOT NULL,\n" +
                 "\titemId INT,\n" +
-                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM_0 FOREIGN KEY(itemId) REFERENCES Item(id) ON DELETE CASCADE,\n" +
+                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM_0 FOREIGN KEY(itemId) REFERENCES Item(id) ON DELETE SET DEFAULT,\n" +
                 "\tPRIMARY KEY(needId),\n" +
                 "\tUNIQUE KEY(beneficiaryId, urgency)\n" +
                 ");";
@@ -353,7 +357,7 @@ public class CompilerPluginTest {
                 "\tid INT NOT NULL AUTO_INCREMENT,\n" +
                 "\tname VARCHAR(191) NOT NULL,\n" +
                 "\titemId1 INT,\n" +
-                "\tCONSTRAINT FK_ITEM_ITEM1_0 FOREIGN KEY(itemId1) REFERENCES Item1(id) ON DELETE CASCADE,\n" +
+                "\tCONSTRAINT FK_ITEM_ITEM1_0 FOREIGN KEY(itemId1) REFERENCES Item1(id) ON DELETE SET DEFAULT,\n" +
                 "\tPRIMARY KEY(id)\n" +
                 ")\tAUTO_INCREMENT = 3;\n" +
                 "\n" +
@@ -364,7 +368,7 @@ public class CompilerPluginTest {
                 "\turgency VARCHAR(191) NOT NULL,\n" +
                 "\tquantity INT NOT NULL,\n" +
                 "\titemId INT,\n" +
-                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM_0 FOREIGN KEY(itemId) REFERENCES Item(id) ON DELETE CASCADE,\n" +
+                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM_0 FOREIGN KEY(itemId) REFERENCES Item(id) ON DELETE SET DEFAULT,\n" +
                 "\tPRIMARY KEY(needId),\n" +
                 "\tUNIQUE KEY(beneficiaryId, urgency)\n" +
                 ");";
@@ -383,7 +387,7 @@ public class CompilerPluginTest {
                 "\tid INT NOT NULL AUTO_INCREMENT,\n" +
                 "\tname VARCHAR(191) NOT NULL,\n" +
                 "\titemId1 INT,\n" +
-                "\tCONSTRAINT FK_ITEM_ITEM1_0 FOREIGN KEY(itemId1) REFERENCES Item1(id) ON DELETE CASCADE,\n" +
+                "\tCONSTRAINT FK_ITEM_ITEM1_0 FOREIGN KEY(itemId1) REFERENCES Item1(id) ON DELETE SET DEFAULT,\n" +
                 "\tPRIMARY KEY(id)\n" +
                 ")\tAUTO_INCREMENT = 3;\n" +
                 "\n" +
@@ -394,7 +398,7 @@ public class CompilerPluginTest {
                 "\turgency VARCHAR(191) NOT NULL,\n" +
                 "\tquantity INT NOT NULL,\n" +
                 "\titemId INT,\n" +
-                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM_0 FOREIGN KEY(itemId) REFERENCES Item(id) ON DELETE CASCADE,\n" +
+                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM_0 FOREIGN KEY(itemId) REFERENCES Item(id) ON DELETE SET DEFAULT,\n" +
                 "\tPRIMARY KEY(needId),\n" +
                 "\tUNIQUE KEY(beneficiaryId, urgency)\n" +
                 ");\n" +
@@ -441,9 +445,9 @@ public class CompilerPluginTest {
                 "\tid INT NOT NULL AUTO_INCREMENT,\n" +
                 "\tname VARCHAR(20) NOT NULL,\n" +
                 "\titemId INT,\n" +
-                "\tCONSTRAINT FK_ITEM1_ITEM2_0 FOREIGN KEY(itemId) REFERENCES Item2(id) ON DELETE CASCADE,\n" +
+                "\tCONSTRAINT FK_ITEM1_ITEM2_0 FOREIGN KEY(itemId) REFERENCES Item2(id) ON DELETE SET DEFAULT,\n" +
                 "\titemName VARCHAR(20),\n" +
-                "\tCONSTRAINT FK_ITEM1_ITEM2_1 FOREIGN KEY(itemName) REFERENCES Item2(name) ON DELETE CASCADE,\n" +
+                "\tCONSTRAINT FK_ITEM1_ITEM2_1 FOREIGN KEY(itemName) REFERENCES Item2(name) ON DELETE SET DEFAULT,\n" +
                 "\tPRIMARY KEY(id),\n" +
                 "\tUNIQUE KEY(name)\n" +
                 ")\tAUTO_INCREMENT = 5;\n" +
@@ -464,13 +468,15 @@ public class CompilerPluginTest {
                 "\turgency VARCHAR(191) NOT NULL,\n" +
                 "\tquantity INT NOT NULL,\n" +
                 "\titemId INT,\n" +
-                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM_0 FOREIGN KEY(itemId) REFERENCES Item(id) ON DELETE CASCADE,\n" +
+                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM_0 FOREIGN KEY(itemId) REFERENCES Item(id) ON DELETE SET DEFAULT,\n" +
                 "\tname VARCHAR(10),\n" +
-                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM_1 FOREIGN KEY(name) REFERENCES Item(name) ON DELETE CASCADE,\n" +
+                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM_1 FOREIGN KEY(name) REFERENCES Item(name) ON DELETE SET DEFAULT,\n" +
                 "\titemId1 INT,\n" +
-                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM1_0 FOREIGN KEY(itemId1) REFERENCES Item1(id) ON DELETE CASCADE,\n" +
+                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM1_0 FOREIGN KEY(itemId1) REFERENCES Item1(id) " +
+                "ON DELETE SET DEFAULT,\n" +
                 "\tname1 VARCHAR(20),\n" +
-                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM1_1 FOREIGN KEY(name1) REFERENCES Item1(name) ON DELETE CASCADE,\n" +
+                "\tCONSTRAINT FK_MEDICALNEEDS_ITEM1_1 FOREIGN KEY(name1) REFERENCES Item1(name) " +
+                "ON DELETE SET DEFAULT,\n" +
                 "\tPRIMARY KEY(needId),\n" +
                 "\tUNIQUE KEY(beneficiaryId, urgency)\n" +
                 ");";

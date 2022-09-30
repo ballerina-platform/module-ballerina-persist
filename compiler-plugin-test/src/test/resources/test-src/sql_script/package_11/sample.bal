@@ -30,9 +30,9 @@ public type MedicalNeed record {|
     time:Civil period;
     string urgency;
     int quantity;
-    @persist:Relation {keyColumns: ["itemId" , "name"], reference: ["id" , "name"], cascadeDelete: true}
+    @persist:Relation {keyColumns: ["itemId" , "name"], reference: ["id" , "name"], onDelete: persist:SET_DEFAULT}
     Item item?;
-    @persist:Relation {keyColumns: ["itemId1" , "name1"], reference: ["id" , "name"], cascadeDelete: true}
+    @persist:Relation {keyColumns: ["itemId1" , "name1"], reference: ["id" , "name"], onDelete: persist:SET_DEFAULT}
     Item1 item1?;
 |};
 
@@ -60,7 +60,7 @@ public type Item1 record {
         maxLength: 20
     }
     string name;
-    @persist:Relation {keyColumns: ["itemId" , "itemName"], reference: ["id" , "name"], cascadeDelete: true}
+    @persist:Relation {keyColumns: ["itemId" , "itemName"], reference: ["id" , "name"], onDelete: persist:SET_DEFAULT}
     Item2 item?;
 };
 

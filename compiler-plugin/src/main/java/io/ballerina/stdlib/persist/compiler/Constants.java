@@ -35,9 +35,6 @@ public class Constants {
     public static final String REFERENCE = "reference";
     public static final String START_VALUE = "startValue";
     public static final String ONE = "1";
-    public static final String CASCADE_DELETE = "cascadeDelete";
-    public static final String ON_DELETE_CASCADE = " ON DELETE CASCADE";
-    public static final String ON_UPDATE_CASCADE = " ON UPDATE CASCADE";
     public static final String NOT_NULL = " NOT NULL";
     public static final String AUTO_INCREMENT_WITH_SPACE = " AUTO_INCREMENT";
     public static final String AUTO_INCREMENT_WITH_TAB = "\tAUTO_INCREMENT";
