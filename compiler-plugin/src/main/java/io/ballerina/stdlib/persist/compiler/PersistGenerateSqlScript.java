@@ -62,6 +62,18 @@ public class PersistGenerateSqlScript {
     private static final String EMPTY = "";
     private static final String PRIMARY_KEY_START_SCRIPT = NEW_LINE + TAB + "PRIMARY KEY(";
     private static final String UNIQUE_KEY_START_SCRIPT = NEW_LINE + TAB + "UNIQUE KEY(";
+    public static final String ON_DELETE = "onDelete";
+    public static final String ON_DELETE_SYNTAX = " ON DELETE";
+    public static final String ON_UPDATE_SYNTAX = " ON UPDATE";
+    public static final String RESTRICT = "persist:RESTRICT";
+    public static final String CASCADE = "persist:CASCADE";
+    public static final String SET_NULL = "persist:SET_NULL";
+    public static final String NO_ACTION = "persist:NO_ACTION";
+    public static final String RESTRICT_SYNTAX = " RESTRICT";
+    public static final String CASCADE_SYNTAX = " CASCADE";
+    public static final String NO_ACTION_SYNTAX = " NO ACTION";
+    public static final String SET_NULL_SYNTAX = " SET NULL";
+    public static final String SET_DEFAULT_SYNTAX = " SET DEFAULT";
 
     protected static void generateSqlScript(RecordTypeDescriptorNode recordNode, TypeDefinitionNode typeDefinitionNode,
                                             String tableName, NodeList<ModuleMemberDeclarationNode> memberNodes,
@@ -293,15 +305,15 @@ public class PersistGenerateSqlScript {
                     if (node.isPresent()) {
                         reference = (ListConstructorExpressionNode) node.get();
                     }
-                } else if (specificFieldNode.fieldName().toSourceCode().trim().equals(Constants.CASCADE_DELETE)) {
+                } else if (specificFieldNode.fieldName().toSourceCode().trim().equals(ON_DELETE)) {
                     Optional<ExpressionNode> optional = specificFieldNode.valueExpr();
-                    if (optional.isPresent() && optional.get().toSourceCode().trim().equals(Constants.TRUE)) {
-                        delete = Constants.ON_DELETE_CASCADE;
+                    if (optional.isPresent()) {
+                        delete = ON_DELETE_SYNTAX + getReferenceAction(optional.get().toSourceCode().trim());
                     }
                 } else {
                     Optional<ExpressionNode> optional = specificFieldNode.valueExpr();
-                    if (optional.isPresent() && optional.get().toSourceCode().trim().equals(Constants.TRUE)) {
-                        update = Constants.ON_UPDATE_CASCADE;
+                    if (optional.isPresent()) {
+                        update = ON_UPDATE_SYNTAX + getReferenceAction(optional.get().toSourceCode().trim());
                     }
                 }
             }
@@ -354,6 +366,21 @@ public class PersistGenerateSqlScript {
             }
         }
         return relationScript.toString();
+    }
+
+    private static String getReferenceAction(String value) {
+        switch (value) {
+            case RESTRICT:
+                return RESTRICT_SYNTAX;
+            case CASCADE:
+                return CASCADE_SYNTAX;
+            case NO_ACTION:
+                return NO_ACTION_SYNTAX;
+            case SET_NULL:
+                return SET_NULL_SYNTAX;
+            default:
+                return SET_DEFAULT_SYNTAX;
+        }
     }
 
     private static String constructForeignKeyScript(String fieldName, String fieldType, String tableName,
