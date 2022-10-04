@@ -183,6 +183,69 @@ public class CompilerPluginTest {
                 DiagnosticsCodes.PERSIST_113.getCode(), 1);
     }
 
+    @Test
+    public void testInvalidInitialisation() {
+        DiagnosticResult diagnosticResult = loadPackage("package_14").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList,
+                "invalid entity initialisation: the associated entity of this[Item] does not have " +
+                        "the field with the relationship type", DiagnosticsCodes.PERSIST_115.getCode(), 2);
+    }
+
+    @Test
+    public void testInvalidInitialisation1() {
+        DiagnosticResult diagnosticResult = loadPackage("package_15").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList, "invalid entity initialisation: the relation annotation should " +
+                        "only be added to the relationship owner for one-to-one and one-to-many associations",
+                DiagnosticsCodes.PERSIST_116.getCode(), 2);
+    }
+
+    @Test
+    public void testInvalidInitialisation2() {
+        DiagnosticResult diagnosticResult = loadPackage("package_16").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList, "invalid entity initialisation: the relation annotation should " +
+                        "only be added to the relationship owner for one-to-one and one-to-many associations",
+                DiagnosticsCodes.PERSIST_116.getCode(), 2);
+    }
+
+    @Test
+    public void testUnSupportedFeature() {
+        DiagnosticResult diagnosticResult = loadPackage("package_17").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList, "unsupported features: many-to-many association is not supported yet",
+                DiagnosticsCodes.PERSIST_114.getCode(), 2);
+    }
+
+    @Test
+    public void testInvalidAnnotation() {
+        DiagnosticResult diagnosticResult = loadPackage("package_18").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList, "invalid annotation attachment: The relation annotation can only " +
+                "be attached to entity typed fields", DiagnosticsCodes.PERSIST_117.getCode(), 1);
+    }
+
+    @Test
+    public void testInvalidAnnotation1() {
+        DiagnosticResult diagnosticResult = loadPackage("package_19").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList, "invalid annotation attachment: The relation annotation can only " +
+                "be attached to entity typed fields", DiagnosticsCodes.PERSIST_117.getCode(), 1);
+    }
+
     private void assertValues(List<Diagnostic> errorDiagnosticsList, String msg, String code, int count) {
         long availableErrors = errorDiagnosticsList.size();
         Assert.assertEquals(availableErrors, count);
