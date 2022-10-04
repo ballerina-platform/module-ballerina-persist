@@ -125,7 +125,7 @@ client class MultipleAssociationsClient {
         MultipleAssociations|error result = self->readByKey(multipleAssociations.id);
         if result is MultipleAssociations {
             return true;
-        } else if result is InvalidKey {
+        } else if result is InvalidKeyError {
             return false;
         } else {
             return result;

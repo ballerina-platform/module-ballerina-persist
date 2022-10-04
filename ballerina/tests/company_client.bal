@@ -78,7 +78,7 @@ client class CompanyClient {
         Company|error result = self->readByKey(company.id);
         if result is Company {
             return true;
-        } else if result is InvalidKey {
+        } else if result is InvalidKeyError {
             return false;
         } else {
             return result;
