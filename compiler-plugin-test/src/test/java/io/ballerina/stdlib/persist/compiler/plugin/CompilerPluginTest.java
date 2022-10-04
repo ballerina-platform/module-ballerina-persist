@@ -232,8 +232,7 @@ public class CompilerPluginTest {
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
                 filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
                 collect(Collectors.toList());
-        assertValues(errorDiagnosticsList, "invalid annotation: this field does not support " +
-                        "the relation annotation", DiagnosticsCodes.PERSIST_117.getCode(), 1);
+        assertValues(errorDiagnosticsList, "invalid annotation attachment: The relation annotation can only be attached to entity typed fields", DiagnosticsCodes.PERSIST_117.getCode(), 1);
     }
 
     @Test
