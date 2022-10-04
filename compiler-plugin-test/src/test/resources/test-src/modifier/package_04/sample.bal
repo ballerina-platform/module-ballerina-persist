@@ -62,5 +62,35 @@ public function main() returns error? {
         };
     io:println(mns3);
 
+    record {int needId; string period; int quantity;}[]? mns4 =
+        check from var {needId, period, quantity} in mnClient->read()
+        where quantity < minQuantity && quantity > 0
+        select {
+            needId: needId,
+            period: period,
+            quantity: quantity
+        };
+    io:println(mns4);
+
+    record {int needId; string period; int quantity;}[]? mns5 =
+        check from var {needId, period, quantity} in mnClient->read()
+        where quantity < minQuantity || period == "2022-10-10 01:02:03"
+        select {
+            needId: needId,
+            period: period,
+            quantity: quantity
+        };
+    io:println(mns5);
+
+    record {int needId; string period; int quantity;}[]? mns5 =
+        check from var {needId, period, quantity} in mnClient->read()
+        where (quantity < minQuantity && quantity > 0) || period == "2022-10-10 01:02:03"
+        select {
+            needId: needId,
+            period: period,
+            quantity: quantity
+        };
+    io:println(mns5);
+
     check mnClient.close();
 }

@@ -100,6 +100,8 @@ public class Constants {
         public static final String ORDER_BY_ASCENDING = "ASC";
         public static final String ORDER_BY_DECENDING = "DESC";
         public static final String NOT_EQUAL_TOKEN = "<>";
+        public static final String AND = "AND";
+        public static final String OR = "OR";
     }
 
     /**

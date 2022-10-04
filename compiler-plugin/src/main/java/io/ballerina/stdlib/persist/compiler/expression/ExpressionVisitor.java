@@ -32,7 +32,9 @@ import static io.ballerina.stdlib.persist.compiler.Constants.BAL_ESCAPE_TOKEN;
 import static io.ballerina.stdlib.persist.compiler.Constants.CLOSE_BRACES;
 import static io.ballerina.stdlib.persist.compiler.Constants.OPEN_BRACES;
 import static io.ballerina.stdlib.persist.compiler.Constants.SPACE;
+import static io.ballerina.stdlib.persist.compiler.Constants.SQLKeyWords.AND;
 import static io.ballerina.stdlib.persist.compiler.Constants.SQLKeyWords.NOT_EQUAL_TOKEN;
+import static io.ballerina.stdlib.persist.compiler.Constants.SQLKeyWords.OR;
 import static io.ballerina.stdlib.persist.compiler.Constants.SQLKeyWords.WHERE;
 import static io.ballerina.stdlib.persist.compiler.Constants.TokenNodes.INTERPOLATION_END_TOKEN;
 import static io.ballerina.stdlib.persist.compiler.Constants.TokenNodes.INTERPOLATION_START_TOKEN;
@@ -67,7 +69,7 @@ public class ExpressionVisitor {
     }
 
     void beginVisitAndRightOperand() {
-
+        this.expression.append(SPACE).append(AND).append(SPACE);
     }
 
     void endVisitAndRightOperand() {
@@ -92,7 +94,7 @@ public class ExpressionVisitor {
     }
 
     void beginVisitOrRightOperand() {
-
+        this.expression.append(SPACE).append(OR).append(SPACE);
     }
 
     void endVisitOrRightOperand() {

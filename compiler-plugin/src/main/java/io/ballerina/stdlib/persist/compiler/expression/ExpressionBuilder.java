@@ -66,7 +66,6 @@ public class ExpressionBuilder {
 
     private void buildVariableExecutors(ExpressionNode expressionNode, ExpressionVisitor expressionVisitor)
             throws NotSupportedExpressionException {
-        // todo Support usage and, or expressions
         if (expressionNode instanceof BinaryExpressionNode) {
             // Simple Compare
             ChildNodeList expressionChildren = expressionNode.children();

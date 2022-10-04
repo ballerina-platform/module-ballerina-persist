@@ -262,6 +262,28 @@ public class CodeModifierTest {
                                 "            needId: medicalNeed.needId,\n" +
                                 "            period: medicalNeed.period,\n" +
                                 "            quantity: medicalNeed.quantity\n" +
+                                "        };",
+                        "check from var {needId, period, quantity} in mnClient->execute(" +
+                                "` WHERE quantity < ${minQuantity}  AND quantity > 0 `)\n" +
+                                "        select {\n" +
+                                "            needId: needId,\n" +
+                                "            period: period,\n" +
+                                "            quantity: quantity\n" +
+                                "        };",
+                        "check from var {needId, period, quantity} in mnClient->execute(" +
+                                "` WHERE quantity < ${minQuantity}  OR period = \"2022-10-10 01:02:03\" `)\n" +
+                                "        select {\n" +
+                                "            needId: needId,\n" +
+                                "            period: period,\n" +
+                                "            quantity: quantity\n" +
+                                "        };",
+                        "check from var {needId, period, quantity} in mnClient->execute(" +
+                                "` WHERE ( quantity < ${minQuantity}  AND quantity > 0)  " +
+                                "OR period = \"2022-10-10 01:02:03\" `)\n" +
+                                "        select {\n" +
+                                "            needId: needId,\n" +
+                                "            period: period,\n" +
+                                "            quantity: quantity\n" +
                                 "        };"
                 );
                 modifiedFunctions.forEach(codeSnippet ->
