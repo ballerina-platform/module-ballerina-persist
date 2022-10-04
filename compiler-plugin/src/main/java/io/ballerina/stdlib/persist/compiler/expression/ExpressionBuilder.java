@@ -19,31 +19,53 @@ package io.ballerina.stdlib.persist.compiler.expression;
 
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
+import io.ballerina.compiler.syntax.tree.BindingPatternNode;
+import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ChildNodeList;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.FieldBindingPatternVarnameNode;
 import io.ballerina.compiler.syntax.tree.LiteralValueToken;
+import io.ballerina.compiler.syntax.tree.MappingBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.stdlib.persist.compiler.NotSupportedExpressionException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Builder class to process where clause.
  */
 public class ExpressionBuilder {
     private final ExpressionNode expressionNode;
+    private boolean isCaptureBindingPattern = false;
+    private String bindingVariableName = "";
+    private List<String> fieldNames = new ArrayList<>();
 
-    public ExpressionBuilder(ExpressionNode expression) {
+    public ExpressionBuilder(ExpressionNode expression, BindingPatternNode bindingPatternNode) {
         this.expressionNode = expression;
+        if (bindingPatternNode instanceof CaptureBindingPatternNode) {
+            this.isCaptureBindingPattern = true;
+            this.bindingVariableName = ((CaptureBindingPatternNode) bindingPatternNode).variableName().text();
+        } else if (bindingPatternNode instanceof MappingBindingPatternNode) {
+            SeparatedNodeList<BindingPatternNode> bindingPatternNodes =
+                    ((MappingBindingPatternNode) bindingPatternNode).fieldBindingPatterns();
+            for (BindingPatternNode patternNode : bindingPatternNodes) {
+                String field = ((FieldBindingPatternVarnameNode) patternNode).variableName().name().text();
+                fieldNames.add(field);
+            }
+        }
     }
 
-    public void build(ExpressionVisitor expressionVisitor) {
+    public void build(ExpressionVisitor expressionVisitor) throws NotSupportedExpressionException {
         buildVariableExecutors(expressionNode, expressionVisitor);
     }
 
     private void buildVariableExecutors(ExpressionNode expressionNode, ExpressionVisitor expressionVisitor)
             throws NotSupportedExpressionException {
-        // todo Support usage of variables, constants and bracketed expressions
+        // todo Support usage and, or bracketed expressions
         if (expressionNode instanceof BinaryExpressionNode) {
             // Simple Compare
             ChildNodeList expressionChildren = expressionNode.children();
@@ -80,10 +102,32 @@ public class ExpressionBuilder {
         } else if (expressionNode instanceof FieldAccessExpressionNode) {
             // Bracketed Multi Expression
             // todo Validate if this is not part of an expression
-            expressionVisitor.beginVisitStoreVariable(
-                    ((SimpleNameReferenceNode) expressionNode.children().get(2)).name().text());
-            expressionVisitor.endVisitStoreVariable(
-                    ((SimpleNameReferenceNode) expressionNode.children().get(2)).name().text());
+            String fieldAccessName = ((SimpleNameReferenceNode) expressionNode.children().get(0)).name().text();
+            if (this.isCaptureBindingPattern &&
+                    bindingVariableName.equals(fieldAccessName)) {
+                expressionVisitor.beginVisitStoreVariable(
+                        ((SimpleNameReferenceNode) expressionNode.children().get(2)).name().text());
+                expressionVisitor.endVisitStoreVariable(
+                        ((SimpleNameReferenceNode) expressionNode.children().get(2)).name().text());
+            } else {
+                throw new NotSupportedExpressionException("Unsupported field access in where clause");
+            }
+        } else if (expressionNode instanceof SimpleNameReferenceNode) {
+            String referencedName = ((SimpleNameReferenceNode) expressionNode).name().text();
+            if (this.isCaptureBindingPattern) {
+                expressionVisitor.beginVisitBalVariable(referencedName);
+                expressionVisitor.endVisitBalVariable(referencedName);
+            } else {
+                // Mapping constructor
+                if (fieldNames.contains(referencedName)) {
+                    expressionVisitor.beginVisitStoreVariable(referencedName);
+                    expressionVisitor.endVisitStoreVariable(referencedName);
+                } else {
+                    // todo Here wrong reference name cannot be identified as error
+                    expressionVisitor.beginVisitBalVariable(referencedName);
+                    expressionVisitor.endVisitBalVariable(referencedName);
+                }
+            }
         } else if (expressionNode instanceof BasicLiteralNode) {
             LiteralValueToken literalValueToken = (LiteralValueToken) expressionNode.children().get(0);
             expressionVisitor.beginVisitConstant(literalValueToken.text(), literalValueToken.kind());

@@ -18,11 +18,16 @@
 
 package io.ballerina.stdlib.persist.compiler;
 
+import io.ballerina.compiler.syntax.tree.LiteralValueToken;
+import io.ballerina.compiler.syntax.tree.NodeFactory;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
+
+import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createEmptyMinutiaeList;
 
 /**
  * This class includes utility functions.
@@ -37,5 +42,10 @@ public class Utils {
                                         String message, DiagnosticSeverity diagnosticSeverity) {
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(code, message, diagnosticSeverity);
         ctx.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo, location));
+    }
+
+    public static LiteralValueToken getStringLiteralToken(String value) {
+        return NodeFactory.createLiteralValueToken(
+                SyntaxKind.STRING_LITERAL, value, createEmptyMinutiaeList(), createEmptyMinutiaeList());
     }
 }

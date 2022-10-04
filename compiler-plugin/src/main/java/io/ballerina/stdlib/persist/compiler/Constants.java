@@ -18,6 +18,13 @@
 
 package io.ballerina.stdlib.persist.compiler;
 
+import io.ballerina.compiler.syntax.tree.LiteralValueToken;
+import io.ballerina.compiler.syntax.tree.NodeFactory;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
+
+import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createEmptyMinutiaeList;
+
 /**
  * Constants for Persist compiler plugin.
  */
@@ -89,6 +96,18 @@ public class Constants {
         public static final String ORDERBY = "ORDER BY";
         public static final String ORDER_BY_ASCENDING = "ASC";
         public static final String ORDER_BY_DECENDING = "DESC";
+    }
+
+    /**
+     * Constant nodes used in code modification.
+     */
+    public static final class TokenNodes {
+        public static final Token INTERPOLATION_START_TOKEN = NodeFactory.createLiteralValueToken(
+                SyntaxKind.INTERPOLATION_START_TOKEN, "${", createEmptyMinutiaeList(), createEmptyMinutiaeList());
+        public static final Token INTERPOLATION_END_TOKEN = NodeFactory.createLiteralValueToken(
+                SyntaxKind.CLOSE_BRACE_TOKEN, "}", createEmptyMinutiaeList(), createEmptyMinutiaeList());
+        public static final LiteralValueToken BACKTICK_TOKEN = NodeFactory.createLiteralValueToken(
+                SyntaxKind.BACKTICK_TOKEN, BACKTICK, createEmptyMinutiaeList(), createEmptyMinutiaeList());
     }
 
 }

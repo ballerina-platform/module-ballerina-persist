@@ -223,5 +223,56 @@ public class CodeModifierTest {
             }
         }
     }
+
+    @Test
+    public void whereClauseTest() {
+
+        Package currentPackage = loadPackage("package_04");
+
+        //  Running the compilation
+        currentPackage.getCompilation();
+
+        // Running the code generation
+        CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
+        Package newPackage = codeModifierResult.updatedPackage().orElse(currentPackage);
+
+        for (DocumentId documentId : newPackage.getDefaultModule().documentIds()) {
+            Document document = newPackage.getDefaultModule().document(documentId);
+
+            if (document.name().equals("sample.bal")) {
+                // Positive test
+                List<String> modifiedFunctions = List.of(
+                        "check from entity:MedicalNeed medicalNeed in mnClient->execute(` WHERE quantity < ${minQuantity} `)\n" +
+                                "        select {\n" +
+                                "            needId: medicalNeed.needId,\n" +
+                                "            period: medicalNeed.period,\n" +
+                                "            quantity: medicalNeed.quantity\n" +
+                                "        };",
+                        "check from var {needId, period, quantity} in mnClient->execute(` WHERE quantity < ${minQuantity} `)\n" +
+                                "        select {\n" +
+                                "            needId: needId,\n" +
+                                "            period: period,\n" +
+                                "            quantity: quantity\n" +
+                                "        };",
+                        "check from entity:MedicalNeed medicalNeed in mnClient->execute(` WHERE period = \"2022-10-10 01:02:03\" `)\n" +
+                                "        select {\n" +
+                                "            needId: medicalNeed.needId,\n" +
+                                "            period: medicalNeed.period,\n" +
+                                "            quantity: medicalNeed.quantity\n" +
+                                "        };"
+                );
+                modifiedFunctions.forEach(codeSnippet ->
+                        Assert.assertTrue(document.syntaxTree().toSourceCode().contains(codeSnippet), codeSnippet));
+
+                // Negative Tests
+                List<String> unmodifiedFunction = List.of(
+                        // todo This should not be modified
+                        "check from var {needId, period, quantity} in mnClient->execute(` WHERE ${quantity1}< ${minQuantity} `)"
+                );
+                unmodifiedFunction.forEach(codeSnippet ->
+                        Assert.assertTrue(document.syntaxTree().toSourceCode().contains(codeSnippet), codeSnippet));
+            }
+        }
+    }
 }
 

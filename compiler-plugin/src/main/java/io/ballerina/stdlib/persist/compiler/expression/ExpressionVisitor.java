@@ -17,21 +17,33 @@
  */
 package io.ballerina.stdlib.persist.compiler.expression;
 
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeFactory;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.stdlib.persist.compiler.NotSupportedExpressionException;
+import io.ballerina.stdlib.persist.compiler.Utils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.EQUAL_TOKEN;
 import static io.ballerina.stdlib.persist.compiler.Constants.SPACE;
 import static io.ballerina.stdlib.persist.compiler.Constants.SQLKeyWords.WHERE;
+import static io.ballerina.stdlib.persist.compiler.Constants.TokenNodes.INTERPOLATION_END_TOKEN;
+import static io.ballerina.stdlib.persist.compiler.Constants.TokenNodes.INTERPOLATION_START_TOKEN;
 
 /**
  * Visitor class for generating WHERE clause.
  */
 public class ExpressionVisitor {
+    List<Node> whereExpressionNodes = new ArrayList<>();
     StringBuilder expression = new StringBuilder(WHERE).append(SPACE);
 
-    public StringBuilder getExpression() {
-        return expression.append(SPACE);
+    public List<Node> getExpression() {
+        this.expression.append(SPACE);
+        whereExpressionNodes.add(Utils.getStringLiteralToken(this.expression.toString()));
+        return whereExpressionNodes;
     }
 
     void beginVisitAnd() {
@@ -86,25 +98,17 @@ public class ExpressionVisitor {
     /*Compare*/
     void beginVisitCompare(SyntaxKind operator) throws NotSupportedExpressionException {
         switch (operator) {
-            case ASTERISK_TOKEN:
-            case SLASH_TOKEN:
-            case PLUS_TOKEN:
-            case MINUS_TOKEN:
-            case DOUBLE_LT_TOKEN:
-            case DOUBLE_GT_TOKEN:
-            case TRIPPLE_GT_TOKEN:
-            case ELLIPSIS_TOKEN:
-            case DOUBLE_DOT_LT_TOKEN:
-            case TRIPPLE_EQUAL_TOKEN:
-            case NOT_DOUBLE_EQUAL_TOKEN:
-            case BITWISE_AND_TOKEN:
-            case BITWISE_XOR_TOKEN:
-            case PIPE_TOKEN:
-                // todo Need to verify if +,-,/,* is an LHS/RHS. Not supported only if it is the entire operation
-                throw new NotSupportedExpressionException("Asterisk token not supported!");
-            default:
-                // Continue with expression processing
+            case GT_TOKEN:
+            case GT_EQUAL_TOKEN:
+            case LT_TOKEN:
+            case LT_EQUAL_TOKEN:
+            case PERCENT_TOKEN:
+            case DOUBLE_EQUAL_TOKEN:
+            case NOT_EQUAL_TOKEN:
                 break;
+            default:
+                // todo Need to verify if +,-,/,* is an LHS/RHS. Not supported only if it is the entire operation
+                throw new NotSupportedExpressionException(operator.stringValue() + " not supported!");
         }
     }
 
@@ -144,16 +148,14 @@ public class ExpressionVisitor {
 
     }
 
+    /*Constant*/
     public void beginVisitConstant(Object value, SyntaxKind type) {
         this.expression.append(value);
-        // todo if string append quotes
     }
 
     public void endVisitConstant(Object value, SyntaxKind type) {
     }
 
-
-    /*Constant*/
     void beginVisitStoreVariable(String attributeName) {
         String processedAttributeName = attributeName;
         if (attributeName.startsWith("'")) {
@@ -165,4 +167,24 @@ public class ExpressionVisitor {
     void endVisitStoreVariable(String attributeName) {
 
     }
+
+    void beginVisitBalVariable(String attributeName) {
+        String processedAttributeName = attributeName;
+        if (attributeName.startsWith("'")) {
+            processedAttributeName = processedAttributeName.substring(1);
+        }
+
+        String partialClause = this.expression.toString();
+        whereExpressionNodes.add(Utils.getStringLiteralToken(partialClause));
+        ExpressionNode expressionNode = NodeFactory.createSimpleNameReferenceNode(
+                Utils.getStringLiteralToken(processedAttributeName));
+        whereExpressionNodes.add(NodeFactory.createInterpolationNode(
+                INTERPOLATION_START_TOKEN, expressionNode, INTERPOLATION_END_TOKEN));
+        this.expression.setLength(0);
+    }
+
+    void endVisitBalVariable(String attributeName) {
+
+    }
+
 }
