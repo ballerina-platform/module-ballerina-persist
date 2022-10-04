@@ -627,7 +627,6 @@ public class CompilerPluginTest {
         testSqlScript("package_16", fileContent, 0, "");
     }
 
-
     private void testSqlScript(String packagePath, String fileContent, int count,
                                String warningMsg) throws IOException {
         Package currentPackage = loadPackage(packagePath);
