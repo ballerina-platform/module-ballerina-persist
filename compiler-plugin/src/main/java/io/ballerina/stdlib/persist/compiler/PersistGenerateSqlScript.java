@@ -114,7 +114,6 @@ public class PersistGenerateSqlScript {
         Optional<MetadataNode> metadata;
         String fieldName;
         String sqlScript = EMPTY;
-        String hasRelationAnnotation = "false";
         for (Node field : fields) {
             String tableAssociationType = "";
             String length = Constants.VARCHAR_LENGTH;
@@ -124,6 +123,7 @@ public class PersistGenerateSqlScript {
             String fieldType;
             boolean isArrayType = false;
             boolean isUserDefinedType = false;
+            String hasRelationAnnotation = FALSE;
             if (field instanceof RecordFieldWithDefaultValueNode) {
                 RecordFieldWithDefaultValueNode fieldNode = (RecordFieldWithDefaultValueNode) field;
                 node = fieldNode.typeName();
@@ -160,7 +160,7 @@ public class PersistGenerateSqlScript {
                 if (properties.length == 0) {
                     tableAssociationType = Constants.ONE_TO_ONE;
                     referenceTableName = type;
-                    hasRelationAnnotation = "false";
+                    hasRelationAnnotation = FALSE;
                 } else {
                     tableAssociationType = properties[1];
                     referenceTableName = properties[0];
@@ -422,7 +422,7 @@ public class PersistGenerateSqlScript {
 
     private static String processRelationAnnotation(AnnotationNode annotationNode, String fieldType, String tableName,
                                                     NodeList<ModuleMemberDeclarationNode> memberNodes,
-                                                    String referenceTableName, String tableAssociationType) {
+                                                    String referenceTableName, String relationshipType) {
         String delete = EMPTY;
         String update = EMPTY;
         StringBuilder relationScript = new StringBuilder(EMPTY);
@@ -461,7 +461,7 @@ public class PersistGenerateSqlScript {
                 for (Node node : foreignKeys.expressions()) {
                     String referenceKey = Utils.eliminateDoubleQuotes(referenceValueNode.get(i).toSourceCode().trim());
                     String foreignKeyType = getForeignKeyType(memberNodes, referenceKey, fieldType,
-                            foreignKeys.expressions().size(), tableAssociationType);
+                            foreignKeys.expressions().size(), relationshipType);
                     relationScript = new StringBuilder(relationScript.toString().concat(
                             constructForeignKeyScript(Utils.eliminateDoubleQuotes(node.toSourceCode().trim()),
                                     foreignKeyType, tableName, referenceTableName, String.valueOf(i), referenceKey,
@@ -479,19 +479,19 @@ public class PersistGenerateSqlScript {
                             referenceKey.substring(0, 1).toUpperCase(Locale.ENGLISH) +
                             referenceKey.substring(1);
                     foreignKeyType = getForeignKeyType(memberNodes, referenceKey, fieldType,
-                            reference.expressions().size(), tableAssociationType);
+                            reference.expressions().size(), relationshipType);
                     relationScript.append(constructForeignKeyScript(foreignKey,
                             foreignKeyType, tableName, referenceTableName, "0", referenceKey, delete, update));
                 } else if (foreignKeys != null && foreignKeys.expressions().size() != 0) {
                     foreignKey = Utils.eliminateDoubleQuotes(foreignKeys.expressions().get(0).toSourceCode().trim());
                     referenceInfo = getReferenceKeyAndType(memberNodes, fieldType,
-                            foreignKeys.expressions().size(), tableAssociationType);
+                            foreignKeys.expressions().size(), relationshipType);
                     relationScript.append(constructForeignKeyScript(foreignKey,
                             referenceInfo.get(1).get(0), tableName, referenceTableName, "0",
                             referenceInfo.get(0).get(0), delete, update));
                 } else {
                     referenceInfo = getReferenceKeyAndType(memberNodes, fieldType, 1,
-                            tableAssociationType);
+                            relationshipType);
                     String referenceKeyName = referenceInfo.get(0).get(0);
                     String referenceType = referenceInfo.get(1).get(0);
                     foreignKey = fieldType.toLowerCase(Locale.ENGLISH) +
