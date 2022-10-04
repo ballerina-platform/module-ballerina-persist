@@ -20,6 +20,7 @@ package io.ballerina.stdlib.persist.compiler.expression;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.BindingPatternNode;
+import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ChildNodeList;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
@@ -65,7 +66,7 @@ public class ExpressionBuilder {
 
     private void buildVariableExecutors(ExpressionNode expressionNode, ExpressionVisitor expressionVisitor)
             throws NotSupportedExpressionException {
-        // todo Support usage and, or bracketed expressions
+        // todo Support usage and, or expressions
         if (expressionNode instanceof BinaryExpressionNode) {
             // Simple Compare
             ChildNodeList expressionChildren = expressionNode.children();
@@ -99,6 +100,10 @@ public class ExpressionBuilder {
                 expressionVisitor.endVisitCompareRightOperand(tokenKind);
                 expressionVisitor.endVisitCompare(tokenKind);
             }
+        } else if (expressionNode instanceof BracedExpressionNode) {
+            expressionVisitor.beginVisitBraces();
+            buildVariableExecutors(((BracedExpressionNode) expressionNode).expression(), expressionVisitor);
+            expressionVisitor.endVisitBraces();
         } else if (expressionNode instanceof FieldAccessExpressionNode) {
             // Bracketed Multi Expression
             // todo Validate if this is not part of an expression

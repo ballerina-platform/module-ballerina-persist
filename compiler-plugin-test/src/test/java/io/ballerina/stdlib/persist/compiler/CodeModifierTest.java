@@ -242,19 +242,22 @@ public class CodeModifierTest {
             if (document.name().equals("sample.bal")) {
                 // Positive test
                 List<String> modifiedFunctions = List.of(
-                        "check from entity:MedicalNeed medicalNeed in mnClient->execute(` WHERE quantity < ${minQuantity} `)\n" +
+                        "check from entity:MedicalNeed medicalNeed in " +
+                                "mnClient->execute(` WHERE ( quantity < ${minQuantity} )  `)\n" +
                                 "        select {\n" +
                                 "            needId: medicalNeed.needId,\n" +
                                 "            period: medicalNeed.period,\n" +
                                 "            quantity: medicalNeed.quantity\n" +
                                 "        };",
-                        "check from var {needId, period, quantity} in mnClient->execute(` WHERE quantity < ${minQuantity} `)\n" +
+                        "check from var {needId, period, quantity} in " +
+                                "mnClient->execute(` WHERE quantity < ${minQuantity}  `)\n" +
                                 "        select {\n" +
                                 "            needId: needId,\n" +
                                 "            period: period,\n" +
                                 "            quantity: quantity\n" +
                                 "        };",
-                        "check from entity:MedicalNeed medicalNeed in mnClient->execute(` WHERE period = \"2022-10-10 01:02:03\" `)\n" +
+                        "check from entity:MedicalNeed medicalNeed in " +
+                                "mnClient->execute(` WHERE period = \"2022-10-10 01:02:03\" `)\n" +
                                 "        select {\n" +
                                 "            needId: medicalNeed.needId,\n" +
                                 "            period: medicalNeed.period,\n" +
@@ -267,7 +270,8 @@ public class CodeModifierTest {
                 // Negative Tests
                 List<String> unmodifiedFunction = List.of(
                         // todo This should not be modified
-                        "check from var {needId, period, quantity} in mnClient->execute(` WHERE ${quantity1}< ${minQuantity} `)"
+                        "check from var {needId, period, quantity} in " +
+                                "mnClient->execute(` WHERE ${quantity1} < ${minQuantity}  `)"
                 );
                 unmodifiedFunction.forEach(codeSnippet ->
                         Assert.assertTrue(document.syntaxTree().toSourceCode().contains(codeSnippet), codeSnippet));

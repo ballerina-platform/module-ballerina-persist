@@ -85,7 +85,10 @@ public class Constants {
     public static final String EXECUTE_FUNCTION = "execute";
     public static final String BACKTICK = "`";
     public static final String SPACE = " ";
+    public static final String OPEN_BRACES = "( ";
+    public static final String CLOSE_BRACES = ") ";
     public static final String ASCENDING = "ascending";
+    public static final String BAL_ESCAPE_TOKEN = "'";
 
     /**
      * SQL keywords used to construct the query.
@@ -96,6 +99,7 @@ public class Constants {
         public static final String ORDERBY = "ORDER BY";
         public static final String ORDER_BY_ASCENDING = "ASC";
         public static final String ORDER_BY_DECENDING = "DESC";
+        public static final String NOT_EQUAL_TOKEN = "<>";
     }
 
     /**

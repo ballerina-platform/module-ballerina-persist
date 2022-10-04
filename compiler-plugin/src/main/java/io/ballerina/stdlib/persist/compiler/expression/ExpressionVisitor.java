@@ -28,7 +28,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.EQUAL_TOKEN;
+import static io.ballerina.stdlib.persist.compiler.Constants.BAL_ESCAPE_TOKEN;
+import static io.ballerina.stdlib.persist.compiler.Constants.CLOSE_BRACES;
+import static io.ballerina.stdlib.persist.compiler.Constants.OPEN_BRACES;
 import static io.ballerina.stdlib.persist.compiler.Constants.SPACE;
+import static io.ballerina.stdlib.persist.compiler.Constants.SQLKeyWords.NOT_EQUAL_TOKEN;
 import static io.ballerina.stdlib.persist.compiler.Constants.SQLKeyWords.WHERE;
 import static io.ballerina.stdlib.persist.compiler.Constants.TokenNodes.INTERPOLATION_END_TOKEN;
 import static io.ballerina.stdlib.persist.compiler.Constants.TokenNodes.INTERPOLATION_START_TOKEN;
@@ -133,7 +137,7 @@ public class ExpressionVisitor {
                 this.expression.append(EQUAL_TOKEN.stringValue()).append(SPACE);
                 break;
             case NOT_EQUAL_TOKEN:
-                this.expression.append("<>").append(SPACE);
+                this.expression.append(NOT_EQUAL_TOKEN).append(SPACE);
                 break;
             default:
                 throw new NotSupportedExpressionException("Unsupported Expression");
@@ -148,6 +152,14 @@ public class ExpressionVisitor {
 
     }
 
+    public void beginVisitBraces() {
+        this.expression.append(OPEN_BRACES);
+    }
+
+    public void endVisitBraces() {
+        this.expression.append(CLOSE_BRACES);
+    }
+
     /*Constant*/
     public void beginVisitConstant(Object value, SyntaxKind type) {
         this.expression.append(value);
@@ -158,10 +170,10 @@ public class ExpressionVisitor {
 
     void beginVisitStoreVariable(String attributeName) {
         String processedAttributeName = attributeName;
-        if (attributeName.startsWith("'")) {
+        if (attributeName.startsWith(BAL_ESCAPE_TOKEN)) {
             processedAttributeName = processedAttributeName.substring(1);
         }
-        this.expression.append(processedAttributeName).append(" ");
+        this.expression.append(processedAttributeName).append(SPACE);
     }
 
     void endVisitStoreVariable(String attributeName) {
@@ -170,7 +182,7 @@ public class ExpressionVisitor {
 
     void beginVisitBalVariable(String attributeName) {
         String processedAttributeName = attributeName;
-        if (attributeName.startsWith("'")) {
+        if (attributeName.startsWith(BAL_ESCAPE_TOKEN)) {
             processedAttributeName = processedAttributeName.substring(1);
         }
 
@@ -181,6 +193,7 @@ public class ExpressionVisitor {
         whereExpressionNodes.add(NodeFactory.createInterpolationNode(
                 INTERPOLATION_START_TOKEN, expressionNode, INTERPOLATION_END_TOKEN));
         this.expression.setLength(0);
+        this.expression.append(SPACE);
     }
 
     void endVisitBalVariable(String attributeName) {

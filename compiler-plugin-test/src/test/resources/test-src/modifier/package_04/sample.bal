@@ -24,7 +24,7 @@ public function main() returns error? {
     int minQuantity = 3;
     record {int needId; string period; int quantity;}[]? mns =
     check from entity:MedicalNeed medicalNeed in mnClient->read()
-        where medicalNeed.quantity < minQuantity
+        where (medicalNeed.quantity < minQuantity)
         select {
             needId: medicalNeed.needId,
             period: medicalNeed.period,
