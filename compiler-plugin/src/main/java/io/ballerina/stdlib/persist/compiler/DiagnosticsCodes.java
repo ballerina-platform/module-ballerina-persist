@@ -52,7 +52,13 @@ public enum DiagnosticsCodes {
             WARNING),
     PERSIST_113("PERSIST_113", "duplicate table name: the table name is already used in another entity",
             ERROR),
-    PERSIST_114("PERSIST_114", "unsupported feature: M:M relationship", ERROR);
+    PERSIST_114("PERSIST_114", "unsupported feature: M:M relationship", ERROR),
+    PERSIST_115("PERSIST_115", "invalid entity initialisation: the associated entity of this[{0}] " +
+            "does not have the field with the relationship type", ERROR),
+    PERSIST_116("PERSIST_116", "invalid entity initialisation: the @Relation annotation cannot be " +
+            "added to both entities, if relationship of these entities is 1:1 or 1:M", ERROR),
+    PERSIST_117("PERSIST_117", "invalid annotation: this field does not support @Relation " +
+            "annotation", ERROR);
 
     private final String code;
     private final String message;

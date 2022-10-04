@@ -65,6 +65,20 @@ public class PersistGenerateSqlScript {
     private static final String UNIQUE_KEY_START_SCRIPT = NEW_LINE + TAB + "UNIQUE KEY(";
     private static final String UNIQUE = " UNIQUE";
     private static final String DIAGNOSTIC = "Diagnostic";
+    public static final String ON_DELETE = "onDelete";
+    public static final String ON_DELETE_SYNTAX = " ON DELETE";
+    public static final String ON_UPDATE_SYNTAX = " ON UPDATE";
+    public static final String RESTRICT = "persist:RESTRICT";
+    public static final String CASCADE = "persist:CASCADE";
+    public static final String SET_NULL = "persist:SET_NULL";
+    public static final String NO_ACTION = "persist:NO_ACTION";
+    public static final String RESTRICT_SYNTAX = " RESTRICT";
+    public static final String CASCADE_SYNTAX = " CASCADE";
+    public static final String NO_ACTION_SYNTAX = " NO ACTION";
+    public static final String SET_NULL_SYNTAX = " SET NULL";
+    public static final String SET_DEFAULT_SYNTAX = " SET DEFAULT";
+    public static final String TRUE = "true";
+    public static final String FALSE = "false";
 
     protected static void generateSqlScript(RecordTypeDescriptorNode recordNode, TypeDefinitionNode typeDefinitionNode,
                                             String tableName, NodeList<ModuleMemberDeclarationNode> memberNodes,
@@ -100,6 +114,7 @@ public class PersistGenerateSqlScript {
         Optional<MetadataNode> metadata;
         String fieldName;
         String sqlScript = EMPTY;
+        String hasRelationAnnotation = "false";
         for (Node field : fields) {
             String tableAssociationType = "";
             String length = Constants.VARCHAR_LENGTH;
@@ -107,6 +122,8 @@ public class PersistGenerateSqlScript {
             String startValue = EMPTY;
             String referenceTableName = "";
             String fieldType;
+            boolean isArrayType = false;
+            boolean isUserDefinedType = false;
             if (field instanceof RecordFieldWithDefaultValueNode) {
                 RecordFieldWithDefaultValueNode fieldNode = (RecordFieldWithDefaultValueNode) field;
                 node = fieldNode.typeName();
@@ -137,19 +154,36 @@ public class PersistGenerateSqlScript {
             } else if (node instanceof QualifiedNameReferenceNode) {
                 type = getType(((QualifiedNameReferenceNode) node).identifier().text());
             } else if (node instanceof SimpleNameReferenceNode) {
+                isUserDefinedType = true;
                 type = ((SimpleNameReferenceNode) node).name().text();
                 String[] properties = checkRelationShip(memberNodes, recordName, type);
-                tableAssociationType = properties[1];
-                referenceTableName = properties[0];
+                if (properties.length == 0) {
+                    tableAssociationType = Constants.ONE_TO_ONE;
+                    referenceTableName = type;
+                    hasRelationAnnotation = "false";
+                } else {
+                    tableAssociationType = properties[1];
+                    referenceTableName = properties[0];
+                    hasRelationAnnotation = properties[2];
+                }
             } else if (node instanceof ArrayTypeDescriptorNode) {
+                isUserDefinedType = true;
+                isArrayType = true;
                 type = ((ArrayTypeDescriptorNode) node).memberTypeDesc().toString().trim();
                 String[] properties = checkRelationShip(memberNodes, recordName, type);
-                tableAssociationType = properties[1];
-                referenceTableName = properties[0];
+                if (properties.length == 0) {
+                    Utils.reportDiagnostic(ctx, field.location(), DiagnosticsCodes.PERSIST_115.getCode(),
+                            MessageFormat.format(DiagnosticsCodes.PERSIST_115.getMessage(), type),
+                            DiagnosticsCodes.PERSIST_115.getSeverity());
+                    return DIAGNOSTIC;
+                } else {
+                    tableAssociationType = properties[1];
+                    referenceTableName = properties[0];
+                    hasRelationAnnotation = properties[2];
+                }
                 if (tableAssociationType.equals(Constants.ONE_TO_ONE)) {
                     tableAssociationType = Constants.ONE_TO_MANY;
-                } else {
-//                    tableAssociationType = Constants.MANY_TO_MANY; // todo enable this when implementing.
+                } else if (tableAssociationType.equals(Constants.ONE_TO_MANY)) {
                     Utils.reportDiagnostic(ctx, field.location(), DiagnosticsCodes.PERSIST_114.getCode(),
                             DiagnosticsCodes.PERSIST_114.getMessage(), DiagnosticsCodes.PERSIST_114.getSeverity());
                     return DIAGNOSTIC;
@@ -174,6 +208,18 @@ public class PersistGenerateSqlScript {
                         }
                     }
                     if (annotationName.equals(Constants.RELATION)) {
+                        if (hasRelationAnnotation.equals(TRUE)) {
+                            Utils.reportDiagnostic(ctx, annotationNode.location(),
+                                    DiagnosticsCodes.PERSIST_116.getCode(), DiagnosticsCodes.PERSIST_116.getMessage(),
+                                    DiagnosticsCodes.PERSIST_116.getSeverity());
+                            return DIAGNOSTIC;
+                        }
+                        if (isArrayType || !isUserDefinedType) {
+                            Utils.reportDiagnostic(ctx, annotationNode.location(),
+                                    DiagnosticsCodes.PERSIST_117.getCode(), DiagnosticsCodes.PERSIST_117.getMessage(),
+                                    DiagnosticsCodes.PERSIST_117.getSeverity());
+                            return DIAGNOSTIC;
+                        }
                         updateReferenceTable(tableName, referenceTableName, referenceTables);
                         relationScript = processRelationAnnotation(annotationNode, type, tableName, memberNodes,
                                 referenceTableName, tableAssociationType);
@@ -238,19 +284,42 @@ public class PersistGenerateSqlScript {
             }
             for (Node recordField : recordTypeDescriptor.fields()) {
                 String fieldType;
+                String relationAnnotation = "false";
                 if (recordField instanceof RecordFieldNode) {
                     RecordFieldNode recordFieldNode = (RecordFieldNode) recordField;
                     fieldType = recordFieldNode.typeName().toSourceCode().trim();
+                    Optional<MetadataNode> metaData = recordFieldNode.metadata();
+                    if (metaData.isPresent()) {
+                        relationAnnotation = checkRelationAnnotation(metaData.get());
+                    }
                 } else {
                     RecordFieldWithDefaultValueNode recordFieldNode = (RecordFieldWithDefaultValueNode) recordField;
                     fieldType = recordFieldNode.typeName().toSourceCode().trim();
+                    Optional<MetadataNode> metaData = recordFieldNode.metadata();
+                    if (metaData.isPresent()) {
+                        relationAnnotation = checkRelationAnnotation(metaData.get());
+                    }
                 }
-                if (fieldType.contains(recordName) && fieldType.endsWith("]")) {
-                    return new String[]{referenceRecordName, Constants.ONE_TO_MANY};
+                if (fieldType.contains(recordName)) {
+                    if (fieldType.endsWith("]")) {
+                        return new String[]{referenceRecordName, Constants.ONE_TO_MANY, relationAnnotation};
+                    } else {
+                        return new String[]{referenceRecordName, Constants.ONE_TO_ONE, relationAnnotation};
+                    }
                 }
             }
         }
-        return new String[]{referenceRecordName, Constants.ONE_TO_ONE};
+        return new String[]{};
+    }
+
+    private static String checkRelationAnnotation(MetadataNode metadataNode) {
+        NodeList<AnnotationNode> annotations = metadataNode.annotations();
+        for (AnnotationNode annotation : annotations) {
+            if (annotation.annotReference().toSourceCode().trim().equals(Constants.RELATION)) {
+                return TRUE;
+            }
+        }
+        return FALSE;
     }
 
     private static String processConstraintAnnotations(AnnotationNode annotationNode) {
@@ -373,15 +442,15 @@ public class PersistGenerateSqlScript {
                     if (node.isPresent()) {
                         reference = (ListConstructorExpressionNode) node.get();
                     }
-                } else if (specificFieldNode.fieldName().toSourceCode().trim().equals(Constants.CASCADE_DELETE)) {
+                } else if (specificFieldNode.fieldName().toSourceCode().trim().equals(ON_DELETE)) {
                     Optional<ExpressionNode> optional = specificFieldNode.valueExpr();
-                    if (optional.isPresent() && optional.get().toSourceCode().trim().equals(Constants.TRUE)) {
-                        delete = Constants.ON_DELETE_CASCADE;
+                    if (optional.isPresent()) {
+                        delete = ON_DELETE_SYNTAX + getReferenceAction(optional.get().toSourceCode().trim());
                     }
                 } else {
                     Optional<ExpressionNode> optional = specificFieldNode.valueExpr();
-                    if (optional.isPresent() && optional.get().toSourceCode().trim().equals(Constants.TRUE)) {
-                        update = Constants.ON_UPDATE_CASCADE;
+                    if (optional.isPresent()) {
+                        update = ON_UPDATE_SYNTAX + getReferenceAction(optional.get().toSourceCode().trim());
                     }
                 }
             }
@@ -435,6 +504,21 @@ public class PersistGenerateSqlScript {
             }
         }
         return relationScript.toString();
+    }
+
+    private static String getReferenceAction(String value) {
+        switch (value) {
+            case RESTRICT:
+                return RESTRICT_SYNTAX;
+            case CASCADE:
+                return CASCADE_SYNTAX;
+            case NO_ACTION:
+                return NO_ACTION_SYNTAX;
+            case SET_NULL:
+                return SET_NULL_SYNTAX;
+            default:
+                return SET_DEFAULT_SYNTAX;
+        }
     }
 
     private static String constructForeignKeyScript(String fieldName, String fieldType, String tableName,
@@ -806,7 +890,6 @@ public class PersistGenerateSqlScript {
                         return getForeignKeyFieldType(annotations, fieldType) + unique;
                     }
                 }
-
             }
         }
         return EMPTY;

@@ -29,9 +29,9 @@ public type MedicalNeed record {|
     time:Civil period;
     string urgency;
     int quantity;
-    @persist:Relation {reference: ["id"], cascadeDelete: true}
+    @persist:Relation {reference: ["id"], onDelete: persist:SET_DEFAULT}
     Item item?;
-    @persist:Relation {keyColumns: ["itemId1"], cascadeDelete: true}
+    @persist:Relation {keyColumns: ["itemId1"], onDelete: persist:NO_ACTION}
     Item1 item1?;
 |};
 
