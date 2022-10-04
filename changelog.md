@@ -7,5 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Support for generic persistent client and annotations
+- Support SQL script generation
+- Support for advanced filter queries
 
 ### Changed

@@ -25,7 +25,7 @@ import io.ballerina.projects.plugins.CodeAnalyzer;
 /**
  * Persist Code Analyzer.
  */
-public class PersistCodeAnalyzer extends CodeAnalyzer  {
+public class PersistCodeAnalyzer extends CodeAnalyzer {
 
     @Override
     public void init(CodeAnalysisContext codeAnalysisContext) {
