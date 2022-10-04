@@ -44,9 +44,22 @@ client class DepartmentClient {
         return (check self.persistClient.runReadByKeyQuery(Department, key)).cloneWithType(Department);
     }
 
-    remote function read(map<anydata>? filter = ()) returns stream<Department, error?>|error {
-        stream<anydata, error?> result = check self.persistClient.runReadQuery(Department, filter);
-        return new stream<Department, error?>(new DepartmentStream(result));
+    remote function read(map<anydata>? filter = ()) returns stream<Department, error?> {
+        stream<anydata, error?>|error result = self.persistClient.runReadQuery(Department, filter);
+        if result is error {
+            return new stream<Department, error?>(new DepartmentStream((), result));
+        } else {
+            return new stream<Department, error?>(new DepartmentStream(result));
+        }
+    }
+
+    remote function execute(sql:ParameterizedQuery filterClause) returns stream<Department, error?> {
+        stream<anydata, error?>|error result = self.persistClient.runExecuteQuery(filterClause, Department);
+        if result is error {
+            return new stream<Department, error?>(new DepartmentStream((), result));
+        } else {
+            return new stream<Department, error?>(new DepartmentStream(result));
+        }
     }
 
     remote function update(record {} 'object, map<anydata> filter) returns error? {
@@ -64,25 +77,38 @@ client class DepartmentClient {
 }
 
 public class DepartmentStream {
-    private stream<anydata, error?> anydataStream;
+    private stream<anydata, error?>? anydataStream;
+    private error? err;
 
-    public isolated function init(stream<anydata, error?> anydataStream) {
+    public isolated function init(stream<anydata, error?>? anydataStream, error? err = ()) {
         self.anydataStream = anydataStream;
+        self.err = err;
     }
 
     public isolated function next() returns record {|Department value;|}|error? {
-        var streamValue = self.anydataStream.next();
-        if streamValue is () {
-            return streamValue;
-        } else if (streamValue is error) {
-            return streamValue;
+        if self.err is error {
+            return <error> self.err;
+        } else if self.anydataStream is stream<anydata, error?> {
+            var anydataStream = <stream<anydata, error?>> self.anydataStream;
+            var streamValue = anydataStream.next();
+            if streamValue is () {
+                return streamValue;
+            } else if (streamValue is error) {
+                return streamValue;
+            } else {
+                record {|Department value;|} nextRecord = {value: check streamValue.value.cloneWithType(Department)};
+                return nextRecord;
+            }
         } else {
-            record {|Department value;|} nextRecord = {value: check streamValue.value.cloneWithType(Department)};
-            return nextRecord;
+            // Unreachable code
+            return ();
         }
     }
 
     public isolated function close() returns error? {
-        return self.anydataStream.close();
+        if self.anydataStream is stream<anydata, error?> {
+            var anydataStream = <stream<anydata, error?>> self.anydataStream;
+            return anydataStream.close();
+        }
     }
 }

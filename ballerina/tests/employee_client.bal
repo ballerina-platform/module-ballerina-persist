@@ -56,9 +56,22 @@ client class EmployeeClient {
         return <Employee> check self.persistClient.runReadByKeyQuery(Employee, key, include);
     }
 
-    remote function read(map<anydata>? filter = (), EmployeeRelations[] include = []) returns stream<Employee, error?>|error {
-        stream<anydata, error?> result = check self.persistClient.runReadQuery(Employee, filter, include);
-        return new stream<Employee, error?>(new EmployeeStream(result, include));
+    remote function read(map<anydata>? filter = (), EmployeeRelations[] include = []) returns stream<Employee, error?> {
+        stream<anydata, error?>|error result = self.persistClient.runReadQuery(Employee, filter, include);
+        if result is error {
+            return new stream<Employee, error?>(new EmployeeStream((), result));
+        } else {
+            return new stream<Employee, error?>(new EmployeeStream(result));
+        }
+    }
+
+    remote function execute(sql:ParameterizedQuery filterClause) returns stream<Employee, error?> {
+        stream<anydata, error?>|error result = self.persistClient.runExecuteQuery(filterClause, Employee);
+        if result is error {
+            return new stream<Employee, error?>(new EmployeeStream((), result));
+        } else {
+            return new stream<Employee, error?>(new EmployeeStream(result));
+        }
     }
 
     remote function update(record {} 'object, map<anydata> filter) returns error? {
@@ -67,7 +80,7 @@ client class EmployeeClient {
         if 'object["company"] is record {} {
             record {} companyEntity = <record {}> 'object["company"];
             CompanyClient companyClient = check new CompanyClient();
-            stream<Employee, error?> employeeStream = check self->read(filter, [CompanyEntity]);
+            stream<Employee, error?> employeeStream = self->read(filter, [CompanyEntity]);
 
             // TODO: replace this with more optimized code after adding support for advanced queries
             check from Employee employee in employeeStream
@@ -105,27 +118,38 @@ public enum EmployeeRelations {
 }
 
 public class EmployeeStream {
-    private stream<anydata, error?> anydataStream;
-    private EmployeeRelations[] include;
+    private stream<anydata, error?>? anydataStream;
+    private error? err;
 
-    public isolated function init(stream<anydata, error?> anydataStream, EmployeeRelations[] include = []) {
+    public isolated function init(stream<anydata, error?>? anydataStream, error? err = ()) {
         self.anydataStream = anydataStream;
-        self.include = include;
+        self.err = err;
     }
 
     public isolated function next() returns record {|Employee value;|}|error? {
-        var streamValue = self.anydataStream.next();
-        if streamValue is () {
-            return streamValue;
-        } else if (streamValue is error) {
-            return streamValue;
+        if self.err is error {
+            return <error> self.err;
+        } else if self.anydataStream is stream<anydata, error?> {
+            var anydataStream = <stream<anydata, error?>> self.anydataStream;
+            var streamValue = anydataStream.next();
+            if streamValue is () {
+                return streamValue;
+            } else if (streamValue is error) {
+                return streamValue;
+            } else {
+                record {|Employee value;|} nextRecord = {value: check streamValue.value.cloneWithType(Employee)};
+                return nextRecord;
+            }
         } else {
-            record {|Employee value;|} nextRecord = {value: <Employee>streamValue.value};
-            return nextRecord;
+            // Unreachable code
+            return ();
         }
     }
 
     public isolated function close() returns error? {
-        return self.anydataStream.close();
+        if self.anydataStream is stream<anydata, error?> {
+            var anydataStream = <stream<anydata, error?>> self.anydataStream;
+            return anydataStream.close();
+        }
     }
 }
