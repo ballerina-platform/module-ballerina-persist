@@ -51,6 +51,15 @@ public class Constants {
     public static final String FILE_NAME = "persist_db_scripts.sql";
     public static final String VARCHAR_LENGTH = "191";
 
+    public static final String READ_FUNCTION = "read";
+    public static final String EXECUTE_FUNCTION = "execute";
+    public static final String BACKTICK = "`";
+    public static final String SPACE = " ";
+    public static final String OPEN_BRACES = "( ";
+    public static final String CLOSE_BRACES = ") ";
+    public static final String ASCENDING = "ascending";
+    public static final String BAL_ESCAPE_TOKEN = "'";
+
     /**
      * Constants related to Ballerina types.
      */
@@ -80,15 +89,6 @@ public class Constants {
         public static final String TIME_STAMP = "TIMESTAMP";
         public static final String DATE_TIME = "DATETIME";
     }
-
-    public static final String READ_FUNCTION = "read";
-    public static final String EXECUTE_FUNCTION = "execute";
-    public static final String BACKTICK = "`";
-    public static final String SPACE = " ";
-    public static final String OPEN_BRACES = "( ";
-    public static final String CLOSE_BRACES = ") ";
-    public static final String ASCENDING = "ascending";
-    public static final String BAL_ESCAPE_TOKEN = "'";
 
     /**
      * SQL keywords used to construct the query.
