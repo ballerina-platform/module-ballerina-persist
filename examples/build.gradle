@@ -78,4 +78,7 @@ task buildExamples {
 }
 
 buildExamples.dependsOn ":persist-ballerina:build"
+testExamples.dependsOn ":persist-ballerina:build"
+
 build.dependsOn buildExamples
+test.dependsOn testExamples

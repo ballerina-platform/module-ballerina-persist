@@ -18,7 +18,14 @@ import ballerina/sql;
 import ballerinax/mysql;
 import ballerina/time;
 import ballerina/persist;
-import ballerina/io;
+import ballerinax/mysql.driver as _;
+import package_03.entity;
+
+configurable string USER = ?;
+configurable string PASSWORD = ?;
+configurable string HOST = ?;
+configurable string DATABASE = ?;
+configurable int PORT = ?;
 
 public client class MedicalNeedClient {
 
@@ -42,33 +49,30 @@ public client class MedicalNeedClient {
         self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata);
     }
 
-    remote function create(MedicalNeed value) returns int|error? {
+    remote function create(entity:MedicalNeed value) returns int|error? {
         sql:ExecutionResult result = check self.persistClient.runInsertQuery(value);
         return <int>result.lastInsertId;
     }
 
-    remote function readByKey(int key) returns MedicalNeed|error {
-        return (check self.persistClient.runReadByKeyQuery(MedicalNeed, key)).cloneWithType(MedicalNeed);
+    remote function readByKey(int key) returns entity:MedicalNeed|error {
+        return (check self.persistClient.runReadByKeyQuery(entity:MedicalNeed, key)).cloneWithType(entity:MedicalNeed);
     }
 
-    remote function read(map<anydata>? filter = ()) returns stream<MedicalNeed, error?> {
-        io:println(`Read all records in table.`);
-        stream<anydata, error?>|error result = self.persistClient.runReadQuery(MedicalNeed, filter);
+    remote function read(map<anydata>? filter = ()) returns stream<entity:MedicalNeed, error?> {
+        stream<anydata, error?>|error result = self.persistClient.runReadQuery(entity:MedicalNeed, filter);
         if result is error {
-            return new stream<MedicalNeed, error?>(new MedicalNeedStream((), result));
+            return new stream<entity:MedicalNeed, error?>(new MedicalNeedStream((), result));
         } else {
-            return new stream<MedicalNeed, error?>(new MedicalNeedStream(result));
+            return new stream<entity:MedicalNeed, error?>(new MedicalNeedStream(result));
         }
     }
 
-    remote function execute(sql:ParameterizedQuery filterClause) returns stream<MedicalNeed, error?> {
-        io:println(`Read records with filter query.`);
-        io:println(filterClause);
-        stream<anydata, error?>|error result = self.persistClient.runExecuteQuery(filterClause, MedicalNeed);
+    remote function execute(sql:ParameterizedQuery filterClause) returns stream<entity:MedicalNeed, error?> {
+        stream<anydata, error?>|error result = self.persistClient.runExecuteQuery(filterClause, entity:MedicalNeed);
         if result is error {
-            return new stream<MedicalNeed, error?>(new MedicalNeedStream((), result));
+            return new stream<entity:MedicalNeed, error?>(new MedicalNeedStream((), result));
         } else {
-            return new stream<MedicalNeed, error?>(new MedicalNeedStream(result));
+            return new stream<entity:MedicalNeed, error?>(new MedicalNeedStream(result));
         }
     }
 
@@ -95,7 +99,7 @@ public class MedicalNeedStream {
         self.err = err;
     }
 
-    public isolated function next() returns record {|MedicalNeed value;|}|error? {
+    public isolated function next() returns record {|entity:MedicalNeed value;|}|error? {
         if self.err is error {
             return <error>self.err;
         } else if self.anydataStream is stream<anydata, error?> {
@@ -106,7 +110,7 @@ public class MedicalNeedStream {
             } else if (streamValue is error) {
                 return streamValue;
             } else {
-                record {|MedicalNeed value;|} nextRecord = {value: check streamValue.value.cloneWithType(MedicalNeed)};
+                record {|entity:MedicalNeed value;|} nextRecord = {value: check streamValue.value.cloneWithType(entity:MedicalNeed)};
                 return nextRecord;
             }
         } else {
