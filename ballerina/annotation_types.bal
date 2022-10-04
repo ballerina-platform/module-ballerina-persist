@@ -45,18 +45,24 @@ public annotation AutoIncrementConfig AutoIncrement on record field;
 #
 # + keyColumns - The names of the foreign key columns of the SQL table used in the association
 # + reference - The names of the fields of the other entity which are referenced by the `keyColumns`
-# + cascadeDelete - If true, the corresponding records in the other entity
-#                   will be deleted when a record from the entity is deleted
-# + cascadeUpdate - If true, the corresponding records in the other entity
-#                   will be updated when a record from the entity is updated
+# + onDelete - The action to be taken when the referenced value in the parent entity is deleted
+# + onUpdate - The action to be taken when the referenced value in the parent entity is updated
 public type RelationConfig record {|
     string[] keyColumns?;
     string[] reference?;
-    boolean cascadeDelete = false;
-    boolean cascadeUpdate = true;
+    ReferenceAction onDelete?;
+    ReferenceAction onUpdate?;
 |};
 
-# The annotation is used to indicate the associations of an entity.
-# In one-to-one and one-to-many associations, this is to be used only 
-# in the parent entity (the 'one' side of the association).
+# Defines the actions that can be taken when deleting or updating the parent entity’s values.
+public enum ReferenceAction {
+    RESTRICT,
+    CASCADE,
+    SET_NULL,
+    NO_ACTION,
+    SET_DEFAULT
+}
+
+# The annotation is used to indicate the associations of an entity. In one-to-one and one-to-many associations, this is
+# to be used only in the parent entity (the 'one' side of the association).
 public annotation RelationConfig Relation on field;
