@@ -157,21 +157,15 @@ public class PersistGenerateSqlScript {
                 isUserDefinedType = true;
                 type = ((SimpleNameReferenceNode) node).name().text();
                 String[] properties = checkRelationShip(memberNodes, recordName, type);
-                if (properties.length == 0) {
-                    tableAssociationType = Constants.ONE_TO_ONE;
-                    referenceTableName = type;
-                    hasRelationAnnotation = FALSE;
-                } else {
-                    tableAssociationType = properties[1];
-                    referenceTableName = properties[0];
-                    hasRelationAnnotation = properties[2];
-                }
+                tableAssociationType = properties[1];
+                referenceTableName = properties[0];
+                hasRelationAnnotation = properties[2];
             } else if (node instanceof ArrayTypeDescriptorNode) {
                 isUserDefinedType = true;
                 isArrayType = true;
                 type = ((ArrayTypeDescriptorNode) node).memberTypeDesc().toString().trim();
                 String[] properties = checkRelationShip(memberNodes, recordName, type);
-                if (properties.length == 0) {
+                if (properties.length == 4) {
                     Utils.reportDiagnostic(ctx, field.location(), DiagnosticsCodes.PERSIST_115.getCode(),
                             MessageFormat.format(DiagnosticsCodes.PERSIST_115.getMessage(), type),
                             DiagnosticsCodes.PERSIST_115.getSeverity());
@@ -309,7 +303,7 @@ public class PersistGenerateSqlScript {
                 }
             }
         }
-        return new String[]{};
+        return new String[]{referenceRecordName, Constants.ONE_TO_ONE, FALSE, "Field does not exist"};
     }
 
     private static String checkRelationAnnotation(MetadataNode metadataNode) {

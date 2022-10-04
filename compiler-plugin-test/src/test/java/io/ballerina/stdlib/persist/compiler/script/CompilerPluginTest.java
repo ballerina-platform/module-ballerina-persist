@@ -594,6 +594,39 @@ public class CompilerPluginTest {
         testSqlScript("package_15", fileContent, 0, "");
     }
 
+    @Test
+    public void testGenerateSqlScript15() throws IOException {
+        String fileContent = "DROP TABLE IF EXISTS Multiple_Associations;\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS Profiles;\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS Users;\n" +
+                "CREATE TABLE Users (\n" +
+                "\tid INT NOT NULL,\n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\tPRIMARY KEY(id)\n" +
+                ");\n" +
+                "\n" +
+                "CREATE TABLE Profiles (\n" +
+                "\tid INT NOT NULL,\n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\tuserId INT UNIQUE,\n" +
+                "\tCONSTRAINT FK_PROFILES_USERS_0 FOREIGN KEY(userId) REFERENCES Users(id),\n" +
+                "\tPRIMARY KEY(id)\n" +
+                ");\n" +
+                "\n" +
+                "CREATE TABLE Multiple_Associations (\n" +
+                "\tid INT NOT NULL,\n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\tprofileId INT UNIQUE,\n" +
+                "\tCONSTRAINT FK_MULTIPLE_ASSOCIATIONS_PROFILES_0 FOREIGN KEY(profileId) REFERENCES Profiles(id),\n" +
+                "\tuserId INT UNIQUE,\n" +
+                "\tCONSTRAINT FK_MULTIPLE_ASSOCIATIONS_USERS_0 FOREIGN KEY(userId) REFERENCES Users(id),\n" +
+                "\tPRIMARY KEY(id)\n" +
+                ");";
+        testSqlScript("package_16", fileContent, 0, "");
+    }
+
 
     private void testSqlScript(String packagePath, String fileContent, int count,
                                String warningMsg) throws IOException {

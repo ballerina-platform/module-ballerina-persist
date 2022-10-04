@@ -200,8 +200,8 @@ public class CompilerPluginTest {
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
                 filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
                 collect(Collectors.toList());
-        assertValues(errorDiagnosticsList, "invalid entity initialisation: the @Relation annotation cannot be " +
-                        "added to both entities, if relationship of these entities is 1:1 or 1:M",
+        assertValues(errorDiagnosticsList, "invalid entity initialisation: the relation annotation should " +
+                        "only be added to the relationship owner for one-to-one and one-to-many associations",
                 DiagnosticsCodes.PERSIST_116.getCode(), 2);
     }
 
@@ -211,8 +211,8 @@ public class CompilerPluginTest {
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
                 filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
                 collect(Collectors.toList());
-        assertValues(errorDiagnosticsList, "invalid entity initialisation: the @Relation annotation cannot be " +
-                        "added to both entities, if relationship of these entities is 1:1 or 1:M",
+        assertValues(errorDiagnosticsList, "invalid entity initialisation: the relation annotation should " +
+                        "only be added to the relationship owner for one-to-one and one-to-many associations",
                 DiagnosticsCodes.PERSIST_116.getCode(), 2);
     }
 
@@ -222,7 +222,7 @@ public class CompilerPluginTest {
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
                 filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
                 collect(Collectors.toList());
-        assertValues(errorDiagnosticsList, "unsupported feature: M:M relationship",
+        assertValues(errorDiagnosticsList, "unsupported features: many-to-many association is not supported yet",
                 DiagnosticsCodes.PERSIST_114.getCode(), 2);
     }
 
@@ -232,8 +232,8 @@ public class CompilerPluginTest {
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
                 filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
                 collect(Collectors.toList());
-        assertValues(errorDiagnosticsList, "invalid annotation: this field does not support @Relation annotation",
-                DiagnosticsCodes.PERSIST_117.getCode(), 1);
+        assertValues(errorDiagnosticsList, "invalid annotation: this field does not support " +
+                        "the relation annotation", DiagnosticsCodes.PERSIST_117.getCode(), 1);
     }
 
     @Test
@@ -242,8 +242,8 @@ public class CompilerPluginTest {
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
                 filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
                 collect(Collectors.toList());
-        assertValues(errorDiagnosticsList, "invalid annotation: this field does not support @Relation annotation",
-                DiagnosticsCodes.PERSIST_117.getCode(), 1);
+        assertValues(errorDiagnosticsList, "invalid annotation: this field does not support " +
+                "the relation annotation", DiagnosticsCodes.PERSIST_117.getCode(), 1);
     }
 
     private void assertValues(List<Diagnostic> errorDiagnosticsList, String msg, String code, int count) {
