@@ -300,5 +300,58 @@ public class CodeModifierTest {
             }
         }
     }
+
+    @Test
+    public void combinedClauseTest() {
+
+        Package currentPackage = loadPackage("package_05");
+
+        //  Running the compilation
+        currentPackage.getCompilation();
+
+        // Running the code generation
+        CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
+        Package newPackage = codeModifierResult.updatedPackage().orElse(currentPackage);
+
+        for (DocumentId documentId : newPackage.getDefaultModule().documentIds()) {
+            Document document = newPackage.getDefaultModule().document(documentId);
+
+            if (document.name().equals("sample.bal")) {
+                // Positive test
+                List<String> modifiedFunctions = List.of(
+                        "check from entity:MedicalNeed medicalNeed in " +
+                                "mnClient->execute(` WHERE ( quantity < ${minQuantity} )  LIMIT 5`)\n" +
+                                "        select {\n" +
+                                "            needId: medicalNeed.needId,\n" +
+                                "            period: medicalNeed.period,\n" +
+                                "            quantity: medicalNeed.quantity\n" +
+                                "        };",
+                        "check from var {needId, period, quantity} in " +
+                                "mnClient->execute(` WHERE quantity < ${minQuantity}  ORDER BY quantity `)\n" +
+                                "        select {\n" +
+                                "            needId: needId,\n" +
+                                "            period: period,\n" +
+                                "            quantity: quantity\n" +
+                                "        };",
+                        "check from entity:MedicalNeed medicalNeed in " +
+                                "mnClient->execute(` ORDER BY quantity LIMIT 5`)\n" +
+                                "        select {\n" +
+                                "            needId: medicalNeed.needId,\n" +
+                                "            period: medicalNeed.period,\n" +
+                                "            quantity: medicalNeed.quantity\n" +
+                                "        };",
+                        "check from var {needId, period, quantity} in mnClient->execute(" +
+                                "` WHERE quantity < ${minQuantity}  AND quantity > 0 ORDER BY quantity LIMIT 5`)\n" +
+                                "        select {\n" +
+                                "            needId: needId,\n" +
+                                "            period: period,\n" +
+                                "            quantity: quantity\n" +
+                                "        };"
+                );
+                modifiedFunctions.forEach(codeSnippet ->
+                        Assert.assertTrue(document.syntaxTree().toSourceCode().contains(codeSnippet), codeSnippet));
+            }
+        }
+    }
 }
 
