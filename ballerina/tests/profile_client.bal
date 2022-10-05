@@ -42,18 +42,18 @@ client class ProfileClient {
     remote function create(Profile value) returns Profile|error {
         if value.user is User {
             UserClient userClient = check new UserClient();
-            boolean exists = check userClient->exists(<User> value.user);
+            boolean exists = check userClient->exists(<User>value.user);
             if !exists {
-                value.user = check userClient->create(<User> value.user);
+                value.user = check userClient->create(<User>value.user);
             }
         }
-    
+
         sql:ExecutionResult _ = check self.persistClient.runInsertQuery(value);
         return value;
     }
 
     remote function readByKey(int key, ProfileRelations[] include = []) returns Profile|error {
-        return <Profile> check self.persistClient.runReadByKeyQuery(Profile, key, include);
+        return <Profile>check self.persistClient.runReadByKeyQuery(Profile, key, include);
     }
 
     remote function read(map<anydata>? filter = (), ProfileRelations[] include = []) returns stream<Profile, error?> {
@@ -76,9 +76,9 @@ client class ProfileClient {
 
     remote function update(record {} 'object, map<anydata> filter) returns error? {
         _ = check self.persistClient.runUpdateQuery('object, filter);
-        
+
         if 'object["user"] is record {} {
-            record {} userEntity = <record {}> 'object["user"];
+            record {} userEntity = <record {}>'object["user"];
             UserClient userClient = check new UserClient();
             stream<Profile, error?> profileStream = self->read(filter, [UserEntity]);
 
@@ -86,7 +86,7 @@ client class ProfileClient {
             check from Profile p in profileStream
                 do {
                     if p.user is User {
-                        check userClient->update(userEntity, {"id": (<User> p.user).id});
+                        check userClient->update(userEntity, {"id": (<User>p.user).id});
                     }
                 };
         }
@@ -128,9 +128,9 @@ public class ProfileStream {
 
     public isolated function next() returns record {|Profile value;|}|error? {
         if self.err is error {
-            return <error> self.err;
+            return <error>self.err;
         } else if self.anydataStream is stream<anydata, error?> {
-            var anydataStream = <stream<anydata, error?>> self.anydataStream;
+            var anydataStream = <stream<anydata, error?>>self.anydataStream;
             var streamValue = anydataStream.next();
             if streamValue is () {
                 return streamValue;
@@ -148,7 +148,7 @@ public class ProfileStream {
 
     public isolated function close() returns error? {
         if self.anydataStream is stream<anydata, error?> {
-            var anydataStream = <stream<anydata, error?>> self.anydataStream;
+            var anydataStream = <stream<anydata, error?>>self.anydataStream;
             return anydataStream.close();
         }
     }

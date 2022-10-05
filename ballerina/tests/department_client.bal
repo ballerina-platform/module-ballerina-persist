@@ -40,7 +40,7 @@ client class DepartmentClient {
         return [value.hospitalCode, value.departmentId];
     }
 
-    remote function readByKey(record{|string hospitalCode; int departmentId;|} key) returns Department|error {
+    remote function readByKey(record {|string hospitalCode; int departmentId;|} key) returns Department|error {
         return (check self.persistClient.runReadByKeyQuery(Department, key)).cloneWithType(Department);
     }
 
@@ -87,9 +87,9 @@ public class DepartmentStream {
 
     public isolated function next() returns record {|Department value;|}|error? {
         if self.err is error {
-            return <error> self.err;
+            return <error>self.err;
         } else if self.anydataStream is stream<anydata, error?> {
-            var anydataStream = <stream<anydata, error?>> self.anydataStream;
+            var anydataStream = <stream<anydata, error?>>self.anydataStream;
             var streamValue = anydataStream.next();
             if streamValue is () {
                 return streamValue;
@@ -107,7 +107,7 @@ public class DepartmentStream {
 
     public isolated function close() returns error? {
         if self.anydataStream is stream<anydata, error?> {
-            var anydataStream = <stream<anydata, error?>> self.anydataStream;
+            var anydataStream = <stream<anydata, error?>>self.anydataStream;
             return anydataStream.close();
         }
     }

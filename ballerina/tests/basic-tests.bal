@@ -131,9 +131,9 @@ function testReadNegative() returns error? {
     stream<MedicalItem, error?> itemStream = miClient->read({typex: "type1"});
     int count = 0;
     error? err = from MedicalItem _ in itemStream
-            do {
-                count = count + 1;
-            };
+        do {
+            count = count + 1;
+        };
     if err is FieldDoesNotExist {
         test:assertEquals(err.message(), "Field 'typex' does not exist in entity 'MedicalItem'.");
     } else {
