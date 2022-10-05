@@ -53,7 +53,7 @@ public client class SQLClient {
         foreach string joinKey in self.joinMetadata.keys() {
             JoinMetadata joinMetadata = self.joinMetadata.get(joinKey);
             if include.indexOf(joinKey) != () {
-                query = sql:queryConcat(query, ` LEFT JOIN `, stringToParameterizedQuery(joinMetadata.refTable + " " + joinKey), 
+                query = sql:queryConcat(query, ` LEFT JOIN `, stringToParameterizedQuery(joinMetadata.refTable + " " + joinKey),
                                         ` ON `, check self.getJoinFilters(joinKey, joinMetadata.refFields, <string[]>joinMetadata.joinColumns));
             }
         }
@@ -98,6 +98,9 @@ public client class SQLClient {
 
     public isolated function runExecuteQuery(sql:ParameterizedQuery filterClause, typedesc<record {}> rowType, string[] include = [])
     returns stream<record {}, sql:Error?>|error {
+        if self.joinMetadata.length() != 0 {
+            return <UnsupportedOperationError>error("Advanced queries are not supported for entities with relations.");
+        }
         sql:ParameterizedQuery query = sql:queryConcat(`SELECT `, self.getSelectColumnNames(include), ` FROM `,
         self.tableName, ` AS `, stringToParameterizedQuery(self.entityName), filterClause);
         return self.dbClient->query(query, rowType);

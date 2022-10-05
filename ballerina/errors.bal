@@ -21,3 +21,6 @@ public type InvalidInsertionError distinct Error;
 public type ForeignKeyConstraintViolationError distinct Error;
 
 public type InvalidKeyError distinct Error;
+
+# This error is thrown when user invokes an unsupported operation.
+public type UnsupportedOperationError distinct Error;
