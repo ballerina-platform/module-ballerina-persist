@@ -45,7 +45,7 @@ client class CompanyClient {
     }
 
     remote function readByKey(int key, CompanyRelations[] include = []) returns Company|error {
-        return <Company> check self.persistClient.runReadByKeyQuery(Company, key, include);
+        return <Company>check self.persistClient.runReadByKeyQuery(Company, key, include);
     }
 
     remote function read(map<anydata>? filter = (), CompanyRelations[] include = []) returns stream<Company, error?> {
@@ -110,9 +110,9 @@ public class CompanyStream {
 
     public isolated function next() returns record {|Company value;|}|error? {
         if self.err is error {
-            return <error> self.err;
+            return <error>self.err;
         } else if self.anydataStream is stream<anydata, error?> {
-            var anydataStream = <stream<anydata, error?>> self.anydataStream;
+            var anydataStream = <stream<anydata, error?>>self.anydataStream;
             var streamValue = anydataStream.next();
             if streamValue is () {
                 return streamValue;
@@ -131,7 +131,7 @@ public class CompanyStream {
 
     public isolated function close() returns error? {
         if self.anydataStream is stream<anydata, error?> {
-            var anydataStream = <stream<anydata, error?>> self.anydataStream;
+            var anydataStream = <stream<anydata, error?>>self.anydataStream;
             return anydataStream.close();
         }
     }

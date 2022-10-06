@@ -42,18 +42,18 @@ client class EmployeeClient {
     remote function create(Employee value) returns Employee|error {
         if value.company is Company {
             CompanyClient companyClient = check new CompanyClient();
-            boolean exists = check companyClient->exists(<Company> value.company);
+            boolean exists = check companyClient->exists(<Company>value.company);
             if !exists {
-                value.company = check companyClient->create(<Company> value.company);
+                value.company = check companyClient->create(<Company>value.company);
             }
         }
-    
+
         sql:ExecutionResult _ = check self.persistClient.runInsertQuery(value);
         return value;
     }
 
     remote function readByKey(int key, EmployeeRelations[] include = []) returns Employee|error {
-        return <Employee> check self.persistClient.runReadByKeyQuery(Employee, key, include);
+        return <Employee>check self.persistClient.runReadByKeyQuery(Employee, key, include);
     }
 
     remote function read(map<anydata>? filter = (), EmployeeRelations[] include = []) returns stream<Employee, error?> {
@@ -76,9 +76,9 @@ client class EmployeeClient {
 
     remote function update(record {} 'object, map<anydata> filter) returns error? {
         _ = check self.persistClient.runUpdateQuery('object, filter);
-        
+
         if 'object["company"] is record {} {
-            record {} companyEntity = <record {}> 'object["company"];
+            record {} companyEntity = <record {}>'object["company"];
             CompanyClient companyClient = check new CompanyClient();
             stream<Employee, error?> employeeStream = self->read(filter, [CompanyEntity]);
 
@@ -86,7 +86,7 @@ client class EmployeeClient {
             check from Employee employee in employeeStream
                 do {
                     if employee.company is Company {
-                        check companyClient->update(companyEntity, {"id": (<Company> employee.company).id});
+                        check companyClient->update(companyEntity, {"id": (<Company>employee.company).id});
                     }
                 };
         }
@@ -128,9 +128,9 @@ public class EmployeeStream {
 
     public isolated function next() returns record {|Employee value;|}|error? {
         if self.err is error {
-            return <error> self.err;
+            return <error>self.err;
         } else if self.anydataStream is stream<anydata, error?> {
-            var anydataStream = <stream<anydata, error?>> self.anydataStream;
+            var anydataStream = <stream<anydata, error?>>self.anydataStream;
             var streamValue = anydataStream.next();
             if streamValue is () {
                 return streamValue;
@@ -148,7 +148,7 @@ public class EmployeeStream {
 
     public isolated function close() returns error? {
         if self.anydataStream is stream<anydata, error?> {
-            var anydataStream = <stream<anydata, error?>> self.anydataStream;
+            var anydataStream = <stream<anydata, error?>>self.anydataStream;
             return anydataStream.close();
         }
     }

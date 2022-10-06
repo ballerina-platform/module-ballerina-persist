@@ -45,26 +45,26 @@ client class MultipleAssociationsClient {
     remote function create(MultipleAssociations value) returns MultipleAssociations|error {
         if value.profile is Profile {
             ProfileClient profileClient = check new ProfileClient();
-            boolean exists = check profileClient->exists(<Profile> value.profile);
+            boolean exists = check profileClient->exists(<Profile>value.profile);
             if !exists {
-                value.profile = check profileClient->create(<Profile> value.profile);
+                value.profile = check profileClient->create(<Profile>value.profile);
             }
         }
 
         if value.user is User {
             UserClient userClient = check new UserClient();
-            boolean exists = check userClient->exists(<User> value.user);
+            boolean exists = check userClient->exists(<User>value.user);
             if !exists {
-                value.user = check userClient->create(<User> value.user);
+                value.user = check userClient->create(<User>value.user);
             }
         }
-    
+
         sql:ExecutionResult _ = check self.persistClient.runInsertQuery(value);
         return value;
     }
 
     remote function readByKey(int key, MultipleAssociationsRelations[] include = []) returns MultipleAssociations|error {
-        return <MultipleAssociations> check self.persistClient.runReadByKeyQuery(MultipleAssociations, key, include);
+        return <MultipleAssociations>check self.persistClient.runReadByKeyQuery(MultipleAssociations, key, include);
     }
 
     remote function read(map<anydata>? filter = (), MultipleAssociationsRelations[] include = []) returns stream<MultipleAssociations, error?> {
@@ -89,7 +89,7 @@ client class MultipleAssociationsClient {
         _ = check self.persistClient.runUpdateQuery('object, filter);
 
         if 'object["profile"] is record {} {
-            record {} profileEntity = <record {}> 'object["profile"];
+            record {} profileEntity = <record {}>'object["profile"];
             ProfileClient profileClient = check new ProfileClient();
             stream<MultipleAssociations, error?> multipleAssociationsStream = self->read(filter, [UserEntity]);
 
@@ -97,13 +97,13 @@ client class MultipleAssociationsClient {
             check from MultipleAssociations ma in multipleAssociationsStream
                 do {
                     if ma.profile is Profile {
-                        check profileClient->update(profileEntity, {"id": (<Profile> ma.profile).id});
+                        check profileClient->update(profileEntity, {"id": (<Profile>ma.profile).id});
                     }
                 };
         }
-        
+
         if 'object["user"] is record {} {
-            record {} userEntity = <record {}> 'object["user"];
+            record {} userEntity = <record {}>'object["user"];
             UserClient userClient = check new UserClient();
             stream<MultipleAssociations, error?> multipleAssociationsStream = self->read(filter, [UserEntity]);
 
@@ -111,7 +111,7 @@ client class MultipleAssociationsClient {
             check from MultipleAssociations ma in multipleAssociationsStream
                 do {
                     if ma.user is User {
-                        check userClient->update(userEntity, {"id": (<User> ma.user).id});
+                        check userClient->update(userEntity, {"id": (<User>ma.user).id});
                     }
                 };
         }
@@ -154,9 +154,9 @@ public class MultipleAssociationsStream {
 
     public isolated function next() returns record {|MultipleAssociations value;|}|error? {
         if self.err is error {
-            return <error> self.err;
+            return <error>self.err;
         } else if self.anydataStream is stream<anydata, error?> {
-            var anydataStream = <stream<anydata, error?>> self.anydataStream;
+            var anydataStream = <stream<anydata, error?>>self.anydataStream;
             var streamValue = anydataStream.next();
             if streamValue is () {
                 return streamValue;
@@ -174,7 +174,7 @@ public class MultipleAssociationsStream {
 
     public isolated function close() returns error? {
         if self.anydataStream is stream<anydata, error?> {
-            var anydataStream = <stream<anydata, error?>> self.anydataStream;
+            var anydataStream = <stream<anydata, error?>>self.anydataStream;
             return anydataStream.close();
         }
     }

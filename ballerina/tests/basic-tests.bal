@@ -135,6 +135,10 @@ function testReadNegative() returns error? {
                 count = count + 1;
             };
     if err is FieldDoesNotExistError {
+        do {
+            count = count + 1;
+        };
+    if err is FieldDoesNotExist {
         test:assertEquals(err.message(), "Field 'typex' does not exist in entity 'MedicalItem'.");
     } else {
         test:assertFail("Error expected");

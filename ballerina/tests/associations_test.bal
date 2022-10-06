@@ -24,15 +24,15 @@ function oneToOneCreateTest1() returns error? {
         id: 1,
         name: "TestUser2"
     };
-    UserClient userClient = check new();
+    UserClient userClient = check new ();
     _ = check userClient->create(user);
-    
+
     Profile profile = {
         id: 1,
         name: "TestProfile2",
         user: user
     };
-    ProfileClient profileClient = check new();
+    ProfileClient profileClient = check new ();
     Profile profile2 = check profileClient->create(profile);
 
     Profile profile3 = check profileClient->readByKey(1, [UserEntity]);
@@ -48,7 +48,7 @@ function oneToOneCreateTest2() returns error? {
         id: 3,
         name: "TestUser"
     };
-    UserClient userClient = check new();
+    UserClient userClient = check new ();
     _ = check userClient->create(user);
     User user2 = check userClient->readByKey(3);
 
@@ -63,7 +63,7 @@ function oneToOneCreateTest3() returns error? {
         id: 3,
         name: "TestProfile"
     };
-    ProfileClient profileClient = check new();
+    ProfileClient profileClient = check new ();
     _ = check profileClient->create(profile);
     Profile profile2 = check profileClient->readByKey(3);
 
@@ -82,7 +82,7 @@ function oneToOneCreateTest4() returns error? {
             name: "TestUser"
         }
     };
-    ProfileClient profileClient = check new();
+    ProfileClient profileClient = check new ();
     _ = check profileClient->create(profile);
     Profile profile2 = check profileClient->readByKey(4, [UserEntity]);
 
@@ -101,13 +101,13 @@ function oneToOneReadTest1() returns error? {
             name: "TestUser"
         }
     };
-    ProfileClient profileClient = check new();
+    ProfileClient profileClient = check new ();
     _ = check profileClient->create(profile);
 
     Profile profile2 = check profileClient->readByKey(24, [UserEntity]);
     test:assertEquals(profile, profile2);
 
-    UserClient userClient = check new();
+    UserClient userClient = check new ();
     User user = check userClient->readByKey(23, [ProfileEntity]);
     test:assertEquals(user, {
         id: 23,
@@ -131,7 +131,7 @@ function oneToOneUpdateTest1() returns error? {
             name: "TestUser"
         }
     };
-    ProfileClient profileClient = check new();
+    ProfileClient profileClient = check new ();
     _ = check profileClient->create(profile);
 
     _ = check profileClient->update({"name": "TestUpdatedProfile", "user": {name: "TestUpdatedUser"}}, {id: 5});
@@ -160,7 +160,7 @@ function oneToOneUpdateTest2() returns error? {
             name: "TestUser"
         }
     };
-    ProfileClient profileClient = check new();
+    ProfileClient profileClient = check new ();
     _ = check profileClient->create(profile);
 
     _ = check profileClient->update({"name": "TestUpdatedProfile", "user": {id: 4, name: "TestUpdatedUser2"}}, {id: 6});
@@ -189,7 +189,7 @@ function oneToOneUpdateTest3() returns error? {
             name: "TestUser"
         }
     };
-    ProfileClient profileClient = check new();
+    ProfileClient profileClient = check new ();
     _ = check profileClient->create(profile);
 
     ForeignKeyConstraintViolationError|error? result = profileClient->update({"name": "TestUpdatedProfile", "user": {id: 7, name: "TestUpdatedUser2"}}, {id: 7});
@@ -212,8 +212,8 @@ function MultipleAssociationsTest() returns error? {
             name: "TestUser"
         }
     };
-    
-    MultipleAssociationsClient maClient = check new();
+
+    MultipleAssociationsClient maClient = check new ();
     MultipleAssociations ma2 = check maClient->create(ma);
     test:assertEquals(ma, ma2);
 
@@ -249,15 +249,15 @@ function oneToManyCreateTest1() returns error? {
         id: 1,
         name: "TestCompany1"
     };
-    CompanyClient companyClient = check new();
+    CompanyClient companyClient = check new ();
     _ = check companyClient->create(company);
-    
+
     Employee employee = {
         id: 1,
         name: "TestEmployee1",
         company: company
     };
-    EmployeeClient employeeClient = check new();
+    EmployeeClient employeeClient = check new ();
     Employee employee2 = check employeeClient->create(employee);
 
     Employee employee3 = check employeeClient->readByKey(1, [CompanyEntity]);
@@ -273,10 +273,10 @@ function oneToManyCreateTest2() returns error? {
         id: 2,
         name: "TestCompany2"
     };
-    CompanyClient companyClient = check new();
+    CompanyClient companyClient = check new ();
     _ = check companyClient->create(company);
-    
-    EmployeeClient employeeClient = check new();
+
+    EmployeeClient employeeClient = check new ();
 
     Employee employee1 = {
         id: 2,
@@ -296,7 +296,7 @@ function oneToManyCreateTest2() returns error? {
     test:assertEquals(company2, <Company>{
         id: 2,
         name: "TestCompany2",
-        employees: [{id: 2, name: "TestEmployee2"}, {id:3, name: "TestEmployee3"}]
+        employees: [{id: 2, name: "TestEmployee2"}, {id: 3, name: "TestEmployee3"}]
     });
 }
 
@@ -308,10 +308,10 @@ function oneToManyCreateTest3() returns error? {
         id: 3,
         name: "TestCompany3"
     };
-    CompanyClient companyClient = check new();
+    CompanyClient companyClient = check new ();
     _ = check companyClient->create(company);
-    
-    EmployeeClient employeeClient = check new();
+
+    EmployeeClient employeeClient = check new ();
 
     Employee employee1 = {
         id: 4,
@@ -333,7 +333,7 @@ function oneToManyCreateTest3() returns error? {
             test:assertEquals(company2, <Company>{
                 id: 3,
                 name: "TestCompany3",
-                employees: [{id: 4, name: "TestEmployee4"}, {id:5, name: "TestEmployee5"}]
+                employees: [{id: 4, name: "TestEmployee4"}, {id: 5, name: "TestEmployee5"}]
             });
         };
 }
@@ -346,10 +346,10 @@ function oneToManyCreateTest4() returns error? {
         id: 4,
         name: "TestCompany4"
     };
-    CompanyClient companyClient = check new();
+    CompanyClient companyClient = check new ();
     _ = check companyClient->create(company);
-    
-    EmployeeClient employeeClient = check new();
+
+    EmployeeClient employeeClient = check new ();
 
     Employee employee1 = {
         id: 6,
@@ -381,10 +381,10 @@ function oneToManyUpdateTest4() returns error? {
         id: 5,
         name: "TestCompany5"
     };
-    CompanyClient companyClient = check new();
+    CompanyClient companyClient = check new ();
     _ = check companyClient->create(company);
-    
-    EmployeeClient employeeClient = check new();
+
+    EmployeeClient employeeClient = check new ();
 
     Employee employee1 = {
         id: 8,
