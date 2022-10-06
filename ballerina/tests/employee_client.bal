@@ -100,7 +100,7 @@ client class EmployeeClient {
         Employee|error result = self->readByKey(employee.id);
         if result is Employee {
             return true;
-        } else if result is InvalidKey {
+        } else if result is InvalidKeyError {
             return false;
         } else {
             return result;

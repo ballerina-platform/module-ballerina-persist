@@ -100,7 +100,7 @@ client class ProfileClient {
         Profile|error result = self->readByKey(profile.id);
         if result is Profile {
             return true;
-        } else if result is InvalidKey {
+        } else if result is InvalidKeyError {
             return false;
         } else {
             return result;

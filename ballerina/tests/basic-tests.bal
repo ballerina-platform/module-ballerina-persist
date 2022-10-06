@@ -71,7 +71,7 @@ function testReadByKey() returns error? {
 function testReadByKeyNegative() returns error? {
     MedicalItemClient miClient = check new ();
     MedicalItem|error item = miClient->readByKey(20);
-    if item is InvalidKey {
+    if item is InvalidKeyError {
         test:assertEquals(item.message(), "A record does not exist for 'MedicalItem' for key 20.");
     } else {
         test:assertFail("Error expected.");
@@ -134,7 +134,7 @@ function testReadNegative() returns error? {
         do {
             count = count + 1;
         };
-    if err is FieldDoesNotExist {
+    if err is FieldDoesNotExistError {
         test:assertEquals(err.message(), "Field 'typex' does not exist in entity 'MedicalItem'.");
     } else {
         test:assertFail("Error expected");
@@ -171,7 +171,7 @@ function testUpdate() returns error? {
 function testUpdateNegative() returns error? {
     MedicalItemClient miClient = check new ();
     error? result = miClient->update({"units": "kg"}, {'type: "type2"});
-    if result is FieldDoesNotExist {
+    if result is FieldDoesNotExistError {
         test:assertEquals(result.message(), "Field 'units' does not exist in entity 'MedicalItem'.");
     } else {
         test:assertFail("Error expected.");
@@ -203,7 +203,7 @@ function testDelete() returns error? {
 function testDeleteNegative() returns error? {
     MedicalItemClient miClient = check new ();
     error? result = miClient->delete({'types: "type2"});
-    if result is FieldDoesNotExist {
+    if result is FieldDoesNotExistError {
         test:assertEquals(result.message(), "Field 'types' does not exist in entity 'MedicalItem'.");
     } else {
         test:assertFail("Error expected.");

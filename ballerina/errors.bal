@@ -16,13 +16,13 @@
 
 public type Error distinct error;
 
-public type FieldDoesNotExist distinct Error;
+public type FieldDoesNotExistError distinct Error;
 
-public type InvalidInsertion distinct Error;
+public type InvalidInsertionError distinct Error;
 
-public type ForeignKeyConstraintViolation distinct Error;
+public type ForeignKeyConstraintViolationError distinct Error;
 
-public type InvalidKey distinct Error;
+public type InvalidKeyError distinct Error;
 
 # This error is thrown when user invokes an unsupported operation.
 public type UnsupportedOperationError distinct Error;

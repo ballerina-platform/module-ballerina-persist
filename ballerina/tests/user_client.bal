@@ -77,7 +77,7 @@ client class UserClient {
         User|error result = self->readByKey(user.id);
         if result is User {
             return true;
-        } else if result is InvalidKey {
+        } else if result is InvalidKeyError {
             return false;
         } else {
             return result;

@@ -192,8 +192,8 @@ function oneToOneUpdateTest3() returns error? {
     ProfileClient profileClient = check new ();
     _ = check profileClient->create(profile);
 
-    ForeignKeyConstraintViolation|error? result = profileClient->update({"name": "TestUpdatedProfile", "user": {id: 7, name: "TestUpdatedUser2"}}, {id: 7});
-    test:assertTrue(result is ForeignKeyConstraintViolation);
+    ForeignKeyConstraintViolationError|error? result = profileClient->update({"name": "TestUpdatedProfile", "user": {id: 7, name: "TestUpdatedUser2"}}, {id: 7});
+    test:assertTrue(result is ForeignKeyConstraintViolationError);
 }
 
 @test:Config {
