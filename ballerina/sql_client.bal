@@ -164,7 +164,6 @@ public client class SQLClient {
         }
     }
 
-
     public isolated function close() returns error? {
         return self.dbClient.close();
     }

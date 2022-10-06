@@ -45,7 +45,7 @@ client class UserClient {
     }
 
     remote function readByKey(int key, UserRelations[] include = []) returns User|error {
-        return <User> check self.persistClient.runReadByKeyQuery(User, key, include);
+        return <User>check self.persistClient.runReadByKeyQuery(User, key, include);
     }
 
     remote function read(map<anydata>? filter = (), UserRelations[] include = []) returns stream<User, error?> {
@@ -105,9 +105,9 @@ public class UserStream {
 
     public isolated function next() returns record {|User value;|}|error? {
         if self.err is error {
-            return <error> self.err;
+            return <error>self.err;
         } else if self.anydataStream is stream<anydata, error?> {
-            var anydataStream = <stream<anydata, error?>> self.anydataStream;
+            var anydataStream = <stream<anydata, error?>>self.anydataStream;
             var streamValue = anydataStream.next();
             if streamValue is () {
                 return streamValue;
@@ -125,7 +125,7 @@ public class UserStream {
 
     public isolated function close() returns error? {
         if self.anydataStream is stream<anydata, error?> {
-            var anydataStream = <stream<anydata, error?>> self.anydataStream;
+            var anydataStream = <stream<anydata, error?>>self.anydataStream;
             return anydataStream.close();
         }
     }
