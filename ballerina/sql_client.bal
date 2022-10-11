@@ -75,7 +75,7 @@ public client class SQLClient {
         foreach string joinKey in self.joinMetadata.keys() {
             JoinMetadata joinMetadata = self.joinMetadata.get(joinKey);
             if include.indexOf(joinKey) != () {
-                query = sql:queryConcat(query, ` LEFT JOIN `, stringToParameterizedQuery(joinMetadata.refTable + " " + joinKey), 
+                query = sql:queryConcat(query, ` LEFT JOIN `, stringToParameterizedQuery(joinMetadata.refTable + " " + joinKey),
                                         ` ON `, check self.getJoinFilters(joinKey, joinMetadata.refFields, <string[]>joinMetadata.joinColumns));
             }
         }
@@ -84,7 +84,7 @@ public client class SQLClient {
         record {}|error result = self.dbClient->queryRow(query, rowType);
 
         if result is sql:NoRowsError {
-            return <InvalidKey>error(
+            return <InvalidKeyError>error(
                 string `A record does not exist for '${self.entityName}' for key ${key.toBalString()}.`);
         }
 
@@ -132,6 +132,9 @@ public client class SQLClient {
     # + return - A stream of records in the `rowType` type or an `error` if the operation fails
     public isolated function runExecuteQuery(sql:ParameterizedQuery filterClause, typedesc<record {}> rowType, string[] include = [])
     returns stream<record {}, sql:Error?>|error {
+        if self.joinMetadata.length() != 0 {
+            return <UnsupportedOperationError>error("Advanced queries are not supported for entities with relations.");
+        }
         sql:ParameterizedQuery query = sql:queryConcat(`SELECT `, self.getSelectColumnNames(include), ` FROM `,
         self.tableName, ` AS `, stringToParameterizedQuery(self.entityName), filterClause);
         return self.dbClient->query(query, rowType);
@@ -142,9 +145,9 @@ public client class SQLClient {
     # + object - the key-value pairs to be updated (to be used in the SQL `SET` clauses)
     # + filter - The key-value pairs to be used as the filter (to be used in the SQL `WHERE` clauses)
     # + return -  `()` if the operation is performed successfully.
-    #             A `ForeignKeyConstraintViolation` if the operation violates a foreign key constraint.
+    #             A `ForeignKeyConstraintViolationError` if the operation violates a foreign key constraint.
     #             An `error` if the operation fails due to another reason.
-    public isolated function runUpdateQuery(record {} 'object, map<anydata>? filter) returns ForeignKeyConstraintViolation|error? {
+    public isolated function runUpdateQuery(record {} 'object, map<anydata>? filter) returns ForeignKeyConstraintViolationError|error? {
         sql:ParameterizedQuery query = sql:queryConcat(`UPDATE `, self.tableName, stringToParameterizedQuery(" " + self.entityName), ` SET`, check self.getSetClauses('object));
 
         if !(filter is ()) {
@@ -157,7 +160,7 @@ public client class SQLClient {
                 return e;
             }
             else {
-                return <ForeignKeyConstraintViolation>error(e.message());
+                return <ForeignKeyConstraintViolationError>error(e.message());
             }
         }
     }
@@ -345,14 +348,14 @@ public client class SQLClient {
         sql:ParameterizedQuery query = ` `;
         int count = 0;
         foreach string key in r.keys() {
-            sql:ParameterizedQuery|InvalidInsertion|FieldDoesNotExist fieldName = self.getFieldParamQuery(key);
+            sql:ParameterizedQuery|InvalidInsertionError|FieldDoesNotExistError fieldName = self.getFieldParamQuery(key);
             if fieldName is sql:ParameterizedQuery {
                 if count > 0 {
                     query = sql:queryConcat(query, `, `);
                 }
                 query = sql:queryConcat(query, fieldName, ` = ${<sql:Value>r[key]}`);
                 count = count + 1;
-            } else if fieldName is FieldDoesNotExist {
+            } else if fieldName is FieldDoesNotExistError {
                 return fieldName;
             }
         }
@@ -371,13 +374,13 @@ public client class SQLClient {
         return query;
     }
 
-    private isolated function getFieldParamQuery(string fieldName) returns sql:ParameterizedQuery|FieldDoesNotExist|InvalidInsertion {
+    private isolated function getFieldParamQuery(string fieldName) returns sql:ParameterizedQuery|FieldDoesNotExistError|InvalidInsertionError {
         FieldMetadata? fieldMetadata = self.fieldMetadata[fieldName];
         if fieldMetadata is () {
-            return <FieldDoesNotExist>error(
+            return <FieldDoesNotExistError>error(
                 string `Field '${fieldName}' does not exist in entity '${self.entityName}'.`);
         } else if (<FieldMetadata>fieldMetadata).columnName is () {
-            return <InvalidInsertion>error(
+            return <InvalidInsertionError>error(
                 string `Unable to directly insert into field ${fieldName}`);
         }
         return stringToParameterizedQuery(<string>(<FieldMetadata>fieldMetadata).columnName);

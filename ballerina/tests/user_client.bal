@@ -45,14 +45,26 @@ client class UserClient {
     }
 
     remote function readByKey(int key, UserRelations[] include = []) returns User|error {
-        return <User> check self.persistClient.runReadByKeyQuery(User, key, include);
+        return <User>check self.persistClient.runReadByKeyQuery(User, key, include);
     }
 
-    remote function read(map<anydata>? filter = (), UserRelations[] include = []) returns stream<User, error?>|error {
-        stream<anydata, error?> result = check self.persistClient.runReadQuery(User, filter, include);
-        return new stream<User, error?>(new UserStream(result));
+    remote function read(map<anydata>? filter = (), UserRelations[] include = []) returns stream<User, error?> {
+        stream<anydata, error?>|error result = self.persistClient.runReadQuery(User, filter, include);
+        if result is error {
+            return new stream<User, error?>(new UserStream((), result));
+        } else {
+            return new stream<User, error?>(new UserStream(result));
+        }
     }
 
+    remote function execute(sql:ParameterizedQuery filterClause) returns stream<User, error?> {
+        stream<anydata, error?>|error result = self.persistClient.runExecuteQuery(filterClause, User);
+        if result is error {
+            return new stream<User, error?>(new UserStream((), result));
+        } else {
+            return new stream<User, error?>(new UserStream(result));
+        }
+    }
     remote function update(record {} 'object, map<anydata> filter) returns error? {
         _ = check self.persistClient.runUpdateQuery('object, filter);
     }
@@ -65,7 +77,7 @@ client class UserClient {
         User|error result = self->readByKey(user.id);
         if result is User {
             return true;
-        } else if result is InvalidKey {
+        } else if result is InvalidKeyError {
             return false;
         } else {
             return result;
@@ -83,25 +95,38 @@ public enum UserRelations {
 }
 
 public class UserStream {
-    private stream<anydata, error?> anydataStream;
+    private stream<anydata, error?>? anydataStream;
+    private error? err;
 
-    public isolated function init(stream<anydata, error?> anydataStream) {
+    public isolated function init(stream<anydata, error?>? anydataStream, error? err = ()) {
         self.anydataStream = anydataStream;
+        self.err = err;
     }
 
     public isolated function next() returns record {|User value;|}|error? {
-        var streamValue = self.anydataStream.next();
-        if streamValue is () {
-            return streamValue;
-        } else if (streamValue is error) {
-            return streamValue;
+        if self.err is error {
+            return <error>self.err;
+        } else if self.anydataStream is stream<anydata, error?> {
+            var anydataStream = <stream<anydata, error?>>self.anydataStream;
+            var streamValue = anydataStream.next();
+            if streamValue is () {
+                return streamValue;
+            } else if (streamValue is error) {
+                return streamValue;
+            } else {
+                record {|User value;|} nextRecord = {value: check streamValue.value.cloneWithType(User)};
+                return nextRecord;
+            }
         } else {
-            record {|User value;|} nextRecord = {value: check streamValue.value.cloneWithType(User)};
-            return nextRecord;
+            // Unreachable code
+            return ();
         }
     }
 
     public isolated function close() returns error? {
-        return self.anydataStream.close();
+        if self.anydataStream is stream<anydata, error?> {
+            var anydataStream = <stream<anydata, error?>>self.anydataStream;
+            return anydataStream.close();
+        }
     }
 }

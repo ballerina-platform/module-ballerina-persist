@@ -42,38 +42,51 @@ client class ProfileClient {
     remote function create(Profile value) returns Profile|error {
         if value.user is User {
             UserClient userClient = check new UserClient();
-            boolean exists = check userClient->exists(<User> value.user);
+            boolean exists = check userClient->exists(<User>value.user);
             if !exists {
-                value.user = check userClient->create(<User> value.user);
+                value.user = check userClient->create(<User>value.user);
             }
         }
-    
+
         sql:ExecutionResult _ = check self.persistClient.runInsertQuery(value);
         return value;
     }
 
     remote function readByKey(int key, ProfileRelations[] include = []) returns Profile|error {
-        return <Profile> check self.persistClient.runReadByKeyQuery(Profile, key, include);
+        return <Profile>check self.persistClient.runReadByKeyQuery(Profile, key, include);
     }
 
-    remote function read(map<anydata>? filter = (), ProfileRelations[] include = []) returns stream<Profile, error?>|error {
-        stream<anydata, error?> result = check self.persistClient.runReadQuery(Profile, filter, include);
-        return new stream<Profile, error?>(new ProfileStream(result, include));
+    remote function read(map<anydata>? filter = (), ProfileRelations[] include = []) returns stream<Profile, error?> {
+        stream<anydata, error?>|error result = self.persistClient.runReadQuery(Profile, filter, include);
+        if result is error {
+            return new stream<Profile, error?>(new ProfileStream((), result));
+        } else {
+            return new stream<Profile, error?>(new ProfileStream(result));
+        }
+    }
+
+    remote function execute(sql:ParameterizedQuery filterClause) returns stream<Profile, error?> {
+        stream<anydata, error?>|error result = self.persistClient.runExecuteQuery(filterClause, Profile);
+        if result is error {
+            return new stream<Profile, error?>(new ProfileStream((), result));
+        } else {
+            return new stream<Profile, error?>(new ProfileStream(result));
+        }
     }
 
     remote function update(record {} 'object, map<anydata> filter) returns error? {
         _ = check self.persistClient.runUpdateQuery('object, filter);
-        
+
         if 'object["user"] is record {} {
-            record {} userEntity = <record {}> 'object["user"];
+            record {} userEntity = <record {}>'object["user"];
             UserClient userClient = check new UserClient();
-            stream<Profile, error?> profileStream = check self->read(filter, [UserEntity]);
+            stream<Profile, error?> profileStream = self->read(filter, [UserEntity]);
 
             // TODO: replace this with more optimized code after adding support for advanced queries
             check from Profile p in profileStream
                 do {
                     if p.user is User {
-                        check userClient->update(userEntity, {"id": (<User> p.user).id});
+                        check userClient->update(userEntity, {"id": (<User>p.user).id});
                     }
                 };
         }
@@ -87,7 +100,7 @@ client class ProfileClient {
         Profile|error result = self->readByKey(profile.id);
         if result is Profile {
             return true;
-        } else if result is InvalidKey {
+        } else if result is InvalidKeyError {
             return false;
         } else {
             return result;
@@ -105,27 +118,38 @@ public enum ProfileRelations {
 }
 
 public class ProfileStream {
-    private stream<anydata, error?> anydataStream;
-    private ProfileRelations[] include;
+    private stream<anydata, error?>? anydataStream;
+    private error? err;
 
-    public isolated function init(stream<anydata, error?> anydataStream, ProfileRelations[] include = []) {
+    public isolated function init(stream<anydata, error?>? anydataStream, error? err = ()) {
         self.anydataStream = anydataStream;
-        self.include = include;
+        self.err = err;
     }
 
     public isolated function next() returns record {|Profile value;|}|error? {
-        var streamValue = self.anydataStream.next();
-        if streamValue is () {
-            return streamValue;
-        } else if (streamValue is error) {
-            return streamValue;
+        if self.err is error {
+            return <error>self.err;
+        } else if self.anydataStream is stream<anydata, error?> {
+            var anydataStream = <stream<anydata, error?>>self.anydataStream;
+            var streamValue = anydataStream.next();
+            if streamValue is () {
+                return streamValue;
+            } else if (streamValue is error) {
+                return streamValue;
+            } else {
+                record {|Profile value;|} nextRecord = {value: check streamValue.value.cloneWithType(Profile)};
+                return nextRecord;
+            }
         } else {
-            record {|Profile value;|} nextRecord = {value: <Profile>streamValue.value};
-            return nextRecord;
+            // Unreachable code
+            return ();
         }
     }
 
     public isolated function close() returns error? {
-        return self.anydataStream.close();
+        if self.anydataStream is stream<anydata, error?> {
+            var anydataStream = <stream<anydata, error?>>self.anydataStream;
+            return anydataStream.close();
+        }
     }
 }
