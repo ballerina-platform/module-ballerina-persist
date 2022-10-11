@@ -5,9 +5,3 @@ version = "0.1.0"
 
 [build-options]
 observabilityIncluded = true
-
-[[dependency]]
-org="ballerina"
- name="persist"
- repository="local"
- version="0.1.0"
