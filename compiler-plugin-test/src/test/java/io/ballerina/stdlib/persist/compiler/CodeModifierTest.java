@@ -63,9 +63,6 @@ public class CodeModifierTest {
 
         Package currentPackage = loadPackage("package_01");
 
-        //  Running the compilation
-        currentPackage.getCompilation();
-
         // Running the code generation
         CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
         Package newPackage = codeModifierResult.updatedPackage().orElse(currentPackage);
@@ -108,9 +105,6 @@ public class CodeModifierTest {
     public void limitClauseTest() {
 
         Package currentPackage = loadPackage("package_02");
-
-        //  Running the compilation
-        currentPackage.getCompilation();
 
         // Running the code generation
         CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
@@ -157,9 +151,6 @@ public class CodeModifierTest {
     public void orderByClauseTest() {
 
         Package currentPackage = loadPackage("package_03");
-
-        //  Running the compilation
-        currentPackage.getCompilation();
 
         // Running the code generation
         CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
@@ -235,9 +226,6 @@ public class CodeModifierTest {
 
         Package currentPackage = loadPackage("package_04");
 
-        //  Running the compilation
-        currentPackage.getCompilation();
-
         // Running the code generation
         CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
         Package newPackage = codeModifierResult.updatedPackage().orElse(currentPackage);
@@ -311,9 +299,6 @@ public class CodeModifierTest {
     public void combinedClauseTest() {
 
         Package currentPackage = loadPackage("package_05");
-
-        //  Running the compilation
-        currentPackage.getCompilation();
 
         // Running the code generation
         CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
