@@ -61,13 +61,13 @@ import java.util.stream.Collectors;
 import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createSeparatedNodeList;
 import static io.ballerina.stdlib.persist.compiler.Constants.ASCENDING;
 import static io.ballerina.stdlib.persist.compiler.Constants.EXECUTE_FUNCTION;
-import static io.ballerina.stdlib.persist.compiler.Constants.READ_FUNCTION;
 import static io.ballerina.stdlib.persist.compiler.Constants.SPACE;
 import static io.ballerina.stdlib.persist.compiler.Constants.SQLKeyWords.LIMIT;
 import static io.ballerina.stdlib.persist.compiler.Constants.SQLKeyWords.ORDERBY;
 import static io.ballerina.stdlib.persist.compiler.Constants.SQLKeyWords.ORDER_BY_ASCENDING;
 import static io.ballerina.stdlib.persist.compiler.Constants.SQLKeyWords.ORDER_BY_DECENDING;
 import static io.ballerina.stdlib.persist.compiler.Constants.TokenNodes.BACKTICK_TOKEN;
+import static io.ballerina.stdlib.persist.compiler.Utils.isQueryUsingPersistentClient;
 
 /**
  * Code Modifier task for stream invoking.
@@ -223,24 +223,6 @@ public class QueryCodeModifierTask implements ModifierTask<SourceModifierContext
             );
         }
 
-        private boolean isQueryUsingPersistentClient(FromClauseNode fromClauseNode) {
-
-            // From clause should contain remote call invocation
-            if (fromClauseNode.expression() instanceof RemoteMethodCallActionNode) {
-                RemoteMethodCallActionNode remoteCall = (RemoteMethodCallActionNode) fromClauseNode.expression();
-                String functionName = remoteCall.methodName().name().text();
-
-                // Remote function name should be read
-                if (functionName.trim().equals(READ_FUNCTION)) {
-
-                    // Function should be invoked with no arguments
-                    int argumentsCount = remoteCall.arguments().size();
-                    return argumentsCount == 0;
-                }
-            }
-            return false;
-        }
-
         private List<Node> processWhereClause(WhereClauseNode whereClauseNode,
                                               BindingPatternNode bindingPatternNode)
                 throws NotSupportedExpressionException {
@@ -271,7 +253,6 @@ public class QueryCodeModifierTask implements ModifierTask<SourceModifierContext
                     if (!bindingVariableName.equals(recordName)) {
                         return null;
                     }
-                    // todo Validate column name is valid
                     String fieldName = ((SimpleNameReferenceNode) fieldAccessNode.fieldName()).name().text();
                     orderByClause.append(fieldName);
                 } else if (expression instanceof SimpleNameReferenceNode) {

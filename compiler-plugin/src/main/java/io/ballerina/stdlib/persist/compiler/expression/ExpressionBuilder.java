@@ -31,7 +31,11 @@ import io.ballerina.compiler.syntax.tree.MappingBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.stdlib.persist.compiler.DiagnosticsCodes;
 import io.ballerina.stdlib.persist.compiler.NotSupportedExpressionException;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticFactory;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,78 +70,88 @@ public class ExpressionBuilder {
 
     private void buildVariableExecutors(ExpressionNode expressionNode, ExpressionVisitor expressionVisitor)
             throws NotSupportedExpressionException {
-        if (expressionNode instanceof BinaryExpressionNode) {
-            // Simple Compare
-            ChildNodeList expressionChildren = expressionNode.children();
-            SyntaxKind tokenKind = expressionChildren.get(1).kind();
+        try {
+            if (expressionNode instanceof BinaryExpressionNode) {
+                // Simple Compare
+                ChildNodeList expressionChildren = expressionNode.children();
+                SyntaxKind tokenKind = expressionChildren.get(1).kind();
 
-            if (tokenKind == SyntaxKind.LOGICAL_AND_TOKEN) {
-                expressionVisitor.beginVisitAnd();
-                expressionVisitor.beginVisitAndLeftOperand();
-                buildVariableExecutors((ExpressionNode) expressionChildren.get(0), expressionVisitor);
-                expressionVisitor.endVisitAndLeftOperand();
-                expressionVisitor.beginVisitAndRightOperand();
-                buildVariableExecutors((ExpressionNode) expressionChildren.get(2), expressionVisitor);
-                expressionVisitor.endVisitAndRightOperand();
-                expressionVisitor.endVisitAnd();
-            } else if (tokenKind == SyntaxKind.LOGICAL_OR_TOKEN) {
-                expressionVisitor.beginVisitOr();
-                expressionVisitor.beginVisitOrLeftOperand();
-                buildVariableExecutors((ExpressionNode) expressionChildren.get(0), expressionVisitor);
-                expressionVisitor.endVisitOrLeftOperand();
-                expressionVisitor.beginVisitOrRightOperand();
-                buildVariableExecutors((ExpressionNode) expressionChildren.get(2), expressionVisitor);
-                expressionVisitor.endVisitOrRightOperand();
-                expressionVisitor.endVisitOr();
-            } else {
-                expressionVisitor.beginVisitCompare(tokenKind);
-                expressionVisitor.beginVisitCompareLeftOperand(tokenKind);
-                buildVariableExecutors((ExpressionNode) expressionChildren.get(0), expressionVisitor);
-                expressionVisitor.endVisitCompareLeftOperand(tokenKind);
-                expressionVisitor.beginVisitCompareRightOperand(tokenKind);
-                buildVariableExecutors((ExpressionNode) expressionChildren.get(2), expressionVisitor);
-                expressionVisitor.endVisitCompareRightOperand(tokenKind);
-                expressionVisitor.endVisitCompare(tokenKind);
-            }
-        } else if (expressionNode instanceof BracedExpressionNode) {
-            expressionVisitor.beginVisitBraces();
-            buildVariableExecutors(((BracedExpressionNode) expressionNode).expression(), expressionVisitor);
-            expressionVisitor.endVisitBraces();
-        } else if (expressionNode instanceof FieldAccessExpressionNode) {
-            // Bracketed Multi Expression
-            // todo Validate if this is not part of an expression
-            String fieldAccessName = ((SimpleNameReferenceNode) expressionNode.children().get(0)).name().text();
-            if (this.isCaptureBindingPattern &&
-                    bindingVariableName.equals(fieldAccessName)) {
-                expressionVisitor.beginVisitStoreVariable(
-                        ((SimpleNameReferenceNode) expressionNode.children().get(2)).name().text());
-                expressionVisitor.endVisitStoreVariable(
-                        ((SimpleNameReferenceNode) expressionNode.children().get(2)).name().text());
-            } else {
-                throw new NotSupportedExpressionException("Unsupported field access in where clause");
-            }
-        } else if (expressionNode instanceof SimpleNameReferenceNode) {
-            String referencedName = ((SimpleNameReferenceNode) expressionNode).name().text();
-            if (this.isCaptureBindingPattern) {
-                expressionVisitor.beginVisitBalVariable(referencedName);
-                expressionVisitor.endVisitBalVariable(referencedName);
-            } else {
-                // Mapping constructor
-                if (fieldNames.contains(referencedName)) {
-                    expressionVisitor.beginVisitStoreVariable(referencedName);
-                    expressionVisitor.endVisitStoreVariable(referencedName);
+                if (tokenKind == SyntaxKind.LOGICAL_AND_TOKEN) {
+                    expressionVisitor.beginVisitAnd();
+                    expressionVisitor.beginVisitAndLeftOperand();
+                    buildVariableExecutors((ExpressionNode) expressionChildren.get(0), expressionVisitor);
+                    expressionVisitor.endVisitAndLeftOperand();
+                    expressionVisitor.beginVisitAndRightOperand();
+                    buildVariableExecutors((ExpressionNode) expressionChildren.get(2), expressionVisitor);
+                    expressionVisitor.endVisitAndRightOperand();
+                    expressionVisitor.endVisitAnd();
+                } else if (tokenKind == SyntaxKind.LOGICAL_OR_TOKEN) {
+                    expressionVisitor.beginVisitOr();
+                    expressionVisitor.beginVisitOrLeftOperand();
+                    buildVariableExecutors((ExpressionNode) expressionChildren.get(0), expressionVisitor);
+                    expressionVisitor.endVisitOrLeftOperand();
+                    expressionVisitor.beginVisitOrRightOperand();
+                    buildVariableExecutors((ExpressionNode) expressionChildren.get(2), expressionVisitor);
+                    expressionVisitor.endVisitOrRightOperand();
+                    expressionVisitor.endVisitOr();
                 } else {
-                    // todo Here wrong reference name cannot be identified as error
+                    expressionVisitor.beginVisitCompare(tokenKind);
+                    expressionVisitor.beginVisitCompareLeftOperand(tokenKind);
+                    buildVariableExecutors((ExpressionNode) expressionChildren.get(0), expressionVisitor);
+                    expressionVisitor.endVisitCompareLeftOperand(tokenKind);
+                    expressionVisitor.beginVisitCompareRightOperand(tokenKind);
+                    buildVariableExecutors((ExpressionNode) expressionChildren.get(2), expressionVisitor);
+                    expressionVisitor.endVisitCompareRightOperand(tokenKind);
+                    expressionVisitor.endVisitCompare(tokenKind);
+                }
+            } else if (expressionNode instanceof BracedExpressionNode) {
+                expressionVisitor.beginVisitBraces();
+                buildVariableExecutors(((BracedExpressionNode) expressionNode).expression(), expressionVisitor);
+                expressionVisitor.endVisitBraces();
+            } else if (expressionNode instanceof FieldAccessExpressionNode) {
+                // Bracketed Multi Expression
+                String fieldAccessName = ((SimpleNameReferenceNode) expressionNode.children().get(0)).name().text();
+                if (this.isCaptureBindingPattern &&
+                        bindingVariableName.equals(fieldAccessName)) {
+                    expressionVisitor.beginVisitStoreVariable(
+                            ((SimpleNameReferenceNode) expressionNode.children().get(2)).name().text());
+                    expressionVisitor.endVisitStoreVariable(
+                            ((SimpleNameReferenceNode) expressionNode.children().get(2)).name().text());
+                } else {
+                    throw new NotSupportedExpressionException("Unsupported field access in where clause");
+                }
+            } else if (expressionNode instanceof SimpleNameReferenceNode) {
+                String referencedName = ((SimpleNameReferenceNode) expressionNode).name().text();
+                if (this.isCaptureBindingPattern) {
                     expressionVisitor.beginVisitBalVariable(referencedName);
                     expressionVisitor.endVisitBalVariable(referencedName);
+                } else {
+                    // Mapping constructor
+                    if (fieldNames.contains(referencedName)) {
+                        expressionVisitor.beginVisitStoreVariable(referencedName);
+                        expressionVisitor.endVisitStoreVariable(referencedName);
+                    } else {
+                        // todo Here wrong reference name cannot be identified as error
+                        expressionVisitor.beginVisitBalVariable(referencedName);
+                        expressionVisitor.endVisitBalVariable(referencedName);
+                    }
                 }
+            } else if (expressionNode instanceof BasicLiteralNode) {
+                LiteralValueToken literalValueToken = (LiteralValueToken) expressionNode.children().get(0);
+                expressionVisitor.beginVisitConstant(literalValueToken.text(), literalValueToken.kind());
+                expressionVisitor.endVisitConstant(literalValueToken.text(), literalValueToken.kind());
+            } else {
+                throw new NotSupportedExpressionException("Unsupported expression.");
             }
-        } else if (expressionNode instanceof BasicLiteralNode) {
-            LiteralValueToken literalValueToken = (LiteralValueToken) expressionNode.children().get(0);
-            expressionVisitor.beginVisitConstant(literalValueToken.text(), literalValueToken.kind());
-            expressionVisitor.endVisitConstant(literalValueToken.text(), literalValueToken.kind());
-        } else {
-            throw new NotSupportedExpressionException("Unsupported expression.");
+        } catch (NotSupportedExpressionException e) {
+            if (e.getDiagnostic() == null) {
+                DiagnosticInfo diagnosticInfo = new DiagnosticInfo(DiagnosticsCodes.PERSIST_201.getCode(),
+                        DiagnosticsCodes.PERSIST_201.getMessage(), DiagnosticsCodes.PERSIST_201.getSeverity());
+                Diagnostic diagnostic = DiagnosticFactory.createDiagnostic(diagnosticInfo, expressionNode.location());
+                throw new NotSupportedExpressionException("Unsupported expression.", diagnostic);
+            } else {
+                throw e;
+            }
         }
     }
 }
