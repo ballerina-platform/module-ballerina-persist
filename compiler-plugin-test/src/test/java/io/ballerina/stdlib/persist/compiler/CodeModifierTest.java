@@ -19,19 +19,25 @@
 package io.ballerina.stdlib.persist.compiler;
 
 import io.ballerina.projects.CodeModifierResult;
+import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Tests the persist compiler plugin.
@@ -352,6 +358,39 @@ public class CodeModifierTest {
                         Assert.assertTrue(document.syntaxTree().toSourceCode().contains(codeSnippet), codeSnippet));
             }
         }
+    }
+
+    @Test
+    public void unsupportedExpressionTest() {
+
+        Package currentPackage = loadPackage("package_06");
+
+        // Running the code generation
+        CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
+        Package newPackage = codeModifierResult.updatedPackage().orElse(currentPackage);
+
+        // Running the compilation
+        PackageCompilation compilation = newPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream()
+                .filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR))
+                .collect(Collectors.toList());
+
+        long availableErrors = errorDiagnosticsList.size();
+
+        Assert.assertEquals(availableErrors, 3);
+
+        DiagnosticInfo limitClauseError = errorDiagnosticsList.get(0).diagnosticInfo();
+        Assert.assertEquals(limitClauseError.code(), DiagnosticsCodes.PERSIST_202.getCode());
+        Assert.assertEquals(limitClauseError.messageFormat(), DiagnosticsCodes.PERSIST_202.getMessage());
+
+        DiagnosticInfo orderbyClauseError = errorDiagnosticsList.get(1).diagnosticInfo();
+        Assert.assertEquals(orderbyClauseError.code(), DiagnosticsCodes.PERSIST_203.getCode());
+        Assert.assertEquals(orderbyClauseError.messageFormat(), DiagnosticsCodes.PERSIST_203.getMessage());
+
+        DiagnosticInfo whereClauseError = errorDiagnosticsList.get(2).diagnosticInfo();
+        Assert.assertEquals(whereClauseError.code(), DiagnosticsCodes.PERSIST_201.getCode());
+        Assert.assertEquals(whereClauseError.messageFormat(), DiagnosticsCodes.PERSIST_201.getMessage());
     }
 }
 

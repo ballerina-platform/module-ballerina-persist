@@ -17,12 +17,24 @@
  */
 package io.ballerina.stdlib.persist.compiler;
 
+import io.ballerina.tools.diagnostics.Diagnostic;
+
 /**
  * Not supported expression exception.
  */
 public class NotSupportedExpressionException extends RuntimeException {
+    private Diagnostic diagnostic;
 
     public NotSupportedExpressionException(String message) {
         super(message);
+    }
+
+    public NotSupportedExpressionException(String message, Diagnostic diagnostic) {
+        super(message);
+        this.diagnostic = diagnostic;
+    }
+
+    public Diagnostic getDiagnostic() {
+        return diagnostic;
     }
 }
