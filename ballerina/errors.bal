@@ -17,15 +17,15 @@
 # Defines the generic error type for the `persist` module.
 public type Error distinct error;
 
-# Represents an error that occurs when an attempt is made to manipulate a field which does not exist in an entity.
+# Represents an error that occurs when an attempt is made to manipulate a field, which does not exist in an entity.
 public type FieldDoesNotExist distinct Error;
 
-# Represents an error that occurs when an attempt is made to insert a value into a record which cannot be directly
+# Represents an error that occurs when an attempt is made to insert a value into a record, which cannot be directly
 # inserted into.
 public type InvalidInsertion distinct Error;
 
-# Represents an error that occurs when an attempt is to perform an operation which violates a foreign key constraint.
+# Represents an error that occurs when an attempt is to perform an operation, which violates a foreign key constraint.
 public type ForeignKeyConstraintViolation distinct Error;
 
-# Represents an error that occurs when an attempt is made to retrieve a record using a key which does not exist.
+# Represents an error that occurs when an attempt is made to retrieve a record using a key, which does not exist.
 public type InvalidKey distinct Error;

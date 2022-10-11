@@ -28,11 +28,11 @@ public client class SQLClient {
     private string[] keyFields;
     private map<JoinMetadata> joinMetadata;
 
-    # Initializes the SQLClient.
+    # Initializes the `SQLClient`.
     #
-    # + dbClient - The `sql:Client` which is used to execute SQL queries
+    # + dbClient - The `sql:Client`, which is used to execute SQL queries
     # + entityName - The name of the entity with which the client performs CRUD operations
-    # + tableName - The name of the SQL table which is mapped to the entity
+    # + tableName - The name of the SQL table, which is mapped to the entity
     # + keyFields - The names of the key fields of the entity
     # + fieldMetadata - The metadata associated with each field of the entity
     # + joinMetadata - The metadata associated with performing SQL `JOIN` operations
@@ -63,7 +63,7 @@ public client class SQLClient {
 
     # Performs an SQL `SELECT` operation to read a single record from the database.
     #
-    # + rowType - The record-type to be retrieved (the entity record-type)
+    # + rowType - The record-type to be retrieved (the record type of the entity)    
     # + key -  The value of the key (to be used as the `WHERE` clauses)
     # + include - The relations to be retrieved (SQL `JOINs` to be performed)
     # + return - A record in the `rowType` type or an `error` if the operation fails
@@ -126,8 +126,8 @@ public client class SQLClient {
 
     # Performs an SQL `SELECT` operation to read multiple records from the database when an advanced filter is provided.
     #
-    # + filterClause - The filter query to be used (to be used in the SQL `WHERE` clauses)
-    # + rowType - The record-type to be retrieved (the entity record-type)
+    # + filterClause - The filter query to be used in the SQL `WHERE` clauses
+    # + rowType - The record type to be retrieved (the record type of the entity)
     # + include - The relations to be retrieved (SQL `JOINs` to be performed)
     # + return - A stream of records in the `rowType` type or an `error` if the operation fails
     public isolated function runExecuteQuery(sql:ParameterizedQuery filterClause, typedesc<record {}> rowType, string[] include = [])
@@ -143,7 +143,7 @@ public client class SQLClient {
     # + filter - The key-value pairs to be used as the filter (to be used in the SQL `WHERE` clauses)
     # + return -  `()` if the operation is performed successfully.
     #             A `ForeignKeyConstraintViolation` if the operation violates a foreign key constraint.
-    #             An `error` if the operations fails due to an other reason.
+    #             An `error` if the operation fails due to another reason.
     public isolated function runUpdateQuery(record {} 'object, map<anydata>? filter) returns ForeignKeyConstraintViolation|error? {
         sql:ParameterizedQuery query = sql:queryConcat(`UPDATE `, self.tableName, stringToParameterizedQuery(" " + self.entityName), ` SET`, check self.getSetClauses('object));
 
@@ -165,7 +165,7 @@ public client class SQLClient {
     # Performs an SQL `DELETE` operation to delete multiple records from the database.
     #
     # + filter - The key-value pairs to be used as the filter (to be used in the SQL `WHERE` clauses)
-    # + return - `()` if the operation is performed successfully or an `error` if the operations fails.
+    # + return - `()` if the operation is performed successfully or an `error` if the operation fails
     public isolated function runDeleteQuery(map<anydata>? filter) returns error? {
         sql:ParameterizedQuery query = sql:queryConcat(`DELETE FROM `, self.tableName, stringToParameterizedQuery(" " + self.entityName));
 
@@ -180,7 +180,7 @@ public client class SQLClient {
     #
     # + 'object - The record to which the retrieved records should be appended
     # + include - The relations to be retrieved (SQL `JOINs` to be performed)
-    # + return - `()` if the operation is performed successfully or an `error` if the operations fails.
+    # + return - `()` if the operation is performed successfully or an `error` if the operation fails
     isolated function getManyRelations(record {} 'object, string[] include) returns error? {
         foreach string joinKey in self.joinMetadata.keys() {
             sql:ParameterizedQuery query = ``;
@@ -210,7 +210,7 @@ public client class SQLClient {
 
     # Closes the underlying `sql:Client`.
     # 
-    # + return - `()` if the client is closed successfully or an `error` if the operations fails.
+    # + return - `()` if the client is closed successfully or an `error` if the operation fails
     public isolated function close() returns error? {
         return self.dbClient.close();
     }
