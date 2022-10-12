@@ -88,7 +88,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
     private final List<String> recordNamesOfForeignKey;
     private final HashMap<String, List<String>> referenceTables;
     private final List<String> tableNames;
-
+    private final List<String> recordNames;
     private final List<String> tableNamesInScript;
     private boolean isNewBuild;
 
@@ -103,6 +103,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         noOfReportDiagnostic = 0;
         referenceTables = new HashMap<>();
         tableNames = new ArrayList<>();
+        recordNames = new ArrayList<>();
         tableNamesInScript = new ArrayList<>();
         isNewBuild = true;
     }
@@ -139,6 +140,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 Optional<Symbol> symbol = ctx.semanticModel().symbol(typeDefinitionNode);
                 if (symbol.isPresent()) {
                     TypeDefinitionSymbol typeDefinitionSymbol = (TypeDefinitionSymbol) symbol.get();
+                    validateRecordName(ctx, typeDefinitionNode);
                     RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeDefinitionSymbol.typeDescriptor();
                     validateEntityAnnotation(ctx, typeDefinitionNode, recordTypeSymbol);
                     validateRecordFieldsAnnotation(ctx, recordNode,
@@ -160,6 +162,16 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             this.uniqueConstraints.clear();
             this.tableName = "";
             this.isPersistEntity = false;
+        }
+    }
+
+    private void validateRecordName(SyntaxNodeAnalysisContext ctx, TypeDefinitionNode typeDefinitionNode) {
+        String recordName = typeDefinitionNode.typeName().text().trim();
+        if (recordNames.contains(recordName)) {
+            reportDiagnosticInfo(ctx, typeDefinitionNode.location(), DiagnosticsCodes.PERSIST_118.getCode(),
+                    DiagnosticsCodes.PERSIST_118.getMessage(), DiagnosticsCodes.PERSIST_118.getSeverity());
+        } else {
+            recordNames.add(recordName);
         }
     }
 

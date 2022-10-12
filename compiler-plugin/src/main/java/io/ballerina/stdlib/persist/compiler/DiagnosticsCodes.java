@@ -59,7 +59,9 @@ public enum DiagnosticsCodes {
     PERSIST_116("PERSIST_116", "invalid entity initialisation: the relation annotation should " +
             "only be added to the relationship owner for one-to-one and one-to-many associations", ERROR),
     PERSIST_117("PERSIST_117", "invalid annotation attachment: The relation annotation " +
-            "can only be attached to entity typed fields", ERROR);
+            "can only be attached to entity typed fields", ERROR),
+    PERSIST_118("PERSIST_118", "duplicate entity name: the entity name is already used in another entity",
+            ERROR);
 
     private final String code;
     private final String message;

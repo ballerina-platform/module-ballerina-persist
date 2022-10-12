@@ -257,6 +257,17 @@ public class CompilerPluginTest {
                 "be attached to entity typed fields", DiagnosticsCodes.PERSIST_117.getCode(), 1);
     }
 
+    @Test
+    public void testEntityName1() {
+        DiagnosticResult diagnosticResult = loadPackage("package_21").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList,
+                "duplicate entity name: the entity name is already used in another entity",
+                DiagnosticsCodes.PERSIST_118.getCode(), 2);
+    }
+
     private void assertValues(List<Diagnostic> errorDiagnosticsList, String msg, String code, int count) {
         long availableErrors = errorDiagnosticsList.size();
         Assert.assertEquals(availableErrors, count);
