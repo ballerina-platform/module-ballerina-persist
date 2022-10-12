@@ -55,6 +55,7 @@ import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -108,52 +109,58 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
 
     @Override
     public void perform(SyntaxNodeAnalysisContext ctx) {
-        if (isNewBuild) {
-            Path directoryPath = ctx.currentPackage().project().targetDir().toAbsolutePath();
-            Path filePath = Paths.get(String.valueOf(directoryPath), Constants.FILE_NAME);
-            try {
-                Files.deleteIfExists(filePath);
-                isNewBuild = false;
-            } catch (IOException e) {
-                Utils.reportDiagnostic(ctx, ctx.node().location(), DiagnosticsCodes.PERSIST_110.getCode(),
-                        "error in delete the existing script file: " + e.getMessage(),
-                        DiagnosticsCodes.PERSIST_110.getSeverity());
+        ModuleId moduleId = ctx.moduleId();
+        String moduleName = ctx.currentPackage().module(moduleId).moduleName().toString().trim();
+        String packageName = ctx.currentPackage().packageName().toString().trim();
+        if (!moduleName.equals(packageName.concat(".clients"))) {
+            if (isNewBuild) {
+                Path directoryPath = ctx.currentPackage().project().targetDir().toAbsolutePath();
+                Path filePath = Paths.get(String.valueOf(directoryPath), Constants.FILE_NAME);
+                try {
+                    Files.deleteIfExists(filePath);
+                    isNewBuild = false;
+                } catch (IOException e) {
+                    Utils.reportDiagnostic(ctx, ctx.node().location(), DiagnosticsCodes.PERSIST_110.getCode(),
+                            "error in delete the existing script file: " + e.getMessage(),
+                            DiagnosticsCodes.PERSIST_110.getSeverity());
+                }
             }
-        }
-        List<Diagnostic> diagnostics = ctx.semanticModel().diagnostics();
-        for (Diagnostic diagnostic : diagnostics) {
-            if (diagnostic.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
-                return;
+            List<Diagnostic> diagnostics = ctx.semanticModel().diagnostics();
+            for (Diagnostic diagnostic : diagnostics) {
+                if (diagnostic.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
+                    return;
+                }
             }
-        }
-        TypeDefinitionNode typeDefinitionNode =  (TypeDefinitionNode) ctx.node();
-        Node recordNode = typeDefinitionNode.typeDescriptor();
-        NodeList<ModuleMemberDeclarationNode> memberNodes = ((ModulePartNode) ctx.syntaxTree().rootNode()).members();
-        if (recordNode instanceof RecordTypeDescriptorNode) {
-            Optional<Symbol> symbol = ctx.semanticModel().symbol(typeDefinitionNode);
-            if (symbol.isPresent()) {
-                TypeDefinitionSymbol typeDefinitionSymbol = (TypeDefinitionSymbol) symbol.get();
-                RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeDefinitionSymbol.typeDescriptor();
-                validateEntityAnnotation(ctx, typeDefinitionNode, recordTypeSymbol);
-                validateRecordFieldsAnnotation(ctx, recordNode,
-                        ((ModulePartNode) ctx.syntaxTree().rootNode()).members());
-                validateRecordField(ctx, typeDefinitionNode, recordTypeSymbol, memberNodes);
-                if ((hasPersistAnnotation || isPersistEntity)) {
-                    validateRecordType(ctx, typeDefinitionNode);
-                    if (this.noOfReportDiagnostic == 0) {
-                        PersistGenerateSqlScript.generateSqlScript((RecordTypeDescriptorNode) recordNode,
-                                typeDefinitionNode, tableName, memberNodes, this.primaryKeys,
-                                this.uniqueConstraints, ctx, referenceTables, tableNamesInScript);
+            TypeDefinitionNode typeDefinitionNode = (TypeDefinitionNode) ctx.node();
+            Node recordNode = typeDefinitionNode.typeDescriptor();
+            NodeList<ModuleMemberDeclarationNode> memberNodes = ((ModulePartNode) ctx.syntaxTree().rootNode()).
+                    members();
+            if (recordNode instanceof RecordTypeDescriptorNode) {
+                Optional<Symbol> symbol = ctx.semanticModel().symbol(typeDefinitionNode);
+                if (symbol.isPresent()) {
+                    TypeDefinitionSymbol typeDefinitionSymbol = (TypeDefinitionSymbol) symbol.get();
+                    RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeDefinitionSymbol.typeDescriptor();
+                    validateEntityAnnotation(ctx, typeDefinitionNode, recordTypeSymbol);
+                    validateRecordFieldsAnnotation(ctx, recordNode,
+                            ((ModulePartNode) ctx.syntaxTree().rootNode()).members());
+                    validateRecordField(ctx, typeDefinitionNode, recordTypeSymbol, memberNodes);
+                    if ((hasPersistAnnotation || isPersistEntity)) {
+                        validateRecordType(ctx, typeDefinitionNode);
+                        if (this.noOfReportDiagnostic == 0) {
+                            PersistGenerateSqlScript.generateSqlScript((RecordTypeDescriptorNode) recordNode,
+                                    typeDefinitionNode, tableName, memberNodes, this.primaryKeys,
+                                    this.uniqueConstraints, ctx, referenceTables, tableNamesInScript);
+                        }
                     }
                 }
             }
+            this.hasAutoIncrementAnnotation = false;
+            this.hasPersistAnnotation = false;
+            this.primaryKeys.clear();
+            this.uniqueConstraints.clear();
+            this.tableName = "";
+            this.isPersistEntity = false;
         }
-        this.hasAutoIncrementAnnotation = false;
-        this.hasPersistAnnotation = false;
-        this.primaryKeys.clear();
-        this.uniqueConstraints.clear();
-        this.tableName = "";
-        this.isPersistEntity = false;
     }
 
     private void validateRecordType(SyntaxNodeAnalysisContext ctx, TypeDefinitionNode typeDefinitionNode) {
@@ -352,6 +359,17 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                         }
                     }
                 }
+            }
+        }
+        if (tableName.isEmpty()) {
+            tableName = typeDefinitionNode.typeName().text().trim();
+            if (tableNames.contains(tableName)) {
+                reportDiagnosticInfo(ctx, typeDefinitionNode.location(),
+                        DiagnosticsCodes.PERSIST_113.getCode(),
+                        DiagnosticsCodes.PERSIST_113.getMessage(),
+                        DiagnosticsCodes.PERSIST_113.getSeverity());
+            } else {
+                tableNames.add(tableName);
             }
         }
     }

@@ -627,6 +627,21 @@ public class CompilerPluginTest {
         testSqlScript("package_16", fileContent, 0, "");
     }
 
+    @Test
+    public void testGenerateSqlScript16() throws IOException {
+        String fileContent = "DROP TABLE IF EXISTS MedicalNeeds;\n" +
+                "CREATE TABLE MedicalNeeds (\n" +
+                "\tneedId INT NOT NULL AUTO_INCREMENT,\n" +
+                "\tbeneficiaryId INT NOT NULL,\n" +
+                "\tperiod VARCHAR(191) NOT NULL,\n" +
+                "\turgency VARCHAR(191) NOT NULL,\n" +
+                "\tquantity INT NOT NULL,\n" +
+                "\tPRIMARY KEY(needId),\n" +
+                "\tUNIQUE KEY(beneficiaryId, urgency)\n" +
+                ");";
+        testSqlScript("package_17", fileContent, 0, "");
+    }
+
     private void testSqlScript(String packagePath, String fileContent, int count,
                                String warningMsg) throws IOException {
         Package currentPackage = loadPackage(packagePath);
