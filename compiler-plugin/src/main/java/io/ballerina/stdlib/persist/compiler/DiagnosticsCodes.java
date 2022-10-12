@@ -60,6 +60,8 @@ public enum DiagnosticsCodes {
             "only be added to the relationship owner for one-to-one and one-to-many associations", ERROR),
     PERSIST_117("PERSIST_117", "invalid annotation attachment: The relation annotation " +
             "can only be attached to entity typed fields", ERROR),
+    PERSIST_118("PERSIST_118", "duplicate entity names are not allowed: the specified name is already " +
+            "used in another entity", ERROR),
 
     PERSIST_201("PERSIST_201",
             "Unsupported expression: read() function of persist client does not support this expression", ERROR),
