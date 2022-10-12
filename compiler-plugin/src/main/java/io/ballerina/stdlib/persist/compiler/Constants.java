@@ -18,6 +18,13 @@
 
 package io.ballerina.stdlib.persist.compiler;
 
+import io.ballerina.compiler.syntax.tree.LiteralValueToken;
+import io.ballerina.compiler.syntax.tree.NodeFactory;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
+
+import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createEmptyMinutiaeList;
+
 /**
  * Constants for Persist compiler plugin.
  */
@@ -48,6 +55,15 @@ public class Constants {
     public static final String KEY = "key";
     public static final String UNIQUE_CONSTRAINTS = "uniqueConstraints";
 
+    public static final String READ_FUNCTION = "read";
+    public static final String EXECUTE_FUNCTION = "execute";
+    public static final String BACKTICK = "`";
+    public static final String SPACE = " ";
+    public static final String OPEN_BRACES = "( ";
+    public static final String CLOSE_BRACES = ") ";
+    public static final String ASCENDING = "ascending";
+    public static final String BAL_ESCAPE_TOKEN = "'";
+
     /**
      * Constants related to Ballerina types.
      */
@@ -77,4 +93,31 @@ public class Constants {
         public static final String TIME_STAMP = "TIMESTAMP";
         public static final String DATE_TIME = "DATETIME";
     }
+
+    /**
+     * SQL keywords used to construct the query.
+     */
+    public static final class SQLKeyWords {
+        public static final String WHERE = "WHERE";
+        public static final String LIMIT = "LIMIT";
+        public static final String ORDERBY = "ORDER BY";
+        public static final String ORDER_BY_ASCENDING = "ASC";
+        public static final String ORDER_BY_DECENDING = "DESC";
+        public static final String NOT_EQUAL_TOKEN = "<>";
+        public static final String AND = "AND";
+        public static final String OR = "OR";
+    }
+
+    /**
+     * Constant nodes used in code modification.
+     */
+    public static final class TokenNodes {
+        public static final Token INTERPOLATION_START_TOKEN = NodeFactory.createLiteralValueToken(
+                SyntaxKind.INTERPOLATION_START_TOKEN, "${", createEmptyMinutiaeList(), createEmptyMinutiaeList());
+        public static final Token INTERPOLATION_END_TOKEN = NodeFactory.createLiteralValueToken(
+                SyntaxKind.CLOSE_BRACE_TOKEN, "}", createEmptyMinutiaeList(), createEmptyMinutiaeList());
+        public static final LiteralValueToken BACKTICK_TOKEN = NodeFactory.createLiteralValueToken(
+                SyntaxKind.BACKTICK_TOKEN, BACKTICK, createEmptyMinutiaeList(), createEmptyMinutiaeList());
+    }
+
 }

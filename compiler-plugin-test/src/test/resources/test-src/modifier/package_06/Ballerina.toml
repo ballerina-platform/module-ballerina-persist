@@ -1,0 +1,4 @@
+[package]
+name = "package_06"
+org = "persist_test"
+version = "0.1.0"

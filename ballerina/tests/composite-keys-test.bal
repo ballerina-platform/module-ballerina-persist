@@ -36,7 +36,7 @@ function compositeCreateTest() returns error? {
 }
 function compositeRetrieveByKeyTest() returns error? {
     DepartmentClient dClient = check new ();
-    Department retrieved = check dClient->readByKey({hospitalCode: "CMB01", departmentId:1});
+    Department retrieved = check dClient->readByKey({hospitalCode: "CMB01", departmentId: 1});
     Department department = {
         hospitalCode: "CMB01",
         departmentId: 1,

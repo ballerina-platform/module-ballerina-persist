@@ -92,9 +92,9 @@ public class MedicalItemStream {
 
     public isolated function next() returns record {|MedicalItem value;|}|error? {
         if self.err is error {
-            return <error> self.err;
+            return <error>self.err;
         } else if self.anydataStream is stream<anydata, error?> {
-            var anydataStream = <stream<anydata, error?>> self.anydataStream;
+            var anydataStream = <stream<anydata, error?>>self.anydataStream;
             var streamValue = anydataStream.next();
             if streamValue is () {
                 return streamValue;
@@ -112,7 +112,7 @@ public class MedicalItemStream {
 
     public isolated function close() returns error? {
         if self.anydataStream is stream<anydata, error?> {
-            var anydataStream = <stream<anydata, error?>> self.anydataStream;
+            var anydataStream = <stream<anydata, error?>>self.anydataStream;
             return anydataStream.close();
         }
     }

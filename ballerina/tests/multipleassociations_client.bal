@@ -45,60 +45,73 @@ client class MultipleAssociationsClient {
     remote function create(MultipleAssociations value) returns MultipleAssociations|error {
         if value.profile is Profile {
             ProfileClient profileClient = check new ProfileClient();
-            boolean exists = check profileClient->exists(<Profile> value.profile);
+            boolean exists = check profileClient->exists(<Profile>value.profile);
             if !exists {
-                value.profile = check profileClient->create(<Profile> value.profile);
+                value.profile = check profileClient->create(<Profile>value.profile);
             }
         }
 
         if value.user is User {
             UserClient userClient = check new UserClient();
-            boolean exists = check userClient->exists(<User> value.user);
+            boolean exists = check userClient->exists(<User>value.user);
             if !exists {
-                value.user = check userClient->create(<User> value.user);
+                value.user = check userClient->create(<User>value.user);
             }
         }
-    
+
         sql:ExecutionResult _ = check self.persistClient.runInsertQuery(value);
         return value;
     }
 
     remote function readByKey(int key, MultipleAssociationsRelations[] include = []) returns MultipleAssociations|error {
-        return <MultipleAssociations> check self.persistClient.runReadByKeyQuery(MultipleAssociations, key, include);
+        return <MultipleAssociations>check self.persistClient.runReadByKeyQuery(MultipleAssociations, key, include);
     }
 
-    remote function read(map<anydata>? filter = (), MultipleAssociationsRelations[] include = []) returns stream<MultipleAssociations, error?>|error {
-        stream<anydata, error?> result = check self.persistClient.runReadQuery(MultipleAssociations, filter, include);
-        return new stream<MultipleAssociations, error?>(new MultipleAssociationsStream(result));
+    remote function read(map<anydata>? filter = (), MultipleAssociationsRelations[] include = []) returns stream<MultipleAssociations, error?> {
+        stream<anydata, error?>|error result = self.persistClient.runReadQuery(MultipleAssociations, filter, include);
+        if result is error {
+            return new stream<MultipleAssociations, error?>(new MultipleAssociationsStream((), result));
+        } else {
+            return new stream<MultipleAssociations, error?>(new MultipleAssociationsStream(result));
+        }
+    }
+
+    remote function execute(sql:ParameterizedQuery filterClause) returns stream<MultipleAssociations, error?> {
+        stream<anydata, error?>|error result = self.persistClient.runExecuteQuery(filterClause, MultipleAssociations);
+        if result is error {
+            return new stream<MultipleAssociations, error?>(new MultipleAssociationsStream((), result));
+        } else {
+            return new stream<MultipleAssociations, error?>(new MultipleAssociationsStream(result));
+        }
     }
 
     remote function update(record {} 'object, map<anydata> filter) returns error? {
         _ = check self.persistClient.runUpdateQuery('object, filter);
 
         if 'object["profile"] is record {} {
-            record {} profileEntity = <record {}> 'object["profile"];
+            record {} profileEntity = <record {}>'object["profile"];
             ProfileClient profileClient = check new ProfileClient();
-            stream<MultipleAssociations, error?> multipleAssociationsStream = check self->read(filter, [UserEntity]);
+            stream<MultipleAssociations, error?> multipleAssociationsStream = self->read(filter, [UserEntity]);
 
             // TODO: replace this with more optimized code after adding support for advanced queries
             check from MultipleAssociations ma in multipleAssociationsStream
                 do {
                     if ma.profile is Profile {
-                        check profileClient->update(profileEntity, {"id": (<Profile> ma.profile).id});
+                        check profileClient->update(profileEntity, {"id": (<Profile>ma.profile).id});
                     }
                 };
         }
-        
+
         if 'object["user"] is record {} {
-            record {} userEntity = <record {}> 'object["user"];
+            record {} userEntity = <record {}>'object["user"];
             UserClient userClient = check new UserClient();
-            stream<MultipleAssociations, error?> multipleAssociationsStream = check self->read(filter, [UserEntity]);
+            stream<MultipleAssociations, error?> multipleAssociationsStream = self->read(filter, [UserEntity]);
 
             // TODO: replace this with more optimized code after adding support for advanced queries
             check from MultipleAssociations ma in multipleAssociationsStream
                 do {
                     if ma.user is User {
-                        check userClient->update(userEntity, {"id": (<User> ma.user).id});
+                        check userClient->update(userEntity, {"id": (<User>ma.user).id});
                     }
                 };
         }
@@ -112,7 +125,7 @@ client class MultipleAssociationsClient {
         MultipleAssociations|error result = self->readByKey(multipleAssociations.id);
         if result is MultipleAssociations {
             return true;
-        } else if result is InvalidKey {
+        } else if result is InvalidKeyError {
             return false;
         } else {
             return result;
@@ -131,25 +144,38 @@ public enum MultipleAssociationsRelations {
 }
 
 public class MultipleAssociationsStream {
-    private stream<anydata, error?> anydataStream;
+    private stream<anydata, error?>? anydataStream;
+    private error? err;
 
-    public isolated function init(stream<anydata, error?> anydataStream) {
+    public isolated function init(stream<anydata, error?>? anydataStream, error? err = ()) {
         self.anydataStream = anydataStream;
+        self.err = err;
     }
 
     public isolated function next() returns record {|MultipleAssociations value;|}|error? {
-        var streamValue = self.anydataStream.next();
-        if streamValue is () {
-            return streamValue;
-        } else if (streamValue is error) {
-            return streamValue;
+        if self.err is error {
+            return <error>self.err;
+        } else if self.anydataStream is stream<anydata, error?> {
+            var anydataStream = <stream<anydata, error?>>self.anydataStream;
+            var streamValue = anydataStream.next();
+            if streamValue is () {
+                return streamValue;
+            } else if (streamValue is error) {
+                return streamValue;
+            } else {
+                record {|MultipleAssociations value;|} nextRecord = {value: check streamValue.value.cloneWithType(MultipleAssociations)};
+                return nextRecord;
+            }
         } else {
-            record {|MultipleAssociations value;|} nextRecord = {value: <MultipleAssociations>streamValue.value};
-            return nextRecord;
+            // Unreachable code
+            return ();
         }
     }
 
     public isolated function close() returns error? {
-        return self.anydataStream.close();
+        if self.anydataStream is stream<anydata, error?> {
+            var anydataStream = <stream<anydata, error?>>self.anydataStream;
+            return anydataStream.close();
+        }
     }
 }

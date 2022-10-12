@@ -61,6 +61,16 @@ public enum DiagnosticsCodes {
     PERSIST_117("PERSIST_117", "invalid annotation attachment: The relation annotation " +
             "can only be attached to entity typed fields", ERROR),
     PERSIST_118("PERSIST_118", "duplicate entity name: the entity name is already used in another entity",
+            ERROR),
+
+    PERSIST_201("PERSIST_201",
+            "Unsupported expression: read() function of persist client does not support this expression", ERROR),
+    PERSIST_202("PERSIST_202",
+            "Unsupported expression: read() function of persist client only supports int value in limit clause",
+            ERROR),
+    PERSIST_203("PERSIST_203",
+            "Unsupported expression: read() function of persist client only supports selected variables "
+                    + "from the 'from clause' in order by clause",
             ERROR);
 
     private final String code;

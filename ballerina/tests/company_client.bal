@@ -45,12 +45,25 @@ client class CompanyClient {
     }
 
     remote function readByKey(int key, CompanyRelations[] include = []) returns Company|error {
-        return <Company> check self.persistClient.runReadByKeyQuery(Company, key, include);
+        return <Company>check self.persistClient.runReadByKeyQuery(Company, key, include);
     }
 
-    remote function read(map<anydata>? filter = (), CompanyRelations[] include = []) returns stream<Company, error?>|error {
-        stream<anydata, error?> result = check self.persistClient.runReadQuery(Company, filter, include);
-        return new stream<Company, error?>(new CompanyStream(result, include, self.persistClient));
+    remote function read(map<anydata>? filter = (), CompanyRelations[] include = []) returns stream<Company, error?> {
+        stream<anydata, error?>|error result = self.persistClient.runReadQuery(Company, filter, include);
+        if result is error {
+            return new stream<Company, error?>(new CompanyStream((), result));
+        } else {
+            return new stream<Company, error?>(new CompanyStream(result, (), include, self.persistClient));
+        }
+    }
+
+    remote function execute(sql:ParameterizedQuery filterClause) returns stream<Company, error?> {
+        stream<anydata, error?>|error result = self.persistClient.runExecuteQuery(filterClause, Company);
+        if result is error {
+            return new stream<Company, error?>(new CompanyStream((), result));
+        } else {
+            return new stream<Company, error?>(new CompanyStream(result));
+        }
     }
 
     remote function update(record {} 'object, map<anydata> filter) returns error? {
@@ -65,7 +78,7 @@ client class CompanyClient {
         Company|error result = self->readByKey(company.id);
         if result is Company {
             return true;
-        } else if result is InvalidKey {
+        } else if result is InvalidKeyError {
             return false;
         } else {
             return result;
@@ -83,30 +96,43 @@ public enum CompanyRelations {
 }
 
 public class CompanyStream {
-    private stream<anydata, error?> anydataStream;
-    private SQLClient persistClient;
-    private CompanyRelations[] include;
+    private stream<anydata, error?>? anydataStream;
+    private error? err;
+    private CompanyRelations[]? include;
+    private SQLClient? persistClient;
 
-    public isolated function init(stream<anydata, error?> anydataStream, CompanyRelations[] include, SQLClient persistClient) {
+    public isolated function init(stream<anydata, error?>? anydataStream, error? err = (), CompanyRelations[]? include = (), SQLClient? persistClient = ()) {
         self.anydataStream = anydataStream;
+        self.err = err;
         self.include = include;
         self.persistClient = persistClient;
     }
 
     public isolated function next() returns record {|Company value;|}|error? {
-        var streamValue = self.anydataStream.next();
-        if streamValue is () {
-            return streamValue;
-        } else if (streamValue is error) {
-            return streamValue;
+        if self.err is error {
+            return <error>self.err;
+        } else if self.anydataStream is stream<anydata, error?> {
+            var anydataStream = <stream<anydata, error?>>self.anydataStream;
+            var streamValue = anydataStream.next();
+            if streamValue is () {
+                return streamValue;
+            } else if (streamValue is error) {
+                return streamValue;
+            } else {
+                record {|Company value;|} nextRecord = {value: check streamValue.value.cloneWithType(Company)};
+                check (<SQLClient>self.persistClient).getManyRelations(nextRecord.value, <CompanyRelations[]>self.include);
+                return nextRecord;
+            }
         } else {
-            record {|Company value;|} nextRecord = {value: check streamValue.value.cloneWithType(Company)};
-            check self.persistClient.getManyRelations(nextRecord.value, self.include);
-            return nextRecord;
+            // Unreachable code
+            return ();
         }
     }
 
     public isolated function close() returns error? {
-        return self.anydataStream.close();
+        if self.anydataStream is stream<anydata, error?> {
+            var anydataStream = <stream<anydata, error?>>self.anydataStream;
+            return anydataStream.close();
+        }
     }
 }

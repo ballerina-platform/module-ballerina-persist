@@ -27,7 +27,7 @@ isolated function flattenRecord(record {} r) returns record {} {
     record {} returnRecord = {};
     foreach string key in r.keys() {
         if r[key] is record {} {
-            record {} innerFlattenedRecord = flattenRecord(<record {}> r[key]);
+            record {} innerFlattenedRecord = flattenRecord(<record {}>r[key]);
             foreach string innerKey in innerFlattenedRecord.keys() {
                 returnRecord[key + "." + innerKey] = innerFlattenedRecord[innerKey];
             }
