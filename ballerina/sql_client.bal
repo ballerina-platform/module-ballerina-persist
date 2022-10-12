@@ -16,6 +16,8 @@
 
 import ballerina/sql;
 
+# The client used by the generated persist clients to abstract and 
+# execute SQL queries that are required to perform CRUD operations.
 public client class SQLClient {
 
     private final sql:Client dbClient;
@@ -26,6 +28,15 @@ public client class SQLClient {
     private string[] keyFields;
     private map<JoinMetadata> joinMetadata;
 
+    # Initializes the `SQLClient`.
+    #
+    # + dbClient - The `sql:Client`, which is used to execute SQL queries
+    # + entityName - The name of the entity with which the client performs CRUD operations
+    # + tableName - The name of the SQL table, which is mapped to the entity
+    # + keyFields - The names of the key fields of the entity
+    # + fieldMetadata - The metadata associated with each field of the entity
+    # + joinMetadata - The metadata associated with performing SQL `JOIN` operations
+    # + return - An `error` if the client creation fails
     public function init(sql:Client dbClient, string entityName, sql:ParameterizedQuery tableName, string[] keyFields, map<FieldMetadata> fieldMetadata,
                         map<JoinMetadata> joinMetadata = {}) returns error? {
         self.entityName = entityName;
@@ -36,6 +47,11 @@ public client class SQLClient {
         self.joinMetadata = joinMetadata;
     }
 
+    # Performs an SQL `INSERT` operation to insert a record into a table.
+    #
+    # + 'object - The record to be inserted into the table
+    # + return - An `sql:ExecutionResult` containing the metadata of the query execution
+    #            or an `error` if the operation fails
     public isolated function runInsertQuery(record {} 'object) returns sql:ExecutionResult|error {
         sql:ParameterizedQuery query = sql:queryConcat(
             `INSERT INTO `, self.tableName, ` (`,
@@ -45,6 +61,12 @@ public client class SQLClient {
         return check self.dbClient->execute(query);
     }
 
+    # Performs an SQL `SELECT` operation to read a single record from the database.
+    #
+    # + rowType - The record-type to be retrieved (the record type of the entity)    
+    # + key -  The value of the key (to be used as the `WHERE` clauses)
+    # + include - The relations to be retrieved (SQL `JOINs` to be performed)
+    # + return - A record in the `rowType` type or an `error` if the operation fails
     public isolated function runReadByKeyQuery(typedesc<record {}> rowType, anydata key, string[] include = []) returns record {}|error {
         sql:ParameterizedQuery query = sql:queryConcat(
             `SELECT `, self.getSelectColumnNames(include), ` FROM `, self.tableName, ` AS `, stringToParameterizedQuery(self.entityName)
@@ -73,6 +95,12 @@ public client class SQLClient {
         return result;
     }
 
+    # Performs an SQL `SELECT` operation to read multiple records from the database.
+    #
+    # + rowType - The record-type to be retrieved (the entity record-type)
+    # + filter - The key-value pairs to be used as the filter (to be used in the SQL `WHERE` clauses)
+    # + include - The relations to be retrieved (SQL `JOINs` to be performed)
+    # + return - A stream of records in the `rowType` type or an `error` if the operation fails
     public isolated function runReadQuery(typedesc<record {}> rowType, map<anydata>? filter, string[] include = [])
     returns stream<record {}, sql:Error?>|error {
         sql:ParameterizedQuery query = sql:queryConcat(
@@ -96,6 +124,12 @@ public client class SQLClient {
         return resultStream;
     }
 
+    # Performs an SQL `SELECT` operation to read multiple records from the database when an advanced filter is provided.
+    #
+    # + filterClause - The filter query to be used in the SQL `WHERE` clauses
+    # + rowType - The record type to be retrieved (the record type of the entity)
+    # + include - The relations to be retrieved (SQL `JOINs` to be performed)
+    # + return - A stream of records in the `rowType` type or an `error` if the operation fails
     public isolated function runExecuteQuery(sql:ParameterizedQuery filterClause, typedesc<record {}> rowType, string[] include = [])
     returns stream<record {}, sql:Error?>|error {
         if self.joinMetadata.length() != 0 {
@@ -106,6 +140,13 @@ public client class SQLClient {
         return self.dbClient->query(query, rowType);
     }
 
+    # Performs an SQL `UPDATE` operation to update multiple records in the database.
+    #
+    # + object - the key-value pairs to be updated (to be used in the SQL `SET` clauses)
+    # + filter - The key-value pairs to be used as the filter (to be used in the SQL `WHERE` clauses)
+    # + return -  `()` if the operation is performed successfully.
+    #             A `ForeignKeyConstraintViolationError` if the operation violates a foreign key constraint.
+    #             An `error` if the operation fails due to another reason.
     public isolated function runUpdateQuery(record {} 'object, map<anydata>? filter) returns ForeignKeyConstraintViolationError|error? {
         sql:ParameterizedQuery query = sql:queryConcat(`UPDATE `, self.tableName, stringToParameterizedQuery(" " + self.entityName), ` SET`, check self.getSetClauses('object));
 
@@ -124,6 +165,10 @@ public client class SQLClient {
         }
     }
 
+    # Performs an SQL `DELETE` operation to delete multiple records from the database.
+    #
+    # + filter - The key-value pairs to be used as the filter (to be used in the SQL `WHERE` clauses)
+    # + return - `()` if the operation is performed successfully or an `error` if the operation fails
     public isolated function runDeleteQuery(map<anydata>? filter) returns error? {
         sql:ParameterizedQuery query = sql:queryConcat(`DELETE FROM `, self.tableName, stringToParameterizedQuery(" " + self.entityName));
 
@@ -134,24 +179,26 @@ public client class SQLClient {
         _ = check self.dbClient->execute(query);
     }
 
-    public isolated function checkExists(map<anydata>? filter) returns error? {
-        sql:ParameterizedQuery query = sql:queryConcat(`SELECT * FROM `, self.tableName, stringToParameterizedQuery(" " + self.entityName));
-
-        if !(filter is ()) {
-            query = sql:queryConcat(query, ` WHERE`, check self.getWhereClauses(filter));
-        }
-
-        _ = check self.dbClient->execute(query);
-    }
-
-    public isolated function getManyRelations(record {} result, string[] include) returns error? {
+    # Retrieves the values of the 'many' side of an association.
+    #
+    # + 'object - The record to which the retrieved records should be appended
+    # + include - The relations to be retrieved (SQL `JOINs` to be performed)
+    # + return - `()` if the operation is performed successfully or an `error` if the operation fails
+    isolated function getManyRelations(record {} 'object, string[] include) returns error? {
         foreach string joinKey in self.joinMetadata.keys() {
             sql:ParameterizedQuery query = ``;
             JoinMetadata joinMetadata = self.joinMetadata.get(joinKey);
+
+            map<string> whereFilter = {};
+            foreach int i in 0 ..< joinMetadata.refFields.length() {
+                whereFilter[joinMetadata.refFields[i]] = 'object[joinMetadata.joinColumns[i]].toBalString();
+            }
+
             if include.indexOf(joinKey) != () && joinMetadata.'type == MANY {
                 query = sql:queryConcat(`SELECT `, self.getManyRelationColumnNames(joinMetadata.fieldName),
                                         ` FROM `, stringToParameterizedQuery(joinMetadata.refTable),
-                                        ` WHERE `, stringToParameterizedQuery(joinMetadata.refFields[0]), ` = `, stringToParameterizedQuery(result["id"].toBalString()));
+                                        ` WHERE`, check self.getWhereClauses(whereFilter, true)
+                                        );
 
                 stream<record {}, sql:Error?> joinStream = self.dbClient->query(query, joinMetadata.entity);
                 record {}[] arr = [];
@@ -159,11 +206,14 @@ public client class SQLClient {
                     do {
                         arr.push(check item.cloneWithType(joinMetadata.entity));
                     };
-                result[joinMetadata.fieldName] = convertToArray(joinMetadata.entity, arr);
+                'object[joinMetadata.fieldName] = convertToArray(joinMetadata.entity, arr);
             }
         }
     }
 
+    # Closes the underlying `sql:Client`.
+    # 
+    # + return - `()` if the client is closed successfully or an `error` if the operation fails
     public isolated function close() returns error? {
         return self.dbClient.close();
     }
@@ -276,7 +326,7 @@ public client class SQLClient {
         return check self.getWhereClauses(filter);
     }
 
-    private isolated function getWhereClauses(map<anydata> filter) returns sql:ParameterizedQuery|error {
+    private isolated function getWhereClauses(map<anydata> filter, boolean ignoreFieldCheck = false) returns sql:ParameterizedQuery|error {
         sql:ParameterizedQuery query = ` `;
 
         string[] keys = filter.keys();
@@ -284,7 +334,11 @@ public client class SQLClient {
             if i > 0 {
                 query = sql:queryConcat(query, ` AND `);
             }
-            query = sql:queryConcat(query, stringToParameterizedQuery(self.entityName + "."), check self.getFieldParamQuery(keys[i]), ` = ${<sql:Value>filter[keys[i]]}`);
+            if ignoreFieldCheck {
+                query = sql:queryConcat(query, stringToParameterizedQuery(keys[i]), ` = ${<sql:Value>filter[keys[i]]}`);
+            } else {
+                query = sql:queryConcat(query, stringToParameterizedQuery(self.entityName + "."), check self.getFieldParamQuery(keys[i]), ` = ${<sql:Value>filter[keys[i]]}`);
+            }
         }
         return query;
     }
