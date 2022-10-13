@@ -67,8 +67,8 @@ client class MultipleAssociationsClient {
         return <MultipleAssociations>check self.persistClient.runReadByKeyQuery(MultipleAssociations, key, include);
     }
 
-    remote function read(map<anydata>? filter = (), MultipleAssociationsRelations[] include = []) returns stream<MultipleAssociations, error?> {
-        stream<anydata, error?>|error result = self.persistClient.runReadQuery(MultipleAssociations, filter, include);
+    remote function read(MultipleAssociationsRelations[] include = []) returns stream<MultipleAssociations, error?> {
+        stream<anydata, error?>|error result = self.persistClient.runReadQuery(MultipleAssociations, include);
         if result is error {
             return new stream<MultipleAssociations, error?>(new MultipleAssociationsStream((), result));
         } else {

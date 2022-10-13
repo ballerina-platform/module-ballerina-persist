@@ -339,8 +339,8 @@ function oneToManyCreateTest3() returns error? {
     };
     _ = check employeeClient->create(employee2);
 
-    stream<Company, error?> companyStream = companyClient->read({id: 3}, [EmployeeEntity]);
-    check from Company company2 in companyStream
+    check from Company company2 in companyClient->read([EmployeeEntity])
+        where company2.id == 3
         do {
             test:assertEquals(company2, <Company>{
                 id: 3,

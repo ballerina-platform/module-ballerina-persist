@@ -105,16 +105,16 @@ function testRead() returns error? {
     });
 
     int count = 0;
-    stream<MedicalItem, error?> itemStream = miClient->read({'type: "type1"});
-    _ = check from MedicalItem _ in itemStream
+    _ = check from MedicalItem item in miClient->read()
+        where item.'type == "type1"
         do {
             count = count + 1;
         };
     test:assertEquals(count, 1);
 
     count = 0;
-    itemStream = miClient->read({'type: "type2"});
-    _ = check from MedicalItem _ in itemStream
+    _ = check from MedicalItem item in miClient->read()
+        where item.'type == "type2"
         do {
             count = count + 1;
         };
@@ -124,41 +124,20 @@ function testRead() returns error? {
 
 @test:Config {
     groups: ["basic"],
-    dependsOn: [testCreate]
-}
-function testReadNegative() returns error? {
-    MedicalItemClient miClient = check new ();
-    stream<MedicalItem, error?> itemStream = miClient->read({typex: "type1"});
-    int count = 0;
-    error? err = from MedicalItem _ in itemStream
-        do {
-            count = count + 1;
-        };
-    if err is FieldDoesNotExistError {
-        test:assertEquals(err.message(), "Field 'typex' does not exist in entity 'MedicalItem'.");
-    } else {
-        test:assertFail("Error expected");
-    }
-    check miClient.close();
-}
-
-@test:Config {
-    groups: ["basic"],
     dependsOn: [testRead]
 }
 function testUpdate() returns error? {
     MedicalItemClient miClient = check new ();
 
-    stream<MedicalItem, error?> itemStream = miClient->read({'type: "type2"});
-    _ = check from MedicalItem item in itemStream
+    _ = check from MedicalItem item in miClient->read()
+        where item.'type == "type2"
         do {
             item.unit = "kg";
             check miClient->update(item);
         };
     
-    itemStream = miClient->read();
     int count = 0;
-    _ = check from MedicalItem item in itemStream
+    _ = check from MedicalItem item in miClient->read()
         do {
             if item.'type is "type2" {
                 test:assertEquals(item.unit, "kg");
@@ -177,15 +156,14 @@ function testUpdate() returns error? {
 }
 function testDelete() returns error? {
     MedicalItemClient miClient = check new ();
-    stream<MedicalItem, error?> itemStream = miClient->read({'type: "type2"});
-    _ = check from MedicalItem item in itemStream
+    _ = check from MedicalItem item in miClient->read()
+        where item.'type == "type2"
         do {
             check miClient->delete(item);
         };
     
-    itemStream = miClient->read();
     int count = 0;
-    _ = check from MedicalItem _ in itemStream
+    _ = check from MedicalItem _ in miClient->read()
         do {
             count = count + 1;
         };
@@ -236,9 +214,9 @@ function testComplexTypes2() returns error? {
     test:assertTrue(id is int);
 
     if id is int {
-        stream<MedicalNeed, error?> needStream = mnClient->read({itemId: 1});
         int count = 0;
-        _ = check from MedicalNeed need2 in needStream
+        _ = check from MedicalNeed need2 in mnClient->read()
+            where need2.itemId == 1
             do {
                 test:assertEquals(need2.itemId, 1);
                 count = count + 1;

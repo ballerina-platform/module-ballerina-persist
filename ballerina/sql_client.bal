@@ -99,7 +99,6 @@ public client class SQLClient {
     # Performs an SQL `SELECT` operation to read multiple records from the database.
     #
     # + rowType - The record-type to be retrieved (the entity record-type)
-    # + filter - The key-value pairs to be used as the filter (to be used in the SQL `WHERE` clauses)
     # + include - The relations to be retrieved (SQL `JOINs` to be performed)
     # + return - A stream of records in the `rowType` type or an `error` if the operation fails
     public isolated function runReadQuery(typedesc<record {}> rowType, string[] include = [])

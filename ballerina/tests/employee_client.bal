@@ -56,8 +56,8 @@ client class EmployeeClient {
         return <Employee>check self.persistClient.runReadByKeyQuery(Employee, key, include);
     }
 
-    remote function read(map<anydata>? filter = (), EmployeeRelations[] include = []) returns stream<Employee, error?> {
-        stream<anydata, error?>|error result = self.persistClient.runReadQuery(Employee, filter, include);
+    remote function read(EmployeeRelations[] include = []) returns stream<Employee, error?> {
+        stream<anydata, error?>|error result = self.persistClient.runReadQuery(Employee, include);
         if result is error {
             return new stream<Employee, error?>(new EmployeeStream((), result));
         } else {
