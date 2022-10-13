@@ -67,12 +67,12 @@ public client class MedicalNeedClient {
         }
     }
 
-    remote function update(record {} 'object, map<anydata> filter) returns error? {
-        _ = check self.persistClient.runUpdateQuery('object, filter);
+    remote function update(MedicalNeed 'object) returns error? {
+        _ = check self.persistClient.runUpdateQuery('object);
     }
 
-    remote function delete(map<anydata> filter) returns error? {
-        _ = check self.persistClient.runDeleteQuery(filter);
+    remote function delete(MedicalNeed 'object) returns error? {
+        _ = check self.persistClient.runDeleteQuery('object);
     }
 
     public function close() returns error? {

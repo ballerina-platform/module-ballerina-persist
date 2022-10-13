@@ -62,12 +62,12 @@ client class DepartmentClient {
         }
     }
 
-    remote function update(record {} 'object, map<anydata> filter) returns error? {
-        _ = check self.persistClient.runUpdateQuery('object, filter);
+    remote function update(record {} 'object) returns error? {
+        _ = check self.persistClient.runUpdateQuery('object);
     }
 
-    remote function delete(map<anydata> filter) returns error? {
-        _ = check self.persistClient.runDeleteQuery(filter);
+    remote function delete(Department 'object) returns error? {
+        _ = check self.persistClient.runDeleteQuery('object);
     }
 
     function close() returns error? {

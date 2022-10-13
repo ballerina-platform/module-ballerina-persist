@@ -85,40 +85,24 @@ client class MultipleAssociationsClient {
         }
     }
 
-    remote function update(record {} 'object, map<anydata> filter) returns error? {
-        _ = check self.persistClient.runUpdateQuery('object, filter);
+    remote function update(MultipleAssociations 'object) returns error? {
+        _ = check self.persistClient.runUpdateQuery('object);
 
-        if 'object["profile"] is record {} {
-            record {} profileEntity = <record {}>'object["profile"];
+        if 'object["profile"] is Profile {
+            Profile profileEntity = <Profile>'object["profile"];
             ProfileClient profileClient = check new ProfileClient();
-            stream<MultipleAssociations, error?> multipleAssociationsStream = self->read(filter, [UserEntity]);
-
-            // TODO: replace this with more optimized code after adding support for advanced queries
-            check from MultipleAssociations ma in multipleAssociationsStream
-                do {
-                    if ma.profile is Profile {
-                        check profileClient->update(profileEntity, {"id": (<Profile>ma.profile).id});
-                    }
-                };
+            check profileClient->update(profileEntity);
         }
 
-        if 'object["user"] is record {} {
-            record {} userEntity = <record {}>'object["user"];
+        if 'object["user"] is User {
+            User userEntity = <User>'object["user"];
             UserClient userClient = check new UserClient();
-            stream<MultipleAssociations, error?> multipleAssociationsStream = self->read(filter, [UserEntity]);
-
-            // TODO: replace this with more optimized code after adding support for advanced queries
-            check from MultipleAssociations ma in multipleAssociationsStream
-                do {
-                    if ma.user is User {
-                        check userClient->update(userEntity, {"id": (<User>ma.user).id});
-                    }
-                };
+            check userClient->update(userEntity);
         }
     }
 
-    remote function delete(map<anydata> filter) returns error? {
-        _ = check self.persistClient.runDeleteQuery(filter);
+    remote function delete(MultipleAssociations 'object) returns error? {
+        _ = check self.persistClient.runDeleteQuery('object);
     }
 
     remote function exists(MultipleAssociations multipleAssociations) returns boolean|error {

@@ -74,26 +74,18 @@ client class EmployeeClient {
         }
     }
 
-    remote function update(record {} 'object, map<anydata> filter) returns error? {
-        _ = check self.persistClient.runUpdateQuery('object, filter);
+    remote function update(record {} 'object) returns error? {
+        _ = check self.persistClient.runUpdateQuery('object);
 
-        if 'object["company"] is record {} {
-            record {} companyEntity = <record {}>'object["company"];
+        if 'object["company"] is Company {
+            Company companyEntity = <Company>'object["company"];
             CompanyClient companyClient = check new CompanyClient();
-            stream<Employee, error?> employeeStream = self->read(filter, [CompanyEntity]);
-
-            // TODO: replace this with more optimized code after adding support for advanced queries
-            check from Employee employee in employeeStream
-                do {
-                    if employee.company is Company {
-                        check companyClient->update(companyEntity, {"id": (<Company>employee.company).id});
-                    }
-                };
+            check companyClient->update(companyEntity);
         }
     }
 
-    remote function delete(map<anydata> filter) returns error? {
-        _ = check self.persistClient.runDeleteQuery(filter);
+    remote function delete(Employee 'object) returns error? {
+        _ = check self.persistClient.runDeleteQuery('object);
     }
 
     remote function exists(Employee employee) returns boolean|error {

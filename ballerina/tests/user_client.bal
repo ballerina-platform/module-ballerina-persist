@@ -65,12 +65,12 @@ client class UserClient {
             return new stream<User, error?>(new UserStream(result));
         }
     }
-    remote function update(record {} 'object, map<anydata> filter) returns error? {
-        _ = check self.persistClient.runUpdateQuery('object, filter);
+    remote function update(User 'object) returns error? {
+        _ = check self.persistClient.runUpdateQuery('object);
     }
 
-    remote function delete(map<anydata> filter) returns error? {
-        _ = check self.persistClient.runDeleteQuery(filter);
+    remote function delete(User 'object) returns error? {
+        _ = check self.persistClient.runDeleteQuery('object);
     }
 
     remote function exists(User user) returns boolean|error {
