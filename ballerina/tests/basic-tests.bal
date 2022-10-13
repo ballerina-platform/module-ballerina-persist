@@ -255,7 +255,7 @@ function testComplexTypes2() returns error? {
     int count = 0;
     _ = check from MedicalNeed need3 in needStream
         do {
-            test:assertEquals(need2.itemId, 1);
+            test:assertEquals(need3.itemId, 1);
             count = count + 1;
         };
     test:assertTrue(count > 0);
@@ -281,7 +281,7 @@ function testComplexTypesWithExecute() returns error? {
     int count = 0;
     _ = check from MedicalNeed need3 in mnClient->execute(` WHERE itemId = 1`)
         do {
-            test:assertEquals(need2.itemId, 1);
+            test:assertEquals(need3.itemId, 1);
             count = count + 1;
         };
     test:assertTrue(count > 0);

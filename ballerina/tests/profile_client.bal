@@ -37,7 +37,7 @@ client class ProfileClient {
     public function init() returns Error? {
         mysql:Client|sql:Error dbClient = new (host = host, user = user, password = password, database = database, port = port);
         if dbClient is sql:Error {
-            return <Error>error(dbClient.message());
+            return <SQLError>dbClient;
         }
 
         self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata, self.joinMetadata);
@@ -61,7 +61,7 @@ client class ProfileClient {
     }
 
     remote function read(map<anydata>? filter = (), ProfileRelations[] include = []) returns stream<Profile, Error?> {
-        stream<anydata, error?>|Error result = self.persistClient.runReadQuery(Profile, filter, include);
+        stream<anydata, sql:Error?>|Error result = self.persistClient.runReadQuery(Profile, filter, include);
         if result is error {
             return new stream<Profile, Error?>(new ProfileStream((), result));
         } else {
@@ -70,7 +70,7 @@ client class ProfileClient {
     }
 
     remote function execute(sql:ParameterizedQuery filterClause) returns stream<Profile, Error?> {
-        stream<anydata, error?>|Error result = self.persistClient.runExecuteQuery(filterClause, Profile);
+        stream<anydata, sql:Error?>|Error result = self.persistClient.runExecuteQuery(filterClause, Profile);
         if result is Error {
             return new stream<Profile, Error?>(new ProfileStream((), result));
         } else {
@@ -125,24 +125,24 @@ public enum ProfileRelations {
 }
 
 public class ProfileStream {
-    private stream<anydata, error?>? anydataStream;
-    private error? err;
+    private stream<anydata, sql:Error?>? anydataStream;
+    private Error? err;
 
-    public isolated function init(stream<anydata, error?>? anydataStream, error? err = ()) {
+    public isolated function init(stream<anydata, sql:Error?>? anydataStream, Error? err = ()) {
         self.anydataStream = anydataStream;
         self.err = err;
     }
 
     public isolated function next() returns record {|Profile value;|}|Error? {
-        if self.err is error {
-            return <Error>self.err;
-        } else if self.anydataStream is stream<anydata, error?> {
-            var anydataStream = <stream<anydata, error?>>self.anydataStream;
+        if self.err is Error {
+            return self.err;
+        } else if self.anydataStream is stream<anydata, sql:Error?> {
+            var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
             var streamValue = anydataStream.next();
             if streamValue is () {
                 return streamValue;
-            } else if (streamValue is error) {
-                return <Error>streamValue;
+            } else if (streamValue is sql:Error) {
+                return <SQLError>streamValue;
             } else {
                 record {|Profile value;|} nextRecord = {value: <Profile>streamValue.value};
                 return nextRecord;
@@ -153,10 +153,13 @@ public class ProfileStream {
         }
     }
 
-    public isolated function close() returns error? {
-        if self.anydataStream is stream<anydata, error?> {
-            var anydataStream = <stream<anydata, error?>>self.anydataStream;
-            return anydataStream.close();
+    public isolated function close() returns Error? {
+        if self.anydataStream is stream<anydata, sql:Error?> {
+            var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
+            sql:Error? e = anydataStream.close();
+            if e is sql:Error {
+                return <SQLError>e;
+            }
         }
     }
 }

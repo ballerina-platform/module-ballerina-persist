@@ -58,10 +58,10 @@ public client class SQLClient {
             self.getInsertColumnNames(), ` ) `,
             `VALUES `, self.getInsertQueryParams('object)
         );
-        sql:ExecutionResult|error result = self.dbClient->execute(query);
+        sql:ExecutionResult|sql:Error result = self.dbClient->execute(query);
         
-        if result is error {
-            return <Error>result;
+        if result is sql:Error {
+            return <SQLError>result;
         }
 
         return result;
@@ -87,7 +87,7 @@ public client class SQLClient {
         }
 
         query = sql:queryConcat(query, ` WHERE `, check self.getGetKeyWhereClauses(key));
-        record {}|error result = self.dbClient->queryRow(query, rowType);
+        record {}|sql:Error result = self.dbClient->queryRow(query, rowType);
 
         if result is sql:NoRowsError {
             return <InvalidKeyError>error(
@@ -98,8 +98,8 @@ public client class SQLClient {
             check self.getManyRelations(result, include);
         }
         
-        if result is error {
-            return <Error>result;
+        if result is sql:Error {
+            return <SQLError>result;
         }
         return result;
     }
@@ -166,7 +166,7 @@ public client class SQLClient {
         sql:ExecutionResult|sql:Error? e = self.dbClient->execute(query);
         if e is sql:Error {
             if e.message().indexOf("a foreign key constraint fails ") is () {
-                return <Error>error(e.message());
+                return <SQLError>e;
             }
             else {
                 return <ForeignKeyConstraintViolationError>error(e.message());
@@ -185,10 +185,10 @@ public client class SQLClient {
             query = sql:queryConcat(query, ` WHERE`, check self.getWhereClauses(filter));
         }
 
-        sql:ExecutionResult|error e = self.dbClient->execute(query);
+        sql:ExecutionResult|sql:Error e = self.dbClient->execute(query);
 
-        if e is error {
-            return <Error>e;
+        if e is sql:Error {
+            return <SQLError>e;
         }
     }
 
@@ -233,9 +233,9 @@ public client class SQLClient {
     # 
     # + return - `()` if the client is closed successfully or a `persist:Error` if the operation fails
     public isolated function close() returns Error? {
-        error? e = self.dbClient.close();
-        if e is error {
-            return <Error>e;
+        sql:Error? e = self.dbClient.close();
+        if e is sql:Error {
+            return <SQLError>e;
         }
     }
 

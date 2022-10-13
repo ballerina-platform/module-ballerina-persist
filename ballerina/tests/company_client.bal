@@ -37,7 +37,7 @@ client class CompanyClient {
     public function init() returns Error? {
         mysql:Client|sql:Error dbClient = new (host = host, user = user, password = password, database = database, port = port);
         if dbClient is sql:Error {
-            return <Error>error(dbClient.message());
+            return <SQLError>dbClient;
         }
 
         self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata, self.joinMetadata);
@@ -53,7 +53,7 @@ client class CompanyClient {
     }
 
     remote function read(map<anydata>? filter = (), CompanyRelations[] include = []) returns stream<Company, Error?> {
-        stream<anydata, error?>|Error result = self.persistClient.runReadQuery(Company, filter, include);
+        stream<anydata, sql:Error?>|Error result = self.persistClient.runReadQuery(Company, filter, include);
         if result is Error {
             return new stream<Company, Error?>(new CompanyStream((), result));
         } else {
@@ -62,7 +62,7 @@ client class CompanyClient {
     }
 
     remote function execute(sql:ParameterizedQuery filterClause) returns stream<Company, Error?> {
-        stream<anydata, error?>|Error result = self.persistClient.runExecuteQuery(filterClause, Company);
+        stream<anydata, sql:Error?>|Error result = self.persistClient.runExecuteQuery(filterClause, Company);
         if result is Error {
             return new stream<Company, Error?>(new CompanyStream((), result));
         } else {
@@ -100,12 +100,12 @@ public enum CompanyRelations {
 }
 
 public class CompanyStream {
-    private stream<anydata, error?>? anydataStream;
-    private error? err;
+    private stream<anydata, sql:Error?>? anydataStream;
+    private Error? err;
     private CompanyRelations[]? include;
     private SQLClient? persistClient;
 
-    public isolated function init(stream<anydata, error?>? anydataStream, error? err = (), CompanyRelations[]? include = (), SQLClient? persistClient = ()) {
+    public isolated function init(stream<anydata, sql:Error?>? anydataStream, Error? err = (), CompanyRelations[]? include = (), SQLClient? persistClient = ()) {
         self.anydataStream = anydataStream;
         self.err = err;
         self.include = include;
@@ -113,15 +113,15 @@ public class CompanyStream {
     }
 
     public isolated function next() returns record {|Company value;|}|Error? {
-        if self.err is error {
-            return <Error>self.err;
+        if self.err is Error {
+            return self.err;
         } else if self.anydataStream is stream<anydata, error?> {
-            var anydataStream = <stream<anydata, error?>>self.anydataStream;
+            var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
             var streamValue = anydataStream.next();
             if streamValue is () {
                 return streamValue;
             } else if (streamValue is error) {
-                return <Error>streamValue;
+                return <SQLError>streamValue;
             } else {
                 record {|Company value;|} nextRecord = {value: <Company>streamValue.value};
                 check (<SQLClient>self.persistClient).getManyRelations(nextRecord.value, <CompanyRelations[]>self.include);
@@ -134,11 +134,11 @@ public class CompanyStream {
     }
 
     public isolated function close() returns Error? {
-        if self.anydataStream is stream<anydata, error?> {
-            var anydataStream = <stream<anydata, error?>>self.anydataStream;
-            error? e = anydataStream.close();
-            if e is error {
-                return <Error>e;
+        if self.anydataStream is stream<anydata, sql:Error?> {
+            var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
+            sql:Error? e = anydataStream.close();
+            if e is sql:Error {
+                return <SQLError>e;
             }
         }
     }

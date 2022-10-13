@@ -34,7 +34,7 @@ public client class MedicalItemClient {
     public function init() returns Error? {
         mysql:Client|sql:Error dbClient = new (host = host, user = user, password = password, database = database, port = port);
         if dbClient is sql:Error {
-            return <Error>error(dbClient.message());
+            return <SQLError>dbClient;
         }
         
         self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata);
@@ -50,7 +50,7 @@ public client class MedicalItemClient {
     }
 
     remote function read(map<anydata>? filter = ()) returns stream<MedicalItem, Error?> {
-        stream<anydata, error?>|Error result = self.persistClient.runReadQuery(MedicalItem, filter);
+        stream<anydata, sql:Error?>|Error result = self.persistClient.runReadQuery(MedicalItem, filter);
         if result is Error {
             return new stream<MedicalItem, Error?>(new MedicalItemStream((), result));
         } else {
@@ -59,7 +59,7 @@ public client class MedicalItemClient {
     }
 
     remote function execute(sql:ParameterizedQuery filterClause) returns stream<MedicalItem, Error?> {
-        stream<anydata, error?>|Error result = self.persistClient.runExecuteQuery(filterClause, MedicalItem);
+        stream<anydata, sql:Error?>|Error result = self.persistClient.runExecuteQuery(filterClause, MedicalItem);
         if result is Error {
             return new stream<MedicalItem, Error?>(new MedicalItemStream((), result));
         } else {
@@ -82,24 +82,24 @@ public client class MedicalItemClient {
 }
 
 public class MedicalItemStream {
-    private stream<anydata, error?>? anydataStream;
-    private error? err;
+    private stream<anydata, sql:Error?>? anydataStream;
+    private Error? err;
 
-    public isolated function init(stream<anydata, error?>? anydataStream, error? err = ()) {
+    public isolated function init(stream<anydata, sql:Error?>? anydataStream, Error? err = ()) {
         self.anydataStream = anydataStream;
         self.err = err;
     }
 
     public isolated function next() returns record {|MedicalItem value;|}|Error? {
-        if self.err is error {
-            return <Error>self.err;
-        } else if self.anydataStream is stream<anydata, error?> {
-            var anydataStream = <stream<anydata, error?>>self.anydataStream;
+        if self.err is Error {
+            return self.err;
+        } else if self.anydataStream is stream<anydata, sql:Error?> {
+            var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
             var streamValue = anydataStream.next();
             if streamValue is () {
                 return streamValue;
-            } else if (streamValue is error) {
-                return <Error>streamValue;
+            } else if (streamValue is sql:Error) {
+                return <SQLError>streamValue;
             } else {
                 record {|MedicalItem value;|} nextRecord = {value: <MedicalItem>streamValue.value};
                 return nextRecord;
@@ -110,10 +110,13 @@ public class MedicalItemStream {
         }
     }
 
-    public isolated function close() returns error? {
-        if self.anydataStream is stream<anydata, error?> {
-            var anydataStream = <stream<anydata, error?>>self.anydataStream;
-            return anydataStream.close();
+    public isolated function close() returns Error? {
+        if self.anydataStream is stream<anydata, sql:Error?> {
+            var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
+            sql:Error? e = anydataStream.close();
+            if e is sql:Error {
+                return <SQLError>e;
+            }
         }
     }
 }

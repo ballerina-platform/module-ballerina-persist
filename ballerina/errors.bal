@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/sql;
+
 # Defines the generic error type for the `persist` module.
 public type Error distinct error;
 
@@ -32,3 +34,6 @@ public type InvalidKeyError distinct Error;
 
 # This error is thrown when user invokes an unsupported operation.
 public type UnsupportedOperationError distinct Error;
+
+# Represents an error that occurs when an SQL query execution fails. 
+public type SQLError distinct (Error & sql:Error);
