@@ -30,47 +30,51 @@ client class DepartmentClient {
 
     private SQLClient persistClient;
 
-    public function init() returns error? {
-        mysql:Client dbClient = check new (host = host, user = user, password = password, database = database, port = port);
+    public function init() returns Error? {
+        mysql:Client|sql:Error dbClient = new (host = host, user = user, password = password, database = database, port = port);
+        if dbClient is sql:Error {
+            return <Error>error(dbClient.message());
+        }
+
         self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata);
     }
 
-    remote function create(Department value) returns [string, int]|error? {
-        sql:ExecutionResult _ = check self.persistClient.runInsertQuery(value);
-        return [value.hospitalCode, value.departmentId];
+    remote function create(Department value) returns Department|Error {
+         _ = check self.persistClient.runInsertQuery(value);
+        return value;
     }
 
-    remote function readByKey(record {|string hospitalCode; int departmentId;|} key) returns Department|error {
-        return (check self.persistClient.runReadByKeyQuery(Department, key)).cloneWithType(Department);
+    remote function readByKey(record {|string hospitalCode; int departmentId;|} key) returns Department|Error {
+        return <Department>check self.persistClient.runReadByKeyQuery(Department, key);
     }
 
-    remote function read(map<anydata>? filter = ()) returns stream<Department, error?> {
-        stream<anydata, error?>|error result = self.persistClient.runReadQuery(Department, filter);
-        if result is error {
-            return new stream<Department, error?>(new DepartmentStream((), result));
+    remote function read(map<anydata>? filter = ()) returns stream<Department, Error?> {
+        stream<anydata, error?>|Error result = self.persistClient.runReadQuery(Department, filter);
+        if result is Error {
+            return new stream<Department, Error?>(new DepartmentStream((), result));
         } else {
-            return new stream<Department, error?>(new DepartmentStream(result));
+            return new stream<Department, Error?>(new DepartmentStream(result));
         }
     }
 
-    remote function execute(sql:ParameterizedQuery filterClause) returns stream<Department, error?> {
-        stream<anydata, error?>|error result = self.persistClient.runExecuteQuery(filterClause, Department);
-        if result is error {
-            return new stream<Department, error?>(new DepartmentStream((), result));
+    remote function execute(sql:ParameterizedQuery filterClause) returns stream<Department, Error?> {
+        stream<anydata, error?>|Error result = self.persistClient.runExecuteQuery(filterClause, Department);
+        if result is Error {
+            return new stream<Department, Error?>(new DepartmentStream((), result));
         } else {
-            return new stream<Department, error?>(new DepartmentStream(result));
+            return new stream<Department, Error?>(new DepartmentStream(result));
         }
     }
 
-    remote function update(record {} 'object, map<anydata> filter) returns error? {
+    remote function update(record {} 'object, map<anydata> filter) returns Error? {
         _ = check self.persistClient.runUpdateQuery('object, filter);
     }
 
-    remote function delete(map<anydata> filter) returns error? {
+    remote function delete(map<anydata> filter) returns Error? {
         _ = check self.persistClient.runDeleteQuery(filter);
     }
 
-    function close() returns error? {
+    function close() returns Error? {
         return self.persistClient.close();
     }
 
@@ -85,18 +89,18 @@ public class DepartmentStream {
         self.err = err;
     }
 
-    public isolated function next() returns record {|Department value;|}|error? {
+    public isolated function next() returns record {|Department value;|}|Error? {
         if self.err is error {
-            return <error>self.err;
+            return <Error>self.err;
         } else if self.anydataStream is stream<anydata, error?> {
             var anydataStream = <stream<anydata, error?>>self.anydataStream;
             var streamValue = anydataStream.next();
             if streamValue is () {
                 return streamValue;
             } else if (streamValue is error) {
-                return streamValue;
+                return <Error>streamValue;
             } else {
-                record {|Department value;|} nextRecord = {value: check streamValue.value.cloneWithType(Department)};
+                record {|Department value;|} nextRecord = {value: <Department>streamValue.value};
                 return nextRecord;
             }
         } else {

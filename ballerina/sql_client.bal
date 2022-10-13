@@ -36,9 +36,9 @@ public client class SQLClient {
     # + keyFields - The names of the key fields of the entity
     # + fieldMetadata - The metadata associated with each field of the entity
     # + joinMetadata - The metadata associated with performing SQL `JOIN` operations
-    # + return - An `error` if the client creation fails
+    # + return - A `persist:Error` if the client creation fails
     public function init(sql:Client dbClient, string entityName, sql:ParameterizedQuery tableName, string[] keyFields, map<FieldMetadata> fieldMetadata,
-                        map<JoinMetadata> joinMetadata = {}) returns error? {
+                         map<JoinMetadata> joinMetadata = {}) returns Error? {
         self.entityName = entityName;
         self.tableName = tableName;
         self.fieldMetadata = fieldMetadata;
@@ -51,14 +51,20 @@ public client class SQLClient {
     #
     # + 'object - The record to be inserted into the table
     # + return - An `sql:ExecutionResult` containing the metadata of the query execution
-    #            or an `error` if the operation fails
-    public isolated function runInsertQuery(record {} 'object) returns sql:ExecutionResult|error {
+    #            or a `persist:Error` if the operation fails
+    public isolated function runInsertQuery(record {} 'object) returns sql:ExecutionResult|Error {
         sql:ParameterizedQuery query = sql:queryConcat(
             `INSERT INTO `, self.tableName, ` (`,
             self.getInsertColumnNames(), ` ) `,
             `VALUES `, self.getInsertQueryParams('object)
         );
-        return check self.dbClient->execute(query);
+        sql:ExecutionResult|error result = self.dbClient->execute(query);
+        
+        if result is error {
+            return <Error>result;
+        }
+
+        return result;
     }
 
     # Performs an SQL `SELECT` operation to read a single record from the database.
@@ -66,8 +72,8 @@ public client class SQLClient {
     # + rowType - The record-type to be retrieved (the record type of the entity)    
     # + key -  The value of the key (to be used as the `WHERE` clauses)
     # + include - The relations to be retrieved (SQL `JOINs` to be performed)
-    # + return - A record in the `rowType` type or an `error` if the operation fails
-    public isolated function runReadByKeyQuery(typedesc<record {}> rowType, anydata key, string[] include = []) returns record {}|error {
+    # + return - A record in the `rowType` type or a `persist:Error` if the operation fails
+    public isolated function runReadByKeyQuery(typedesc<record {}> rowType, anydata key, string[] include = []) returns record {}|Error {
         sql:ParameterizedQuery query = sql:queryConcat(
             `SELECT `, self.getSelectColumnNames(include), ` FROM `, self.tableName, ` AS `, stringToParameterizedQuery(self.entityName)
         );
@@ -91,7 +97,10 @@ public client class SQLClient {
         if result is record {} {
             check self.getManyRelations(result, include);
         }
-
+        
+        if result is error {
+            return <Error>result;
+        }
         return result;
     }
 
@@ -100,9 +109,9 @@ public client class SQLClient {
     # + rowType - The record-type to be retrieved (the entity record-type)
     # + filter - The key-value pairs to be used as the filter (to be used in the SQL `WHERE` clauses)
     # + include - The relations to be retrieved (SQL `JOINs` to be performed)
-    # + return - A stream of records in the `rowType` type or an `error` if the operation fails
+    # + return - A stream of records in the `rowType` type or a `persist:Error` if the operation fails
     public isolated function runReadQuery(typedesc<record {}> rowType, map<anydata>? filter, string[] include = [])
-    returns stream<record {}, sql:Error?>|error {
+    returns stream<record {}, sql:Error?>|Error {
         sql:ParameterizedQuery query = sql:queryConcat(
             `SELECT `, self.getSelectColumnNames(include), ` FROM `, self.tableName, stringToParameterizedQuery(" " + self.entityName)
         );
@@ -129,9 +138,9 @@ public client class SQLClient {
     # + filterClause - The filter query to be used in the SQL `WHERE` clauses
     # + rowType - The record type to be retrieved (the record type of the entity)
     # + include - The relations to be retrieved (SQL `JOINs` to be performed)
-    # + return - A stream of records in the `rowType` type or an `error` if the operation fails
+    # + return - A stream of records in the `rowType` type or a `persist:Error` if the operation fails
     public isolated function runExecuteQuery(sql:ParameterizedQuery filterClause, typedesc<record {}> rowType, string[] include = [])
-    returns stream<record {}, sql:Error?>|error {
+    returns stream<record {}, sql:Error?>|Error {
         if self.joinMetadata.length() != 0 {
             return <UnsupportedOperationError>error("Advanced queries are not supported for entities with relations.");
         }
@@ -143,11 +152,11 @@ public client class SQLClient {
     # Performs an SQL `UPDATE` operation to update multiple records in the database.
     #
     # + object - the key-value pairs to be updated (to be used in the SQL `SET` clauses)
-    # + filter - The key-value pairs to be used as the filter (to be used in the SQL `WHERE` clauses)
+    # + filter - The key-value pairs to be used as the filter (to be used in the SQL `WHERE` clauses)   
     # + return -  `()` if the operation is performed successfully.
     #             A `ForeignKeyConstraintViolationError` if the operation violates a foreign key constraint.
-    #             An `error` if the operation fails due to another reason.
-    public isolated function runUpdateQuery(record {} 'object, map<anydata>? filter) returns ForeignKeyConstraintViolationError|error? {
+    #             A `persist:Error` if the operation fails due to another reason.
+    public isolated function runUpdateQuery(record {} 'object, map<anydata>? filter) returns ForeignKeyConstraintViolationError|Error? {
         sql:ParameterizedQuery query = sql:queryConcat(`UPDATE `, self.tableName, stringToParameterizedQuery(" " + self.entityName), ` SET`, check self.getSetClauses('object));
 
         if !(filter is ()) {
@@ -157,7 +166,7 @@ public client class SQLClient {
         sql:ExecutionResult|sql:Error? e = self.dbClient->execute(query);
         if e is sql:Error {
             if e.message().indexOf("a foreign key constraint fails ") is () {
-                return e;
+                return <Error>error(e.message());
             }
             else {
                 return <ForeignKeyConstraintViolationError>error(e.message());
@@ -168,23 +177,27 @@ public client class SQLClient {
     # Performs an SQL `DELETE` operation to delete multiple records from the database.
     #
     # + filter - The key-value pairs to be used as the filter (to be used in the SQL `WHERE` clauses)
-    # + return - `()` if the operation is performed successfully or an `error` if the operation fails
-    public isolated function runDeleteQuery(map<anydata>? filter) returns error? {
+    # + return - `()` if the operation is performed successfully or a `persist:Error` if the operation fails
+    public isolated function runDeleteQuery(map<anydata>? filter) returns Error? {
         sql:ParameterizedQuery query = sql:queryConcat(`DELETE FROM `, self.tableName, stringToParameterizedQuery(" " + self.entityName));
 
         if !(filter is ()) {
             query = sql:queryConcat(query, ` WHERE`, check self.getWhereClauses(filter));
         }
 
-        _ = check self.dbClient->execute(query);
+        sql:ExecutionResult|error e = self.dbClient->execute(query);
+
+        if e is error {
+            return <Error>e;
+        }
     }
 
     # Retrieves the values of the 'many' side of an association.
     #
     # + 'object - The record to which the retrieved records should be appended
     # + include - The relations to be retrieved (SQL `JOINs` to be performed)
-    # + return - `()` if the operation is performed successfully or an `error` if the operation fails
-    isolated function getManyRelations(record {} 'object, string[] include) returns error? {
+    # + return - `()` if the operation is performed successfully or a `persist:Error` if the operation fails
+    isolated function getManyRelations(record {} 'object, string[] include) returns Error? {
         foreach string joinKey in self.joinMetadata.keys() {
             sql:ParameterizedQuery query = ``;
             JoinMetadata joinMetadata = self.joinMetadata.get(joinKey);
@@ -202,10 +215,15 @@ public client class SQLClient {
 
                 stream<record {}, sql:Error?> joinStream = self.dbClient->query(query, joinMetadata.entity);
                 record {}[] arr = [];
-                check from record {} item in joinStream
+                error? e  = from record {} item in joinStream
                     do {
                         arr.push(check item.cloneWithType(joinMetadata.entity));
                     };
+                
+                if e is error {
+                    return <Error>e;
+                }
+
                 'object[joinMetadata.fieldName] = convertToArray(joinMetadata.entity, arr);
             }
         }
@@ -213,9 +231,12 @@ public client class SQLClient {
 
     # Closes the underlying `sql:Client`.
     # 
-    # + return - `()` if the client is closed successfully or an `error` if the operation fails
-    public isolated function close() returns error? {
-        return self.dbClient.close();
+    # + return - `()` if the client is closed successfully or a `persist:Error` if the operation fails
+    public isolated function close() returns Error? {
+        error? e = self.dbClient.close();
+        if e is error {
+            return <Error>e;
+        }
     }
 
     private isolated function getInsertQueryParams(record {} 'object) returns sql:ParameterizedQuery {
@@ -314,7 +335,7 @@ public client class SQLClient {
         return params;
     }
 
-    private isolated function getGetKeyWhereClauses(anydata key) returns sql:ParameterizedQuery|error {
+    private isolated function getGetKeyWhereClauses(anydata key) returns sql:ParameterizedQuery|Error {
         map<anydata> filter = {};
 
         if key is record {} {
@@ -326,7 +347,7 @@ public client class SQLClient {
         return check self.getWhereClauses(filter);
     }
 
-    private isolated function getWhereClauses(map<anydata> filter, boolean ignoreFieldCheck = false) returns sql:ParameterizedQuery|error {
+    private isolated function getWhereClauses(map<anydata> filter, boolean ignoreFieldCheck = false) returns sql:ParameterizedQuery|Error {
         sql:ParameterizedQuery query = ` `;
 
         string[] keys = filter.keys();
@@ -343,7 +364,7 @@ public client class SQLClient {
         return query;
     }
 
-    private isolated function getSetClauses(record {} 'object) returns sql:ParameterizedQuery|error {
+    private isolated function getSetClauses(record {} 'object) returns sql:ParameterizedQuery|Error {
         record {} r = flattenRecord('object);
         sql:ParameterizedQuery query = ` `;
         int count = 0;
@@ -362,7 +383,7 @@ public client class SQLClient {
         return query;
     }
 
-    private isolated function getJoinFilters(string joinKey, string[] refFields, string[] joinColumns) returns sql:ParameterizedQuery|error {
+    private isolated function getJoinFilters(string joinKey, string[] refFields, string[] joinColumns) returns sql:ParameterizedQuery|Error {
         sql:ParameterizedQuery query = ` `;
         foreach int i in 0 ..< refFields.length() {
             if i > 0 {

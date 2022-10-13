@@ -34,48 +34,52 @@ client class CompanyClient {
 
     private SQLClient persistClient;
 
-    public function init() returns error? {
-        mysql:Client dbClient = check new (host = host, user = user, password = password, database = database, port = port);
+    public function init() returns Error? {
+        mysql:Client|sql:Error dbClient = new (host = host, user = user, password = password, database = database, port = port);
+        if dbClient is sql:Error {
+            return <Error>error(dbClient.message());
+        }
+
         self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata, self.joinMetadata);
     }
 
-    remote function create(Company value) returns Company|error {
+    remote function create(Company value) returns Company|Error {
         _ = check self.persistClient.runInsertQuery(value);
         return value;
     }
 
-    remote function readByKey(int key, CompanyRelations[] include = []) returns Company|error {
+    remote function readByKey(int key, CompanyRelations[] include = []) returns Company|Error {
         return <Company>check self.persistClient.runReadByKeyQuery(Company, key, include);
     }
 
-    remote function read(map<anydata>? filter = (), CompanyRelations[] include = []) returns stream<Company, error?> {
-        stream<anydata, error?>|error result = self.persistClient.runReadQuery(Company, filter, include);
-        if result is error {
-            return new stream<Company, error?>(new CompanyStream((), result));
+    remote function read(map<anydata>? filter = (), CompanyRelations[] include = []) returns stream<Company, Error?> {
+        stream<anydata, error?>|Error result = self.persistClient.runReadQuery(Company, filter, include);
+        if result is Error {
+            return new stream<Company, Error?>(new CompanyStream((), result));
         } else {
-            return new stream<Company, error?>(new CompanyStream(result, (), include, self.persistClient));
+            return new stream<Company, Error?>(new CompanyStream(result, (), include, self.persistClient));
         }
     }
 
-    remote function execute(sql:ParameterizedQuery filterClause) returns stream<Company, error?> {
-        stream<anydata, error?>|error result = self.persistClient.runExecuteQuery(filterClause, Company);
-        if result is error {
-            return new stream<Company, error?>(new CompanyStream((), result));
+    remote function execute(sql:ParameterizedQuery filterClause) returns stream<Company, Error?> {
+        stream<anydata, error?>|Error result = self.persistClient.runExecuteQuery(filterClause, Company);
+        if result is Error {
+            return new stream<Company, Error?>(new CompanyStream((), result));
         } else {
-            return new stream<Company, error?>(new CompanyStream(result));
+            return new stream<Company, Error?>(new CompanyStream(result));
         }
     }
 
-    remote function update(record {} 'object, map<anydata> filter) returns error? {
+    remote function update(record {} 'object, map<anydata> filter) returns Error? {
         _ = check self.persistClient.runUpdateQuery('object, filter);
     }
 
-    remote function delete(map<anydata> filter) returns error? {
+    remote function delete(map<anydata> filter) returns Error? {
         _ = check self.persistClient.runDeleteQuery(filter);
     }
 
-    remote function exists(Company company) returns boolean|error {
-        Company|error result = self->readByKey(company.id);
+    remote function exists(Company company) returns boolean|Error {
+        Company|Error result = self->readByKey(company.id);
         if result is Company {
             return true;
         } else if result is InvalidKeyError {
@@ -85,7 +89,7 @@ client class CompanyClient {
         }
     }
 
-    function close() returns error? {
+    function close() returns Error? {
         return self.persistClient.close();
     }
 
@@ -108,18 +112,18 @@ public class CompanyStream {
         self.persistClient = persistClient;
     }
 
-    public isolated function next() returns record {|Company value;|}|error? {
+    public isolated function next() returns record {|Company value;|}|Error? {
         if self.err is error {
-            return <error>self.err;
+            return <Error>self.err;
         } else if self.anydataStream is stream<anydata, error?> {
             var anydataStream = <stream<anydata, error?>>self.anydataStream;
             var streamValue = anydataStream.next();
             if streamValue is () {
                 return streamValue;
             } else if (streamValue is error) {
-                return streamValue;
+                return <Error>streamValue;
             } else {
-                record {|Company value;|} nextRecord = {value: check streamValue.value.cloneWithType(Company)};
+                record {|Company value;|} nextRecord = {value: <Company>streamValue.value};
                 check (<SQLClient>self.persistClient).getManyRelations(nextRecord.value, <CompanyRelations[]>self.include);
                 return nextRecord;
             }
@@ -129,10 +133,13 @@ public class CompanyStream {
         }
     }
 
-    public isolated function close() returns error? {
+    public isolated function close() returns Error? {
         if self.anydataStream is stream<anydata, error?> {
             var anydataStream = <stream<anydata, error?>>self.anydataStream;
-            return anydataStream.close();
+            error? e = anydataStream.close();
+            if e is error {
+                return <Error>e;
+            }
         }
     }
 }
