@@ -37,12 +37,16 @@ client class MultipleAssociationsClient {
 
     private SQLClient persistClient;
 
-    public function init() returns error? {
-        mysql:Client dbClient = check new (host = host, user = user, password = password, database = database, port = port);
+    public function init() returns Error? {
+        mysql:Client|sql:Error dbClient = new (host = host, user = user, password = password, database = database, port = port);
+        if dbClient is sql:Error {
+            return <Error>error(dbClient.message());
+        }
+
         self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata, self.joinMetadata);
     }
 
-    remote function create(MultipleAssociations value) returns MultipleAssociations|error {
+    remote function create(MultipleAssociations value) returns MultipleAssociations|Error {
         if value.profile is Profile {
             ProfileClient profileClient = check new ProfileClient();
             boolean exists = check profileClient->exists(<Profile>value.profile);
@@ -59,33 +63,33 @@ client class MultipleAssociationsClient {
             }
         }
 
-        sql:ExecutionResult _ = check self.persistClient.runInsertQuery(value);
+        _ = check self.persistClient.runInsertQuery(value);
         return value;
     }
 
-    remote function readByKey(int key, MultipleAssociationsRelations[] include = []) returns MultipleAssociations|error {
+    remote function readByKey(int key, MultipleAssociationsRelations[] include = []) returns MultipleAssociations|Error {
         return <MultipleAssociations>check self.persistClient.runReadByKeyQuery(MultipleAssociations, key, include);
     }
 
-    remote function read(MultipleAssociationsRelations[] include = []) returns stream<MultipleAssociations, error?> {
-        stream<anydata, error?>|error result = self.persistClient.runReadQuery(MultipleAssociations, include);
-        if result is error {
-            return new stream<MultipleAssociations, error?>(new MultipleAssociationsStream((), result));
+    remote function read(MultipleAssociationsRelations[] include = []) returns stream<MultipleAssociations, Error?> {
+        stream<anydata, sql:Error?>|Error result = self.persistClient.runReadQuery(MultipleAssociations, include);
+        if result is Error {
+            return new stream<MultipleAssociations, Error?>(new MultipleAssociationsStream((), result));
         } else {
-            return new stream<MultipleAssociations, error?>(new MultipleAssociationsStream(result));
+            return new stream<MultipleAssociations, Error?>(new MultipleAssociationsStream(result));
         }
     }
 
-    remote function execute(sql:ParameterizedQuery filterClause) returns stream<MultipleAssociations, error?> {
-        stream<anydata, error?>|error result = self.persistClient.runExecuteQuery(filterClause, MultipleAssociations);
-        if result is error {
-            return new stream<MultipleAssociations, error?>(new MultipleAssociationsStream((), result));
+    remote function execute(sql:ParameterizedQuery filterClause) returns stream<MultipleAssociations, Error?> {
+        stream<anydata, sql:Error?>|Error result = self.persistClient.runExecuteQuery(filterClause, MultipleAssociations);
+        if result is Error {
+            return new stream<MultipleAssociations, Error?>(new MultipleAssociationsStream((), result));
         } else {
-            return new stream<MultipleAssociations, error?>(new MultipleAssociationsStream(result));
+            return new stream<MultipleAssociations, Error?>(new MultipleAssociationsStream(result));
         }
     }
 
-    remote function update(MultipleAssociations 'object) returns error? {
+    remote function update(MultipleAssociations 'object) returns Error? {
         _ = check self.persistClient.runUpdateQuery('object);
 
         if 'object["profile"] is Profile {
@@ -101,12 +105,12 @@ client class MultipleAssociationsClient {
         }
     }
 
-    remote function delete(MultipleAssociations 'object) returns error? {
+    remote function delete(MultipleAssociations 'object) returns Error? {
         _ = check self.persistClient.runDeleteQuery('object);
     }
 
-    remote function exists(MultipleAssociations multipleAssociations) returns boolean|error {
-        MultipleAssociations|error result = self->readByKey(multipleAssociations.id);
+    remote function exists(MultipleAssociations multipleAssociations) returns boolean|Error {
+        MultipleAssociations|Error result = self->readByKey(multipleAssociations.id);
         if result is MultipleAssociations {
             return true;
         } else if result is InvalidKeyError {
@@ -116,7 +120,7 @@ client class MultipleAssociationsClient {
         }
     }
 
-    function close() returns error? {
+    function close() returns Error? {
         return self.persistClient.close();
     }
 
@@ -128,26 +132,26 @@ public enum MultipleAssociationsRelations {
 }
 
 public class MultipleAssociationsStream {
-    private stream<anydata, error?>? anydataStream;
-    private error? err;
+    private stream<anydata, sql:Error?>? anydataStream;
+    private Error? err;
 
-    public isolated function init(stream<anydata, error?>? anydataStream, error? err = ()) {
+    public isolated function init(stream<anydata, sql:Error?>? anydataStream, Error? err = ()) {
         self.anydataStream = anydataStream;
         self.err = err;
     }
 
-    public isolated function next() returns record {|MultipleAssociations value;|}|error? {
-        if self.err is error {
-            return <error>self.err;
-        } else if self.anydataStream is stream<anydata, error?> {
-            var anydataStream = <stream<anydata, error?>>self.anydataStream;
+    public isolated function next() returns record {|MultipleAssociations value;|}|Error? {
+        if self.err is Error {
+            return self.err;
+        } else if self.anydataStream is stream<anydata, sql:Error?> {
+            var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
             var streamValue = anydataStream.next();
             if streamValue is () {
                 return streamValue;
-            } else if (streamValue is error) {
-                return streamValue;
+            } else if (streamValue is sql:Error) {
+                return <Error>error(streamValue.message());
             } else {
-                record {|MultipleAssociations value;|} nextRecord = {value: check streamValue.value.cloneWithType(MultipleAssociations)};
+                record {|MultipleAssociations value;|} nextRecord = {value: <MultipleAssociations>streamValue.value};
                 return nextRecord;
             }
         } else {
@@ -156,10 +160,13 @@ public class MultipleAssociationsStream {
         }
     }
 
-    public isolated function close() returns error? {
-        if self.anydataStream is stream<anydata, error?> {
-            var anydataStream = <stream<anydata, error?>>self.anydataStream;
-            return anydataStream.close();
+    public isolated function close() returns Error? {
+        if self.anydataStream is stream<anydata, sql:Error?> {
+            var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
+            sql:Error? e = anydataStream.close();
+            if e is sql:Error {
+                return <Error>error(e.message());
+            }
         }
     }
 }

@@ -34,12 +34,16 @@ client class ProfileClient {
 
     private SQLClient persistClient;
 
-    public function init() returns error? {
-        mysql:Client dbClient = check new (host = host, user = user, password = password, database = database, port = port);
+    public function init() returns Error? {
+        mysql:Client|sql:Error dbClient = new (host = host, user = user, password = password, database = database, port = port);
+        if dbClient is sql:Error {
+            return <Error>error(dbClient.message());
+        }
+
         self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata, self.joinMetadata);
     }
 
-    remote function create(Profile value) returns Profile|error {
+    remote function create(Profile value) returns Profile|Error {
         if value.user is User {
             UserClient userClient = check new UserClient();
             boolean exists = check userClient->exists(<User>value.user);
@@ -48,33 +52,33 @@ client class ProfileClient {
             }
         }
 
-        sql:ExecutionResult _ = check self.persistClient.runInsertQuery(value);
+        _ = check self.persistClient.runInsertQuery(value);
         return value;
     }
 
-    remote function readByKey(int key, ProfileRelations[] include = []) returns Profile|error {
+    remote function readByKey(int key, ProfileRelations[] include = []) returns Profile|Error {
         return <Profile>check self.persistClient.runReadByKeyQuery(Profile, key, include);
     }
 
-    remote function read(ProfileRelations[] include = []) returns stream<Profile, error?> {
-        stream<anydata, error?>|error result = self.persistClient.runReadQuery(Profile, include);
+    remote function read(ProfileRelations[] include = []) returns stream<Profile, Error?> {
+        stream<anydata, sql:Error?>|Error result = self.persistClient.runReadQuery(Profile, include);
         if result is error {
-            return new stream<Profile, error?>(new ProfileStream((), result));
+            return new stream<Profile, Error?>(new ProfileStream((), result));
         } else {
-            return new stream<Profile, error?>(new ProfileStream(result));
+            return new stream<Profile, Error?>(new ProfileStream(result));
         }
     }
 
-    remote function execute(sql:ParameterizedQuery filterClause) returns stream<Profile, error?> {
-        stream<anydata, error?>|error result = self.persistClient.runExecuteQuery(filterClause, Profile);
-        if result is error {
-            return new stream<Profile, error?>(new ProfileStream((), result));
+    remote function execute(sql:ParameterizedQuery filterClause) returns stream<Profile, Error?> {
+        stream<anydata, sql:Error?>|Error result = self.persistClient.runExecuteQuery(filterClause, Profile);
+        if result is Error {
+            return new stream<Profile, Error?>(new ProfileStream((), result));
         } else {
-            return new stream<Profile, error?>(new ProfileStream(result));
+            return new stream<Profile, Error?>(new ProfileStream(result));
         }
     }
 
-    remote function update(Profile 'object) returns error? {
+    remote function update(Profile 'object) returns Error? {
         _ = check self.persistClient.runUpdateQuery('object);
 
         if 'object["user"] is User {
@@ -84,12 +88,12 @@ client class ProfileClient {
         }
     }
 
-    remote function delete(Profile 'object) returns error? {
+    remote function delete(Profile 'object) returns Error? {
         _ = check self.persistClient.runDeleteQuery('object);
     }
 
-    remote function exists(Profile profile) returns boolean|error {
-        Profile|error result = self->readByKey(profile.id);
+    remote function exists(Profile profile) returns boolean|Error {
+        Profile|Error result = self->readByKey(profile.id);
         if result is Profile {
             return true;
         } else if result is InvalidKeyError {
@@ -99,7 +103,7 @@ client class ProfileClient {
         }
     }
 
-    function close() returns error? {
+    function close() returns Error? {
         return self.persistClient.close();
     }
 
@@ -110,26 +114,26 @@ public enum ProfileRelations {
 }
 
 public class ProfileStream {
-    private stream<anydata, error?>? anydataStream;
-    private error? err;
+    private stream<anydata, sql:Error?>? anydataStream;
+    private Error? err;
 
-    public isolated function init(stream<anydata, error?>? anydataStream, error? err = ()) {
+    public isolated function init(stream<anydata, sql:Error?>? anydataStream, Error? err = ()) {
         self.anydataStream = anydataStream;
         self.err = err;
     }
 
-    public isolated function next() returns record {|Profile value;|}|error? {
-        if self.err is error {
-            return <error>self.err;
-        } else if self.anydataStream is stream<anydata, error?> {
-            var anydataStream = <stream<anydata, error?>>self.anydataStream;
+    public isolated function next() returns record {|Profile value;|}|Error? {
+        if self.err is Error {
+            return self.err;
+        } else if self.anydataStream is stream<anydata, sql:Error?> {
+            var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
             var streamValue = anydataStream.next();
             if streamValue is () {
                 return streamValue;
-            } else if (streamValue is error) {
-                return streamValue;
+            } else if (streamValue is sql:Error) {
+                return <Error>error(streamValue.message());
             } else {
-                record {|Profile value;|} nextRecord = {value: check streamValue.value.cloneWithType(Profile)};
+                record {|Profile value;|} nextRecord = {value: <Profile>streamValue.value};
                 return nextRecord;
             }
         } else {
@@ -138,10 +142,13 @@ public class ProfileStream {
         }
     }
 
-    public isolated function close() returns error? {
-        if self.anydataStream is stream<anydata, error?> {
-            var anydataStream = <stream<anydata, error?>>self.anydataStream;
-            return anydataStream.close();
+    public isolated function close() returns Error? {
+        if self.anydataStream is stream<anydata, sql:Error?> {
+            var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
+            sql:Error? e = anydataStream.close();
+            if e is sql:Error {
+                return <Error>error(e.message());
+            }
         }
     }
 }
