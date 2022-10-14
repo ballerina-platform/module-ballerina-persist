@@ -1,4 +1,4 @@
-// Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2022 WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -19,7 +19,7 @@ import ballerinax/mysql;
 import ballerina/time;
 import ballerina/persist;
 import ballerinax/mysql.driver as _;
-import package_02.entity;
+import package_06.entity;
 
 configurable string USER = ?;
 configurable string PASSWORD = ?;
@@ -44,85 +44,99 @@ public client class MedicalNeedClient {
 
     private persist:SQLClient persistClient;
 
-    public function init() returns error? {
-        mysql:Client dbClient = check new (host = HOST, user = USER, password = PASSWORD, database = DATABASE, port = PORT);
+    public function init() returns persist:Error? {
+        mysql:Client|sql:Error dbClient = new (host = HOST, user = USER, password = PASSWORD, database = DATABASE, port = PORT);
+        if dbClient is sql:Error {
+            return <persist:Error>error(dbClient.message());
+        }
+
         self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata);
-    }
+     }
 
-    remote function create(entity:MedicalNeed value) returns int|error? {
+    remote function create(entity:MedicalNeed value) returns entity:MedicalNeed|persist:Error {
         sql:ExecutionResult result = check self.persistClient.runInsertQuery(value);
-        return <int>result.lastInsertId;
+
+        return <entity:MedicalNeed>{
+            needId: <int>result.lastInsertId,
+            beneficiaryId: value.beneficiaryId,
+            itemId: value.itemId,
+            period: value.period,
+            quantity: value.quantity,
+            urgency: value.urgency
+        };
     }
 
-    remote function readByKey(int key) returns entity:MedicalNeed|error {
-        return (check self.persistClient.runReadByKeyQuery(entity:MedicalNeed, key)).cloneWithType(entity:MedicalNeed);
+    remote function readByKey(int key) returns entity:MedicalNeed|persist:Error {
+        return <entity:MedicalNeed>check self.persistClient.runReadByKeyQuery(entity:MedicalNeed, key);
     }
 
-    remote function read(map<anydata>? filter = ()) returns stream<entity:MedicalNeed, error?> {
-        stream<anydata, error?>|error result = self.persistClient.runReadQuery(entity:MedicalNeed, filter);
-        if result is error {
-            return new stream<entity:MedicalNeed, error?>(new MedicalNeedStream((), result));
+    remote function read() returns stream<entity:MedicalNeed, persist:Error?> {
+        stream<anydata, sql:Error?>|persist:Error result = self.persistClient.runReadQuery(entity:MedicalNeed);
+        if result is persist:Error {
+            return new stream<entity:MedicalNeed, persist:Error?>(new MedicalNeedStream((), result));
         } else {
-            return new stream<entity:MedicalNeed, error?>(new MedicalNeedStream(result));
+            return new stream<entity:MedicalNeed, persist:Error?>(new MedicalNeedStream(result));
         }
     }
 
-    remote function execute(sql:ParameterizedQuery filterClause) returns stream<entity:MedicalNeed, error?> {
-        stream<anydata, error?>|error result = self.persistClient.runExecuteQuery(filterClause, entity:MedicalNeed);
-        if result is error {
-            return new stream<entity:MedicalNeed, error?>(new MedicalNeedStream((), result));
+    remote function execute(sql:ParameterizedQuery filterClause) returns stream<entity:MedicalNeed, persist:Error?> {
+        stream<anydata, sql:Error?>|persist:Error result = self.persistClient.runExecuteQuery(filterClause, entity:MedicalNeed);
+        if result is persist:Error {
+            return new stream<entity:MedicalNeed, persist:Error?>(new MedicalNeedStream((), result));
         } else {
-            return new stream<entity:MedicalNeed, error?>(new MedicalNeedStream(result));
+            return new stream<entity:MedicalNeed, persist:Error?>(new MedicalNeedStream(result));
         }
     }
 
-    remote function update(record {} 'object, map<anydata> filter) returns error? {
-        _ = check self.persistClient.runUpdateQuery('object, filter);
+    remote function update(entity:MedicalNeed 'object) returns persist:Error? {
+        _ = check self.persistClient.runUpdateQuery('object);
     }
 
-    remote function delete(map<anydata> filter) returns error? {
-        _ = check self.persistClient.runDeleteQuery(filter);
+    remote function delete(entity:MedicalNeed 'object) returns persist:Error? {
+        _ = check self.persistClient.runDeleteQuery('object);
     }
 
-    public function close() returns error? {
+    public function close() returns persist:Error? {
         return self.persistClient.close();
     }
-
 }
 
 public class MedicalNeedStream {
-    private stream<anydata, error?>? anydataStream;
-    private error? err;
+    private stream<anydata, sql:Error?>? anydataStream;
+    private persist:Error? err;
 
-    public isolated function init(stream<anydata, error?>? anydataStream, error? err = ()) {
+    public isolated function init(stream<anydata, sql:Error?>? anydataStream, persist:Error? err = ()) {
         self.anydataStream = anydataStream;
         self.err = err;
     }
 
-    public isolated function next() returns record {|entity:MedicalNeed value;|}|error? {
-        if self.err is error {
-            return <error>self.err;
-        } else if self.anydataStream is stream<anydata, error?> {
-            var anydataStream = <stream<anydata, error?>>self.anydataStream;
-            var streamValue = anydataStream.next();
-            if streamValue is () {
-                return streamValue;
-            } else if (streamValue is error) {
-                return streamValue;
-            } else {
-                record {|entity:MedicalNeed value;|} nextRecord = {value: check streamValue.value.cloneWithType(entity:MedicalNeed)};
-                return nextRecord;
-            }
+    public isolated function next() returns record {|entity:MedicalNeed value;|}|persist:Error? {
+    if self.err is persist:Error {
+        return self.err;
+    } else if self.anydataStream is stream<anydata, sql:Error?> {
+        var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
+        var streamValue = anydataStream.next();
+        if streamValue is () {
+             return streamValue;
+        } else if (streamValue is sql:Error) {
+             return <persist:Error>error(streamValue.message());
         } else {
-            // Unreachable code
-            return ();
+            record {|entity:MedicalNeed value;|} nextRecord = {value: <entity:MedicalNeed>streamValue.value};
+            return nextRecord;
         }
+    } else {
+         // Unreachable code
+        return ();
     }
+ }
 
-    public isolated function close() returns error? {
-        if self.anydataStream is stream<anydata, error?> {
-            var anydataStream = <stream<anydata, error?>>self.anydataStream;
-            return anydataStream.close();
+    public isolated function close() returns persist:Error? {
+        if self.anydataStream is stream<anydata, sql:Error?> {
+            var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
+            sql:Error? e = anydataStream.close();
+            if e is sql:Error {
+                return <persist:Error>error(e.message());
+            }
         }
     }
 }
