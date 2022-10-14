@@ -37,7 +37,7 @@ client class CompanyClient {
     public function init() returns Error? {
         mysql:Client|sql:Error dbClient = new (host = host, user = user, password = password, database = database, port = port);
         if dbClient is sql:Error {
-            return <SQLError>dbClient;
+            return <Error>error(dbClient.message());
         }
 
         self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata, self.joinMetadata);
@@ -121,7 +121,7 @@ public class CompanyStream {
             if streamValue is () {
                 return streamValue;
             } else if (streamValue is error) {
-                return <SQLError>streamValue;
+                return <Error>error(streamValue.message());
             } else {
                 record {|Company value;|} nextRecord = {value: <Company>streamValue.value};
                 check (<SQLClient>self.persistClient).getManyRelations(nextRecord.value, <CompanyRelations[]>self.include);
@@ -138,7 +138,7 @@ public class CompanyStream {
             var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
             sql:Error? e = anydataStream.close();
             if e is sql:Error {
-                return <SQLError>e;
+                return <Error>error(e.message());
             }
         }
     }

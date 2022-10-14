@@ -37,7 +37,7 @@ client class EmployeeClient {
     public function init() returns Error? {
         mysql:Client|sql:Error dbClient = new (host = host, user = user, password = password, database = database, port = port);
         if dbClient is sql:Error {
-            return <SQLError>error(dbClient.message());
+            return <Error>error(dbClient.message());
         }
         
         self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata, self.joinMetadata);
@@ -142,7 +142,7 @@ public class EmployeeStream {
             if streamValue is () {
                 return streamValue;
             } else if (streamValue is sql:Error) {
-                return <SQLError>streamValue;
+                return <Error>error(streamValue.message());
             } else {
                 record {|Employee value;|} nextRecord = {value: <Employee>streamValue.value};
                 return nextRecord;
@@ -158,7 +158,7 @@ public class EmployeeStream {
             var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
             sql:Error? e = anydataStream.close();
             if e is sql:Error {
-                return <SQLError>e;
+                return <Error>error(e.message());
             }
         }
     }

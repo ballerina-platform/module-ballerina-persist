@@ -61,7 +61,7 @@ public client class SQLClient {
         sql:ExecutionResult|sql:Error result = self.dbClient->execute(query);
         
         if result is sql:Error {
-            return <SQLError>result;
+            return <Error>error(result.message());
         }
 
         return result;
@@ -99,7 +99,7 @@ public client class SQLClient {
         }
         
         if result is sql:Error {
-            return <SQLError>result;
+            return <Error>error(result.message());
         }
         return result;
     }
@@ -166,7 +166,7 @@ public client class SQLClient {
         sql:ExecutionResult|sql:Error? e = self.dbClient->execute(query);
         if e is sql:Error {
             if e.message().indexOf("a foreign key constraint fails ") is () {
-                return <SQLError>e;
+                return <Error>error(e.message());
             }
             else {
                 return <ForeignKeyConstraintViolationError>error(e.message());
@@ -188,7 +188,7 @@ public client class SQLClient {
         sql:ExecutionResult|sql:Error e = self.dbClient->execute(query);
 
         if e is sql:Error {
-            return <SQLError>e;
+            return <Error>error(e.message());
         }
     }
 
@@ -235,7 +235,7 @@ public client class SQLClient {
     public isolated function close() returns Error? {
         sql:Error? e = self.dbClient.close();
         if e is sql:Error {
-            return <SQLError>e;
+            return <Error>error(e.message());
         }
     }
 
