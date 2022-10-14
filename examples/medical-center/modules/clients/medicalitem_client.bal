@@ -1,28 +1,12 @@
-// Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-//
-// WSO2 Inc. licenses this file to you under the Apache License,
-// Version 2.0 (the "License"); you may not use this file except
-// in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-
-import ballerinax/mysql;
 import ballerina/sql;
+import ballerinax/mysql;
 import ballerina/persist;
-import ballerina/io;
 
 public client class MedicalItemClient {
 
     private final string entityName = "MedicalItem";
     private final sql:ParameterizedQuery tableName = `MedicalItems`;
+
     private final map<persist:FieldMetadata> fieldMetadata = {
         itemId: {columnName: "itemId", 'type: int},
         name: {columnName: "name", 'type: string},
@@ -34,26 +18,24 @@ public client class MedicalItemClient {
     private persist:SQLClient persistClient;
 
     public function init() returns error? {
-        mysql:Client dbClient = check new (HOST, USER, PASSWORD, DATABASE, PORT);
+        mysql:Client dbClient = check new (host = host, user = user, password = password, database = database, port = port);
         self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata);
     }
 
-    remote function create(MedicalItem value) returns int|error? {
+    remote function create(MedicalItem value) returns MedicalItem|error {
         sql:ExecutionResult result = check self.persistClient.runInsertQuery(value);
-
         if result.lastInsertId is () {
-            return value.itemId;
+            return value;
         }
-        return <int>result.lastInsertId;
+        return {itemId: <int>result.lastInsertId, name: value.name, 'type: value.'type, unit: value.unit};
     }
 
     remote function readByKey(int key) returns MedicalItem|error {
         return (check self.persistClient.runReadByKeyQuery(MedicalItem, key)).cloneWithType(MedicalItem);
     }
 
-    remote function read(map<anydata>? filter = ()) returns stream<MedicalItem, error?> {
-        io:println(`Read all records in table.`);
-        stream<anydata, error?>|error result = self.persistClient.runReadQuery(MedicalItem, filter);
+    remote function read() returns stream<MedicalItem, error?> {
+        stream<anydata, error?>|error result = self.persistClient.runReadQuery(MedicalItem, ());
         if result is error {
             return new stream<MedicalItem, error?>(new MedicalItemStream((), result));
         } else {
@@ -62,8 +44,6 @@ public client class MedicalItemClient {
     }
 
     remote function execute(sql:ParameterizedQuery filterClause) returns stream<MedicalItem, error?> {
-        io:println(`Read records with filter query.`);
-        io:println(filterClause);
         stream<anydata, error?>|error result = self.persistClient.runExecuteQuery(filterClause, MedicalItem);
         if result is error {
             return new stream<MedicalItem, error?>(new MedicalItemStream((), result));
@@ -72,21 +52,22 @@ public client class MedicalItemClient {
         }
     }
 
-    remote function update(record {} 'object, map<anydata> filter) returns error? {
-        _ = check self.persistClient.runUpdateQuery('object, filter);
+    remote function update(MedicalItem value) returns error? {
+        map<anydata> filter = {"itemId": value.itemId};
+        _ = check self.persistClient.runUpdateQuery(value, filter);
     }
 
-    remote function delete(map<anydata> filter) returns error? {
-        _ = check self.persistClient.runDeleteQuery(filter);
+    remote function delete(MedicalItem value) returns error? {
+        _ = check self.persistClient.runDeleteQuery(value);
     }
 
     public function close() returns error? {
         return self.persistClient.close();
     }
-
 }
 
 public class MedicalItemStream {
+
     private stream<anydata, error?>? anydataStream;
     private error? err;
 
@@ -110,7 +91,6 @@ public class MedicalItemStream {
                 return nextRecord;
             }
         } else {
-            // Unreachable code
             return ();
         }
     }
