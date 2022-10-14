@@ -18,13 +18,13 @@ import ballerina/time;
 import ballerina/persist;
 
 @persist:Entity {
-    key: ["needId"]
+    key: ["needId"],
+    uniqueConstraints: [["beneficiaryId", "urgency"]],
+    tableName: "Medical_Need"
 }
-public type MedicalNeed record {|
+public type MedicalNeed1 record {|
     @persist:AutoIncrement
-    readonly int needId = -1;
-
-    int itemId;
+    readonly int needId = 1;
     int beneficiaryId;
     time:Civil period;
     string urgency;
@@ -32,11 +32,14 @@ public type MedicalNeed record {|
 |};
 
 @persist:Entity {
-    key: ["itemId"]
+    key: ["needId"],
+    uniqueConstraints: [["beneficiaryId", "urgency"]]
 }
-public type MedicalItem record {|
-    readonly int itemId;
-    string name;
-    string 'type;
-    string unit;
+public type MedicalNeed record {|
+    @persist:AutoIncrement
+    readonly int needId = 1;
+    int beneficiaryId;
+    time:Civil period;
+    string urgency;
+    int quantity;
 |};

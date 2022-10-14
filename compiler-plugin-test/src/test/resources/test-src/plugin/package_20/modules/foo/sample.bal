@@ -34,7 +34,7 @@ public type MedicalNeeds record {|
     key: ["needId"],
     uniqueConstraints: [["beneficiaryId", "urgency"]]
 }
-public type MedicalNeed record {|
+public type MedicalNeed1 record {|
     @persist:AutoIncrement
     readonly int needId = 1;
     int beneficiaryId;
