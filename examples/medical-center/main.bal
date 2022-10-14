@@ -14,63 +14,25 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/mysql;
 import ballerina/io;
-
-configurable string USER = ?;
-configurable string PASSWORD = ?;
-configurable string HOST = ?;
-configurable string DATABASE = ?;
-configurable int PORT = ?;
+import wso2/medical_center.clients;
 
 public function main() returns error? {
-    check initDB();
-    check runExample();
-}
-
-function initDB() returns error? {
-    mysql:Client dbClient = check new (host = HOST, user = USER, password = PASSWORD, database = DATABASE, port = PORT);
-    _ = check dbClient->execute(`DROP TABLE IF EXISTS MedicalItems`);
-    _ = check dbClient->execute(`
-        CREATE Table MedicalItems (
-            itemId INTEGER PRIMARY KEY,
-            name VARCHAR(50),
-            type VARCHAR(20),
-            unit VARCHAR(5)
-        );`
-    );
-
-    _ = check dbClient->execute(`DROP TABLE IF EXISTS MedicalNeeds`);
-    _ = check dbClient->execute(`
-        CREATE Table test.MedicalNeeds (
-            needId INTEGER PRIMARY KEY AUTO_INCREMENT,
-            itemId INTEGER,
-            beneficiaryId INTEGER,
-            period TIMESTAMP,
-            urgency VARCHAR(10),
-            quantity INTEGER
-        );`
-    );
-
-    check dbClient.close();
-}
-
-function runExample() returns error? {
-    MedicalItemClient miClient = check new ();
+    clients:MedicalItemClient miClient = check new ();
     MedicalItem item = {
         itemId: 1,
         name: "item name",
         'type: "type1",
         unit: "ml"
     };
-    int? id = check miClient->create(item);
-    io:println("Item ID: ", id);
+    MedicalItem createdItem = check miClient->create(item);
+    io:println("Created item id: ", createdItem.itemId);
 
     MedicalItem retrievedItem = check miClient->readByKey(1);
-    io:println(retrievedItem);
+    io:println("Retrieved item: ", retrievedItem);
 
     MedicalItem|error itemError = miClient->readByKey(20);
-    io:println(itemError);
+    io:println("Retrieved non-existence item: ", itemError);
 
     _ = check miClient->create({
         itemId: 2,
@@ -108,14 +70,33 @@ function runExample() returns error? {
         };
 
     io:println("\n========== update type2's unit to kg ==========");
-    check miClient->update({"unit": "kg"}, {'type: "type2"});
+    MedicalItem[]? items = check from MedicalItem itemx in miClient->read()
+        where itemx.'type == "type2" 
+        select itemx;
+
+    if items is MedicalItem[] {
+        foreach MedicalItem itemx in items {
+            itemx.unit = "kg";
+            _ = check miClient->update(itemx);
+        }
+    }
+
     _ = check from MedicalItem itemx in miClient->read()
         do {
             io:println(itemx);
         };
 
     io:println("\n========== delete type2 ==========");
-    check miClient->delete({'type: "type2"});
+    MedicalItem[]? items1 = check from MedicalItem itemx in miClient->read()
+        where itemx.'type == "type2" 
+        select itemx;
+
+    if items1 is MedicalItem[] {
+        foreach MedicalItem itemx in items1 {
+            _ = check miClient->delete(itemx);
+        }
+    }
+
     _ = check from MedicalItem itemx in miClient->read()
         do {
             io:println(itemx);
@@ -124,22 +105,21 @@ function runExample() returns error? {
     check miClient.close();
 
     io:println("\n========== create medical needs ==========");
-    MedicalNeedClient mnClient = check new ();
-    id = check mnClient->create({
+    clients:MedicalNeedClient mnClient = check new ();
+    MedicalNeed mnItem = check mnClient->create({
         itemId: 1,
         beneficiaryId: 1,
         period: {year: 2022, month: 10, day: 10, hour: 1, minute: 2, second: 3},
         urgency: "URGENT",
         quantity: 5
     });
-    io:println("Need ID: ", id);
-    id = check mnClient->create({
+    io:println("Created need id: ", mnItem.needId);
+    MedicalNeed mnItem2 = check mnClient->create({
         itemId: 2,
         beneficiaryId: 2,
         period: {year: 2021, month: 10, day: 10, hour: 1, minute: 2, second: 3},
         urgency: "NOT URGENT",
         quantity: 5
     });
-    io:println("Need ID: ", id);
-
+    io:println("Created need id: ", mnItem2.needId);
 }
