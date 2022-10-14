@@ -70,16 +70,12 @@ public function main() returns error? {
         };
 
     io:println("\n========== update type2's unit to kg ==========");
-    MedicalItem[]? items = check from MedicalItem itemx in miClient->read()
+    _ = check from MedicalItem itemx in miClient->read()
         where itemx.'type == "type2" 
-        select itemx;
-
-    if items is MedicalItem[] {
-        foreach MedicalItem itemx in items {
+        do {
             itemx.unit = "kg";
-            _ = check miClient->update(itemx);
-        }
-    }
+            check miClient->update(itemx);            
+        };
 
     _ = check from MedicalItem itemx in miClient->read()
         do {
@@ -87,15 +83,11 @@ public function main() returns error? {
         };
 
     io:println("\n========== delete type2 ==========");
-    MedicalItem[]? items1 = check from MedicalItem itemx in miClient->read()
+    _ = check from MedicalItem itemx in miClient->read()
         where itemx.'type == "type2" 
-        select itemx;
-
-    if items1 is MedicalItem[] {
-        foreach MedicalItem itemx in items1 {
-            _ = check miClient->delete(itemx);
-        }
-    }
+        do {
+            _ = check miClient->delete(itemx);           
+        };
 
     _ = check from MedicalItem itemx in miClient->read()
         do {
