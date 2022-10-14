@@ -67,7 +67,7 @@ public class CompilerPluginTest {
                 "CREATE TABLE Medical_Need (\n" +
                 "\tneedId INT NOT NULL AUTO_INCREMENT,\n" +
                 "\tbeneficiaryId INT NOT NULL,\n" +
-                "\tperiod VARCHAR(191),\n" +
+                "\tperiod DATETIME,\n" +
                 "\turgency VARCHAR(191),\n" +
                 "\tquantity INT NOT NULL,\n" +
                 "\titemId INT UNIQUE,\n" +
@@ -86,7 +86,7 @@ public class CompilerPluginTest {
                 "\tneedId INT NOT NULL,\n" +
                 "\titemId INT NOT NULL,\n" +
                 "\tbeneficiaryId INT NOT NULL,\n" +
-                "\tperiod VARCHAR(191) NOT NULL,\n" +
+                "\tperiod DATETIME NOT NULL,\n" +
                 "\turgency VARCHAR(191) NOT NULL,\n" +
                 "\tquantity INT NOT NULL\n" +
                 ");";
@@ -107,7 +107,7 @@ public class CompilerPluginTest {
                 "CREATE TABLE Medical_Need (\n" +
                 "\tneedId INT NOT NULL,\n" +
                 "\tbeneficiaryId INT NOT NULL,\n" +
-                "\tperiod VARCHAR(191),\n" +
+                "\tperiod DATETIME,\n" +
                 "\turgency VARCHAR(191),\n" +
                 "\tquantity INT NOT NULL,\n" +
                 "\titemId INT UNIQUE,\n" +
@@ -131,7 +131,7 @@ public class CompilerPluginTest {
                 "CREATE TABLE Medical_Need2 (\n" +
                 "\tneedId INT NOT NULL AUTO_INCREMENT,\n" +
                 "\tbeneficiaryId INT NOT NULL,\n" +
-                "\tperiod VARCHAR(191),\n" +
+                "\tperiod DATETIME,\n" +
                 "\turgency VARCHAR(191),\n" +
                 "\tquantity INT NOT NULL,\n" +
                 "\titemId INT UNIQUE,\n" +
@@ -156,7 +156,7 @@ public class CompilerPluginTest {
                 "CREATE TABLE EMPLOYEE (\n" +
                 "\tneedId INT NOT NULL AUTO_INCREMENT,\n" +
                 "\tbeneficiaryId INT NOT NULL,\n" +
-                "\tperiod VARCHAR(191) NOT NULL,\n" +
+                "\tperiod DATETIME NOT NULL,\n" +
                 "\turgency VARCHAR(191) NOT NULL,\n" +
                 "\tquantity INT NOT NULL,\n" +
                 "\titemId INT UNIQUE,\n" +
@@ -205,7 +205,7 @@ public class CompilerPluginTest {
                 "CREATE TABLE MedicalNeeds (\n" +
                 "\tneedId INT NOT NULL AUTO_INCREMENT,\n" +
                 "\tbeneficiaryId INT NOT NULL,\n" +
-                "\tperiod VARCHAR(191) NOT NULL,\n" +
+                "\tperiod DATETIME NOT NULL,\n" +
                 "\turgency VARCHAR(191) NOT NULL,\n" +
                 "\tquantity INT NOT NULL,\n" +
                 "\titemId INT,\n" +
@@ -246,7 +246,7 @@ public class CompilerPluginTest {
                 "CREATE TABLE MedicalNeeds (\n" +
                 "\tneedId INT NOT NULL AUTO_INCREMENT,\n" +
                 "\tbeneficiaryId INT NOT NULL,\n" +
-                "\tperiod VARCHAR(191) NOT NULL,\n" +
+                "\tperiod DATETIME NOT NULL,\n" +
                 "\turgency VARCHAR(191) NOT NULL,\n" +
                 "\tquantity INT NOT NULL,\n" +
                 "\titemId INT UNIQUE,\n" +
@@ -283,7 +283,7 @@ public class CompilerPluginTest {
                 "CREATE TABLE MedicalNeeds (\n" +
                 "\tneedId INT NOT NULL AUTO_INCREMENT,\n" +
                 "\tbeneficiaryId INT NOT NULL,\n" +
-                "\tperiod VARCHAR(191) NOT NULL,\n" +
+                "\tperiod DATETIME NOT NULL,\n" +
                 "\turgency VARCHAR(191) NOT NULL,\n" +
                 "\tquantity INT NOT NULL,\n" +
                 "\titemId INT UNIQUE,\n" +
@@ -318,7 +318,7 @@ public class CompilerPluginTest {
                 "CREATE TABLE MedicalNeeds (\n" +
                 "\tneedId INT NOT NULL AUTO_INCREMENT,\n" +
                 "\tbeneficiaryId INT NOT NULL,\n" +
-                "\tperiod VARCHAR(191) NOT NULL,\n" +
+                "\tperiod DATETIME NOT NULL,\n" +
                 "\turgency VARCHAR(191) NOT NULL,\n" +
                 "\tquantity INT NOT NULL,\n" +
                 "\titemId INT UNIQUE,\n" +
@@ -355,7 +355,7 @@ public class CompilerPluginTest {
                 "CREATE TABLE MedicalNeeds (\n" +
                 "\tneedId INT NOT NULL AUTO_INCREMENT,\n" +
                 "\tbeneficiaryId INT NOT NULL,\n" +
-                "\tperiod VARCHAR(191) NOT NULL,\n" +
+                "\tperiod DATETIME NOT NULL,\n" +
                 "\turgency VARCHAR(191) NOT NULL,\n" +
                 "\tquantity INT NOT NULL,\n" +
                 "\titemId INT UNIQUE,\n" +
@@ -368,7 +368,7 @@ public class CompilerPluginTest {
                 "\tneedId INT NOT NULL AUTO_INCREMENT,\n" +
                 "\titemId INT NOT NULL,\n" +
                 "\tbeneficiaryId INT NOT NULL,\n" +
-                "\tperiod VARCHAR(191) NOT NULL,\n" +
+                "\tperiod DATETIME NOT NULL,\n" +
                 "\turgency VARCHAR(191) NOT NULL,\n" +
                 "\tquantity INT NOT NULL,\n" +
                 "\tPRIMARY KEY(needId)\n" +
@@ -395,7 +395,7 @@ public class CompilerPluginTest {
                 "CREATE TABLE MedicalNeeds (\n" +
                 "\tneedId INT NOT NULL AUTO_INCREMENT,\n" +
                 "\tbeneficiaryId INT NOT NULL,\n" +
-                "\tperiod VARCHAR(191) NOT NULL,\n" +
+                "\tperiod DATETIME NOT NULL,\n" +
                 "\turgency VARCHAR(191) NOT NULL,\n" +
                 "\tquantity INT NOT NULL,\n" +
                 "\titemId INT UNIQUE,\n" +
@@ -409,7 +409,7 @@ public class CompilerPluginTest {
                 "\tneedId INT NOT NULL AUTO_INCREMENT,\n" +
                 "\titemId INT NOT NULL,\n" +
                 "\tbeneficiaryId INT NOT NULL,\n" +
-                "\tperiod VARCHAR(191) NOT NULL,\n" +
+                "\tperiod DATETIME NOT NULL,\n" +
                 "\turgency VARCHAR(191) NOT NULL,\n" +
                 "\tquantity INT NOT NULL,\n" +
                 "\tPRIMARY KEY(needId)\n" +
@@ -465,7 +465,7 @@ public class CompilerPluginTest {
                 "CREATE TABLE MedicalNeeds (\n" +
                 "\tneedId INT NOT NULL AUTO_INCREMENT,\n" +
                 "\tbeneficiaryId INT NOT NULL,\n" +
-                "\tperiod VARCHAR(191) NOT NULL,\n" +
+                "\tperiod DATETIME NOT NULL,\n" +
                 "\turgency VARCHAR(191) NOT NULL,\n" +
                 "\tquantity INT NOT NULL,\n" +
                 "\titemId INT,\n" +
@@ -518,7 +518,7 @@ public class CompilerPluginTest {
                 "CREATE TABLE MedicalNeeds (\n" +
                 "\tneedId INT NOT NULL AUTO_INCREMENT,\n" +
                 "\tbeneficiaryId INT NOT NULL,\n" +
-                "\tperiod VARCHAR(191) NOT NULL,\n" +
+                "\tperiod DATETIME NOT NULL,\n" +
                 "\turgency VARCHAR(191) NOT NULL,\n" +
                 "\tquantity INT NOT NULL,\n" +
                 "\tname VARCHAR(10) UNIQUE,\n" +
@@ -633,13 +633,85 @@ public class CompilerPluginTest {
                 "CREATE TABLE MedicalNeeds (\n" +
                 "\tneedId INT NOT NULL AUTO_INCREMENT,\n" +
                 "\tbeneficiaryId INT NOT NULL,\n" +
-                "\tperiod VARCHAR(191) NOT NULL,\n" +
+                "\tperiod DATETIME NOT NULL,\n" +
                 "\turgency VARCHAR(191) NOT NULL,\n" +
                 "\tquantity INT NOT NULL,\n" +
                 "\tPRIMARY KEY(needId),\n" +
                 "\tUNIQUE KEY(beneficiaryId, urgency)\n" +
                 ");";
         testSqlScript("package_17", fileContent, 0, "");
+    }
+
+    @Test
+    public void testGenerateSqlScript17() throws IOException {
+        String fileContent = "DROP TABLE IF EXISTS MultipleAssociations;\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS Users;\n" +
+                "CREATE TABLE Users (\n" +
+                "\tid INT NOT NULL,\n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\tPRIMARY KEY(id)\n" +
+                ");\n" +
+                "\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS Profiles;\n" +
+                "CREATE TABLE Profiles (\n" +
+                "\tid INT NOT NULL,\n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\tuserId INT UNIQUE,\n" +
+                "\tCONSTRAINT FK_PROFILES_USERS_0 FOREIGN KEY(userId) REFERENCES Users(id),\n" +
+                "\tPRIMARY KEY(id)\n" +
+                ");\n" +
+                "\n" +
+                "CREATE TABLE MultipleAssociations (\n" +
+                "\tid INT NOT NULL,\n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\tprofileId INT UNIQUE,\n" +
+                "\tCONSTRAINT FK_MULTIPLEASSOCIATIONS_PROFILES_0 FOREIGN KEY(profileId) REFERENCES Profiles(id),\n" +
+                "\tuserId INT UNIQUE,\n" +
+                "\tCONSTRAINT FK_MULTIPLEASSOCIATIONS_USERS_0 FOREIGN KEY(userId) REFERENCES Users(id),\n" +
+                "\tPRIMARY KEY(id)\n" +
+                ");";
+        String fileContent1 = "DROP TABLE IF EXISTS MultipleAssociations;\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS Profiles;\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS Users;\n" +
+                "CREATE TABLE Users (\n" +
+                "\tid INT NOT NULL,\n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\tPRIMARY KEY(id)\n" +
+                ");\n" +
+                "\n" +
+                "CREATE TABLE Profiles (\n" +
+                "\tid INT NOT NULL,\n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\tuserId INT UNIQUE,\n" +
+                "\tCONSTRAINT FK_PROFILES_USERS_0 FOREIGN KEY(userId) REFERENCES Users(id),\n" +
+                "\tPRIMARY KEY(id)\n" +
+                ");\n" +
+                "\n" +
+                "CREATE TABLE MultipleAssociations (\n" +
+                "\tid INT NOT NULL,\n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\tprofileId INT UNIQUE,\n" +
+                "\tCONSTRAINT FK_MULTIPLEASSOCIATIONS_PROFILES_0 FOREIGN KEY(profileId) REFERENCES Profiles(id),\n" +
+                "\tuserId INT UNIQUE,\n" +
+                "\tCONSTRAINT FK_MULTIPLEASSOCIATIONS_USERS_0 FOREIGN KEY(userId) REFERENCES Users(id),\n" +
+                "\tPRIMARY KEY(id)\n" +
+                ");";
+        List<String> fileContents = new ArrayList<>();
+        fileContents.add(fileContent);
+        fileContents.add(fileContent1);
+        Package currentPackage = loadPackage("package_18");
+        currentPackage.getCompilation();
+        Path directoryPath = currentPackage.project().targetDir().toAbsolutePath();
+        Path filePath = Paths.get(String.valueOf(directoryPath), "persist_db_scripts.sql");
+        Assert.assertTrue(Files.exists(filePath), "The file doesn't exist");
+        String content = Files.readString(filePath);
+        Assert.assertTrue(fileContents.contains(content));
+        Files.deleteIfExists(filePath);
+        Files.deleteIfExists(directoryPath);
     }
 
     private void testSqlScript(String packagePath, String fileContent, int count,

@@ -150,8 +150,8 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                         validateRecordType(ctx, typeDefinitionNode);
                         if (this.noOfReportDiagnostic == 0) {
                             PersistGenerateSqlScript.generateSqlScript((RecordTypeDescriptorNode) recordNode,
-                                    typeDefinitionNode, tableName, memberNodes, this.primaryKeys,
-                                    this.uniqueConstraints, ctx, referenceTables, tableNamesInScript);
+                                    typeDefinitionNode, tableName, this.primaryKeys, this.uniqueConstraints, ctx,
+                                    referenceTables, tableNamesInScript);
                         }
                     }
                 }
