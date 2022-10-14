@@ -1,24 +1,7 @@
-// Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-//
-// WSO2 Inc. licenses this file to you under the Apache License,
-// Version 2.0 (the "License"); you may not use this file except
-// in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-
 import ballerina/sql;
 import ballerinax/mysql;
 import ballerina/time;
 import ballerina/persist;
-import ballerina/io;
 
 public client class MedicalNeedClient {
 
@@ -38,22 +21,21 @@ public client class MedicalNeedClient {
     private persist:SQLClient persistClient;
 
     public function init() returns error? {
-        mysql:Client dbClient = check new (host = HOST, user = USER, password = PASSWORD, database = DATABASE, port = PORT);
+        mysql:Client dbClient = check new (host = host, user = user, password = password, database = database, port = port);
         self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata);
     }
 
-    remote function create(MedicalNeed value) returns int|error? {
+    remote function create(MedicalNeed value) returns MedicalNeed|error {
         sql:ExecutionResult result = check self.persistClient.runInsertQuery(value);
-        return <int>result.lastInsertId;
+        return {needId: <int>result.lastInsertId, itemId: value.itemId, beneficiaryId: value.beneficiaryId, period: value.period, urgency: value.urgency, quantity: value.quantity};
     }
 
     remote function readByKey(int key) returns MedicalNeed|error {
         return (check self.persistClient.runReadByKeyQuery(MedicalNeed, key)).cloneWithType(MedicalNeed);
     }
 
-    remote function read(map<anydata>? filter = ()) returns stream<MedicalNeed, error?> {
-        io:println(`Read all records in table.`);
-        stream<anydata, error?>|error result = self.persistClient.runReadQuery(MedicalNeed, filter);
+    remote function read() returns stream<MedicalNeed, error?> {
+        stream<anydata, error?>|error result = self.persistClient.runReadQuery(MedicalNeed, ());
         if result is error {
             return new stream<MedicalNeed, error?>(new MedicalNeedStream((), result));
         } else {
@@ -62,8 +44,6 @@ public client class MedicalNeedClient {
     }
 
     remote function execute(sql:ParameterizedQuery filterClause) returns stream<MedicalNeed, error?> {
-        io:println(`Read records with filter query.`);
-        io:println(filterClause);
         stream<anydata, error?>|error result = self.persistClient.runExecuteQuery(filterClause, MedicalNeed);
         if result is error {
             return new stream<MedicalNeed, error?>(new MedicalNeedStream((), result));
@@ -72,21 +52,22 @@ public client class MedicalNeedClient {
         }
     }
 
-    remote function update(record {} 'object, map<anydata> filter) returns error? {
-        _ = check self.persistClient.runUpdateQuery('object, filter);
+    remote function update(MedicalNeed value) returns error? {
+        map<anydata> filter = {"needId": value.needId};
+        _ = check self.persistClient.runUpdateQuery(value, filter);
     }
 
-    remote function delete(map<anydata> filter) returns error? {
-        _ = check self.persistClient.runDeleteQuery(filter);
+    remote function delete(MedicalNeed value) returns error? {
+        _ = check self.persistClient.runDeleteQuery(value);
     }
 
     public function close() returns error? {
         return self.persistClient.close();
     }
-
 }
 
 public class MedicalNeedStream {
+
     private stream<anydata, error?>? anydataStream;
     private error? err;
 
@@ -110,7 +91,6 @@ public class MedicalNeedStream {
                 return nextRecord;
             }
         } else {
-            // Unreachable code
             return ();
         }
     }
@@ -122,3 +102,4 @@ public class MedicalNeedStream {
         }
     }
 }
+
