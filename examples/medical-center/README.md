@@ -70,5 +70,3 @@ Retrieved non-existence item: error InvalidKeyError ("A record does not exist fo
 Created need id: 1
 Created need id: 2
 ```
-
-
