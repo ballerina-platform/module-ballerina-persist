@@ -212,8 +212,8 @@ function testComplexTypes2() returns error? {
     test:assertTrue(need2.needId is int);
 
     int count = 0;
-    _ = check from MedicalNeed need2 in mnClient->read()
-        where need2.itemId == 1
+    _ = check from MedicalNeed need3 in mnClient->read()
+        where need3.itemId == 1
         do {
             test:assertEquals(need3.itemId, 1);
             count = count + 1;
