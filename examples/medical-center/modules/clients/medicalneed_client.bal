@@ -87,24 +87,24 @@ public class MedicalNeedStream {
     }
 
     public isolated function next() returns record {|MedicalNeed value;|}|persist:Error? {
-    if self.err is persist:Error {
-        return self.err;
-    } else if self.anydataStream is stream<anydata, sql:Error?> {
-        var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
-        var streamValue = anydataStream.next();
-        if streamValue is () {
-             return streamValue;
-        } else if (streamValue is sql:Error) {
-             return <persist:Error>error(streamValue.message());
+        if self.err is persist:Error {
+            return self.err;
+        } else if self.anydataStream is stream<anydata, sql:Error?> {
+            var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
+            var streamValue = anydataStream.next();
+            if streamValue is () {
+                return streamValue;
+            } else if (streamValue is sql:Error) {
+                return <persist:Error>error(streamValue.message());
+            } else {
+                record {|MedicalNeed value;|} nextRecord = {value: <MedicalNeed>streamValue.value};
+                return nextRecord;
+            }
         } else {
-            record {|MedicalNeed value;|} nextRecord = {value: <MedicalNeed>streamValue.value};
-            return nextRecord;
+            // Unreachable code
+            return ();
         }
-    } else {
-         // Unreachable code
-        return ();
     }
- }
 
     public isolated function close() returns persist:Error? {
         if self.anydataStream is stream<anydata, sql:Error?> {

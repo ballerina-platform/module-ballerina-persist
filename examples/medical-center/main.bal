@@ -71,7 +71,7 @@ public function main() returns error? {
 
     io:println("\n========== update type2's unit to kg ==========");
     MedicalItem[]? items = check from MedicalItem itemx in miClient->read()
-        where itemx.'type == "type2" 
+        where itemx.'type == "type2"
         select itemx;
 
     if items is MedicalItem[] {
@@ -88,7 +88,7 @@ public function main() returns error? {
 
     io:println("\n========== delete type2 ==========");
     MedicalItem[]? items1 = check from MedicalItem itemx in miClient->read()
-        where itemx.'type == "type2" 
+        where itemx.'type == "type2"
         select itemx;
 
     if items1 is MedicalItem[] {
