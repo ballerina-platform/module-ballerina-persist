@@ -73,7 +73,7 @@ public client class MedicalItemClient {
     }
 
     remote function delete(MedicalItem 'object) returns persist:Error? {
-        _ = check self.persistClient.runDeleteQuery('object');
+        _ = check self.persistClient.runDeleteQuery('object);
     }
 
     public function close() returns persist:Error? {

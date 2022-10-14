@@ -52,8 +52,8 @@ client class CompanyClient {
         return <Company>check self.persistClient.runReadByKeyQuery(Company, key, include);
     }
 
-    remote function read(map<anydata>? filter = (), CompanyRelations[] include = []) returns stream<Company, Error?> {
-        stream<anydata, sql:Error?>|Error result = self.persistClient.runReadQuery(Company, filter, include);
+    remote function read(CompanyRelations[] include = []) returns stream<Company, Error?> {
+        stream<anydata, sql:Error?>|Error result = self.persistClient.runReadQuery(Company, include);
         if result is Error {
             return new stream<Company, Error?>(new CompanyStream((), result));
         } else {
@@ -70,12 +70,12 @@ client class CompanyClient {
         }
     }
 
-    remote function update(record {} 'object, map<anydata> filter) returns Error? {
-        _ = check self.persistClient.runUpdateQuery('object, filter);
+    remote function update(Company 'object) returns Error? {
+        _ = check self.persistClient.runUpdateQuery('object);
     }
 
-    remote function delete(map<anydata> filter) returns Error? {
-        _ = check self.persistClient.runDeleteQuery(filter);
+    remote function delete(Company 'object) returns Error? {
+        _ = check self.persistClient.runDeleteQuery('object);
     }
 
     remote function exists(Company company) returns boolean|Error {

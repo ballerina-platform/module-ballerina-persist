@@ -27,7 +27,7 @@ public client class MedicalNeedClient {
         }
 
         self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata);
-     }
+    }
 
     remote function create(MedicalNeed value) returns MedicalNeed|persist:Error {
         sql:ExecutionResult result = check self.persistClient.runInsertQuery(value);

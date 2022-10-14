@@ -48,8 +48,8 @@ client class DepartmentClient {
         return <Department>check self.persistClient.runReadByKeyQuery(Department, key);
     }
 
-    remote function read(map<anydata>? filter = ()) returns stream<Department, Error?> {
-        stream<anydata, sql:Error?>|Error result = self.persistClient.runReadQuery(Department, filter);
+    remote function read() returns stream<Department, Error?> {
+        stream<anydata, sql:Error?>|Error result = self.persistClient.runReadQuery(Department);
         if result is Error {
             return new stream<Department, Error?>(new DepartmentStream((), result));
         } else {
@@ -66,12 +66,12 @@ client class DepartmentClient {
         }
     }
 
-    remote function update(record {} 'object, map<anydata> filter) returns Error? {
-        _ = check self.persistClient.runUpdateQuery('object, filter);
+    remote function update(record {} 'object) returns Error? {
+        _ = check self.persistClient.runUpdateQuery('object);
     }
 
-    remote function delete(map<anydata> filter) returns Error? {
-        _ = check self.persistClient.runDeleteQuery(filter);
+    remote function delete(Department 'object) returns Error? {
+        _ = check self.persistClient.runDeleteQuery('object);
     }
 
     function close() returns Error? {

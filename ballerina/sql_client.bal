@@ -59,7 +59,7 @@ public client class SQLClient {
             `VALUES `, self.getInsertQueryParams('object)
         );
         sql:ExecutionResult|sql:Error result = self.dbClient->execute(query);
-        
+
         if result is sql:Error {
             return <Error>error(result.message());
         }
@@ -97,7 +97,7 @@ public client class SQLClient {
         if result is record {} {
             check self.getManyRelations(result, include);
         }
-        
+
         if result is sql:Error {
             return <Error>error(result.message());
         }
@@ -107,10 +107,9 @@ public client class SQLClient {
     # Performs an SQL `SELECT` operation to read multiple records from the database.
     #
     # + rowType - The record-type to be retrieved (the entity record-type)
-    # + filter - The key-value pairs to be used as the filter (to be used in the SQL `WHERE` clauses)
     # + include - The relations to be retrieved (SQL `JOINs` to be performed)
     # + return - A stream of records in the `rowType` type or a `persist:Error` if the operation fails
-    public isolated function runReadQuery(typedesc<record {}> rowType, map<anydata>? filter, string[] include = [])
+    public isolated function runReadQuery(typedesc<record {}> rowType, string[] include = [])
     returns stream<record {}, sql:Error?>|Error {
         sql:ParameterizedQuery query = sql:queryConcat(
             `SELECT `, self.getSelectColumnNames(include), ` FROM `, self.tableName, stringToParameterizedQuery(" " + self.entityName)
@@ -123,10 +122,6 @@ public client class SQLClient {
                 query = sql:queryConcat(query, ` LEFT JOIN `, stringToParameterizedQuery(joinMetadata.refTable + " " + joinKey),
                                         ` ON `, check self.getJoinFilters(joinKey, joinMetadata.refFields, <string[]>joinMetadata.joinColumns));
             }
-        }
-
-        if !(filter is ()) {
-            query = sql:queryConcat(query, ` WHERE `, check self.getWhereClauses(filter));
         }
 
         stream<record {}, sql:Error?> resultStream = self.dbClient->query(query, rowType);
@@ -151,17 +146,13 @@ public client class SQLClient {
 
     # Performs an SQL `UPDATE` operation to update multiple records in the database.
     #
-    # + object - the key-value pairs to be updated (to be used in the SQL `SET` clauses)
-    # + filter - The key-value pairs to be used as the filter (to be used in the SQL `WHERE` clauses)   
+    # + 'object - the record to be updated
     # + return -  `()` if the operation is performed successfully.
     #             A `ForeignKeyConstraintViolationError` if the operation violates a foreign key constraint.
     #             A `persist:Error` if the operation fails due to another reason.
-    public isolated function runUpdateQuery(record {} 'object, map<anydata>? filter) returns ForeignKeyConstraintViolationError|Error? {
+    public isolated function runUpdateQuery(record {} 'object) returns ForeignKeyConstraintViolationError|Error? {
         sql:ParameterizedQuery query = sql:queryConcat(`UPDATE `, self.tableName, stringToParameterizedQuery(" " + self.entityName), ` SET`, check self.getSetClauses('object));
-
-        if !(filter is ()) {
-            query = sql:queryConcat(query, ` WHERE`, check self.getWhereClauses(filter));
-        }
+        query = sql:queryConcat(query, ` WHERE`, check self.getWhereClauses(self.getKey('object)));
 
         sql:ExecutionResult|sql:Error? e = self.dbClient->execute(query);
         if e is sql:Error {
@@ -174,17 +165,13 @@ public client class SQLClient {
         }
     }
 
-    # Performs an SQL `DELETE` operation to delete multiple records from the database.
+    # Performs an SQL `DELETE` operation to delete a record from the database.
     #
-    # + filter - The key-value pairs to be used as the filter (to be used in the SQL `WHERE` clauses)
+    # + 'object - The record to be deleted
     # + return - `()` if the operation is performed successfully or a `persist:Error` if the operation fails
-    public isolated function runDeleteQuery(map<anydata>? filter) returns Error? {
+    public isolated function runDeleteQuery(record {} 'object) returns Error? {
         sql:ParameterizedQuery query = sql:queryConcat(`DELETE FROM `, self.tableName, stringToParameterizedQuery(" " + self.entityName));
-
-        if !(filter is ()) {
-            query = sql:queryConcat(query, ` WHERE`, check self.getWhereClauses(filter));
-        }
-
+        query = sql:queryConcat(query, ` WHERE`, check self.getWhereClauses(self.getKey('object)));
         sql:ExecutionResult|sql:Error e = self.dbClient->execute(query);
 
         if e is sql:Error {
@@ -219,7 +206,7 @@ public client class SQLClient {
                     do {
                         arr.push(check item.cloneWithType(joinMetadata.entity));
                     };
-                
+
                 if e is error {
                     return <Error>e;
                 }
@@ -237,6 +224,14 @@ public client class SQLClient {
         if e is sql:Error {
             return <Error>error(e.message());
         }
+    }
+
+    private isolated function getKey(record {} 'object) returns record {} {
+        record {} keyRecord = {};
+        foreach string key in self.keyFields {
+            keyRecord[key] = 'object[key];
+        }
+        return keyRecord;
     }
 
     private isolated function getInsertQueryParams(record {} 'object) returns sql:ParameterizedQuery {

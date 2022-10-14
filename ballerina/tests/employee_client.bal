@@ -39,7 +39,7 @@ client class EmployeeClient {
         if dbClient is sql:Error {
             return <Error>error(dbClient.message());
         }
-        
+
         self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata, self.joinMetadata);
     }
 
@@ -60,8 +60,8 @@ client class EmployeeClient {
         return <Employee>check self.persistClient.runReadByKeyQuery(Employee, key, include);
     }
 
-    remote function read(map<anydata>? filter = (), EmployeeRelations[] include = []) returns stream<Employee, Error?> {
-        stream<anydata, sql:Error?>|Error result = self.persistClient.runReadQuery(Employee, filter, include);
+    remote function read(EmployeeRelations[] include = []) returns stream<Employee, Error?> {
+        stream<anydata, sql:Error?>|Error result = self.persistClient.runReadQuery(Employee, include);
         if result is Error {
             return new stream<Employee, Error?>(new EmployeeStream((), result));
         } else {
@@ -78,29 +78,18 @@ client class EmployeeClient {
         }
     }
 
-    remote function update(record {} 'object, map<anydata> filter) returns Error? {
-        _ = check self.persistClient.runUpdateQuery('object, filter);
+    remote function update(record {} 'object) returns Error? {
+        _ = check self.persistClient.runUpdateQuery('object);
 
-        if 'object["company"] is record {} {
-            record {} companyEntity = <record {}>'object["company"];
+        if 'object["company"] is Company {
+            Company companyEntity = <Company>'object["company"];
             CompanyClient companyClient = check new CompanyClient();
-            stream<Employee, Error?> employeeStream = self->read(filter, [CompanyEntity]);
-
-            // TODO: replace this with more optimized code after adding support for advanced queries
-            error? e =  from Employee employee in employeeStream
-                do {
-                    if employee.company is Company {
-                        check companyClient->update(companyEntity, {"id": (<Company>employee.company).id});
-                    }
-                };
-            if e is error {
-                return <Error>e;
-            }
+            check companyClient->update(companyEntity);
         }
     }
 
-    remote function delete(map<anydata> filter) returns Error? {
-        _ = check self.persistClient.runDeleteQuery(filter);
+    remote function delete(Employee 'object) returns Error? {
+        _ = check self.persistClient.runDeleteQuery('object);
     }
 
     remote function exists(Employee employee) returns boolean|Error {

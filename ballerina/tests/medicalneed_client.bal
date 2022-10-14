@@ -46,7 +46,7 @@ public client class MedicalNeedClient {
 
     remote function create(MedicalNeed value) returns MedicalNeed|Error {
         sql:ExecutionResult result = check self.persistClient.runInsertQuery(value);
-        
+
         return <MedicalNeed>{
             needId: <int>result.lastInsertId,
             beneficiaryId: value.beneficiaryId,
@@ -61,8 +61,8 @@ public client class MedicalNeedClient {
         return <MedicalNeed>check self.persistClient.runReadByKeyQuery(MedicalNeed, key);
     }
 
-    remote function read(map<anydata>? filter = ()) returns stream<MedicalNeed, Error?> {
-        stream<anydata, sql:Error?>|Error result = self.persistClient.runReadQuery(MedicalNeed, filter);
+    remote function read() returns stream<MedicalNeed, Error?> {
+        stream<anydata, sql:Error?>|Error result = self.persistClient.runReadQuery(MedicalNeed);
         if result is Error {
             return new stream<MedicalNeed, Error?>(new MedicalNeedStream((), result));
         } else {
@@ -79,12 +79,12 @@ public client class MedicalNeedClient {
         }
     }
 
-    remote function update(record {} 'object, map<anydata> filter) returns Error? {
-        _ = check self.persistClient.runUpdateQuery('object, filter);
+    remote function update(MedicalNeed 'object) returns Error? {
+        _ = check self.persistClient.runUpdateQuery('object);
     }
 
-    remote function delete(map<anydata> filter) returns Error? {
-        _ = check self.persistClient.runDeleteQuery(filter);
+    remote function delete(MedicalNeed 'object) returns Error? {
+        _ = check self.persistClient.runDeleteQuery('object);
     }
 
     public function close() returns Error? {

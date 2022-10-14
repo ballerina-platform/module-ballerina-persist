@@ -60,8 +60,8 @@ client class ProfileClient {
         return <Profile>check self.persistClient.runReadByKeyQuery(Profile, key, include);
     }
 
-    remote function read(map<anydata>? filter = (), ProfileRelations[] include = []) returns stream<Profile, Error?> {
-        stream<anydata, sql:Error?>|Error result = self.persistClient.runReadQuery(Profile, filter, include);
+    remote function read(ProfileRelations[] include = []) returns stream<Profile, Error?> {
+        stream<anydata, sql:Error?>|Error result = self.persistClient.runReadQuery(Profile, include);
         if result is error {
             return new stream<Profile, Error?>(new ProfileStream((), result));
         } else {
@@ -78,29 +78,18 @@ client class ProfileClient {
         }
     }
 
-    remote function update(record {} 'object, map<anydata> filter) returns Error? {
-        _ = check self.persistClient.runUpdateQuery('object, filter);
+    remote function update(Profile 'object) returns Error? {
+        _ = check self.persistClient.runUpdateQuery('object);
 
-        if 'object["user"] is record {} {
-            record {} userEntity = <record {}>'object["user"];
+        if 'object["user"] is User {
+            User userEntity = <User>'object["user"];
             UserClient userClient = check new UserClient();
-            stream<Profile, error?> profileStream = self->read(filter, [UserEntity]);
-
-            // TODO: replace this with more optimized code after adding support for advanced queries
-            error? e = from Profile p in profileStream
-                do {
-                    if p.user is User {
-                        check userClient->update(userEntity, {"id": (<User>p.user).id});
-                    }
-                };
-            if e is error {
-                return <Error>e;
-            }
+            check userClient->update(userEntity);
         }
     }
 
-    remote function delete(map<anydata> filter) returns Error? {
-        _ = check self.persistClient.runDeleteQuery(filter);
+    remote function delete(Profile 'object) returns Error? {
+        _ = check self.persistClient.runDeleteQuery('object);
     }
 
     remote function exists(Profile profile) returns boolean|Error {
