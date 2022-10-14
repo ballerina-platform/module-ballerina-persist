@@ -1,4 +1,4 @@
-// Copyright (c) 2022 WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -19,7 +19,7 @@ import ballerinax/mysql;
 import ballerina/time;
 import ballerina/persist;
 import ballerinax/mysql.driver as _;
-import package_06.entity;
+import package_02.entity;
 
 configurable string USER = ?;
 configurable string PASSWORD = ?;
@@ -51,7 +51,7 @@ public client class MedicalNeedClient {
         }
 
         self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata);
-     }
+    }
 
     remote function create(entity:MedicalNeed value) returns entity:MedicalNeed|persist:Error {
         sql:ExecutionResult result = check self.persistClient.runInsertQuery(value);

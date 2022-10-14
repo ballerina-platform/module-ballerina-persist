@@ -146,7 +146,7 @@ public client class SQLClient {
 
     # Performs an SQL `UPDATE` operation to update multiple records in the database.
     #
-    # + object - the record to be updated
+    # + 'object - the record to be updated
     # + return -  `()` if the operation is performed successfully.
     #             A `ForeignKeyConstraintViolationError` if the operation violates a foreign key constraint.
     #             A `persist:Error` if the operation fails due to another reason.
