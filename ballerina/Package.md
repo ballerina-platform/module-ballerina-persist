@@ -1,6 +1,6 @@
 ## Package overview
 
-This package provides the functionality required to persist data in Ballerina.
+This package provides the functionality required for Ballerina Persist Layer.
 
 ## Report issues
 
