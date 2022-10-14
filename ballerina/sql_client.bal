@@ -38,7 +38,7 @@ public client class SQLClient {
     # + joinMetadata - The metadata associated with performing SQL `JOIN` operations
     # + return - A `persist:Error` if the client creation fails
     public function init(sql:Client dbClient, string entityName, sql:ParameterizedQuery tableName, string[] keyFields, map<FieldMetadata> fieldMetadata,
-                         map<JoinMetadata> joinMetadata = {}) returns Error? {
+                        map<JoinMetadata> joinMetadata = {}) returns Error? {
         self.entityName = entityName;
         self.tableName = tableName;
         self.fieldMetadata = fieldMetadata;
@@ -70,7 +70,7 @@ public client class SQLClient {
     # Performs an SQL `SELECT` operation to read a single record from the database.
     #
     # + rowType - The record-type to be retrieved (the record type of the entity)    
-    # + key -  The value of the key (to be used as the `WHERE` clauses)
+    # + key - The value of the key (to be used as the `WHERE` clauses)
     # + include - The relations to be retrieved (SQL `JOINs` to be performed)
     # + return - A record in the `rowType` type or a `persist:Error` if the operation fails
     public isolated function runReadByKeyQuery(typedesc<record {}> rowType, anydata key, string[] include = []) returns record {}|Error {
@@ -147,9 +147,9 @@ public client class SQLClient {
     # Performs an SQL `UPDATE` operation to update multiple records in the database.
     #
     # + 'object - the record to be updated
-    # + return -  `()` if the operation is performed successfully.
-    #             A `ForeignKeyConstraintViolationError` if the operation violates a foreign key constraint.
-    #             A `persist:Error` if the operation fails due to another reason.
+    # + return - `()` if the operation is performed successfully.
+    #            A `ForeignKeyConstraintViolationError` if the operation violates a foreign key constraint.
+    #            A `persist:Error` if the operation fails due to another reason.
     public isolated function runUpdateQuery(record {} 'object) returns ForeignKeyConstraintViolationError|Error? {
         sql:ParameterizedQuery query = sql:queryConcat(`UPDATE `, self.tableName, stringToParameterizedQuery(" " + self.entityName), ` SET`, check self.getSetClauses('object));
         query = sql:queryConcat(query, ` WHERE`, check self.getWhereClauses(self.getKey('object)));
@@ -202,7 +202,7 @@ public client class SQLClient {
 
                 stream<record {}, sql:Error?> joinStream = self.dbClient->query(query, joinMetadata.entity);
                 record {}[] arr = [];
-                error? e  = from record {} item in joinStream
+                error? e = from record {} item in joinStream
                     do {
                         arr.push(check item.cloneWithType(joinMetadata.entity));
                     };
@@ -217,7 +217,7 @@ public client class SQLClient {
     }
 
     # Closes the underlying `sql:Client`.
-    # 
+    #
     # + return - `()` if the client is closed successfully or a `persist:Error` if the operation fails
     public isolated function close() returns Error? {
         sql:Error? e = self.dbClient.close();

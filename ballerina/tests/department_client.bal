@@ -40,7 +40,7 @@ client class DepartmentClient {
     }
 
     remote function create(Department value) returns Department|Error {
-         _ = check self.persistClient.runInsertQuery(value);
+        _ = check self.persistClient.runInsertQuery(value);
         return value;
     }
 
