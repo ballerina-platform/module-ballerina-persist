@@ -26,10 +26,9 @@ function compositeCreateTest() returns error? {
         departmentId: 1,
         name: "ICU"
     };
-    Department department2 = check dClient->create(department);
+    Department|Error department2 = dClient->create(department);
     check dClient.close();
-    test:assertTrue(department2.hospitalCode is string);
-    test:assertTrue(department2.departmentId is int);
+    test:assertTrue(department2 is Department);
 }
 
 @test:Config {

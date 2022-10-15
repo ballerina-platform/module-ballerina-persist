@@ -118,7 +118,7 @@ public class UserStream {
             } else if (streamValue is sql:Error) {
                 return <Error>error(streamValue.message());
             } else {
-                record {|User value;|} nextRecord = {value: <User> streamValue.value};
+                record {|User value;|} nextRecord = {value: <User>streamValue.value};
                 return nextRecord;
             }
         } else {
