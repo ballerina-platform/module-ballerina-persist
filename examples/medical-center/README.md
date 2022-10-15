@@ -14,7 +14,7 @@ First, clone this repository, and then run the following commands to run this ex
 
 ```sh
 $ cd examples/medical-center
-$ bal persist run
+$ bal persist init
 ```
 This will create/update the `Config.toml` file with necessary db configurations and driver dependency to `Ballerina.toml` file.
 
