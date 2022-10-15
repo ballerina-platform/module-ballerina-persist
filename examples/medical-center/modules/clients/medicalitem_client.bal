@@ -21,7 +21,7 @@ import ballerina/persist;
 public client class MedicalItemClient {
 
     private final string entityName = "MedicalItem";
-    private final sql:ParameterizedQuery tableName = `MedicalItems`;
+    private final sql:ParameterizedQuery tableName = `MedicalItem`;
     private final map<persist:FieldMetadata> fieldMetadata = {
         itemId: {columnName: "itemId", 'type: int},
         name: {columnName: "name", 'type: string},
