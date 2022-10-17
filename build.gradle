@@ -75,9 +75,9 @@ subprojects {
 
         ballerinaStdLibs "io.ballerina.stdlib:io-ballerina:${stdlibIoVersion}"
         ballerinaStdLibs "io.ballerina.stdlib:time-ballerina:${stdlibTimeVersion}"
-        ballerinaStdLibs "io.ballerina.stdlib:crypto-ballerina:${stdlibCryptoVersion}"
         ballerinaStdLibs "io.ballerina.stdlib:sql-ballerina:${stdlibSqlVersion}"
-        ballerinaStdLibs "io.ballerina.stdlib:mysql-ballerina:${stdlibMysqlVersion}"
+        ballerinaStdLibs "io.ballerina.stdlib:crypto-ballerina:${testStdlibCryptoVersion}"
+        ballerinaStdLibs "io.ballerina.stdlib:mysql-ballerina:${testStdlibMysqlVersion}"
 
         externalJars (group: 'mysql', name: 'mysql-connector-java', version: "${mySQLDriverVersion}") {
             transitive = false
