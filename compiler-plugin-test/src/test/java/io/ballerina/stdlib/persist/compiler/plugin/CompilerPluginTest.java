@@ -238,14 +238,34 @@ public class CompilerPluginTest {
     }
 
     @Test
+    public void testUnSupportedFeature1() {
+        DiagnosticResult diagnosticResult = loadPackage("package_22").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList, "unsupported features: array type is not supported yet",
+                DiagnosticsCodes.PERSIST_120.getCode(), 1);
+    }
+    
+    @Test
+    public void testUnSupportedFeature2() {
+        DiagnosticResult diagnosticResult = loadPackage("package_23").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList, "unsupported features: array type is not supported yet",
+                DiagnosticsCodes.PERSIST_120.getCode(), 1);
+    }
+
+    @Test
     public void testInvalidAnnotation() {
         DiagnosticResult diagnosticResult = loadPackage("package_18").getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
                 filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
                 collect(Collectors.toList());
-        assertValues(errorDiagnosticsList, "invalid annotation attachment: The relation annotation can " +
-                "only be attached to the field whose type is defined by another entity",
-                DiagnosticsCodes.PERSIST_117.getCode(), 1);
+        assertValues(errorDiagnosticsList, "invalid annotation attachment: the `one-to-many` relation " +
+                "annotation can not be attached to the array entity record field",
+                DiagnosticsCodes.PERSIST_118.getCode(), 1);
     }
 
     @Test
@@ -254,9 +274,9 @@ public class CompilerPluginTest {
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
                 filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
                 collect(Collectors.toList());
-        assertValues(errorDiagnosticsList, "invalid annotation attachment: The relation annotation can only be " +
-                "attached to the field whose type is defined by another entity", DiagnosticsCodes.PERSIST_117.getCode(),
-                1);
+        assertValues(errorDiagnosticsList, "invalid annotation attachment: The relation " +
+                "annotation can only be attached to the entity record field",
+                DiagnosticsCodes.PERSIST_117.getCode(), 1);
     }
 
     @Test
@@ -266,7 +286,7 @@ public class CompilerPluginTest {
                 filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
                 collect(Collectors.toList());
         assertValues(errorDiagnosticsList, "duplicate entity names are not allowed: the specified name is " +
-                        "already used in another entity", DiagnosticsCodes.PERSIST_118.getCode(), 2);
+                        "already used in another entity", DiagnosticsCodes.PERSIST_119.getCode(), 2);
     }
 
     private void assertValues(List<Diagnostic> errorDiagnosticsList, String msg, String code, int count) {

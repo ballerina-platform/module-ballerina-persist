@@ -59,9 +59,13 @@ public enum DiagnosticsCodes {
     PERSIST_116("PERSIST_116", "invalid entity initialisation: the relation annotation should " +
             "only be added to the relationship owner for one-to-one and one-to-many associations", ERROR),
     PERSIST_117("PERSIST_117", "invalid annotation attachment: The relation annotation can only be " +
-            "attached to the field whose type is defined by another entity", ERROR),
-    PERSIST_118("PERSIST_118", "duplicate entity names are not allowed: the specified name is already " +
+            "attached to the entity record field", ERROR),
+    PERSIST_118("PERSIST_118", "invalid annotation attachment: the `one-to-many` relation annotation " +
+            "can not be attached to the array entity record field", ERROR),
+    PERSIST_119("PERSIST_119", "duplicate entity names are not allowed: the specified name is already " +
             "used in another entity", ERROR),
+    PERSIST_120("PERSIST_120", "unsupported features: array type is not supported yet",
+            ERROR),
 
     PERSIST_201("PERSIST_201",
             "Unsupported expression: read() function of persist client does not support this expression", ERROR),

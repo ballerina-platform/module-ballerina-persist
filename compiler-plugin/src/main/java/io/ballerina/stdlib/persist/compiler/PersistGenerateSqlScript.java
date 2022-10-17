@@ -185,9 +185,6 @@ public class PersistGenerateSqlScript {
                                     referenceTableName = properties[0].toString();
                                     hasRelationAnnotation = properties[2].toString();
                                     referenceRecord = (TypeDefinitionNode) properties[3];
-//                                    if (properties.length == 5) {
-//                                        updateReferenceTable(referenceTableName, tableName, referenceTables);
-//                                    }
                                     if (isArrayType) {
                                         if (tableAssociationType.equals(Constants.ONE_TO_ONE)) {
                                             tableAssociationType = Constants.ONE_TO_MANY;
@@ -202,6 +199,13 @@ public class PersistGenerateSqlScript {
                                     break;
                                 }
                             } else {
+                                if (isArrayType) {
+                                    Utils.reportDiagnostic(ctx, node.location(),
+                                            DiagnosticsCodes.PERSIST_120.getCode(),
+                                            DiagnosticsCodes.PERSIST_120.getMessage(),
+                                            DiagnosticsCodes.PERSIST_120.getSeverity());
+                                    return DIAGNOSTIC;
+                                }
                                 type = getType(qualifiedNameReferenceNode.toString().trim());
                                 break;
                             }
@@ -225,9 +229,6 @@ public class PersistGenerateSqlScript {
                 referenceTableName = properties[0].toString();
                 hasRelationAnnotation = properties[2].toString();
                 referenceRecord = (TypeDefinitionNode) properties[3];
-//                if (properties.length == 5) {
-//                    updateReferenceTable(referenceTableName, tableName, referenceTables);
-//                }
                 if (isArrayType) {
                     if (tableAssociationType.equals(Constants.ONE_TO_ONE)) {
                         tableAssociationType = Constants.ONE_TO_MANY;
@@ -240,6 +241,11 @@ public class PersistGenerateSqlScript {
                     }
                 }
             } else {
+                if (isArrayType) {
+                    Utils.reportDiagnostic(ctx, node.location(), DiagnosticsCodes.PERSIST_120.getCode(),
+                            DiagnosticsCodes.PERSIST_120.getMessage(), DiagnosticsCodes.PERSIST_120.getSeverity());
+                    return DIAGNOSTIC;
+                }
                 type = getType(((BuiltinSimpleNameReferenceNode) node).name().text());
             }
             String relationScript = EMPTY;
@@ -265,9 +271,24 @@ public class PersistGenerateSqlScript {
                                     DiagnosticsCodes.PERSIST_116.getSeverity());
                             return DIAGNOSTIC;
                         }
-                        if (isArrayType || !isUserDefinedType) {
+                        if (isArrayType) {
+                            if (tableAssociationType.equals(Constants.ONE_TO_MANY)) {
+                                Utils.reportDiagnostic(ctx, annotationNode.location(),
+                                        DiagnosticsCodes.PERSIST_118.getCode(),
+                                        DiagnosticsCodes.PERSIST_118.getMessage(),
+                                        DiagnosticsCodes.PERSIST_118.getSeverity());
+                                return DIAGNOSTIC;
+                            } else if (!isUserDefinedType) {
+                                Utils.reportDiagnostic(ctx, annotationNode.location(),
+                                        DiagnosticsCodes.PERSIST_117.getCode(),
+                                        DiagnosticsCodes.PERSIST_117.getMessage(),
+                                        DiagnosticsCodes.PERSIST_117.getSeverity());
+                                return DIAGNOSTIC;
+                            }
+                        } else if (!isUserDefinedType) {
                             Utils.reportDiagnostic(ctx, annotationNode.location(),
-                                    DiagnosticsCodes.PERSIST_117.getCode(), DiagnosticsCodes.PERSIST_117.getMessage(),
+                                    DiagnosticsCodes.PERSIST_117.getCode(),
+                                    DiagnosticsCodes.PERSIST_117.getMessage(),
                                     DiagnosticsCodes.PERSIST_117.getSeverity());
                             return DIAGNOSTIC;
                         }
