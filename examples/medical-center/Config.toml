@@ -1,5 +1,6 @@
-USER="root"
-PASSWORD="Test123#"
-HOST="localhost"
-PORT=3305
-DATABASE="test"
+[wso2.medical_center.clients]
+host = "localhost"
+port = 3306
+user = "root"
+password = ""
+database = "medical_center_db"

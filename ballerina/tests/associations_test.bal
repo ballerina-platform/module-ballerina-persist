@@ -134,7 +134,9 @@ function oneToOneUpdateTest1() returns error? {
     ProfileClient profileClient = check new ();
     _ = check profileClient->create(profile);
 
-    _ = check profileClient->update({"name": "TestUpdatedProfile", "user": {name: "TestUpdatedUser"}}, {id: 5});
+    profile.name = "TestUpdatedProfile";
+    profile.user.name = "TestUpdatedUser";
+    _ = check profileClient->update(profile);
 
     Profile profile2 = check profileClient->readByKey(5, [UserEntity]);
     Profile expectedProfile = {
@@ -163,7 +165,12 @@ function oneToOneUpdateTest2() returns error? {
     ProfileClient profileClient = check new ();
     _ = check profileClient->create(profile);
 
-    _ = check profileClient->update({"name": "TestUpdatedProfile", "user": {id: 4, name: "TestUpdatedUser2"}}, {id: 6});
+    profile.name = "TestUpdatedProfile";
+    profile.user = {
+        id: 4,
+        name: "TestUpdatedUser2"
+    };
+    _ = check profileClient->update(profile);
 
     Profile profile2 = check profileClient->readByKey(6, [UserEntity]);
     Profile expectedProfile = {
@@ -192,7 +199,12 @@ function oneToOneUpdateTest3() returns error? {
     ProfileClient profileClient = check new ();
     _ = check profileClient->create(profile);
 
-    ForeignKeyConstraintViolationError|error? result = profileClient->update({"name": "TestUpdatedProfile", "user": {id: 7, name: "TestUpdatedUser2"}}, {id: 7});
+    profile.name = "TestUpdatedProfile";
+    profile.user = {
+        id: 7,
+        name: "TestUpdatedUser2"
+    };
+    ForeignKeyConstraintViolationError|error? result = profileClient->update(profile);
     test:assertTrue(result is ForeignKeyConstraintViolationError);
 }
 
@@ -327,8 +339,8 @@ function oneToManyCreateTest3() returns error? {
     };
     _ = check employeeClient->create(employee2);
 
-    stream<Company, error?> companyStream = companyClient->read({id: 3}, [EmployeeEntity]);
-    check from Company company2 in companyStream
+    check from Company company2 in companyClient->read([EmployeeEntity])
+        where company2.id == 3
         do {
             test:assertEquals(company2, <Company>{
                 id: 3,
@@ -400,7 +412,9 @@ function oneToManyUpdateTest4() returns error? {
     };
     _ = check employeeClient->create(employee2);
 
-    _ = check employeeClient->update({"name": "TestEmployeeUpdated8", "company": {name: "TestCompanyUpdated5"}}, {id: 8});
+    employee1.name = "TestEmployeeUpdated8";
+    employee1.company.name = "TestCompanyUpdated5";
+    _ = check employeeClient->update(employee1);
     Company company2 = check companyClient->readByKey(5, [EmployeeEntity]);
     test:assertEquals(company2, <Company>{
         id: 5,
