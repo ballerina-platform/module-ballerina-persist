@@ -150,8 +150,8 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                         validateRecordType(ctx, typeDefinitionNode);
                         if (this.noOfReportDiagnostic == 0) {
                             PersistGenerateSqlScript.generateSqlScript((RecordTypeDescriptorNode) recordNode,
-                                    typeDefinitionNode, tableName, memberNodes, this.primaryKeys,
-                                    this.uniqueConstraints, ctx, referenceTables, tableNamesInScript);
+                                    typeDefinitionNode, tableName, this.primaryKeys, this.uniqueConstraints, ctx,
+                                    referenceTables, tableNamesInScript);
                         }
                     }
                 }
@@ -168,8 +168,8 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
     private void validateRecordName(SyntaxNodeAnalysisContext ctx, TypeDefinitionNode typeDefinitionNode) {
         String recordName = typeDefinitionNode.typeName().text().trim();
         if (recordNames.contains(recordName)) {
-            reportDiagnosticInfo(ctx, typeDefinitionNode.location(), DiagnosticsCodes.PERSIST_118.getCode(),
-                    DiagnosticsCodes.PERSIST_118.getMessage(), DiagnosticsCodes.PERSIST_118.getSeverity());
+            reportDiagnosticInfo(ctx, typeDefinitionNode.location(), DiagnosticsCodes.PERSIST_119.getCode(),
+                    DiagnosticsCodes.PERSIST_119.getMessage(), DiagnosticsCodes.PERSIST_119.getSeverity());
         } else {
             recordNames.add(recordName);
         }
