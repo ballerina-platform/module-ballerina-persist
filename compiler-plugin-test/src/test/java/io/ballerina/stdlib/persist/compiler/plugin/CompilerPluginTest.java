@@ -258,6 +258,26 @@ public class CompilerPluginTest {
     }
 
     @Test
+    public void testUnSupportedFeature3() {
+        DiagnosticResult diagnosticResult = loadPackage("package_24").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList, "unsupported features: json is not supported yet",
+                DiagnosticsCodes.PERSIST_121.getCode(), 1);
+    }
+
+    @Test
+    public void testUnSupportedFeature4() {
+        DiagnosticResult diagnosticResult = loadPackage("package_25").getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
+                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
+                collect(Collectors.toList());
+        assertValues(errorDiagnosticsList, "unsupported features: json is not supported yet",
+                DiagnosticsCodes.PERSIST_121.getCode(), 2);
+    }
+
+    @Test
     public void testInvalidAnnotation() {
         DiagnosticResult diagnosticResult = loadPackage("package_18").getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().

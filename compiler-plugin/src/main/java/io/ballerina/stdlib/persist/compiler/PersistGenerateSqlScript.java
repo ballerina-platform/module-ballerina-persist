@@ -206,13 +206,13 @@ public class PersistGenerateSqlScript {
                                             DiagnosticsCodes.PERSIST_120.getSeverity());
                                     return DIAGNOSTIC;
                                 }
-                                type = getType(qualifiedNameReferenceNode.toString().trim());
+                                type = getType(ctx, node, qualifiedNameReferenceNode.toString().trim());
                                 break;
                             }
                         }
                     }
                 } else {
-                    type = getType(type);
+                    type = getType(ctx, node, type);
                 }
             } else if (node instanceof SimpleNameReferenceNode) {
                 isUserDefinedType = true;
@@ -246,7 +246,10 @@ public class PersistGenerateSqlScript {
                             DiagnosticsCodes.PERSIST_120.getMessage(), DiagnosticsCodes.PERSIST_120.getSeverity());
                     return DIAGNOSTIC;
                 }
-                type = getType(((BuiltinSimpleNameReferenceNode) node).name().text());
+                type = getType(ctx, node, ((BuiltinSimpleNameReferenceNode) node).name().text());
+            }
+            if (type.equals(DIAGNOSTIC)) {
+                return DIAGNOSTIC;
             }
             String relationScript = EMPTY;
             if (metadata.isPresent()) {
@@ -293,8 +296,8 @@ public class PersistGenerateSqlScript {
                             return DIAGNOSTIC;
                         }
                         updateReferenceTable(tableName, referenceTableName, referenceTables);
-                        relationScript = processRelationAnnotation(annotationNode, type, tableName, referenceRecord,
-                                referenceTableName, tableAssociationType);
+                        relationScript = processRelationAnnotation(ctx, annotationNode, type, tableName,
+                                referenceRecord, referenceTableName, tableAssociationType);
                     }
                 }
             }
@@ -505,7 +508,8 @@ public class PersistGenerateSqlScript {
         return startValue;
     }
 
-    private static String processRelationAnnotation(AnnotationNode annotationNode, String fieldType, String tableName,
+    private static String processRelationAnnotation(SyntaxNodeAnalysisContext ctx,
+                                                    AnnotationNode annotationNode, String fieldType, String tableName,
                                                     TypeDefinitionNode referenceRecord, String referenceTableName,
                                                     String relationshipType) {
         String delete = EMPTY;
@@ -545,7 +549,7 @@ public class PersistGenerateSqlScript {
                 int i = 0;
                 for (Node node : foreignKeys.expressions()) {
                     String referenceKey = Utils.eliminateDoubleQuotes(referenceValueNode.get(i).toSourceCode().trim());
-                    String foreignKeyType = getForeignKeyType(referenceRecord, referenceKey,
+                    String foreignKeyType = getForeignKeyType(ctx, referenceRecord, referenceKey,
                             foreignKeys.expressions().size(), relationshipType);
                     relationScript = new StringBuilder(relationScript.toString().concat(
                             constructForeignKeyScript(Utils.eliminateDoubleQuotes(node.toSourceCode().trim()),
@@ -563,20 +567,19 @@ public class PersistGenerateSqlScript {
                     foreignKey = fieldType.toLowerCase(Locale.ENGLISH) +
                             referenceKey.substring(0, 1).toUpperCase(Locale.ENGLISH) +
                             referenceKey.substring(1);
-                    foreignKeyType = getForeignKeyType(referenceRecord, referenceKey, reference.expressions().size(),
-                            relationshipType);
+                    foreignKeyType = getForeignKeyType(ctx, referenceRecord, referenceKey,
+                            reference.expressions().size(), relationshipType);
                     relationScript.append(constructForeignKeyScript(foreignKey,
                             foreignKeyType, tableName, referenceTableName, "0", referenceKey, delete, update));
                 } else if (foreignKeys != null && foreignKeys.expressions().size() != 0) {
                     foreignKey = Utils.eliminateDoubleQuotes(foreignKeys.expressions().get(0).toSourceCode().trim());
-                    referenceInfo = getReferenceKeyAndType(referenceRecord, fieldType,
-                            foreignKeys.expressions().size(), relationshipType);
+                    referenceInfo = getReferenceKeyAndType(ctx, referenceRecord, foreignKeys.expressions().size(),
+                            relationshipType);
                     relationScript.append(constructForeignKeyScript(foreignKey,
                             referenceInfo.get(1).get(0), tableName, referenceTableName, "0",
                             referenceInfo.get(0).get(0), delete, update));
                 } else {
-                    referenceInfo = getReferenceKeyAndType(referenceRecord, fieldType, 1,
-                            relationshipType);
+                    referenceInfo = getReferenceKeyAndType(ctx, referenceRecord, 1, relationshipType);
                     String referenceKeyName = referenceInfo.get(0).get(0);
                     String referenceType = referenceInfo.get(1).get(0);
                     foreignKey = fieldType.toLowerCase(Locale.ENGLISH) +
@@ -619,8 +622,8 @@ public class PersistGenerateSqlScript {
                 referenceTableName, referenceKey, delete, update, NEW_LINE, TAB);
     }
 
-    private static List<List<String>> getReferenceKeyAndType(TypeDefinitionNode referenceRecord,
-                                                             String referenceTableName, int noOfForeignKeys,
+    private static List<List<String>> getReferenceKeyAndType(SyntaxNodeAnalysisContext ctx,
+                                                             TypeDefinitionNode referenceRecord, int noOfForeignKeys,
                                                              String tableAssociationType) {
         List<String> primaryKeys = new ArrayList<>();
         List<List<String>> uniqueConstraints = new ArrayList<>();
@@ -674,21 +677,22 @@ public class PersistGenerateSqlScript {
         List<List<String>> referenceInfo;
         if (primaryKeys.size() > 0 || uniqueConstraints.size() > 0) {
             if (primaryKeys.size() == 1 || uniqueConstraints.size() == 1) {
-                referenceInfo = getInfoFromSinglePrimaryOrUniqueKeys(referenceRecord, primaryKeys,
+                referenceInfo = getInfoFromSinglePrimaryOrUniqueKeys(ctx, referenceRecord, primaryKeys,
                         uniqueConstraints, noOfForeignKeys, tableAssociationType);
             } else {
-                referenceInfo = getInfoFromCompositePrimaryOrUniqueKeys(referenceRecord, primaryKeys,
+                referenceInfo = getInfoFromCompositePrimaryOrUniqueKeys(ctx, referenceRecord, primaryKeys,
                         uniqueConstraints);
             }
             if (referenceInfo != null) {
                 return referenceInfo;
             }
         }
-        referenceInfo = getInfoFromIntOrStringTypeField(referenceRecord, referenceTableName);
+        referenceInfo = getInfoFromIntOrStringTypeField(ctx, referenceRecord);
         return referenceInfo;
     }
 
-    private static List<List<String>> getInfoFromSinglePrimaryOrUniqueKeys(TypeDefinitionNode referenceRecord,
+    private static List<List<String>> getInfoFromSinglePrimaryOrUniqueKeys(SyntaxNodeAnalysisContext ctx,
+                                                                           TypeDefinitionNode referenceRecord,
                                                                            List<String> primaryKeys,
                                                                            List<List<String>> uniqueConstraints,
                                                                            int noOfForeignKeys,
@@ -725,7 +729,7 @@ public class PersistGenerateSqlScript {
                         if (metadata.isPresent()) {
                             annotations = metadata.get().annotations();
                         }
-                        fieldType = getForeignKeyFieldType(annotations, fieldType) + unique;
+                        fieldType = getForeignKeyFieldType(ctx, recordField, annotations, fieldType) + unique;
                         referenceTypes.add(fieldType);
                         referenceInfo.add(referenceKeys);
                         referenceInfo.add(referenceTypes);
@@ -740,7 +744,7 @@ public class PersistGenerateSqlScript {
                         if (metadata.isPresent()) {
                             annotations = metadata.get().annotations();
                         }
-                        fieldType = getForeignKeyFieldType(annotations, fieldType) + unique;
+                        fieldType = getForeignKeyFieldType(ctx, recordField, annotations, fieldType) + unique;
                         referenceTypes.add(fieldType);
                         referenceInfo.add(referenceKeys);
                         referenceInfo.add(referenceTypes);
@@ -752,7 +756,8 @@ public class PersistGenerateSqlScript {
         return null;
     }
 
-    private static List<List<String>> getInfoFromCompositePrimaryOrUniqueKeys(TypeDefinitionNode referenceRecord,
+    private static List<List<String>> getInfoFromCompositePrimaryOrUniqueKeys(SyntaxNodeAnalysisContext ctx,
+                                                                              TypeDefinitionNode referenceRecord,
                                                                               List<String> primaryKeys,
                                                                               List<List<String>> uniqueConstraints) {
         List<List<String>> referenceInfo = new ArrayList<>();
@@ -787,7 +792,7 @@ public class PersistGenerateSqlScript {
                         }
                     }
                 }
-                fieldType = getForeignKeyFieldType(annotations, fieldType);
+                fieldType = getForeignKeyFieldType(ctx, recordField, annotations, fieldType);
                 referenceTypes.add(fieldType);
             } else if (uniqueConstraints.size() > 1) {
                 String fieldType;
@@ -802,7 +807,7 @@ public class PersistGenerateSqlScript {
                         if (metadata.isPresent()) {
                             annotations = metadata.get().annotations();
                         }
-                        fieldType = getForeignKeyFieldType(annotations, fieldType);
+                        fieldType = getForeignKeyFieldType(ctx, recordField, annotations, fieldType);
                         referenceTypes.add(fieldType);
                     }
                 } else {
@@ -815,7 +820,7 @@ public class PersistGenerateSqlScript {
                         if (metadata.isPresent()) {
                             annotations = metadata.get().annotations();
                         }
-                        fieldType = getForeignKeyFieldType(annotations, fieldType);
+                        fieldType = getForeignKeyFieldType(ctx, recordField, annotations, fieldType);
                         referenceTypes.add(fieldType);
                     }
                 }
@@ -829,8 +834,8 @@ public class PersistGenerateSqlScript {
         return null;
     }
 
-    private static List<List<String>> getInfoFromIntOrStringTypeField(TypeDefinitionNode referenceRecord,
-                                                                      String referenceTableName) {
+    private static List<List<String>> getInfoFromIntOrStringTypeField(SyntaxNodeAnalysisContext ctx,
+                                                                      TypeDefinitionNode referenceRecord) {
         List<List<String>> referenceInfo = new ArrayList<>();
         List<String> referenceKeys = new ArrayList<>();
         List<String> referenceTypes = new ArrayList<>();
@@ -849,7 +854,7 @@ public class PersistGenerateSqlScript {
                     if (metadata.isPresent()) {
                         annotations = metadata.get().annotations();
                     }
-                    fieldType = getForeignKeyFieldType(annotations, fieldType);
+                    fieldType = getForeignKeyFieldType(ctx, recordField, annotations, fieldType);
                     referenceTypes.add(fieldType);
                     referenceInfo.add(referenceKeys);
                     referenceInfo.add(referenceTypes);
@@ -866,7 +871,7 @@ public class PersistGenerateSqlScript {
                     if (metadata.isPresent()) {
                         annotations = metadata.get().annotations();
                     }
-                    fieldType = getForeignKeyFieldType(annotations, fieldType);
+                    fieldType = getForeignKeyFieldType(ctx, recordField, annotations, fieldType);
                     referenceTypes.add(fieldType);
                     referenceInfo.add(referenceKeys);
                     referenceInfo.add(referenceTypes);
@@ -877,8 +882,8 @@ public class PersistGenerateSqlScript {
         return null;
     }
 
-    private static String getForeignKeyType(TypeDefinitionNode referenceRecord, String referenceKey,
-                                            int noOfForeignKeys, String tableAssociationType) {
+    private static String getForeignKeyType(SyntaxNodeAnalysisContext ctx, TypeDefinitionNode referenceRecord,
+                                            String referenceKey, int noOfForeignKeys, String tableAssociationType) {
         Node typeDescriptor = referenceRecord.typeDescriptor();
         RecordTypeDescriptorNode recordTypeDescriptor = (RecordTypeDescriptorNode) typeDescriptor;
         Optional<MetadataNode> entityMetadata = referenceRecord.metadata();
@@ -898,7 +903,7 @@ public class PersistGenerateSqlScript {
                         if (metadata.isPresent()) {
                             annotations = metadata.get().annotations();
                         }
-                        return getForeignKeyFieldType(annotations, fieldType) + unique;
+                        return getForeignKeyFieldType(ctx, recordField, annotations, fieldType) + unique;
                     }
                 } else {
                     RecordFieldWithDefaultValueNode recordFieldNode = (RecordFieldWithDefaultValueNode) recordField;
@@ -908,7 +913,7 @@ public class PersistGenerateSqlScript {
                         if (metadata.isPresent()) {
                             annotations = metadata.get().annotations();
                         }
-                        return getForeignKeyFieldType(annotations, fieldType) + unique;
+                        return getForeignKeyFieldType(ctx, recordField, annotations, fieldType) + unique;
                     }
                 }
             }
@@ -964,7 +969,8 @@ public class PersistGenerateSqlScript {
         return "";
     }
 
-    private static String getForeignKeyFieldType(NodeList<AnnotationNode> annotations, String fieldType) {
+    private static String getForeignKeyFieldType(SyntaxNodeAnalysisContext ctx, Node node,
+                                                 NodeList<AnnotationNode> annotations, String fieldType) {
         if (annotations != null) {
             for (AnnotationNode annotationNode : annotations) {
                 String annotationName = annotationNode.annotReference().toSourceCode().trim();
@@ -974,14 +980,14 @@ public class PersistGenerateSqlScript {
                 }
             }
         }
-        String type = getType(fieldType);
+        String type = getType(ctx, node, fieldType);
         if (type.equals(Constants.SqlTypes.VARCHAR)) {
             type = type.concat("(" + Constants.VARCHAR_LENGTH + ")");
         }
         return type;
     }
 
-    private static String getType(String type) {
+    private static String getType(SyntaxNodeAnalysisContext ctx, Node node, String type) {
         switch (type) {
             case Constants.BallerinaTypes.INT:
                 return Constants.SqlTypes.INT;
@@ -999,8 +1005,14 @@ public class PersistGenerateSqlScript {
                 return Constants.SqlTypes.TIME_STAMP;
             case Constants.BallerinaTypes.CIVIL:
                 return Constants.SqlTypes.DATE_TIME;
-            default:
+            case Constants.BallerinaTypes.STRING:
                 return Constants.SqlTypes.VARCHAR;
+            default:
+                Utils.reportDiagnostic(ctx, node.location(),
+                        DiagnosticsCodes.PERSIST_121.getCode(),
+                        MessageFormat.format(DiagnosticsCodes.PERSIST_121.getMessage(), type),
+                        DiagnosticsCodes.PERSIST_121.getSeverity());
+                return DIAGNOSTIC;
         }
     }
 

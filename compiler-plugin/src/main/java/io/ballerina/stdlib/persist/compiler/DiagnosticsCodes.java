@@ -66,6 +66,8 @@ public enum DiagnosticsCodes {
             "used in another entity", ERROR),
     PERSIST_120("PERSIST_120", "unsupported features: array type is not supported yet",
             ERROR),
+    PERSIST_121("PERSIST_121", "unsupported features: {0} is not supported yet",
+            ERROR),
 
     PERSIST_201("PERSIST_201",
             "Unsupported expression: read() function of persist client does not support this expression", ERROR),
