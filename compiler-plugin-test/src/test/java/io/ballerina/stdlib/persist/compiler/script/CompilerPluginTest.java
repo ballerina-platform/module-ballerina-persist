@@ -414,18 +414,7 @@ public class CompilerPluginTest {
                 "\tquantity INT NOT NULL,\n" +
                 "\tPRIMARY KEY(needId)\n" +
                 ");";
-        List<String> fileContents = new ArrayList<>();
-        fileContents.add(fileContent);
-        fileContents.add(fileContent1);
-        Package currentPackage = loadPackage("package_10");
-        currentPackage.getCompilation();
-        Path directoryPath = currentPackage.project().targetDir().toAbsolutePath();
-        Path filePath = Paths.get(String.valueOf(directoryPath), "persist_db_scripts.sql");
-        Assert.assertTrue(Files.exists(filePath), "The file doesn't exist");
-        String content = Files.readString(filePath);
-        Assert.assertTrue(fileContents.contains(content));
-        Files.deleteIfExists(filePath);
-        Files.deleteIfExists(directoryPath);
+        testMultipleOptionContent("package_10", fileContent, fileContent1);
     }
 
     @Test
@@ -700,18 +689,68 @@ public class CompilerPluginTest {
                 "\tCONSTRAINT FK_MULTIPLEASSOCIATIONS_USERS_0 FOREIGN KEY(userId) REFERENCES Users(id),\n" +
                 "\tPRIMARY KEY(id)\n" +
                 ");";
-        List<String> fileContents = new ArrayList<>();
-        fileContents.add(fileContent);
-        fileContents.add(fileContent1);
-        Package currentPackage = loadPackage("package_18");
-        currentPackage.getCompilation();
-        Path directoryPath = currentPackage.project().targetDir().toAbsolutePath();
-        Path filePath = Paths.get(String.valueOf(directoryPath), "persist_db_scripts.sql");
-        Assert.assertTrue(Files.exists(filePath), "The file doesn't exist");
-        String content = Files.readString(filePath);
-        Assert.assertTrue(fileContents.contains(content));
-        Files.deleteIfExists(filePath);
-        Files.deleteIfExists(directoryPath);
+        testMultipleOptionContent("package_18", fileContent, fileContent1);
+    }
+
+    @Test
+    public void testGenerateSqlScript18() throws IOException {
+        String fileContent = "DROP TABLE IF EXISTS MultipleAssociations;\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS Users;\n" +
+                "CREATE TABLE Users (\n" +
+                "\tid INT NOT NULL,\n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\tPRIMARY KEY(id)\n" +
+                ");\n" +
+                "\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS Profiles;\n" +
+                "CREATE TABLE Profiles (\n" +
+                "\tid INT NOT NULL,\n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\tuserId INT UNIQUE,\n" +
+                "\tCONSTRAINT FK_PROFILES_USERS_0 FOREIGN KEY(userId) REFERENCES Users(id),\n" +
+                "\tPRIMARY KEY(id)\n" +
+                ");\n" +
+                "\n" +
+                "CREATE TABLE MultipleAssociations (\n" +
+                "\tid INT NOT NULL,\n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\tprofileId INT UNIQUE,\n" +
+                "\tCONSTRAINT FK_MULTIPLEASSOCIATIONS_PROFILES_0 FOREIGN KEY(profileId) REFERENCES Profiles(id),\n" +
+                "\tuserId INT UNIQUE,\n" +
+                "\tCONSTRAINT FK_MULTIPLEASSOCIATIONS_USERS_0 FOREIGN KEY(userId) REFERENCES Users(id),\n" +
+                "\tPRIMARY KEY(id)\n" +
+                ");";
+        String fileContent1 = "DROP TABLE IF EXISTS MultipleAssociations;\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS Profiles;\n" +
+                "\n" +
+                "DROP TABLE IF EXISTS Users;\n" +
+                "CREATE TABLE Users (\n" +
+                "\tid INT NOT NULL,\n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\tPRIMARY KEY(id)\n" +
+                ");\n" +
+                "\n" +
+                "CREATE TABLE Profiles (\n" +
+                "\tid INT NOT NULL,\n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\tuserId INT UNIQUE,\n" +
+                "\tCONSTRAINT FK_PROFILES_USERS_0 FOREIGN KEY(userId) REFERENCES Users(id),\n" +
+                "\tPRIMARY KEY(id)\n" +
+                ");\n" +
+                "\n" +
+                "CREATE TABLE MultipleAssociations (\n" +
+                "\tid INT NOT NULL,\n" +
+                "\tname VARCHAR(191) NOT NULL,\n" +
+                "\tprofileId INT UNIQUE,\n" +
+                "\tCONSTRAINT FK_MULTIPLEASSOCIATIONS_PROFILES_0 FOREIGN KEY(profileId) REFERENCES Profiles(id),\n" +
+                "\tuserId INT UNIQUE,\n" +
+                "\tCONSTRAINT FK_MULTIPLEASSOCIATIONS_USERS_0 FOREIGN KEY(userId) REFERENCES Users(id),\n" +
+                "\tPRIMARY KEY(id)\n" +
+                ");";
+        testMultipleOptionContent("package_19", fileContent, fileContent1);
     }
 
     private void testSqlScript(String packagePath, String fileContent, int count,
@@ -735,6 +774,22 @@ public class CompilerPluginTest {
         } catch (IOException e) {
             Assert.fail("Error: " + e.getMessage());
         }
+    }
+
+    private void testMultipleOptionContent(String packageName, String fileContent,
+                                           String fileContent1) throws IOException {
+        List<String> fileContents = new ArrayList<>();
+        fileContents.add(fileContent);
+        fileContents.add(fileContent1);
+        Package currentPackage = loadPackage(packageName);
+        currentPackage.getCompilation();
+        Path directoryPath = currentPackage.project().targetDir().toAbsolutePath();
+        Path filePath = Paths.get(String.valueOf(directoryPath), "persist_db_scripts.sql");
+        Assert.assertTrue(Files.exists(filePath), "The file doesn't exist");
+        String content = Files.readString(filePath);
+        Assert.assertTrue(fileContents.contains(content));
+        Files.deleteIfExists(filePath);
+        Files.deleteIfExists(directoryPath);
     }
 }
 
