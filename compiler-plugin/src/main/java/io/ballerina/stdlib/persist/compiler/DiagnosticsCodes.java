@@ -64,9 +64,9 @@ public enum DiagnosticsCodes {
             "can not be attached to the array entity record field", ERROR),
     PERSIST_119("PERSIST_119", "duplicate entity names are not allowed: the specified name is already " +
             "used in another entity", ERROR),
-    PERSIST_120("PERSIST_120", "unsupported features: array type is not supported yet",
+    PERSIST_120("PERSIST_120", "unsupported features: array type is not supported",
             ERROR),
-    PERSIST_121("PERSIST_121", "unsupported features: {0} is not supported yet",
+    PERSIST_121("PERSIST_121", "unsupported features: {0} type is not supported",
             ERROR),
 
     PERSIST_201("PERSIST_201",

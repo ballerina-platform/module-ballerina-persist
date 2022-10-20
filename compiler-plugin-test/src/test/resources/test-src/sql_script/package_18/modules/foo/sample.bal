@@ -1,5 +1,5 @@
 import ballerina/persist;
-import package_18 as entities;
+import package_18;
 
 @persist:Entity {
     key: ["id"],
@@ -10,8 +10,8 @@ public type MultipleAssociations record {|
     string name;
 
     @persist:Relation {keyColumns: ["profileId"], reference: ["id"]}
-    entities:Profile profile?;
+    package_18:Profile profile?;
 
     @persist:Relation {keyColumns: ["userId"], reference: ["id"]}
-    entities:User user?;
+    package_18:User user?;
 |};

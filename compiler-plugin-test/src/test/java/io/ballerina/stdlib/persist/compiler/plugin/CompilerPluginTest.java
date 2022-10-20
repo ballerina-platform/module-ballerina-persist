@@ -57,259 +57,164 @@ public class CompilerPluginTest {
 
     @Test
     public void testEntityAnnotation1() {
-        DiagnosticResult diagnosticResult = loadPackage("package_01").getCompilation().diagnosticResult();
-        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
-                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
-                collect(Collectors.toList());
-        assertValues(errorDiagnosticsList, "invalid key: the given key is not in the record definition",
+        testDiagnostic("package_01", "invalid key: the given key is not in the record definition",
+                DiagnosticsCodes.PERSIST_102.getCode(), 2);
+    }
+    @Test
+    public void testEntityAnnotation2() {
+        testDiagnostic("package_02", "invalid key: the given key is not in the record definition",
                 DiagnosticsCodes.PERSIST_102.getCode(), 2);
     }
 
     @Test
     public void testPrimaryKeyMarkReadOnly() {
-        DiagnosticResult diagnosticResult = loadPackage("package_03").getCompilation().diagnosticResult();
-        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
-                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
-                collect(Collectors.toList());
-        assertValues(errorDiagnosticsList, "invalid initialization: the field is not specified as read-only",
-                DiagnosticsCodes.PERSIST_106.getCode(), 2);
+        testDiagnostic("package_03", "invalid initialization: the field is not specified as " +
+                        "read-only", DiagnosticsCodes.PERSIST_106.getCode(), 2);
     }
 
     @Test
     public void testMultipleAutoIncrementAnnotation() {
-        DiagnosticResult diagnosticResult = loadPackage("package_04").getCompilation().diagnosticResult();
-        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
-                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
-                collect(Collectors.toList());
-        assertValues(errorDiagnosticsList, "duplicate annotation: the entity does not allow " +
+        testDiagnostic("package_04", "duplicate annotation: the entity does not allow " +
                         "multiple field with auto increment annotation",
                 DiagnosticsCodes.PERSIST_107.getCode(), 1);
     }
 
     @Test
     public void testAutoIncrementAnnotation1() {
-        DiagnosticResult diagnosticResult = loadPackage("package_05").getCompilation().diagnosticResult();
-        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
-                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
-                collect(Collectors.toList());
-        assertValues(errorDiagnosticsList, "invalid value: the value only supports positive integer",
+        testDiagnostic("package_05", "invalid value: the value only supports positive integer",
                 DiagnosticsCodes.PERSIST_103.getCode(), 1);
     }
 
     @Test
     public void testRelationAnnotationMismatchReference() {
-        DiagnosticResult diagnosticResult = loadPackage("package_06").getCompilation().diagnosticResult();
-        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
-                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
-                collect(Collectors.toList());
-        assertValues(errorDiagnosticsList, "mismatch reference: the given key count is mismatched " +
+        testDiagnostic("package_06", "mismatch reference: the given key count is mismatched " +
                 "with reference key count", DiagnosticsCodes.PERSIST_109.getCode(), 1);
     }
 
     @Test
     public void testOptionalField() {
-        DiagnosticResult diagnosticResult = loadPackage("package_07").getCompilation().diagnosticResult();
-        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
-                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
-                collect(Collectors.toList());
-        assertValues(errorDiagnosticsList,
-                "invalid field type: the persist client does not support the union type",
-                DiagnosticsCodes.PERSIST_101.getCode(), 1);
+        testDiagnostic("package_07", "invalid field type: the persist client does not " +
+                        "support the union type", DiagnosticsCodes.PERSIST_101.getCode(), 1);
     }
 
     @Test
     public void testOptionalField2() {
-        DiagnosticResult diagnosticResult = loadPackage("package_08").getCompilation().diagnosticResult();
-        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
-                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
-                collect(Collectors.toList());
-        assertValues(errorDiagnosticsList,
-                "invalid field type: the persist client does not support the union type",
-                DiagnosticsCodes.PERSIST_101.getCode(), 1);
+        testDiagnostic("package_08", "invalid field type: the persist client does not " +
+                        "support the union type", DiagnosticsCodes.PERSIST_101.getCode(), 1);
     }
 
     @Test
     public void testOptionalField3() {
-        DiagnosticResult diagnosticResult = loadPackage("package_09").getCompilation().diagnosticResult();
-        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
-                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
-                collect(Collectors.toList());
-        assertValues(errorDiagnosticsList,
-                "invalid field type: the persist client does not support the union type",
-                DiagnosticsCodes.PERSIST_101.getCode(), 1);
+        testDiagnostic("package_09", "invalid field type: the persist client does not " +
+                        "support the union type", DiagnosticsCodes.PERSIST_101.getCode(), 1);
     }
 
     @Test
     public void testAutoIncrementField() {
-        DiagnosticResult diagnosticResult = loadPackage("package_10").getCompilation().diagnosticResult();
-        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
-                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
-                collect(Collectors.toList());
-        assertValues(errorDiagnosticsList,
-                "invalid initialization: auto increment field must be defined as a key",
-                DiagnosticsCodes.PERSIST_108.getCode(), 1);
+        testDiagnostic("package_10", "invalid initialization: auto increment field " +
+                        "must be defined as a key", DiagnosticsCodes.PERSIST_108.getCode(), 1);
     }
 
     @Test
     public void testRecordType() {
-        DiagnosticResult diagnosticResult = loadPackage("package_11").getCompilation().diagnosticResult();
-        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
-                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
-                collect(Collectors.toList());
-        assertValues(errorDiagnosticsList,
-                "invalid initialization: the entity should be public",
+        testDiagnostic("package_11", "invalid initialization: the entity should be public",
                 DiagnosticsCodes.PERSIST_111.getCode(), 1);
     }
 
     @Test
     public void testRecordType1() {
-        DiagnosticResult diagnosticResult = loadPackage("package_12").getCompilation().diagnosticResult();
-        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
-                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
-                collect(Collectors.toList());
-        assertValues(errorDiagnosticsList,
-                "invalid initialization: the entity should be public",
+        testDiagnostic("package_12", "invalid initialization: the entity should be public",
                 DiagnosticsCodes.PERSIST_111.getCode(), 1);
     }
 
     @Test
     public void testTableName() {
-        DiagnosticResult diagnosticResult = loadPackage("package_13").getCompilation().diagnosticResult();
-        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
-                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
-                collect(Collectors.toList());
-        assertValues(errorDiagnosticsList,
-                "duplicate table name: the table name is already used in another entity",
-                DiagnosticsCodes.PERSIST_113.getCode(), 1);
+        testDiagnostic("package_13", "duplicate table name: the table name is already " +
+                        "used in another entity", DiagnosticsCodes.PERSIST_113.getCode(), 1);
     }
 
     @Test
     public void testTableName1() {
-        DiagnosticResult diagnosticResult = loadPackage("package_20").getCompilation().diagnosticResult();
-        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
-                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
-                collect(Collectors.toList());
-        assertValues(errorDiagnosticsList,
-                "duplicate table name: the table name is already used in another entity",
-                DiagnosticsCodes.PERSIST_113.getCode(), 1);
+        testDiagnostic("package_20", "duplicate table name: the table name is already used " +
+                        "in another entity", DiagnosticsCodes.PERSIST_113.getCode(), 1);
     }
 
     @Test
     public void testInvalidInitialisation() {
-        DiagnosticResult diagnosticResult = loadPackage("package_14").getCompilation().diagnosticResult();
-        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
-                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
-                collect(Collectors.toList());
-        assertValues(errorDiagnosticsList,
-                "invalid entity initialisation: the associated entity of this[Item] does not have " +
-                        "the field with the relationship type", DiagnosticsCodes.PERSIST_115.getCode(), 2);
+        testDiagnostic("package_14", "invalid entity initialisation: the associated entity of " +
+                "this[Item] does not have the field with the relationship type",
+                DiagnosticsCodes.PERSIST_115.getCode(), 2);
     }
 
     @Test
     public void testInvalidInitialisation1() {
-        DiagnosticResult diagnosticResult = loadPackage("package_15").getCompilation().diagnosticResult();
-        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
-                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
-                collect(Collectors.toList());
-        assertValues(errorDiagnosticsList, "invalid entity initialisation: the relation annotation should " +
-                        "only be added to the relationship owner for one-to-one and one-to-many associations",
+        testDiagnostic("package_15", "invalid entity initialisation: the relation annotation " +
+                        "should only be added to the relationship owner for one-to-one and one-to-many associations",
                 DiagnosticsCodes.PERSIST_116.getCode(), 2);
     }
 
     @Test
     public void testInvalidInitialisation2() {
-        DiagnosticResult diagnosticResult = loadPackage("package_16").getCompilation().diagnosticResult();
-        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
-                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
-                collect(Collectors.toList());
-        assertValues(errorDiagnosticsList, "invalid entity initialisation: the relation annotation should " +
-                        "only be added to the relationship owner for one-to-one and one-to-many associations",
+        testDiagnostic("package_16", "invalid entity initialisation: the relation annotation " +
+                        "should only be added to the relationship owner for one-to-one and one-to-many associations",
                 DiagnosticsCodes.PERSIST_116.getCode(), 2);
     }
 
     @Test
     public void testUnSupportedFeature() {
-        DiagnosticResult diagnosticResult = loadPackage("package_17").getCompilation().diagnosticResult();
-        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
-                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
-                collect(Collectors.toList());
-        assertValues(errorDiagnosticsList, "unsupported features: many-to-many association is not supported yet",
-                DiagnosticsCodes.PERSIST_114.getCode(), 2);
+        testDiagnostic("package_17", "unsupported features: many-to-many association is not " +
+                        "supported yet", DiagnosticsCodes.PERSIST_114.getCode(), 2);
     }
 
     @Test
     public void testUnSupportedFeature1() {
-        DiagnosticResult diagnosticResult = loadPackage("package_22").getCompilation().diagnosticResult();
-        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
-                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
-                collect(Collectors.toList());
-        assertValues(errorDiagnosticsList, "unsupported features: array type is not supported yet",
+        testDiagnostic("package_22", "unsupported features: array type is not supported",
                 DiagnosticsCodes.PERSIST_120.getCode(), 1);
     }
     
     @Test
     public void testUnSupportedFeature2() {
-        DiagnosticResult diagnosticResult = loadPackage("package_23").getCompilation().diagnosticResult();
-        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
-                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
-                collect(Collectors.toList());
-        assertValues(errorDiagnosticsList, "unsupported features: array type is not supported yet",
+        testDiagnostic("package_23", "unsupported features: array type is not supported",
                 DiagnosticsCodes.PERSIST_120.getCode(), 1);
     }
 
     @Test
     public void testUnSupportedFeature3() {
-        DiagnosticResult diagnosticResult = loadPackage("package_24").getCompilation().diagnosticResult();
-        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
-                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
-                collect(Collectors.toList());
-        assertValues(errorDiagnosticsList, "unsupported features: json is not supported yet",
+        testDiagnostic("package_24", "unsupported features: json type is not supported",
                 DiagnosticsCodes.PERSIST_121.getCode(), 1);
     }
 
     @Test
     public void testUnSupportedFeature4() {
-        DiagnosticResult diagnosticResult = loadPackage("package_25").getCompilation().diagnosticResult();
-        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
-                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
-                collect(Collectors.toList());
-        assertValues(errorDiagnosticsList, "unsupported features: json is not supported yet",
+        testDiagnostic("package_25", "unsupported features: json type is not supported",
                 DiagnosticsCodes.PERSIST_121.getCode(), 2);
     }
 
     @Test
     public void testInvalidAnnotation() {
-        DiagnosticResult diagnosticResult = loadPackage("package_18").getCompilation().diagnosticResult();
-        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
-                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
-                collect(Collectors.toList());
-        assertValues(errorDiagnosticsList, "invalid annotation attachment: the `one-to-many` relation " +
+        testDiagnostic("package_18",  "invalid annotation attachment: the `one-to-many` relation " +
                 "annotation can not be attached to the array entity record field",
                 DiagnosticsCodes.PERSIST_118.getCode(), 1);
     }
 
     @Test
     public void testInvalidAnnotation1() {
-        DiagnosticResult diagnosticResult = loadPackage("package_19").getCompilation().diagnosticResult();
-        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
-                filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
-                collect(Collectors.toList());
-        assertValues(errorDiagnosticsList, "invalid annotation attachment: The relation " +
+        testDiagnostic("package_19",  "invalid annotation attachment: The relation " +
                 "annotation can only be attached to the entity record field",
                 DiagnosticsCodes.PERSIST_117.getCode(), 1);
     }
 
     @Test
     public void testEntityName1() {
-        DiagnosticResult diagnosticResult = loadPackage("package_21").getCompilation().diagnosticResult();
+        testDiagnostic("package_21", "duplicate entity names are not allowed: the specified name " +
+                "is already used in another entity", DiagnosticsCodes.PERSIST_119.getCode(), 2);
+    }
+
+    private void testDiagnostic(String packageName, String msg, String code, int count) {
+        DiagnosticResult diagnosticResult = loadPackage(packageName).getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
                 filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
                 collect(Collectors.toList());
-        assertValues(errorDiagnosticsList, "duplicate entity names are not allowed: the specified name is " +
-                        "already used in another entity", DiagnosticsCodes.PERSIST_119.getCode(), 2);
-    }
-
-    private void assertValues(List<Diagnostic> errorDiagnosticsList, String msg, String code, int count) {
         long availableErrors = errorDiagnosticsList.size();
         Assert.assertEquals(availableErrors, count);
         DiagnosticInfo error = errorDiagnosticsList.get(0).diagnosticInfo();

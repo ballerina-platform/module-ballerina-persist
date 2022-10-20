@@ -17,6 +17,8 @@
  */
 package io.ballerina.stdlib.persist.compiler;
 
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
@@ -24,6 +26,7 @@ import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerina.compiler.syntax.tree.ListConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
@@ -91,14 +94,14 @@ public class PersistGenerateSqlScript {
                                             String tableName, List<String> primaryKeys,
                                             List<List<String>> uniqueConstraints,
                                             SyntaxNodeAnalysisContext ctx, HashMap<String,
-            List<String>> referenceTables, List<String> tableNamesInScript) {
+            List<String>> referenceTables, List<String> tableNamesInScript, Symbol symbol) {
         String recordName = typeDefinitionNode.typeName().text();
         if (tableName.isEmpty()) {
             tableName = recordName;
         }
         String sqlScript = generateTableQuery(tableName);
         String fieldsQuery = generateFieldsQuery(recordNode, tableName, primaryKeys, uniqueConstraints,
-                ctx, referenceTables, recordName);
+                ctx, referenceTables, recordName, symbol);
         if (!fieldsQuery.equals(DIAGNOSTIC)) {
             sqlScript = sqlScript + fieldsQuery;
             createSqFile(sqlScript, ctx, recordNode.location(), tableName, referenceTables, tableNamesInScript);
@@ -112,7 +115,8 @@ public class PersistGenerateSqlScript {
     private static String generateFieldsQuery(RecordTypeDescriptorNode recordNode, String tableName,
                                               List<String> primaryKeys, List<List<String>> uniqueConstraints,
                                               SyntaxNodeAnalysisContext ctx,
-                                              HashMap<String, List<String>> referenceTables, String recordName) {
+                                              HashMap<String, List<String>> referenceTables, String recordName,
+                                              Symbol symbol) {
         NodeList<Node> fields = recordNode.fields();
         String type;
         String end = NEW_LINE + ");";
@@ -166,12 +170,10 @@ public class PersistGenerateSqlScript {
                     NodeList<ImportDeclarationNode> imports = ((ModulePartNode) ctx.syntaxTree().rootNode()).imports();
                     for (int i = 0; i < imports.size(); i++) {
                         ImportDeclarationNode importDeclarationNode = imports.get(i);
-                        Optional<ImportPrefixNode> prefixNode = importDeclarationNode.prefix();
                         SeparatedNodeList<IdentifierToken> moduleNames = importDeclarationNode.moduleName();
-                        if (moduleNames.get(moduleNames.size() - 1).toString().trim().equals(nodeType) ||
-                                ((prefixNode.isPresent() && prefixNode.get().prefix().text().trim().
-                                        equals(nodeType)))) {
-                            if (importDeclarationNode.orgName().isEmpty()) {
+                        if (isNodeType(importDeclarationNode, nodeType, moduleNames)) {
+                            if (hasValidModuleName(moduleNames, symbol) &&
+                                    hasValidOrgName(importDeclarationNode, symbol)) {
                                 isUserDefinedType = true;
                                 Object[] properties = checkRelationShip(recordName, type, ctx);
                                 if (isArrayType && properties.length == 5) {
@@ -314,6 +316,33 @@ public class PersistGenerateSqlScript {
         }
         sqlScript = sqlScript + addPrimaryKeyUniqueKey(primaryKeys, uniqueConstraints);
         return MessageFormat.format("{0}{1}", sqlScript.substring(0, sqlScript.length() - 1), end);
+    }
+
+    private static boolean hasValidOrgName(ImportDeclarationNode importDeclarationNode, Symbol symbol) {
+        Optional<ModuleSymbol> module = symbol.getModule();
+        if (module.isPresent()) {
+            Optional<ImportOrgNameNode> orgName = importDeclarationNode.orgName();
+            return importDeclarationNode.orgName().isEmpty() || (orgName.isPresent() && module.get().id().orgName().
+                    trim().equals(orgName.get().orgName().text().trim()));
+        }
+        return false;
+    }
+
+    private static boolean hasValidModuleName(SeparatedNodeList<IdentifierToken> moduleNames, Symbol symbol) {
+        Optional<ModuleSymbol> module = symbol.getModule();
+        if (module.isPresent()) {
+            Optional<String> moduleName = module.get().getName();
+            return moduleName.isEmpty() || moduleName.get().trim().startsWith(moduleNames.get(0).text().trim());
+        }
+        return false;
+    }
+
+    private static boolean isNodeType(ImportDeclarationNode importDeclarationNode, String nodeType,
+                                      SeparatedNodeList<IdentifierToken> moduleNames) {
+        Optional<ImportPrefixNode> prefixNode = importDeclarationNode.prefix();
+        return moduleNames.get(moduleNames.size() - 1).toString().trim().equals(nodeType) ||
+                ((prefixNode.isPresent() && prefixNode.get().prefix().text().trim().
+                        equals(nodeType)));
     }
 
     private static Object[] checkRelationShip(String recordName, String referenceRecordName,
