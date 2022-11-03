@@ -25,7 +25,6 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -61,16 +60,6 @@ public abstract class AbstractCodeActionTest {
         String configJsonPath = "test-src/codeaction" + File.separator + getResourceDir() + File.separator + "config" +
                 File.separator + config;
         Path sourcePath = sourcesPath.resolve(getResourceDir()).resolve("source").resolve(source);
-        PrintStream asd = System.out;
-        asd.println(configJsonPath);
-        asd.println(sourcePath);
-//        Path distributionPath = Paths.get("../", "target", "ballerina-runtime").toAbsolutePath();
-//        Environment environment = EnvironmentBuilder.getBuilder().setBallerinaHome(distributionPath).build();
-//        BuildProject project = BuildProject.load(ProjectEnvironmentBuilder.getBuilder(environment),
-//                sourcePath.getParent());
-////        System.setProperty("ballerina.home", distributionPath.toString());
-//        PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-//        JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
         TestUtil.generateCaches(sourcePath.getParent(), Paths.get(System.getProperty("ballerina.home")));
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         TestUtil.openDocument(serviceEndpoint, sourcePath);

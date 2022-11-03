@@ -102,6 +102,7 @@ release {
 }
 
 task build {
+    dependsOn(":${packageName}-tool:build")
     dependsOn(":${packageName}-native:build")
     dependsOn(":${packageName}-compiler-plugin:build")
     dependsOn(":${packageName}-compiler-plugin-test:build")

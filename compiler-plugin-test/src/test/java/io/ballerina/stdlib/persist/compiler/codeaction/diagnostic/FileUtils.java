@@ -2,8 +2,6 @@ package io.ballerina.stdlib.persist.compiler.codeaction.diagnostic;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -18,8 +16,6 @@ public class FileUtils {
 
     private static final JsonParser JSON_PARSER = new JsonParser();
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FileUtils.class);
-
     public static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
     public static final Path BUILD_DIR = Paths.get("build/").toAbsolutePath();
 
@@ -33,7 +29,7 @@ public class FileUtils {
         try {
             contentAsString = Files.readString(RES_DIR.resolve(filePath), Charset.defaultCharset());
         } catch (IOException ex) {
-            LOGGER.error(ex.getMessage());
+            //
         }
         return JSON_PARSER.parse(contentAsString).getAsJsonObject();
     }
