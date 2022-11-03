@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/persist;
+import persist_test/package_19.foo;
 
 @persist:Entity {
     key: ["id"],
@@ -24,15 +25,20 @@ public type Profile record  {|
     readonly int id;
     string name;
     @persist:Relation {keyColumns: ["userId"], reference: ["id"]}
-    User user?;
+    foo:User user?;
 |};
 
 @persist:Entity {
     key: ["id"],
-    tableName: "Users"
+    tableName: "MultipleAssociations"
 }
-public type User record  {|
+public type MultipleAssociations record {|
     readonly int id;
     string name;
+
+    @persist:Relation {keyColumns: ["profileId"], reference: ["id"]}
     Profile profile?;
+
+    @persist:Relation {keyColumns: ["userId"], reference: ["id"]}
+    foo:User user?;
 |};
