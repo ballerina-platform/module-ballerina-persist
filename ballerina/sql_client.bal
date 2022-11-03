@@ -187,7 +187,7 @@ public client class SQLClient {
     # + 'object - The record to which the retrieved records should be appended
     # + include - The relations to be retrieved (SQL `JOINs` to be performed)
     # + return - `()` if the operation is performed successfully or a `persist:Error` if the operation fails
-    public isolated function getManyRelations(record {} 'object, string[] include) returns Error? {
+    isolated function getManyRelations(record {} 'object, string[] include) returns Error? {
         foreach string joinKey in self.joinMetadata.keys() {
             sql:ParameterizedQuery query = ``;
             JoinMetadata joinMetadata = self.joinMetadata.get(joinKey);
