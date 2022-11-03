@@ -251,3 +251,32 @@ function testComplexTypesWithExecute() returns error? {
     check mnClient.close();
 }
 
+@test:Config {
+    groups: ["basic", "duplicate-keys"]
+}
+function testDuplicateKeys() returns error? {
+    MedicalItemClient miClient = check new ();
+    MedicalItem item = {
+        itemId: 5,
+        name: "item name",
+        'type: "item type",
+        unit: "ml"
+    };
+    _ = check miClient->create(item);
+
+    item = {
+        itemId: 5,
+        name: "item name",
+        'type: "item type",
+        unit: "ml"
+        };
+    MedicalItem|Error item2 = miClient->create(item);
+    check miClient.close();
+
+    if item2 is DuplicateKeyError {
+        test:assertEquals(item2.message(), "A MedicalItem entity with the key {\"itemId\":5} already exists.");
+    } else {
+        test:assertFail("DuplicateKeyError expected");
+    }
+}
+

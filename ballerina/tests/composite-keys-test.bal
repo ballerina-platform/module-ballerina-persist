@@ -45,3 +45,31 @@ function compositeRetrieveByKeyTest() returns error? {
     check dClient.close();
     test:assertEquals(retrieved, department);
 }
+
+@test:Config {
+    groups: ["composite-keys", "duplicate-keys"]
+}
+function compositeDuplicateKeys() returns error? {
+    DepartmentClient dClient = check new ();
+    Department department = {
+        hospitalCode: "CMB02",
+        departmentId: 2,
+        name: "ICU"
+    };
+    _ = check dClient->create(department);
+
+    department = {
+        hospitalCode: "CMB02",
+        departmentId: 2,
+        name: "ICU"
+    };
+    Department|Error department2 = dClient->create(department);
+    check dClient.close();
+
+    if department2 is DuplicateKeyError {
+        test:assertEquals(department2.message(), "A Department entity with the key {\"hospitalCode\":\"CMB02\",\"departmentId\":2} already exists.");
+    } else {
+        test:assertFail("DuplicateKeyError expected");
+    }
+
+}
