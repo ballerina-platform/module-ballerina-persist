@@ -1,0 +1,24 @@
+{
+    "line": 8,
+    "character": 1,
+    "expected": [
+        {
+            "title": "Add configs to Config.toml",
+            "edits": [
+                {
+                    "range": {
+                        "start": {
+                            "line": 9,
+                            "character": 0
+                        },
+                        "end": {
+                            "line": 9,
+                            "character": 0
+                        }
+                    },
+                    "newText": "\n[[cloud.config.envs]]\nkey_ref\u003d\"name\"\nconfig_name\u003d\"name\"\n"
+                }
+            ]
+        }
+    ]
+}
