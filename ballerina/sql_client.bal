@@ -61,6 +61,9 @@ public client class SQLClient {
         sql:ExecutionResult|sql:Error result = self.dbClient->execute(query);
 
         if result is sql:Error {
+            if result.message().indexOf("Duplicate entry ") != () {
+                return <DuplicateKeyError>error(string `A ${self.entityName} entity with the key ${self.getKey('object).toString()} already exists.`);
+            }
             return <Error>error(result.message());
         }
 
