@@ -228,6 +228,30 @@ function testComplexTypes2() returns error? {
 @test:Config {
     groups: ["basic"]
 }
+function testComplexTypesUpdate() returns error? {
+    MedicalNeed need = {
+        itemId: 1,
+        beneficiaryId: 1,
+        period: {year: 2022, month: 10, day: 10, hour: 1, minute: 2, second: 3},
+        urgency: "URGENT",
+        quantity: 5
+    };
+    MedicalNeedClient mnClient = check new ();
+    MedicalNeed need2 = check mnClient->create(need);
+
+    need2.period = {year: 2023, month: 11, day: 12, hour: 12, minute: 22, second: 32};
+    _ = check mnClient->update(need2);
+
+    MedicalNeed need3 = check mnClient->readByKey(need2.needId);
+    test:assertEquals(need3.period, {year: 2023, month: 11, day: 12, hour: 12, minute: 22, second: 32});
+
+    check mnClient.close();
+}
+
+
+@test:Config {
+    groups: ["basic"]
+}
 function testComplexTypesWithExecute() returns error? {
     MedicalNeed need = {
         itemId: 1,
