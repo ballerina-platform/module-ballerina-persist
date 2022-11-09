@@ -23,7 +23,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
-import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
@@ -48,11 +47,12 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
+ * Abstract base for implementing CodeActions.
  *
+ * @since 0.1.0
  */
 public abstract class AbstractCodeActionTest {
 
@@ -119,42 +119,6 @@ public abstract class AbstractCodeActionTest {
                             .getAsJsonArray().get(0).getAsJsonObject().get("edits").getAsJsonArray();
                     JsonArray expEdit = expected.get("edits").getAsJsonArray();
                     if (!expEdit.equals(actualEdit)) {
-                        continue;
-                    }
-                }
-                // Match args
-                if (expected.get("command") != null) {
-                    JsonObject expectedCommand = expected.get("command").getAsJsonObject();
-                    JsonObject actualCommand = right.get("command").getAsJsonObject();
-
-                    if (!Objects.equals(actualCommand.get("command"), expectedCommand.get("command"))) {
-                        continue;
-                    }
-
-                    if (!Objects.equals(actualCommand.get("title"), expectedCommand.get("title"))) {
-                        continue;
-                    }
-
-                    JsonArray actualArgs = actualCommand.getAsJsonArray("arguments");
-                    JsonArray expArgs = expectedCommand.getAsJsonArray("arguments");
-                    if (!TestUtil.isArgumentsSubArray(actualArgs, expArgs)) {
-                        continue;
-                    }
-
-                    boolean docUriFound = false;
-                    for (JsonElement actualArg : actualArgs) {
-                        JsonObject arg = actualArg.getAsJsonObject();
-                        if ("doc.uri".equals(arg.get("key").getAsString())) {
-                            Optional<Path> docPath = PathUtil.getPathFromURI(arg.get("value").getAsString());
-                            if (docPath.isPresent()) {
-                                // We just check file names, since one refers to file in build/ while
-                                // the other refers to the file in test resources
-                                docUriFound = Objects.equals(docPath.get().getFileName(), sourcePath.getFileName());
-                            }
-                        }
-                    }
-
-                    if (!docUriFound) {
                         continue;
                     }
                 }

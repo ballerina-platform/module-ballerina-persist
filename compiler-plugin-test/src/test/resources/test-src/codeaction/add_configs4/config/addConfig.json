@@ -1,0 +1,24 @@
+{
+    "line": 8,
+    "character": 3,
+    "expected": [
+        {
+            "title": "Add port config to Config.toml",
+            "edits": [
+                {
+                    "range": {
+                        "start": {
+                            "line": 5,
+                            "character": 0
+                        },
+                        "end": {
+                            "line": 5,
+                            "character": 0
+                        }
+                    },
+                    "newText": "port = 3306\n"
+                }
+            ]
+        }
+    ]
+}

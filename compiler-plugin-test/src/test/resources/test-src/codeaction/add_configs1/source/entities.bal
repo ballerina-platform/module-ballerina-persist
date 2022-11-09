@@ -15,14 +15,3 @@ public type MedicalNeed record {|
     string urgency;
     string quantity;
 |};
-
-@persist:Entity {
-    key: ["itemId"],
-    tableName: "MedicalItems"
-}
-public type MedicalItem record {|
-    readonly int itemId;
-    string name;
-    string 'type;
-    int unit;
-|};

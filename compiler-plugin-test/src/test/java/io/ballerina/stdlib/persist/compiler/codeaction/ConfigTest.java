@@ -22,19 +22,21 @@ import io.ballerina.stdlib.persist.compiler.codeaction.diagnostic.AbstractCodeAc
 import org.testng.annotations.DataProvider;
 
 /**
+ * Test Cases for CodeActions.
  *
+ * @since 0.1.0
  */
 public class ConfigTest extends AbstractCodeActionTest {
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                { "addenv1.json", "entities.bal" }
+                { "addConfig.json", "entities.bal" }
         };
     }
 
     @Override
     public String getResourceDir() {
-        return "add_configs";
+        return "add_configs1";
     }
 }

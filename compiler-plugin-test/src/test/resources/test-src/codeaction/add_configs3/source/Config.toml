@@ -1,0 +1,5 @@
+[wso2.persist_ex1.clients]
+host = "localhost"
+user = "root"
+password = ""
+database = ""

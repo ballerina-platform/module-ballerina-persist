@@ -25,6 +25,8 @@
 <!--            <class name="io.ballerina.stdlib.persist.compiler.script.CompilerPluginTest"/>-->
 <!--            <class name="io.ballerina.stdlib.persist.compiler.CodeModifierTest"/>-->
             <class name="io.ballerina.stdlib.persist.compiler.codeaction.ConfigTest"/>
+            <class name="io.ballerina.stdlib.persist.compiler.codeaction.ConfigTest2"/>
+            <class name="io.ballerina.stdlib.persist.compiler.codeaction.ConfigTest3"/>
         </classes>
     </test>
 </suite>

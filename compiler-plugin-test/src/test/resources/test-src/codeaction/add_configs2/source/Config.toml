@@ -1,0 +1,5 @@
+[wso2.persist_ex1.clients]
+port = 3306
+user = "root"
+password = ""
+database = ""

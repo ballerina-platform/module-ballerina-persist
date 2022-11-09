@@ -72,7 +72,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 /**
- *
+ * Common utils that are reused within test suits.
  */
 public class TestUtil {
 

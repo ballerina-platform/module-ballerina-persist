@@ -16,13 +16,27 @@
  * under the License.
  */
 
-module io.ballerina.stdlib.persist.tooling {
-    requires io.ballerina.lang;
-    requires io.ballerina.language.server.commons;
-    requires io.ballerina.language.server.core;
-    requires io.ballerina.parser;
-    requires io.ballerina.toml;
-    requires org.eclipse.lsp4j;
-    requires org.eclipse.lsp4j.jsonrpc;
-    requires io.ballerina.tools.api;
+package io.ballerina.stdlib.persist.compiler.codeaction;
+
+import io.ballerina.stdlib.persist.compiler.codeaction.diagnostic.AbstractCodeActionTest;
+import org.testng.annotations.DataProvider;
+
+/**
+ * Test Cases for CodeActions.
+ *
+ * @since 0.1.0
+ */
+public class ConfigTest2 extends AbstractCodeActionTest {
+    @DataProvider(name = "codeaction-data-provider")
+    @Override
+    public Object[][] dataProvider() {
+        return new Object[][]{
+                { "addConfig.json", "entities.bal" }
+        };
+    }
+
+    @Override
+    public String getResourceDir() {
+        return "add_configs2";
+    }
 }

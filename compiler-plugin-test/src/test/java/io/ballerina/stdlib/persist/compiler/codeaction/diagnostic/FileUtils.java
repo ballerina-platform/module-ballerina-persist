@@ -28,7 +28,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- *
+ * File utils for reading the file content.
  */
 public class FileUtils {
 

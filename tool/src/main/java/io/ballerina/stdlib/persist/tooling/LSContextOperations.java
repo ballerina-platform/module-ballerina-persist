@@ -16,13 +16,20 @@
  * under the License.
  */
 
-module io.ballerina.stdlib.persist.tooling {
-    requires io.ballerina.lang;
-    requires io.ballerina.language.server.commons;
-    requires io.ballerina.language.server.core;
-    requires io.ballerina.parser;
-    requires io.ballerina.toml;
-    requires org.eclipse.lsp4j;
-    requires org.eclipse.lsp4j.jsonrpc;
-    requires io.ballerina.tools.api;
+package io.ballerina.stdlib.persist.tooling;
+
+import org.ballerinalang.langserver.commons.LSOperation;
+
+public enum LSContextOperations implements LSOperation {
+
+    FILE_CREATION("configFile/creation");
+    private final String name;
+
+    LSContextOperations(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return this.name;
+    }
 }

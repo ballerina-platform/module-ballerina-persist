@@ -35,13 +35,16 @@ import io.ballerina.toml.syntax.tree.DocumentNode;
 import io.ballerina.toml.syntax.tree.SyntaxTree;
 import io.ballerina.toml.syntax.tree.TableNode;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionProvider;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentEdit;
+import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
@@ -72,13 +75,13 @@ public class AddConfigsToCodeAction implements RangeBasedCodeActionProvider {
         boolean hasUser = false;
         boolean hasPassword = false;
         boolean hasDatabase = false;
-        String codeActionTitle = "Add configs to Config.toml";
+        String codeActionTitle = "Add database configs to Config.toml";
         String CONFIG_TOML = "Config.toml";
         NonTerminalNode matchedNode = positionDetails.matchedCodeActionNode();
-        if (matchedNode.kind() != SyntaxKind.TYPE_DEFINITION) {
+        if (matchedNode.kind() != SyntaxKind.RECORD_TYPE_DESC) {
             return Collections.emptyList();
         }
-        TypeDefinitionNode typeDefinitionNode = (TypeDefinitionNode) matchedNode;
+        TypeDefinitionNode typeDefinitionNode = (TypeDefinitionNode) matchedNode.parent();
         if (!hasEntityAnnotation(typeDefinitionNode)) {
             return Collections.emptyList();
         }
@@ -91,7 +94,11 @@ public class AddConfigsToCodeAction implements RangeBasedCodeActionProvider {
             try {
                 Files.createFile(configFilePath);
             } catch (Exception e) {
-                //
+                LSClientLogger clientLogger = LSClientLogger.getInstance(codeActionContext.languageServercontext());
+                String msg = "Operation 'configFile/creation' failed!";
+                Position position = new Position(typeDefinitionNode.position(), 0);
+                clientLogger.logError(LSContextOperations.FILE_CREATION, msg, e,
+                        new TextDocumentIdentifier(codeActionContext.filePath().toString()), position);
             }
         }
         List<CodeAction> codeActionList = new ArrayList<>();
@@ -140,28 +147,32 @@ public class AddConfigsToCodeAction implements RangeBasedCodeActionProvider {
                 } else {
                     if (!hasHost) {
                         addCodeAction(codeActionList, documentNode, "host = \"localhost\"\n",
-                                configFilePathInString, "Add config as host to Config.toml");
+                                configFilePathInString, "Add host config to Config.toml");
                     }
                     if (!hasPort) {
                         addCodeAction(codeActionList, documentNode, "port = 3306\n",
-                                configFilePathInString, "Add config as port to Config.toml");
+                                configFilePathInString, "Add port config to Config.toml");
                     }
                     if (!hasUser) {
                         addCodeAction(codeActionList, documentNode, "user = \"root\"\n",
-                                configFilePathInString, "Add config as user to Config.toml");
+                                configFilePathInString, "Add user config to Config.toml");
                     }
                     if (!hasPassword) {
                         addCodeAction(codeActionList, documentNode, "password = \"\"\n",
-                                configFilePathInString, "Add config as password to Config.toml");
+                                configFilePathInString, "Add password config to Config.toml");
                     }
                     if (!hasDatabase) {
                         addCodeAction(codeActionList, documentNode, "database = \"\"\n",
-                                configFilePathInString, "Add config as database to Config.toml");
+                                configFilePathInString, "Add database config to Config.toml");
                     }
                 }
             }
         } catch (IOException e) {
-            //
+            LSClientLogger clientLogger = LSClientLogger.getInstance(codeActionContext.languageServercontext());
+            String msg = "Operation 'configFile/reading' failed!";
+            Position position = new Position(typeDefinitionNode.position(), 0);
+            clientLogger.logError(LSContextOperations.FILE_CREATION, msg, e,
+                    new TextDocumentIdentifier(codeActionContext.filePath().toString()), position);
         }
         return codeActionList;
     }
@@ -250,7 +261,7 @@ public class AddConfigsToCodeAction implements RangeBasedCodeActionProvider {
     }
 
     private String getImportText(String importText) {
-        return  "[" + importText + "]\n" + "host = \"localhost\"\n" + "port = 3306\n" +
-                "user = \"root\"\n" + "password = \"\"\n" + "database = \"\"\n";
+        return  "[" + importText + "]\nhost = \"localhost\"\nport = 3306\nuser = \"root\"\n" +
+                "password = \"\"\ndatabase = \"\"\n";
     }
 }
