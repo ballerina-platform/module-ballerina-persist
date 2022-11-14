@@ -243,7 +243,7 @@ function testComplexTypesUpdate() returns error? {
     _ = check mnClient->update(need2);
 
     MedicalNeed need3 = check mnClient->readByKey(need2.needId);
-    test:assertEquals(need3.period, {year: 2023, month: 11, day: 12, hour: 12, minute: 22, second: 32});
+    test:assertEquals(need3.period, <time:Civil>{year: 2023, month: 11, day: 12, hour: 12, minute: 22, second: 32});
 
     check mnClient.close();
 }
