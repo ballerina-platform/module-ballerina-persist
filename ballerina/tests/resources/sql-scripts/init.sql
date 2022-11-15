@@ -16,6 +16,13 @@ CREATE TABLE test.MedicalNeeds (
     quantity INTEGER
 );
 
+CREATE TABLE test.ComplexTypes (
+    complexTypeId INTEGER PRIMARY KEY AUTO_INCREMENT,
+    civilType TIMESTAMP,
+    timeOfDayType TIME,
+    dateType date
+);
+
 CREATE TABLE test.Departments (
     hospitalCode VARCHAR(5),
     departmentId INTEGER,
