@@ -207,7 +207,7 @@ public client class SQLClient {
                 record {}[] arr = [];
                 error? e = from record {} item in joinStream
                     do {
-                        arr.push(check item.cloneWithType(joinMetadata.entity));
+                        arr.push(item);
                     };
 
                 if e is error {
