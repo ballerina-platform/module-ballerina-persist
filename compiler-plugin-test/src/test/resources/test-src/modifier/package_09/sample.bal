@@ -31,15 +31,5 @@ public function main() returns error? {
         };
     io:println(mns1);
 
-    record {int needId; string period; int quantity;}[]? mns6 =
-    check from entity:MedicalNeed medicalNeed in mnClient->read()
-        order by quantity
-        select {
-            needId: needId,
-            period: period,
-            quantity: quantity
-        };
-    io:println(mns6);
-
     check mnClient.close();
 }

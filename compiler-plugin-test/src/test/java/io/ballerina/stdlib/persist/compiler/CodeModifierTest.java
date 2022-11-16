@@ -23,7 +23,6 @@ import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Package;
-import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.environment.Environment;
@@ -296,19 +295,8 @@ public class CodeModifierTest {
 
     @Test
     public void unsupportedExpressionTest() {
-
-        Package currentPackage = loadPackage("package_06");
-
-        // Running the code generation
-        CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
-        Package newPackage = codeModifierResult.updatedPackage().orElse(currentPackage);
-
-        // Running the compilation
-        PackageCompilation compilation = newPackage.getCompilation();
-        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream()
-                .filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR))
-                .collect(Collectors.toList());
+        DiagnosticResult reportedDiagnostics = getDiagnosticResult("package_06");
+        List<Diagnostic> errorDiagnosticsList = filterErrorDiagnostics(reportedDiagnostics);
 
         long availableErrors = errorDiagnosticsList.size();
 
@@ -352,74 +340,46 @@ public class CodeModifierTest {
 
     @Test
     public void limitClauseNegativeTest() {
+        DiagnosticResult reportedDiagnostics = getDiagnosticResult("package_08");
+        List<Diagnostic> errorDiagnosticsList = filterErrorDiagnostics(reportedDiagnostics);
 
-        Package currentPackage = loadPackage("package_08");
+        long availableErrors = errorDiagnosticsList.size();
 
-        // Running the code generation
-        CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
-        Package newPackage = codeModifierResult.updatedPackage().orElse(currentPackage);
+        Assert.assertEquals(availableErrors, 1);
 
-        for (DocumentId documentId : newPackage.getDefaultModule().documentIds()) {
-            Document document = newPackage.getDefaultModule().document(documentId);
-
-            if (document.name().equals("sample.bal")) {
-                // Negative Tests
-                List<String> unmodifiedFunction = List.of(
-                        "check from entity:MedicalNeed medicalNeed in mnClient->read()\n" +
-                                "        limit quantityMinValue\n" +
-                                "        select {\n" +
-                                "            needId: medicalNeed.needId,\n" +
-                                "            period: medicalNeed.period,\n" +
-                                "            quantity: medicalNeed.quantity\n" +
-                                "        };",
-                        "check from entity:MedicalNeed medicalNeed in mnClient->read()\n" +
-                                "        limit \"5\"\n" +
-                                "        select {\n" +
-                                "            needId: medicalNeed.needId,\n" +
-                                "            period: medicalNeed.period,\n" +
-                                "            quantity: medicalNeed.quantity\n" +
-                                "        };"
-                );
-                unmodifiedFunction.forEach(codeSnippet ->
-                        Assert.assertTrue(document.syntaxTree().toSourceCode().contains(codeSnippet), codeSnippet));
-            }
-        }
+        DiagnosticInfo limitClauseError = errorDiagnosticsList.get(0).diagnosticInfo();
+        Assert.assertEquals(limitClauseError.code(), DiagnosticsCodes.PERSIST_202.getCode());
+        Assert.assertEquals(limitClauseError.messageFormat(), DiagnosticsCodes.PERSIST_202.getMessage());
     }
 
     @Test
     public void orderByClauseNegativeTest() {
 
-        Package currentPackage = loadPackage("package_09");
+        DiagnosticResult reportedDiagnostics = getDiagnosticResult("package_09");
+        List<Diagnostic> errorDiagnosticsList = filterErrorDiagnostics(reportedDiagnostics);
 
-        // Running the code generation
-        CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
-        Package newPackage = codeModifierResult.updatedPackage().orElse(currentPackage);
+        long availableErrors = errorDiagnosticsList.size();
 
-        for (DocumentId documentId : newPackage.getDefaultModule().documentIds()) {
-            Document document = newPackage.getDefaultModule().document(documentId);
+        Assert.assertEquals(availableErrors, 1);
 
-            if (document.name().equals("sample.bal")) {
-                // Negative Tests
-                List<String> unmodifiedFunction = List.of(
-                        "check from entity:MedicalNeed medicalNeed in mnClient->read()\n" +
-                                "        order by \"medicalNeed.quantity\"\n" +
-                                "        select {\n" +
-                                "            needId: medicalNeed.needId,\n" +
-                                "            period: medicalNeed.period,\n" +
-                                "            quantity: medicalNeed.quantity\n" +
-                                "        };",
-                        "check from entity:MedicalNeed medicalNeed in mnClient->read()\n" +
-                                "        order by quantity\n" +
-                                "        select {\n" +
-                                "            needId: needId,\n" +
-                                "            period: period,\n" +
-                                "            quantity: quantity\n" +
-                                "        };"
-                );
-                unmodifiedFunction.forEach(codeSnippet ->
-                        Assert.assertTrue(document.syntaxTree().toSourceCode().contains(codeSnippet), codeSnippet));
-            }
-        }
+        errorDiagnosticsList.forEach(diagnostic -> {
+            Assert.assertEquals(diagnostic.diagnosticInfo().code(), DiagnosticsCodes.PERSIST_203.getCode());
+            Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(), DiagnosticsCodes.PERSIST_203.getMessage());
+        });
     }
+
+    private DiagnosticResult getDiagnosticResult(String packagePath) {
+        Package currentPackage = loadPackage(packagePath);
+        DiagnosticResult diagnosticResult = currentPackage.getCompilation().diagnosticResult();
+        Assert.assertEquals(diagnosticResult.errorCount(), 0);
+        return currentPackage.runCodeModifierPlugins().reportedDiagnostics();
+    }
+
+    private List<Diagnostic> filterErrorDiagnostics(DiagnosticResult reportedDiagnostics) {
+        return reportedDiagnostics.diagnostics().stream()
+                .filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR))
+                .collect(Collectors.toList());
+    }
+
 }
 
