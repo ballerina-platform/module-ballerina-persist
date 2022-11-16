@@ -69,14 +69,14 @@ public enum DiagnosticsCodes {
     PERSIST_121("PERSIST_121", "unsupported features: {0} type is not supported",
             ERROR),
 
+    // todo: Add expression type in the diagnostic message
     PERSIST_201("PERSIST_201",
-            "Unsupported expression: read() function of persist client does not support this expression", ERROR),
+            "persist client read() function not supported for expression", ERROR),
     PERSIST_202("PERSIST_202",
-            "Unsupported expression: read() function of persist client only supports int value in limit clause",
-            ERROR),
+            "persist client read() function limit not supported for variables, " +
+                    "limit expression should be an integer", ERROR),
     PERSIST_203("PERSIST_203",
-            "Unsupported expression: read() function of persist client only supports selected variables "
-                    + "from the 'from clause' in order by clause",
+            "persist client read() function order by key should be ''variables'' in the ''from clause''",
             ERROR);
 
     private final String code;
