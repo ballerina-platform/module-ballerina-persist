@@ -1,4 +1,4 @@
-// Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2022 WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -15,52 +15,31 @@
 // under the License.
 
 import ballerina/io;
-import package_01.'client as needclient;
-import package_01.entity;
+import package_09.'client as needclient;
+import package_09.entity;
 
 public function main() returns error? {
     needclient:MedicalNeedClient mnClient = check new ();
-    entity:MedicalNeed mn = check mnClient->create({
-        needId: 1,
-        itemId: (),
-        beneficiaryId: 1,
-        period: "2022-10-10 01:02:03",
-        urgency: "URGENT",
-        quantity: 1
-    });
-    io:println(`${mn}`);
 
-    string orderbyColumn = "quantity";
-    int quantityMinValue = 5;
-
-    record {int needId; string period; int quantity;}[]? mns =
+    record {int needId; string period; int quantity;}[]? mns1 =
     check from entity:MedicalNeed medicalNeed in mnClient->read()
-        where medicalNeed.quantity > 5
-        limit 5
-        order by medicalNeed.quantity descending
+        order by "medicalNeed.quantity"
         select {
             needId: medicalNeed.needId,
             period: medicalNeed.period,
             quantity: medicalNeed.quantity
         };
+    io:println(mns1);
 
-    io:println(mns);
-
-    if mns !is () {
-        check from record {int needId; string period; int quantity;} medicalNeed in mns
-            do {
-                io:println(medicalNeed);
-            };
-    }
-
-    record {int needId; string period; int quantity;}[]? mnsUnfiltered =
+    record {int needId; string period; int quantity;}[]? mns6 =
     check from entity:MedicalNeed medicalNeed in mnClient->read()
+        order by quantity
         select {
-            needId: medicalNeed.needId,
-            period: medicalNeed.period,
-            quantity: medicalNeed.quantity
+            needId: needId,
+            period: period,
+            quantity: quantity
         };
-    io:println(mnsUnfiltered);
+    io:println(mns6);
 
     check mnClient.close();
 }

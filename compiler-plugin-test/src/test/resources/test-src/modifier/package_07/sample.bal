@@ -1,6 +1,6 @@
-// Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2022 WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
 //
-// WSO2 Inc. licenses this file to you under the Apache License,
+// WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
 // in compliance with the License.
 // You may obtain a copy of the License at
@@ -15,21 +15,16 @@
 // under the License.
 
 import ballerina/io;
-import package_02.'client as needclient;
-import package_02.entity;
+import package_07.'client as needclient;
+import package_07.entity;
 
 public function main() returns error? {
     needclient:MedicalNeedClient mnClient = check new ();
 
-    record {int needId; string period; int quantity;}[]? mns =
-    check from entity:MedicalNeed medicalNeed in mnClient->read()
-        limit 5
-        select {
-            needId: medicalNeed.needId,
-            period: medicalNeed.period,
-            quantity: medicalNeed.quantity
-        };
-    io:println(mns);
+    int quantityMinValue = 5;
+    entity:MedicalNeed[]? mns1 = check from entity:MedicalNeed medicalNeed in mnClient->execute(` WHERE quantity > ${quantityMinValue}`)
+        select medicalNeed;
+    io:println(mns1);
 
     check mnClient.close();
 }
