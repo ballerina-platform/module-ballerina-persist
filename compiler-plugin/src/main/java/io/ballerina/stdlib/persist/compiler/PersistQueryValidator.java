@@ -37,10 +37,8 @@ import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.stdlib.persist.compiler.expression.ExpressionBuilder;
 import io.ballerina.stdlib.persist.compiler.expression.ExpressionVisitor;
-import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
-import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -56,11 +54,9 @@ public class PersistQueryValidator implements AnalysisTask<SyntaxNodeAnalysisCon
 
     @Override
     public void perform(SyntaxNodeAnalysisContext ctx) {
-        List<Diagnostic> diagnostics = ctx.semanticModel().diagnostics();
-        for (Diagnostic diagnostic : diagnostics) {
-            if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
-                return;
-            }
+
+        if (Utils.hasCompilationErrors(ctx)) {
+            return;
         }
 
         QueryPipelineNode queryPipelineNode = (QueryPipelineNode) ctx.node();

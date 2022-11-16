@@ -30,6 +30,5 @@ public class PersistCodeAnalyzer extends CodeAnalyzer {
     @Override
     public void init(CodeAnalysisContext codeAnalysisContext) {
         codeAnalysisContext.addSyntaxNodeAnalysisTask(new PersistRecordValidator(), SyntaxKind.TYPE_DEFINITION);
-        codeAnalysisContext.addSyntaxNodeAnalysisTask(new PersistQueryValidator(), SyntaxKind.QUERY_PIPELINE);
     }
 }

@@ -18,6 +18,7 @@
 
 package io.ballerina.stdlib.persist.compiler;
 
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.plugins.CodeModifier;
 import io.ballerina.projects.plugins.CodeModifierContext;
 
@@ -28,6 +29,9 @@ public class PersistCodeModifier extends CodeModifier {
 
     @Override
     public void init(CodeModifierContext codeModifierContext) {
+        // todo: Validate that this task is only run for persist clients
+        // Add validations for un supported expressions in where, order by and limit
+        codeModifierContext.addSyntaxNodeAnalysisTask(new PersistQueryValidator(), SyntaxKind.QUERY_PIPELINE);
         codeModifierContext.addSourceModifierTask(new QueryCodeModifierTask());
     }
 
