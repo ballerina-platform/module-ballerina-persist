@@ -360,7 +360,7 @@ public class CodeModifierTest {
 
         long availableErrors = errorDiagnosticsList.size();
 
-        Assert.assertEquals(availableErrors, 1);
+        Assert.assertEquals(availableErrors, 2);
 
         errorDiagnosticsList.forEach(diagnostic -> {
             Assert.assertEquals(diagnostic.diagnosticInfo().code(), DiagnosticsCodes.PERSIST_203.getCode());
