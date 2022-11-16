@@ -31,5 +31,16 @@ public function main() returns error? {
         };
     io:println(mns1);
 
+    string orderByKey = "medicalNeed.quantity";
+    record {int needId; string period; int quantity;}[]? mns2 =
+    check from entity:MedicalNeed medicalNeed in mnClient->read()
+        order by orderByKey
+        select {
+            needId: medicalNeed.needId,
+            period: medicalNeed.period,
+            quantity: medicalNeed.quantity
+        };
+    io:println(mns2);
+
     check mnClient.close();
 }

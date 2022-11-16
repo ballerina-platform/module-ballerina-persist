@@ -86,6 +86,7 @@ public class PersistQueryValidator implements AnalysisTask<SyntaxNodeAnalysisCon
             return;
         }
 
+        // todo: Verify for all 10 binding patters
         BindingPatternNode bindingPatternNode = fromClauseNode.typedBindingPattern().bindingPattern();
         if (isWhereClauseUsed) {
             WhereClauseNode whereClauseNode = (WhereClauseNode) whereClauseNodes.get(0);
@@ -106,15 +107,21 @@ public class PersistQueryValidator implements AnalysisTask<SyntaxNodeAnalysisCon
                 if (expression instanceof SimpleNameReferenceNode) {
                     String fieldName = ((SimpleNameReferenceNode) expression).name().text();
                     boolean isCorrectField = false;
-                    SeparatedNodeList<BindingPatternNode> bindingPatternNodes =
-                            ((MappingBindingPatternNode) bindingPatternNode).fieldBindingPatterns();
-                    for (BindingPatternNode patternNode : bindingPatternNodes) {
-                        String field = ((FieldBindingPatternVarnameNode) patternNode).variableName().name().text();
-                        if (fieldName.equals(field)) {
-                            isCorrectField = true;
+                    if (bindingPatternNode instanceof MappingBindingPatternNode) {
+                        SeparatedNodeList<BindingPatternNode> bindingPatternNodes =
+                                ((MappingBindingPatternNode) bindingPatternNode).fieldBindingPatterns();
+                        for (BindingPatternNode patternNode : bindingPatternNodes) {
+                            String field = ((FieldBindingPatternVarnameNode) patternNode).variableName().name().text();
+                            if (fieldName.equals(field)) {
+                                isCorrectField = true;
+                            }
                         }
-                    }
-                    if (!isCorrectField) {
+                        if (!isCorrectField) {
+                            ctx.reportDiagnostic(DiagnosticFactory.createDiagnostic(
+                                    new DiagnosticInfo(PERSIST_203.getCode(), PERSIST_203.getMessage(),
+                                            PERSIST_203.getSeverity()), orderKeyNodes.get(i).expression().location()));
+                        }
+                    } else {
                         ctx.reportDiagnostic(DiagnosticFactory.createDiagnostic(
                                 new DiagnosticInfo(PERSIST_203.getCode(), PERSIST_203.getMessage(),
                                         PERSIST_203.getSeverity()), orderKeyNodes.get(i).expression().location()));
