@@ -60,11 +60,7 @@ public class CodeModifierTest {
     @Test
     public void testCodeModifier() {
 
-        Package currentPackage = loadPackage("package_01");
-
-        // Running the code generation
-        CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
-        Package newPackage = codeModifierResult.updatedPackage().orElse(currentPackage);
+        Package newPackage = getModifiedPackage("package_01");
 
         for (DocumentId documentId : newPackage.getDefaultModule().documentIds()) {
             Document document = newPackage.getDefaultModule().document(documentId);
@@ -101,196 +97,152 @@ public class CodeModifierTest {
     @Test
     public void limitClauseTest() {
 
-        Package currentPackage = loadPackage("package_02");
+        Package newPackage = getModifiedPackage("package_02");
 
-        // Running the code generation
-        CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
-        Package newPackage = codeModifierResult.updatedPackage().orElse(currentPackage);
-
-        for (DocumentId documentId : newPackage.getDefaultModule().documentIds()) {
-            Document document = newPackage.getDefaultModule().document(documentId);
-
-            if (document.name().equals("sample.bal")) {
-                // Positive test
-                String modifiedFunction =
-                        "check from entity:MedicalNeed medicalNeed in mnClient->execute(` LIMIT 5`)\n" +
-                                "        select {\n" +
-                                "            needId: medicalNeed.needId,\n" +
-                                "            period: medicalNeed.period,\n" +
-                                "            quantity: medicalNeed.quantity\n" +
-                                "        };";
-                Assert.assertTrue(document.syntaxTree().toSourceCode().contains(modifiedFunction));
-            }
-        }
+        List<String> modifiedFunctions = List.of(
+                "check from entity:MedicalNeed medicalNeed in mnClient->execute(` LIMIT 5`)\n" +
+                        "        select {\n" +
+                        "            needId: medicalNeed.needId,\n" +
+                        "            period: medicalNeed.period,\n" +
+                        "            quantity: medicalNeed.quantity\n" +
+                        "        };");
+        verifyModifiedFunctions(newPackage, modifiedFunctions);
     }
 
     @Test
     public void orderByClauseTest() {
 
-        Package currentPackage = loadPackage("package_03");
+        Package newPackage = getModifiedPackage("package_03");
 
-        // Running the code generation
-        CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
-        Package newPackage = codeModifierResult.updatedPackage().orElse(currentPackage);
+        List<String> modifiedFunctions = List.of(
+                "check from entity:MedicalNeed medicalNeed in mnClient->execute(` ORDER BY quantity `)\n" +
+                        "        select {\n" +
+                        "            needId: medicalNeed.needId,\n" +
+                        "            period: medicalNeed.period,\n" +
+                        "            quantity: medicalNeed.quantity\n" +
+                        "        };",
+                "check from entity:MedicalNeed medicalNeed in mnClient->execute(` ORDER BY quantity ASC `)\n" +
+                        "        select {\n" +
+                        "            needId: medicalNeed.needId,\n" +
+                        "            period: medicalNeed.period,\n" +
+                        "            quantity: medicalNeed.quantity\n" +
+                        "        };",
+                "check from entity:MedicalNeed medicalNeed in mnClient->execute(` ORDER BY needId DESC `)\n" +
+                        "        select {\n" +
+                        "            needId: medicalNeed.needId,\n" +
+                        "            period: medicalNeed.period,\n" +
+                        "            quantity: medicalNeed.quantity\n" +
+                        "        };",
+                "check from entity:MedicalNeed medicalNeed in mnClient->execute" +
+                        "(` ORDER BY quantity ASC , needId DESC `)\n" +
+                        "        select {\n" +
+                        "            needId: medicalNeed.needId,\n" +
+                        "            period: medicalNeed.period,\n" +
+                        "            quantity: medicalNeed.quantity\n" +
+                        "        };",
+                "check from var {needId, period, quantity} in mnClient->execute" +
+                        "(` ORDER BY quantity , needId DESC `)\n" +
+                        "        select {\n" +
+                        "            needId: needId,\n" +
+                        "            period: period,\n" +
+                        "            quantity: quantity\n" +
+                        "        };"
+        );
 
-        for (DocumentId documentId : newPackage.getDefaultModule().documentIds()) {
-            Document document = newPackage.getDefaultModule().document(documentId);
-
-            if (document.name().equals("sample.bal")) {
-                // Positive test
-                List<String> modifiedFunctions = List.of(
-                        "check from entity:MedicalNeed medicalNeed in mnClient->execute(` ORDER BY quantity `)\n" +
-                                "        select {\n" +
-                                "            needId: medicalNeed.needId,\n" +
-                                "            period: medicalNeed.period,\n" +
-                                "            quantity: medicalNeed.quantity\n" +
-                                "        };",
-                        "check from entity:MedicalNeed medicalNeed in mnClient->execute(` ORDER BY quantity ASC `)\n" +
-                                "        select {\n" +
-                                "            needId: medicalNeed.needId,\n" +
-                                "            period: medicalNeed.period,\n" +
-                                "            quantity: medicalNeed.quantity\n" +
-                                "        };",
-                        "check from entity:MedicalNeed medicalNeed in mnClient->execute(` ORDER BY needId DESC `)\n" +
-                                "        select {\n" +
-                                "            needId: medicalNeed.needId,\n" +
-                                "            period: medicalNeed.period,\n" +
-                                "            quantity: medicalNeed.quantity\n" +
-                                "        };",
-                        "check from entity:MedicalNeed medicalNeed in mnClient->execute" +
-                                "(` ORDER BY quantity ASC , needId DESC `)\n" +
-                                "        select {\n" +
-                                "            needId: medicalNeed.needId,\n" +
-                                "            period: medicalNeed.period,\n" +
-                                "            quantity: medicalNeed.quantity\n" +
-                                "        };",
-                        "check from var {needId, period, quantity} in mnClient->execute" +
-                                "(` ORDER BY quantity , needId DESC `)\n" +
-                                "        select {\n" +
-                                "            needId: needId,\n" +
-                                "            period: period,\n" +
-                                "            quantity: quantity\n" +
-                                "        };"
-                );
-                modifiedFunctions.forEach(codeSnippet ->
-                        Assert.assertTrue(document.syntaxTree().toSourceCode().contains(codeSnippet), codeSnippet));
-            }
-        }
+        verifyModifiedFunctions(newPackage, modifiedFunctions);
     }
 
     @Test
     public void whereClauseTest() {
 
-        Package currentPackage = loadPackage("package_04");
+        Package newPackage = getModifiedPackage("package_04");
 
-        // Running the code generation
-        CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
-        Package newPackage = codeModifierResult.updatedPackage().orElse(currentPackage);
+        List<String> modifiedFunctions = List.of(
+                "check from entity:MedicalNeed medicalNeed in " +
+                        "mnClient->execute(` WHERE ( quantity < ${minQuantity} )  `)\n" +
+                        "        select {\n" +
+                        "            needId: medicalNeed.needId,\n" +
+                        "            period: medicalNeed.period,\n" +
+                        "            quantity: medicalNeed.quantity\n" +
+                        "        };",
+                "check from var {needId, period, quantity} in " +
+                        "mnClient->execute(` WHERE quantity < ${minQuantity}  `)\n" +
+                        "        select {\n" +
+                        "            needId: needId,\n" +
+                        "            period: period,\n" +
+                        "            quantity: quantity\n" +
+                        "        };",
+                "check from entity:MedicalNeed medicalNeed in " +
+                        "mnClient->execute(` WHERE period = \"2022-10-10 01:02:03\" `)\n" +
+                        "        select {\n" +
+                        "            needId: medicalNeed.needId,\n" +
+                        "            period: medicalNeed.period,\n" +
+                        "            quantity: medicalNeed.quantity\n" +
+                        "        };",
+                "check from var {needId, period, quantity} in mnClient->execute(" +
+                        "` WHERE quantity < ${minQuantity}  AND quantity > 0 `)\n" +
+                        "        select {\n" +
+                        "            needId: needId,\n" +
+                        "            period: period,\n" +
+                        "            quantity: quantity\n" +
+                        "        };",
+                "check from var {needId, period, quantity} in mnClient->execute(" +
+                        "` WHERE quantity < ${minQuantity}  OR period = \"2022-10-10 01:02:03\" `)\n" +
+                        "        select {\n" +
+                        "            needId: needId,\n" +
+                        "            period: period,\n" +
+                        "            quantity: quantity\n" +
+                        "        };",
+                "check from var {needId, period, quantity} in mnClient->execute(" +
+                        "` WHERE ( quantity < ${minQuantity}  AND quantity > 0)  " +
+                        "OR period = \"2022-10-10 01:02:03\" `)\n" +
+                        "        select {\n" +
+                        "            needId: needId,\n" +
+                        "            period: period,\n" +
+                        "            quantity: quantity\n" +
+                        "        };"
+        );
 
-        for (DocumentId documentId : newPackage.getDefaultModule().documentIds()) {
-            Document document = newPackage.getDefaultModule().document(documentId);
-
-            if (document.name().equals("sample.bal")) {
-                // Positive test
-                List<String> modifiedFunctions = List.of(
-                        "check from entity:MedicalNeed medicalNeed in " +
-                                "mnClient->execute(` WHERE ( quantity < ${minQuantity} )  `)\n" +
-                                "        select {\n" +
-                                "            needId: medicalNeed.needId,\n" +
-                                "            period: medicalNeed.period,\n" +
-                                "            quantity: medicalNeed.quantity\n" +
-                                "        };",
-                        "check from var {needId, period, quantity} in " +
-                                "mnClient->execute(` WHERE quantity < ${minQuantity}  `)\n" +
-                                "        select {\n" +
-                                "            needId: needId,\n" +
-                                "            period: period,\n" +
-                                "            quantity: quantity\n" +
-                                "        };",
-                        "check from entity:MedicalNeed medicalNeed in " +
-                                "mnClient->execute(` WHERE period = \"2022-10-10 01:02:03\" `)\n" +
-                                "        select {\n" +
-                                "            needId: medicalNeed.needId,\n" +
-                                "            period: medicalNeed.period,\n" +
-                                "            quantity: medicalNeed.quantity\n" +
-                                "        };",
-                        "check from var {needId, period, quantity} in mnClient->execute(" +
-                                "` WHERE quantity < ${minQuantity}  AND quantity > 0 `)\n" +
-                                "        select {\n" +
-                                "            needId: needId,\n" +
-                                "            period: period,\n" +
-                                "            quantity: quantity\n" +
-                                "        };",
-                        "check from var {needId, period, quantity} in mnClient->execute(" +
-                                "` WHERE quantity < ${minQuantity}  OR period = \"2022-10-10 01:02:03\" `)\n" +
-                                "        select {\n" +
-                                "            needId: needId,\n" +
-                                "            period: period,\n" +
-                                "            quantity: quantity\n" +
-                                "        };",
-                        "check from var {needId, period, quantity} in mnClient->execute(" +
-                                "` WHERE ( quantity < ${minQuantity}  AND quantity > 0)  " +
-                                "OR period = \"2022-10-10 01:02:03\" `)\n" +
-                                "        select {\n" +
-                                "            needId: needId,\n" +
-                                "            period: period,\n" +
-                                "            quantity: quantity\n" +
-                                "        };"
-                );
-                modifiedFunctions.forEach(codeSnippet ->
-                        Assert.assertTrue(document.syntaxTree().toSourceCode().contains(codeSnippet), codeSnippet));
-            }
-        }
+        verifyModifiedFunctions(newPackage, modifiedFunctions);
     }
 
     @Test
     public void combinedClauseTest() {
 
-        Package currentPackage = loadPackage("package_05");
+        Package newPackage = getModifiedPackage("package_05");
 
-        // Running the code generation
-        CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
-        Package newPackage = codeModifierResult.updatedPackage().orElse(currentPackage);
+        List<String> modifiedFunctions = List.of(
+                "check from entity:MedicalNeed medicalNeed in " +
+                        "mnClient->execute(` WHERE ( quantity < ${minQuantity} )  LIMIT 5`)\n" +
+                        "        select {\n" +
+                        "            needId: medicalNeed.needId,\n" +
+                        "            period: medicalNeed.period,\n" +
+                        "            quantity: medicalNeed.quantity\n" +
+                        "        };",
+                "check from var {needId, period, quantity} in " +
+                        "mnClient->execute(` WHERE quantity < ${minQuantity}  ORDER BY quantity `)\n" +
+                        "        select {\n" +
+                        "            needId: needId,\n" +
+                        "            period: period,\n" +
+                        "            quantity: quantity\n" +
+                        "        };",
+                "check from entity:MedicalNeed medicalNeed in " +
+                        "mnClient->execute(` ORDER BY quantity LIMIT 5`)\n" +
+                        "        select {\n" +
+                        "            needId: medicalNeed.needId,\n" +
+                        "            period: medicalNeed.period,\n" +
+                        "            quantity: medicalNeed.quantity\n" +
+                        "        };",
+                "check from var {needId, period, quantity} in mnClient->execute(" +
+                        "` WHERE quantity < ${minQuantity}  AND quantity > 0 ORDER BY quantity LIMIT 5`)\n" +
+                        "        select {\n" +
+                        "            needId: needId,\n" +
+                        "            period: period,\n" +
+                        "            quantity: quantity\n" +
+                        "        };"
+        );
 
-        for (DocumentId documentId : newPackage.getDefaultModule().documentIds()) {
-            Document document = newPackage.getDefaultModule().document(documentId);
-
-            if (document.name().equals("sample.bal")) {
-                // Positive test
-                List<String> modifiedFunctions = List.of(
-                        "check from entity:MedicalNeed medicalNeed in " +
-                                "mnClient->execute(` WHERE ( quantity < ${minQuantity} )  LIMIT 5`)\n" +
-                                "        select {\n" +
-                                "            needId: medicalNeed.needId,\n" +
-                                "            period: medicalNeed.period,\n" +
-                                "            quantity: medicalNeed.quantity\n" +
-                                "        };",
-                        "check from var {needId, period, quantity} in " +
-                                "mnClient->execute(` WHERE quantity < ${minQuantity}  ORDER BY quantity `)\n" +
-                                "        select {\n" +
-                                "            needId: needId,\n" +
-                                "            period: period,\n" +
-                                "            quantity: quantity\n" +
-                                "        };",
-                        "check from entity:MedicalNeed medicalNeed in " +
-                                "mnClient->execute(` ORDER BY quantity LIMIT 5`)\n" +
-                                "        select {\n" +
-                                "            needId: medicalNeed.needId,\n" +
-                                "            period: medicalNeed.period,\n" +
-                                "            quantity: medicalNeed.quantity\n" +
-                                "        };",
-                        "check from var {needId, period, quantity} in mnClient->execute(" +
-                                "` WHERE quantity < ${minQuantity}  AND quantity > 0 ORDER BY quantity LIMIT 5`)\n" +
-                                "        select {\n" +
-                                "            needId: needId,\n" +
-                                "            period: period,\n" +
-                                "            quantity: quantity\n" +
-                                "        };"
-                );
-                modifiedFunctions.forEach(codeSnippet ->
-                        Assert.assertTrue(document.syntaxTree().toSourceCode().contains(codeSnippet), codeSnippet));
-            }
-        }
+        verifyModifiedFunctions(newPackage, modifiedFunctions);
     }
 
     @Test
@@ -366,6 +318,28 @@ public class CodeModifierTest {
             Assert.assertEquals(diagnostic.diagnosticInfo().code(), DiagnosticsCodes.PERSIST_203.getCode());
             Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(), DiagnosticsCodes.PERSIST_203.getMessage());
         });
+    }
+
+    private Package getModifiedPackage(String path) {
+        Package currentPackage = loadPackage(path);
+        DiagnosticResult diagnosticResult = currentPackage.getCompilation().diagnosticResult();
+        Assert.assertEquals(diagnosticResult.errorCount(), 0);
+        // Running the code generation
+        CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
+        Assert.assertEquals(codeModifierResult.reportedDiagnostics().errorCount(), 0);
+        return codeModifierResult.updatedPackage().orElse(currentPackage);
+    }
+
+    private void verifyModifiedFunctions(Package newPackage, List<String> modifiedQueryStrings) {
+        for (DocumentId documentId : newPackage.getDefaultModule().documentIds()) {
+            Document document = newPackage.getDefaultModule().document(documentId);
+
+            if (document.name().equals("sample.bal")) {
+                // Positive test
+                modifiedQueryStrings.forEach(codeSnippet ->
+                        Assert.assertTrue(document.syntaxTree().toSourceCode().contains(codeSnippet), codeSnippet));
+            }
+        }
     }
 
     private DiagnosticResult getDiagnosticResult(String packagePath) {
