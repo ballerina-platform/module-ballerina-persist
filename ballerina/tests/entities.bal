@@ -43,6 +43,18 @@ public type MedicalItem record {|
 |};
 
 @Entity {
+    key: ["complexTypeId"],
+    tableName: "ComplexTypes"
+}
+public type ComplexType record {|
+    @AutoIncrement
+    readonly int complexTypeId = -1;
+    time:Civil civilType;
+    time:TimeOfDay timeOfDayType;
+    time:Date dateType;
+|};
+
+@Entity {
     key: ["hospitalCode", "departmentId"],
     tableName: "Departments"
 }

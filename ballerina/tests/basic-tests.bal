@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/test;
+import ballerina/time;
 
 @test:Config {
     groups: ["basic"]
@@ -224,6 +225,32 @@ function testComplexTypes2() returns error? {
 
     check mnClient.close();
 }
+
+@test:Config {
+    groups: ["basic"]
+}
+function testComplexTypesUpdate() returns error? {
+    ComplexType complexType = {
+        civilType: {year: 2022, month: 10, day: 10, hour: 1, minute: 2, second: 3},
+        timeOfDayType: {hour: 12, minute: 12, second: 12},
+        dateType: {year: 2022, month: 10, day: 20}
+    };
+    ComplexTypeClient ctClient = check new ();
+    ComplexType complexType2 = check ctClient->create(complexType);
+
+    complexType2.civilType = {year: 2023, month: 11, day: 12, hour: 12, minute: 22, second: 32};
+    complexType2.timeOfDayType = {hour: 13, minute: 13, second: 13};
+    complexType2.dateType = {year: 2023, month: 11, day: 21};
+    _ = check ctClient->update(complexType2);
+
+    ComplexType complexType3 = check ctClient->readByKey(complexType2.complexTypeId);
+    check ctClient.close();
+
+    test:assertEquals(complexType3.civilType, <time:Civil>{year: 2023, month: 11, day: 12, hour: 12, minute: 22, second: 32});
+    test:assertEquals(complexType3.timeOfDayType, <time:TimeOfDay>{hour: 13, minute: 13, second: 13});
+    test:assertEquals(complexType3.dateType, <time:Date>{year: 2023, month: 11, day: 21});
+}
+
 
 @test:Config {
     groups: ["basic"]
