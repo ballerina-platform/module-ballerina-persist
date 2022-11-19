@@ -405,3 +405,7 @@ public client class SQLClient {
         return stringToParameterizedQuery(<string>(<FieldMetadata>fieldMetadata).columnName);
     }
 }
+
+# Represents the abstract persist client. This abstract object is used in the generated client.
+public type AbstractPersistClient object {
+};

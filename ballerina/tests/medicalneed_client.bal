@@ -19,6 +19,7 @@ import ballerinax/mysql;
 import ballerina/time;
 
 public client class MedicalNeedClient {
+    *AbstractPersistClient;
 
     private final string entityName = "MedicalNeed";
     private final sql:ParameterizedQuery tableName = `MedicalNeeds`;

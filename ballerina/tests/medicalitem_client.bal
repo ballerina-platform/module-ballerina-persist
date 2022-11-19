@@ -18,6 +18,7 @@ import ballerinax/mysql;
 import ballerina/sql;
 
 public client class MedicalItemClient {
+    *AbstractPersistClient;
 
     private final string entityName = "MedicalItem";
     private final sql:ParameterizedQuery tableName = `MedicalItems`;

@@ -18,6 +18,7 @@ import ballerinax/mysql;
 import ballerina/sql;
 
 client class MultipleAssociationsClient {
+    *AbstractPersistClient;
 
     private final string entityName = "MultipleAssociations";
     private final sql:ParameterizedQuery tableName = `MultipleAssociations`;
