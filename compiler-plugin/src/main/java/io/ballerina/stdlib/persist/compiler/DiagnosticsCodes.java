@@ -71,7 +71,7 @@ public enum DiagnosticsCodes {
 
     // todo: Add expression type in the diagnostic message
     PERSIST_201("PERSIST_201",
-            "persist client read() function not supported for expression", ERROR),
+            "persist client read() function not supported for this expression", ERROR),
     PERSIST_202("PERSIST_202",
             "persist client read() function limit not supported for variables, " +
                     "limit expression should be an integer", ERROR),
