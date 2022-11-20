@@ -40,6 +40,9 @@ public class PersistCodeModifier extends CodeModifier {
 
         // Identify all persist client in the package
         codeModifierContext.addSyntaxNodeAnalysisTask(new PersistClientIdentifierTask(), SyntaxKind.CLASS_DEFINITION);
+        // Identify all declared variable names with type
+        codeModifierContext.addSyntaxNodeAnalysisTask(new PersistClientVariableIdentifierTask(),
+                Arrays.asList(SyntaxKind.LOCAL_VAR_DECL, SyntaxKind.MODULE_VAR_DECL));
 
         codeModifierContext.addSourceModifierTask(new QueryCodeModifierTask());
     }
