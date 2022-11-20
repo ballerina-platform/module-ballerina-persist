@@ -21,13 +21,18 @@ package io.ballerina.stdlib.persist.compiler;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.plugins.CodeModifier;
 import io.ballerina.projects.plugins.CodeModifierContext;
+import io.ballerina.stdlib.persist.compiler.models.Variable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Code modifier for stream invoking.
  */
 public class PersistCodeModifier extends CodeModifier {
+    private final List<String> persistClientNames = new ArrayList<>();
+    private final List<Variable> variables = new ArrayList<>();
 
     @Override
     public void init(CodeModifierContext codeModifierContext) {
@@ -39,12 +44,13 @@ public class PersistCodeModifier extends CodeModifier {
         codeModifierContext.addSyntaxNodeAnalysisTask(new PersistQueryValidator(), SyntaxKind.QUERY_PIPELINE);
 
         // Identify all persist client in the package
-        codeModifierContext.addSyntaxNodeAnalysisTask(new PersistClientIdentifierTask(), SyntaxKind.CLASS_DEFINITION);
+        codeModifierContext.addSyntaxNodeAnalysisTask(new PersistClientIdentifierTask(persistClientNames),
+                SyntaxKind.CLASS_DEFINITION);
         // Identify all declared variable names with type
-        codeModifierContext.addSyntaxNodeAnalysisTask(new PersistClientVariableIdentifierTask(),
+        codeModifierContext.addSyntaxNodeAnalysisTask(new PersistClientVariableIdentifierTask(variables),
                 Arrays.asList(SyntaxKind.LOCAL_VAR_DECL, SyntaxKind.MODULE_VAR_DECL));
 
-        codeModifierContext.addSourceModifierTask(new QueryCodeModifierTask());
+        codeModifierContext.addSourceModifierTask(new QueryCodeModifierTask(persistClientNames, variables));
     }
 
 }

@@ -23,7 +23,6 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,7 +32,11 @@ import static io.ballerina.stdlib.persist.compiler.Constants.PERSIST_INHERITANCE
  * Identify all persist client in the package.
  */
 public class PersistClientIdentifierTask implements AnalysisTask<SyntaxNodeAnalysisContext> {
-    List<String> persistClientNames = new ArrayList<>();
+    private final List<String> persistClientNames;
+
+    public PersistClientIdentifierTask(List<String> persistClientNames) {
+        this.persistClientNames = persistClientNames;
+    }
 
     @Override
     public void perform(SyntaxNodeAnalysisContext ctx) {

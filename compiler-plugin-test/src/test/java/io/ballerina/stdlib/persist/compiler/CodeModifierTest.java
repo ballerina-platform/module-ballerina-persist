@@ -96,6 +96,22 @@ public class CodeModifierTest {
     }
 
     @Test
+    public void codeModifierNegativeTest() {
+
+        Package newPackage = getModifiedPackage("package_11");
+
+        List<String> modifiedFunctions = List.of(
+                "check from entity:MedicalNeed medicalNeed in mnClient1->execute(` ORDER BY quantity `)",
+                "check from entity:MedicalNeed medicalNeed in mnClient2New->execute(` ORDER BY quantity `)",
+                "check from entity:MedicalNeed medicalNeed in mnClient4->execute(` ORDER BY quantity `)",
+                "check from Data data in testClient->read()\n" +
+                        "        order by data.name"
+        );
+
+        verifyModifiedFunctions(newPackage, modifiedFunctions);
+    }
+
+    @Test
     public void limitClauseTest() {
 
         Package newPackage = getModifiedPackage("package_02");

@@ -25,14 +25,17 @@ import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.stdlib.persist.compiler.models.Variable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Analysis task to identify all declared variables.
  */
 public class PersistClientVariableIdentifierTask implements AnalysisTask<SyntaxNodeAnalysisContext> {
-    private List<Variable> variables = new ArrayList<>();
+    private final List<Variable> variables;
+
+    public PersistClientVariableIdentifierTask(List<Variable> variables) {
+        this.variables = variables;
+    }
 
     @Override
     public void perform(SyntaxNodeAnalysisContext ctx) {
