@@ -18,6 +18,7 @@ import ballerinax/mysql;
 import ballerina/sql;
 
 client class UserClient {
+    *AbstractPersistClient;
 
     private final string entityName = "User";
     private final sql:ParameterizedQuery tableName = `Users`;

@@ -35,6 +35,7 @@ public type Item record {
 };
 
 client class MedicalNeedClient {
+    *persist:AbstractPersistClient;
 
     private final string entityName = "MedicalNeed";
     private final sql:ParameterizedQuery tableName = `MedicalNeeds`;
