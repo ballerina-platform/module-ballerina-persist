@@ -30,6 +30,7 @@ import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.text.TextRange;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -269,25 +270,16 @@ public class CodeModifierTest {
 
     @Test
     public void testUsageOfExecute() {
-        Package currentPackage = loadPackage("package_07");
+        DiagnosticResult reportedDiagnostics = getDiagnosticResult("package_07");
+        List<Diagnostic> errorDiagnosticsList = filterErrorDiagnostics(reportedDiagnostics);
 
-        // Running the code generation
-        CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
-        Package newPackage = codeModifierResult.updatedPackage().orElse(currentPackage);
+        long availableErrors = errorDiagnosticsList.size();
 
-        for (DocumentId documentId : newPackage.getDefaultModule().documentIds()) {
-            Document document = newPackage.getDefaultModule().document(documentId);
+        Assert.assertEquals(availableErrors, 1);
 
-            if (document.name().equals("sample.bal")) {
-                // Negative Tests
-                List<String> unmodifiedFunction = List.of(
-                   "from entity:MedicalNeed medicalNeed in mnClient->execute(` WHERE quantity > ${quantityMinValue}`)"
-                );
-
-                unmodifiedFunction.forEach(codeSnippet ->
-                        Assert.assertTrue(document.syntaxTree().toSourceCode().contains(codeSnippet), codeSnippet));
-            }
-        }
+        DiagnosticInfo limitClauseError = errorDiagnosticsList.get(0).diagnosticInfo();
+        Assert.assertEquals(limitClauseError.code(), DiagnosticsCodes.PERSIST_210.getCode());
+        Assert.assertEquals(limitClauseError.messageFormat(), DiagnosticsCodes.PERSIST_210.getMessage());
     }
 
     @Test
@@ -318,6 +310,38 @@ public class CodeModifierTest {
             Assert.assertEquals(diagnostic.diagnosticInfo().code(), DiagnosticsCodes.PERSIST_203.getCode());
             Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(), DiagnosticsCodes.PERSIST_203.getMessage());
         });
+    }
+
+    @Test
+    public void readFunctionCallWarnings() {
+
+        DiagnosticResult reportedDiagnostics = getDiagnosticResult("package_10");
+        List<Diagnostic> errorDiagnosticsList = filterErrorDiagnostics(reportedDiagnostics);
+        Assert.assertEquals(errorDiagnosticsList.size(), 0);
+
+        List<Diagnostic> warnings = reportedDiagnostics.diagnostics().stream()
+                .filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.WARNING))
+                .collect(Collectors.toList());
+        long availableWarnings = warnings.size();
+
+        Assert.assertEquals(availableWarnings, 4);
+
+        warnings.forEach(warning -> {
+            Assert.assertEquals(warning.diagnosticInfo().code(), DiagnosticsCodes.PERSIST_211.getCode());
+            Assert.assertEquals(warning.diagnosticInfo().messageFormat(), DiagnosticsCodes.PERSIST_211.getMessage());
+        });
+
+        // sample.bal (24:53, 36:69)
+        Assert.assertEquals(warnings.get(0).location().textRange(), TextRange.from(931, 16));
+
+        // sample.bal (36:53, 24:69)
+        Assert.assertEquals(warnings.get(1).location().textRange(), TextRange.from(1332, 16));
+
+        // sample.bal (37:53, 37:69)
+        Assert.assertEquals(warnings.get(2).location().textRange(), TextRange.from(1403, 16));
+
+        // sample.bal (49:53, 49:69)
+        Assert.assertEquals(warnings.get(3).location().textRange(), TextRange.from(1817, 16));
     }
 
     private Package getModifiedPackage(String path) {

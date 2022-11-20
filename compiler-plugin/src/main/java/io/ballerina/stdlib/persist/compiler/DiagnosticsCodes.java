@@ -77,7 +77,12 @@ public enum DiagnosticsCodes {
                     "limit expression should be an integer", ERROR),
     PERSIST_203("PERSIST_203",
             "persist client read() function order by key should be ''variables'' in the ''from clause''",
-            ERROR);
+            ERROR),
+
+    PERSIST_210("PERSIST_210", "persist client execute() function is an internal function and cannot be invoked",
+                ERROR),
+    PERSIST_211("PERSIST_211", "this persist client read() function invocation is not optimised, " +
+            "use the function within the query syntax to run optimised fetch", WARNING);
 
     private final String code;
     private final String message;
