@@ -81,7 +81,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -100,7 +99,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
     private String tableName;
     private int noOfReportDiagnostic;
     private final List<String> recordNamesOfForeignKey;
-    private final HashMap<String, List<String>> referenceTables;
     private final List<String> tableNames;
     private final List<String> recordNames;
     private boolean isNewBuild;
@@ -114,7 +112,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         isPersistEntity = false;
         tableName = "";
         noOfReportDiagnostic = 0;
-        referenceTables = new HashMap<>();
         tableNames = new ArrayList<>();
         recordNames = new ArrayList<>();
         isNewBuild = true;
@@ -164,8 +161,8 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                     if ((hasPersistAnnotation || isPersistEntity)) {
                         validateRecordType(ctx, typeDefinitionNode);
                         if (this.noOfReportDiagnostic == 0) {
-                            validFieldTypeAndRelation((RecordTypeDescriptorNode) recordNode, tableName,
-                                    typeDefinitionNode, ctx, referenceTables, symbol.get());
+                            validFieldTypeAndRelation((RecordTypeDescriptorNode) recordNode, typeDefinitionNode,
+                                    ctx, symbol.get());
                         }
                     }
                 }
@@ -560,13 +557,9 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         this.noOfReportDiagnostic++;
     }
 
-    private void validFieldTypeAndRelation(RecordTypeDescriptorNode recordNode, String tableName,
-                                           TypeDefinitionNode typeDefinitionNode, SyntaxNodeAnalysisContext ctx,
-                                           HashMap<String, List<String>> referenceTables, Symbol symbol) {
+    private void validFieldTypeAndRelation(RecordTypeDescriptorNode recordNode, TypeDefinitionNode typeDefinitionNode,
+                                           SyntaxNodeAnalysisContext ctx, Symbol symbol) {
         String recordName = typeDefinitionNode.typeName().text();
-        if (tableName.isEmpty()) {
-            tableName = recordName;
-        }
         NodeList<Node> fields = recordNode.fields();
         String type;
         Node node;
@@ -575,7 +568,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         for (Node field : fields) {
             String tableAssociationType = "";
             String startValue = Constants.EMPTY;
-            String referenceTableName = "";
             boolean isArrayType = false;
             boolean isUserDefinedType = false;
             String hasRelationAnnotation = Constants.FALSE;
@@ -618,7 +610,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                                             DiagnosticsCodes.PERSIST_115.getSeverity());
                                 } else {
                                     tableAssociationType = properties[1].toString();
-                                    referenceTableName = properties[0].toString();
                                     hasRelationAnnotation = properties[2].toString();
                                     referenceRecord = (TypeDefinitionNode) properties[3];
                                     if (isArrayType) {
@@ -657,7 +648,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                             DiagnosticsCodes.PERSIST_115.getSeverity());
                 }
                 tableAssociationType = properties[1].toString();
-                referenceTableName = properties[0].toString();
                 hasRelationAnnotation = properties[2].toString();
                 referenceRecord = (TypeDefinitionNode) properties[3];
                 if (isArrayType) {
@@ -706,7 +696,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                                     DiagnosticsCodes.PERSIST_117.getMessage(),
                                     DiagnosticsCodes.PERSIST_117.getSeverity());
                         } else {
-                            updateReferenceTable(tableName, referenceTableName, referenceTables);
                             processRelationAnnotation(ctx, annotationNode, referenceRecord);
                         }
                     }
@@ -835,18 +824,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             }
         }
         return Constants.FALSE;
-    }
-
-    private void updateReferenceTable(String tableName, String referenceTableName,
-                                      HashMap<String, List<String>> referenceTables) {
-        List<String> setOfReferenceTables;
-        if (referenceTables.containsKey(referenceTableName)) {
-            setOfReferenceTables = referenceTables.get(referenceTableName);
-        } else {
-            setOfReferenceTables = new ArrayList<>();
-        }
-        setOfReferenceTables.add(tableName);
-        referenceTables.put(referenceTableName, setOfReferenceTables);
     }
 
     private String processAutoIncrementAnnotations(AnnotationNode annotationNode, String startValue,
