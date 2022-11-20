@@ -85,8 +85,6 @@ public class CodeModifierTest {
                 // Negative Tests
                 List<String> unmodifiedFunction = List.of(
                         "from record {int needId; string period; int quantity;} medicalNeed in mns",
-                        "from entity:MedicalNeed medicalNeed in mnClient->read({quantity: 5})",
-                        "from entity:MedicalNeed medicalNeed in mnClient->execute(`quantity > ${quantityMinValue}`)",
                         "check from entity:MedicalNeed medicalNeed in mnClient->read()\n" +
                                 "        select {\n" +
                                 "            needId: medicalNeed.needId,\n" +
@@ -123,26 +121,6 @@ public class CodeModifierTest {
                                 "            quantity: medicalNeed.quantity\n" +
                                 "        };";
                 Assert.assertTrue(document.syntaxTree().toSourceCode().contains(modifiedFunction));
-
-                // Negative Tests
-                List<String> unmodifiedFunction = List.of(
-                        "check from entity:MedicalNeed medicalNeed in mnClient->read()\n" +
-                                "        limit quantityMinValue\n" +
-                                "        select {\n" +
-                                "            needId: medicalNeed.needId,\n" +
-                                "            period: medicalNeed.period,\n" +
-                                "            quantity: medicalNeed.quantity\n" +
-                                "        };",
-                        "check from entity:MedicalNeed medicalNeed in mnClient->read()\n" +
-                                "        limit \"5\"\n" +
-                                "        select {\n" +
-                                "            needId: medicalNeed.needId,\n" +
-                                "            period: medicalNeed.period,\n" +
-                                "            quantity: medicalNeed.quantity\n" +
-                                "        };"
-                );
-                unmodifiedFunction.forEach(codeSnippet ->
-                        Assert.assertTrue(document.syntaxTree().toSourceCode().contains(codeSnippet), codeSnippet));
             }
         }
     }
@@ -196,26 +174,6 @@ public class CodeModifierTest {
                                 "        };"
                 );
                 modifiedFunctions.forEach(codeSnippet ->
-                        Assert.assertTrue(document.syntaxTree().toSourceCode().contains(codeSnippet), codeSnippet));
-
-                // Negative Tests
-                List<String> unmodifiedFunction = List.of(
-                        "check from entity:MedicalNeed medicalNeed in mnClient->read()\n" +
-                                "        order by \"medicalNeed.quantity\"\n" +
-                                "        select {\n" +
-                                "            needId: medicalNeed.needId,\n" +
-                                "            period: medicalNeed.period,\n" +
-                                "            quantity: medicalNeed.quantity\n" +
-                                "        };",
-                        "check from entity:MedicalNeed medicalNeed in mnClient->read()\n" +
-                                "        order by quantity\n" +
-                                "        select {\n" +
-                                "            needId: needId,\n" +
-                                "            period: period,\n" +
-                                "            quantity: quantity\n" +
-                                "        };"
-                );
-                unmodifiedFunction.forEach(codeSnippet ->
                         Assert.assertTrue(document.syntaxTree().toSourceCode().contains(codeSnippet), codeSnippet));
             }
         }
@@ -281,15 +239,6 @@ public class CodeModifierTest {
                                 "        };"
                 );
                 modifiedFunctions.forEach(codeSnippet ->
-                        Assert.assertTrue(document.syntaxTree().toSourceCode().contains(codeSnippet), codeSnippet));
-
-                // Negative Tests
-                List<String> unmodifiedFunction = List.of(
-                        // todo This should not be modified
-                        "check from var {needId, period, quantity} in " +
-                                "mnClient->execute(` WHERE ${quantity1} < ${minQuantity}  `)"
-                );
-                unmodifiedFunction.forEach(codeSnippet ->
                         Assert.assertTrue(document.syntaxTree().toSourceCode().contains(codeSnippet), codeSnippet));
             }
         }
@@ -376,6 +325,101 @@ public class CodeModifierTest {
         DiagnosticInfo whereClauseError = errorDiagnosticsList.get(2).diagnosticInfo();
         Assert.assertEquals(whereClauseError.code(), DiagnosticsCodes.PERSIST_201.getCode());
         Assert.assertEquals(whereClauseError.messageFormat(), DiagnosticsCodes.PERSIST_201.getMessage());
+    }
+
+    @Test
+    public void testUsageOfExecute() {
+        Package currentPackage = loadPackage("package_07");
+
+        // Running the code generation
+        CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
+        Package newPackage = codeModifierResult.updatedPackage().orElse(currentPackage);
+
+        for (DocumentId documentId : newPackage.getDefaultModule().documentIds()) {
+            Document document = newPackage.getDefaultModule().document(documentId);
+
+            if (document.name().equals("sample.bal")) {
+                // Negative Tests
+                List<String> unmodifiedFunction = List.of(
+                   "from entity:MedicalNeed medicalNeed in mnClient->execute(` WHERE quantity > ${quantityMinValue}`)"
+                );
+
+                unmodifiedFunction.forEach(codeSnippet ->
+                        Assert.assertTrue(document.syntaxTree().toSourceCode().contains(codeSnippet), codeSnippet));
+            }
+        }
+    }
+
+    @Test
+    public void limitClauseNegativeTest() {
+
+        Package currentPackage = loadPackage("package_08");
+
+        // Running the code generation
+        CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
+        Package newPackage = codeModifierResult.updatedPackage().orElse(currentPackage);
+
+        for (DocumentId documentId : newPackage.getDefaultModule().documentIds()) {
+            Document document = newPackage.getDefaultModule().document(documentId);
+
+            if (document.name().equals("sample.bal")) {
+                // Negative Tests
+                List<String> unmodifiedFunction = List.of(
+                        "check from entity:MedicalNeed medicalNeed in mnClient->read()\n" +
+                                "        limit quantityMinValue\n" +
+                                "        select {\n" +
+                                "            needId: medicalNeed.needId,\n" +
+                                "            period: medicalNeed.period,\n" +
+                                "            quantity: medicalNeed.quantity\n" +
+                                "        };",
+                        "check from entity:MedicalNeed medicalNeed in mnClient->read()\n" +
+                                "        limit \"5\"\n" +
+                                "        select {\n" +
+                                "            needId: medicalNeed.needId,\n" +
+                                "            period: medicalNeed.period,\n" +
+                                "            quantity: medicalNeed.quantity\n" +
+                                "        };"
+                );
+                unmodifiedFunction.forEach(codeSnippet ->
+                        Assert.assertTrue(document.syntaxTree().toSourceCode().contains(codeSnippet), codeSnippet));
+            }
+        }
+    }
+
+    @Test
+    public void orderByClauseNegativeTest() {
+
+        Package currentPackage = loadPackage("package_09");
+
+        // Running the code generation
+        CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
+        Package newPackage = codeModifierResult.updatedPackage().orElse(currentPackage);
+
+        for (DocumentId documentId : newPackage.getDefaultModule().documentIds()) {
+            Document document = newPackage.getDefaultModule().document(documentId);
+
+            if (document.name().equals("sample.bal")) {
+                // Negative Tests
+                List<String> unmodifiedFunction = List.of(
+                        "check from entity:MedicalNeed medicalNeed in mnClient->read()\n" +
+                                "        order by \"medicalNeed.quantity\"\n" +
+                                "        select {\n" +
+                                "            needId: medicalNeed.needId,\n" +
+                                "            period: medicalNeed.period,\n" +
+                                "            quantity: medicalNeed.quantity\n" +
+                                "        };",
+                        "check from entity:MedicalNeed medicalNeed in mnClient->read()\n" +
+                                "        order by quantity\n" +
+                                "        select {\n" +
+                                "            needId: needId,\n" +
+                                "            period: period,\n" +
+                                "            quantity: quantity\n" +
+                                "        };"
+                );
+                unmodifiedFunction.forEach(codeSnippet ->
+                        Assert.assertTrue(document.syntaxTree().toSourceCode().contains(codeSnippet), codeSnippet));
+            }
+        }
     }
 }
 
