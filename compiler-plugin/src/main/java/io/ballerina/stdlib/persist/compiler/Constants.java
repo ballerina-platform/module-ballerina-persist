@@ -30,7 +30,6 @@ import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createEmptyM
  */
 public class Constants {
 
-    public static final String TRUE = "true";
     public static final String INSERT_METHOD_NAME = "runInsertQuery";
     public static final String ENTITY = "persist:Entity";
     public static final String UNNECESSARY_CHARS_REGEX = "\"|\\n";
@@ -63,7 +62,7 @@ public class Constants {
     public static final String CLOSE_BRACES = ") ";
     public static final String ASCENDING = "ascending";
     public static final String BAL_ESCAPE_TOKEN = "'";
-
+    public static final String PERSIST_INHERITANCE_NODE = "*persist:AbstractPersistClient;";
     /**
      * Constants related to Ballerina types.
      */

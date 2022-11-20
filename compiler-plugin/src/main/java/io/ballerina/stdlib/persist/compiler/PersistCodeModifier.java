@@ -37,6 +37,10 @@ public class PersistCodeModifier extends CodeModifier {
                 Arrays.asList(SyntaxKind.REMOTE_METHOD_CALL_ACTION, SyntaxKind.FROM_CLAUSE));
         // Add validations for un supported expressions in where, order by and limit
         codeModifierContext.addSyntaxNodeAnalysisTask(new PersistQueryValidator(), SyntaxKind.QUERY_PIPELINE);
+
+        // Identify all persist client in the package
+        codeModifierContext.addSyntaxNodeAnalysisTask(new PersistClientIdentifierTask(), SyntaxKind.CLASS_DEFINITION);
+
         codeModifierContext.addSourceModifierTask(new QueryCodeModifierTask());
     }
 
