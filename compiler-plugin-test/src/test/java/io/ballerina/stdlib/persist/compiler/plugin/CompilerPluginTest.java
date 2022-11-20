@@ -213,8 +213,8 @@ public class CompilerPluginTest {
     @Test
     public void testGetReferenceWithCompositeKey() {
         testDiagnostic("package_26", "Contains composite value: could not infer the reference " +
-                        "as the key or uniqueConstrains does not contain single value", DiagnosticsCodes.PERSIST_122.getCode(),
-                1);
+                        "as the key or uniqueConstrains does not contain single value",
+                DiagnosticsCodes.PERSIST_122.getCode(), 1);
     }
 
     @Test
