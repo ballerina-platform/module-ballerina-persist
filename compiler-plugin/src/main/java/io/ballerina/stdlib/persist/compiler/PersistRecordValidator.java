@@ -18,6 +18,7 @@
 
 package io.ballerina.stdlib.persist.compiler;
 
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.NilTypeSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
@@ -28,13 +29,19 @@ import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
+import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
+import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
+import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerina.compiler.syntax.tree.ListConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.MappingFieldNode;
@@ -45,16 +52,22 @@ import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeLocation;
+import io.ballerina.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ParameterNode;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
@@ -66,6 +79,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -89,7 +103,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
     private final HashMap<String, List<String>> referenceTables;
     private final List<String> tableNames;
     private final List<String> recordNames;
-    private final List<String> tableNamesInScript;
     private boolean isNewBuild;
 
     public PersistRecordValidator() {
@@ -104,12 +117,14 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         referenceTables = new HashMap<>();
         tableNames = new ArrayList<>();
         recordNames = new ArrayList<>();
-        tableNamesInScript = new ArrayList<>();
         isNewBuild = true;
     }
 
     @Override
     public void perform(SyntaxNodeAnalysisContext ctx) {
+        if (!(ctx.node() instanceof TypeDefinitionNode)) {
+            return;
+        }
         ModuleId moduleId = ctx.moduleId();
         String moduleName = ctx.currentPackage().module(moduleId).moduleName().toString().trim();
         String packageName = ctx.currentPackage().packageName().toString().trim();
@@ -149,9 +164,8 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                     if ((hasPersistAnnotation || isPersistEntity)) {
                         validateRecordType(ctx, typeDefinitionNode);
                         if (this.noOfReportDiagnostic == 0) {
-                            PersistGenerateSqlScript.generateSqlScript((RecordTypeDescriptorNode) recordNode,
-                                    typeDefinitionNode, tableName, this.primaryKeys, this.uniqueConstraints, ctx,
-                                    referenceTables, tableNamesInScript, symbol.get());
+                            validFieldTypeAndRelation((RecordTypeDescriptorNode) recordNode, tableName,
+                                    typeDefinitionNode, ctx, referenceTables, symbol.get());
                         }
                     }
                 }
@@ -289,18 +303,17 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                                     String fieldName) {
         NodeList<AnnotationNode> annotations = metadataNode.annotations();
         for (AnnotationNode annotation : annotations) {
-            String annotationName = annotation.annotReference().toSourceCode().trim();
             Optional<MappingConstructorExpressionNode> mappingConstructorExpressionNode = annotation.annotValue();
+            String annotationName = annotation.annotReference().toSourceCode().trim();
             if (annotationName.equals(Constants.AUTO_INCREMENT)) {
                 if (this.hasAutoIncrementAnnotation) {
                     reportDiagnosticInfo(ctx, location, DiagnosticsCodes.PERSIST_107.getCode(),
                             DiagnosticsCodes.PERSIST_107.getMessage(), DiagnosticsCodes.PERSIST_107.getSeverity());
                 }
                 checkAutoIncrementFieldMarkAsKey(ctx, location, fieldName);
-            }
-            if (mappingConstructorExpressionNode.isPresent()) {
-                SeparatedNodeList<MappingFieldNode> annotationFields = mappingConstructorExpressionNode.get().fields();
-                if (annotationName.equals(Constants.AUTO_INCREMENT)) {
+                if (mappingConstructorExpressionNode.isPresent()) {
+                    SeparatedNodeList<MappingFieldNode> annotationFields = mappingConstructorExpressionNode.get().
+                            fields();
                     this.hasPersistAnnotation = true;
                     if (!filedType.trim().equals("int")) {
                         reportDiagnosticInfo(ctx, location, DiagnosticsCodes.PERSIST_105.getCode(),
@@ -311,7 +324,10 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                     }
                     this.hasAutoIncrementAnnotation = true;
                 }
-                if (annotation.annotReference().toSourceCode().trim().equals(Constants.RELATION)) {
+            } else if (annotation.annotReference().toSourceCode().trim().equals(Constants.RELATION)) {
+                if (mappingConstructorExpressionNode.isPresent()) {
+                    SeparatedNodeList<MappingFieldNode> annotationFields =
+                            mappingConstructorExpressionNode.get().fields();
                     this.recordNamesOfForeignKey.add(filedType);
                     this.hasPersistAnnotation = true;
                     validateRelationAnnotation(ctx, annotationFields,  memberNodes, filedType);
@@ -542,5 +558,498 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                                      DiagnosticSeverity diagnosticSeverity) {
         Utils.reportDiagnostic(ctx, location, code, message, diagnosticSeverity);
         this.noOfReportDiagnostic++;
+    }
+
+    private void validFieldTypeAndRelation(RecordTypeDescriptorNode recordNode, String tableName,
+                                           TypeDefinitionNode typeDefinitionNode, SyntaxNodeAnalysisContext ctx,
+                                           HashMap<String, List<String>> referenceTables, Symbol symbol) {
+        String recordName = typeDefinitionNode.typeName().text();
+        if (tableName.isEmpty()) {
+            tableName = recordName;
+        }
+        NodeList<Node> fields = recordNode.fields();
+        String type;
+        Node node;
+        Optional<MetadataNode> metadata;
+        TypeDefinitionNode referenceRecord = null;
+        for (Node field : fields) {
+            String tableAssociationType = "";
+            String startValue = Constants.EMPTY;
+            String referenceTableName = "";
+            boolean isArrayType = false;
+            boolean isUserDefinedType = false;
+            String hasRelationAnnotation = Constants.FALSE;
+            if (field instanceof RecordFieldWithDefaultValueNode) {
+                RecordFieldWithDefaultValueNode fieldNode = (RecordFieldWithDefaultValueNode) field;
+                node = fieldNode.typeName();
+                metadata = fieldNode.metadata();
+                startValue = fieldNode.expression().toSourceCode().trim();
+            } else {
+                RecordFieldNode fieldNode = (RecordFieldNode) field;
+                node = fieldNode.typeName();
+                metadata = fieldNode.metadata();
+            }
+            if (node instanceof OptionalTypeDescriptorNode) {
+                node = ((OptionalTypeDescriptorNode) node).typeDescriptor();
+            }
+            if (node instanceof ArrayTypeDescriptorNode) {
+                isArrayType = true;
+                ArrayTypeDescriptorNode arrayTypeDescriptorNode = ((ArrayTypeDescriptorNode) node);
+                node = arrayTypeDescriptorNode.memberTypeDesc();
+            }
+            if (node instanceof QualifiedNameReferenceNode) {
+                QualifiedNameReferenceNode qualifiedNameReferenceNode = (QualifiedNameReferenceNode) node;
+                type = qualifiedNameReferenceNode.identifier().text();
+                String nodeType = qualifiedNameReferenceNode.modulePrefix().text().trim();
+                if (!nodeType.isEmpty()) {
+                    NodeList<ImportDeclarationNode> imports = ((ModulePartNode) ctx.syntaxTree().rootNode()).imports();
+                    for (int i = 0; i < imports.size(); i++) {
+                        ImportDeclarationNode importDeclarationNode = imports.get(i);
+                        SeparatedNodeList<IdentifierToken> moduleNames = importDeclarationNode.moduleName();
+                        if (isNodeType(importDeclarationNode, nodeType, moduleNames)) {
+                            if (hasValidModuleName(moduleNames, symbol) &&
+                                    hasValidOrgName(importDeclarationNode, symbol)) {
+                                isUserDefinedType = true;
+                                Object[] properties = checkRelationShip(recordName, type, ctx);
+                                if (isArrayType && properties.length == 5) {
+                                    Utils.reportDiagnostic(ctx, field.location(),
+                                            DiagnosticsCodes.PERSIST_115.getCode(),
+                                            MessageFormat.format(DiagnosticsCodes.PERSIST_115.getMessage(), type),
+                                            DiagnosticsCodes.PERSIST_115.getSeverity());
+                                } else {
+                                    tableAssociationType = properties[1].toString();
+                                    referenceTableName = properties[0].toString();
+                                    hasRelationAnnotation = properties[2].toString();
+                                    referenceRecord = (TypeDefinitionNode) properties[3];
+                                    if (isArrayType) {
+                                        if (!tableAssociationType.equals(Constants.ONE_TO_ONE)) {
+                                            Utils.reportDiagnostic(ctx, field.location(),
+                                                    DiagnosticsCodes.PERSIST_114.getCode(),
+                                                    DiagnosticsCodes.PERSIST_114.getMessage(),
+                                                    DiagnosticsCodes.PERSIST_114.getSeverity());
+                                        }
+                                    }
+                                    break;
+                                }
+                            } else {
+                                if (isArrayType) {
+                                    Utils.reportDiagnostic(ctx, node.location(),
+                                            DiagnosticsCodes.PERSIST_120.getCode(),
+                                            DiagnosticsCodes.PERSIST_120.getMessage(),
+                                            DiagnosticsCodes.PERSIST_120.getSeverity());
+                                }
+                                validateType(ctx, node, qualifiedNameReferenceNode.toString().trim());
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    validateType(ctx, node, type);
+                }
+            } else if (node instanceof SimpleNameReferenceNode) {
+                isUserDefinedType = true;
+                type = ((SimpleNameReferenceNode) node).name().text();
+                Object[] properties = checkRelationShip(recordName, type, ctx);
+                if (isArrayType && properties.length == 5) {
+                    Utils.reportDiagnostic(ctx, field.location(),
+                            DiagnosticsCodes.PERSIST_115.getCode(),
+                            MessageFormat.format(DiagnosticsCodes.PERSIST_115.getMessage(), type),
+                            DiagnosticsCodes.PERSIST_115.getSeverity());
+                }
+                tableAssociationType = properties[1].toString();
+                referenceTableName = properties[0].toString();
+                hasRelationAnnotation = properties[2].toString();
+                referenceRecord = (TypeDefinitionNode) properties[3];
+                if (isArrayType) {
+                    if (!tableAssociationType.equals(Constants.ONE_TO_ONE)) {
+                        Utils.reportDiagnostic(ctx, field.location(),
+                                DiagnosticsCodes.PERSIST_114.getCode(),
+                                DiagnosticsCodes.PERSIST_114.getMessage(),
+                                DiagnosticsCodes.PERSIST_114.getSeverity());
+                    }
+                }
+            } else {
+                if (isArrayType) {
+                    Utils.reportDiagnostic(ctx, node.location(), DiagnosticsCodes.PERSIST_120.getCode(),
+                            DiagnosticsCodes.PERSIST_120.getMessage(), DiagnosticsCodes.PERSIST_120.getSeverity());
+                }
+                validateType(ctx, node, ((BuiltinSimpleNameReferenceNode) node).name().text());
+            }
+            if (metadata.isPresent()) {
+                for (AnnotationNode annotationNode : metadata.get().annotations()) {
+                    String annotationName = annotationNode.annotReference().toSourceCode().trim();
+
+                    if (annotationName.equals(Constants.AUTO_INCREMENT)) {
+                        startValue = processAutoIncrementAnnotations(annotationNode, startValue, ctx);
+                    }
+                    if (annotationName.equals(Constants.RELATION)) {
+                        if (hasRelationAnnotation.equals(Constants.TRUE)) {
+                            Utils.reportDiagnostic(ctx, annotationNode.location(),
+                                    DiagnosticsCodes.PERSIST_116.getCode(), DiagnosticsCodes.PERSIST_116.getMessage(),
+                                    DiagnosticsCodes.PERSIST_116.getSeverity());
+                        }
+                        if (isArrayType) {
+                            if (tableAssociationType.equals(Constants.ONE_TO_ONE)) {
+                                Utils.reportDiagnostic(ctx, annotationNode.location(),
+                                        DiagnosticsCodes.PERSIST_118.getCode(),
+                                        DiagnosticsCodes.PERSIST_118.getMessage(),
+                                        DiagnosticsCodes.PERSIST_118.getSeverity());
+                            } else if (!isUserDefinedType) {
+                                Utils.reportDiagnostic(ctx, annotationNode.location(),
+                                        DiagnosticsCodes.PERSIST_117.getCode(),
+                                        DiagnosticsCodes.PERSIST_117.getMessage(),
+                                        DiagnosticsCodes.PERSIST_117.getSeverity());
+                            }
+                        } else if (!isUserDefinedType) {
+                            Utils.reportDiagnostic(ctx, annotationNode.location(),
+                                    DiagnosticsCodes.PERSIST_117.getCode(),
+                                    DiagnosticsCodes.PERSIST_117.getMessage(),
+                                    DiagnosticsCodes.PERSIST_117.getSeverity());
+                        } else {
+                            updateReferenceTable(tableName, referenceTableName, referenceTables);
+                            processRelationAnnotation(ctx, annotationNode, referenceRecord);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean hasValidOrgName(ImportDeclarationNode importDeclarationNode, Symbol symbol) {
+        Optional<ModuleSymbol> module = symbol.getModule();
+        if (module.isPresent()) {
+            Optional<ImportOrgNameNode> orgName = importDeclarationNode.orgName();
+            return importDeclarationNode.orgName().isEmpty() || (orgName.isPresent() && module.get().id().orgName().
+                    trim().equals(orgName.get().orgName().text().trim()));
+        }
+        return false;
+    }
+
+    private boolean hasValidModuleName(SeparatedNodeList<IdentifierToken> moduleNames, Symbol symbol) {
+        Optional<ModuleSymbol> module = symbol.getModule();
+        if (module.isPresent()) {
+            Optional<String> moduleName = module.get().getName();
+            return moduleName.isEmpty() || moduleName.get().trim().startsWith(moduleNames.get(0).text().trim());
+        }
+        return false;
+    }
+
+    private boolean isNodeType(ImportDeclarationNode importDeclarationNode, String nodeType,
+                               SeparatedNodeList<IdentifierToken> moduleNames) {
+        Optional<ImportPrefixNode> prefixNode = importDeclarationNode.prefix();
+        return moduleNames.get(moduleNames.size() - 1).toString().trim().equals(nodeType) ||
+                ((prefixNode.isPresent() && prefixNode.get().prefix().text().trim().
+                        equals(nodeType)));
+    }
+
+    private Object[] checkRelationShip(String recordName, String referenceRecordName,
+                                       SyntaxNodeAnalysisContext ctx) {
+        TypeDefinitionNode referenceRecord = null;
+        for (Module module : ctx.currentPackage().modules()) {
+            for (DocumentId documentId : module.documentIds()) {
+                Document document = module.document(documentId);
+                NodeList<ModuleMemberDeclarationNode> memberNodes = ((ModulePartNode) document.syntaxTree().rootNode()).
+                        members();
+                for (ModuleMemberDeclarationNode memberNode : memberNodes) {
+                    if (!(memberNode instanceof TypeDefinitionNode)) {
+                        continue;
+                    }
+                    TypeDefinitionNode typeDefinitionNode = (TypeDefinitionNode) memberNode;
+                    Node typeDescriptor = typeDefinitionNode.typeDescriptor();
+                    if (!(typeDescriptor instanceof RecordTypeDescriptorNode)) {
+                        continue;
+                    }
+                    RecordTypeDescriptorNode recordTypeDescriptor = (RecordTypeDescriptorNode) typeDescriptor;
+                    if (!typeDefinitionNode.typeName().text().equals(referenceRecordName)) {
+                        continue;
+                    }
+                    referenceRecord = typeDefinitionNode;
+                    Optional<MetadataNode> entityMetadata = typeDefinitionNode.metadata();
+                    if (entityMetadata.isPresent()) {
+                        NodeList<AnnotationNode> annotations = entityMetadata.get().annotations();
+                        for (AnnotationNode annotation : annotations) {
+                            if (!annotation.annotReference().toSourceCode().trim().equals(Constants.ENTITY)) {
+                                continue;
+                            }
+                            Optional<MappingConstructorExpressionNode> mappingConstructorExpressionNode =
+                                    annotation.annotValue();
+                            if (mappingConstructorExpressionNode.isPresent()) {
+                                SeparatedNodeList<MappingFieldNode> fields = mappingConstructorExpressionNode.get().
+                                        fields();
+                                for (MappingFieldNode mappingFieldNode : fields) {
+                                    SpecificFieldNode fieldNode = (SpecificFieldNode) mappingFieldNode;
+                                    String name = fieldNode.fieldName().toSourceCode().trim().
+                                            replaceAll(Constants.UNNECESSARY_CHARS_REGEX, "");
+                                    Optional<ExpressionNode> expressionNode = fieldNode.valueExpr();
+                                    if (expressionNode.isPresent()) {
+                                        if (name.equals(Constants.TABLE_NAME)) {
+                                            referenceRecordName = Utils.eliminateDoubleQuotes(expressionNode.get().
+                                                    toSourceCode().trim());
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    for (Node recordField : recordTypeDescriptor.fields()) {
+                        String fieldType;
+                        String relationAnnotation = "false";
+                        if (recordField instanceof RecordFieldNode) {
+                            RecordFieldNode recordFieldNode = (RecordFieldNode) recordField;
+                            fieldType = recordFieldNode.typeName().toSourceCode().trim();
+                            Optional<MetadataNode> metaData = recordFieldNode.metadata();
+                            if (metaData.isPresent()) {
+                                relationAnnotation = checkRelationAnnotation(metaData.get());
+                            }
+                        } else {
+                            RecordFieldWithDefaultValueNode recordFieldNode =
+                                    (RecordFieldWithDefaultValueNode) recordField;
+                            fieldType = recordFieldNode.typeName().toSourceCode().trim();
+                            Optional<MetadataNode> metaData = recordFieldNode.metadata();
+                            if (metaData.isPresent()) {
+                                relationAnnotation = checkRelationAnnotation(metaData.get());
+                            }
+                        }
+                        if (fieldType.contains(recordName)) {
+                            if (fieldType.endsWith("]")) {
+                                return new Object[]{referenceRecordName, Constants.ONE_TO_MANY, relationAnnotation,
+                                        referenceRecord};
+                            } else {
+                                return new Object[]{referenceRecordName, Constants.ONE_TO_ONE, relationAnnotation,
+                                        referenceRecord};
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return new Object[]{referenceRecordName, Constants.ONE_TO_ONE, Constants.FALSE, referenceRecord,
+                "Field does not exist"};
+    }
+
+    private String checkRelationAnnotation(MetadataNode metadataNode) {
+        NodeList<AnnotationNode> annotations = metadataNode.annotations();
+        for (AnnotationNode annotation : annotations) {
+            if (annotation.annotReference().toSourceCode().trim().equals(Constants.RELATION)) {
+                return Constants.TRUE;
+            }
+        }
+        return Constants.FALSE;
+    }
+
+    private void updateReferenceTable(String tableName, String referenceTableName,
+                                      HashMap<String, List<String>> referenceTables) {
+        List<String> setOfReferenceTables;
+        if (referenceTables.containsKey(referenceTableName)) {
+            setOfReferenceTables = referenceTables.get(referenceTableName);
+        } else {
+            setOfReferenceTables = new ArrayList<>();
+        }
+        setOfReferenceTables.add(tableName);
+        referenceTables.put(referenceTableName, setOfReferenceTables);
+    }
+
+    private String processAutoIncrementAnnotations(AnnotationNode annotationNode, String startValue,
+                                                   SyntaxNodeAnalysisContext ctx) {
+        Optional<MappingConstructorExpressionNode> annotationFieldNode = annotationNode.annotValue();
+        if (annotationFieldNode.isPresent()) {
+            for (MappingFieldNode mappingFieldNode : annotationFieldNode.get().fields()) {
+                SpecificFieldNode specificFieldNode = (SpecificFieldNode) mappingFieldNode;
+                // todo mysql doesn't support increment. So, set the warning.
+                //  some db support this, So, need to improve this properly.
+                if (specificFieldNode.fieldName().toSourceCode().trim().equals(Constants.INCREMENT)) {
+                    Optional<ExpressionNode> valueExpr = specificFieldNode.valueExpr();
+                    if (valueExpr.isPresent()) {
+                        if (!valueExpr.get().toSourceCode().trim().equals(Constants.ONE)) {
+                            Utils.reportDiagnostic(ctx, specificFieldNode.location(),
+                                    DiagnosticsCodes.PERSIST_112.getCode(),
+                                    DiagnosticsCodes.PERSIST_112.getMessage(),
+                                    DiagnosticsCodes.PERSIST_112.getSeverity());
+                        }
+                    }
+
+                }
+            }
+        }
+        return startValue;
+    }
+
+    private void processRelationAnnotation(SyntaxNodeAnalysisContext ctx, AnnotationNode annotationNode,
+                                           TypeDefinitionNode referenceRecord) {
+        ListConstructorExpressionNode reference = null;
+        Optional<MappingConstructorExpressionNode> annotationFieldNode = annotationNode.annotValue();
+        if (annotationFieldNode.isPresent()) {
+            for (MappingFieldNode mappingFieldNode : annotationFieldNode.get().fields()) {
+                SpecificFieldNode specificFieldNode = (SpecificFieldNode) mappingFieldNode;
+                if (specificFieldNode.fieldName().toSourceCode().trim().equals(Constants.REFERENCE)) {
+                    Optional<ExpressionNode> node = specificFieldNode.valueExpr();
+                    if (node.isPresent()) {
+                        reference = (ListConstructorExpressionNode) node.get();
+                    }
+                }
+            }
+            if (reference != null && reference.expressions().size() != 0) {
+                String referenceKey = Utils.eliminateDoubleQuotes(reference.expressions().get(0).toSourceCode().trim());
+                getForeignKeyType(ctx, referenceRecord, referenceKey);
+            } else {
+                getReferenceKeyAndType(ctx, referenceRecord);
+            }
+        }
+        getReferenceKeyAndType(ctx, referenceRecord);
+    }
+
+    private void getReferenceKeyAndType(SyntaxNodeAnalysisContext ctx, TypeDefinitionNode referenceRecord) {
+        List<String> primaryKeys = new ArrayList<>();
+        List<List<String>> uniqueConstraints = new ArrayList<>();
+        Optional<MetadataNode> metadata = referenceRecord.metadata();
+        if (metadata.isPresent()) {
+            for (AnnotationNode annotation : metadata.get().annotations()) {
+                if (!(annotation.annotReference().toSourceCode().trim().equals(Constants.ENTITY))) {
+                    continue;
+                }
+                Optional<MappingConstructorExpressionNode> mappingConstructorExpressionNode = annotation.annotValue();
+                if (mappingConstructorExpressionNode.isEmpty()) {
+                    continue;
+                }
+                SeparatedNodeList<MappingFieldNode> fields = mappingConstructorExpressionNode.get().fields();
+                for (MappingFieldNode mappingFieldNode : fields) {
+                    SpecificFieldNode fieldNode = (SpecificFieldNode) mappingFieldNode;
+                    Optional<ExpressionNode> expressionNode = fieldNode.valueExpr();
+                    if (!(expressionNode.isPresent() && !fieldNode.fieldName().toSourceCode().trim().
+                            equals(Constants.TABLE_NAME))) {
+                        continue;
+                    }
+                    ListConstructorExpressionNode listConstructorExpressionNode =
+                            (ListConstructorExpressionNode) expressionNode.get();
+                    SeparatedNodeList<Node> expressions = listConstructorExpressionNode.
+                            expressions();
+                    for (Node expression : expressions) {
+                        if (expression instanceof BasicLiteralNode) {
+                            primaryKeys.add(Utils.
+                                    eliminateDoubleQuotes(
+                                            expression.toSourceCode().trim()));
+                        } else {
+                            listConstructorExpressionNode =
+                                    (ListConstructorExpressionNode) expression;
+                            SeparatedNodeList<Node> exps = listConstructorExpressionNode.
+                                    expressions();
+                            List<String> uniqueConstraint = new ArrayList<>();
+                            for (Node exp : exps) {
+                                if (exp instanceof BasicLiteralNode) {
+                                    uniqueConstraint.add(Utils.
+                                            eliminateDoubleQuotes(
+                                                    exp.toSourceCode().trim()));
+                                }
+                            }
+                            uniqueConstraints.add(uniqueConstraint);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (primaryKeys.size() > 0 || uniqueConstraints.size() > 0) {
+            if (primaryKeys.size() == 1 || uniqueConstraints.size() == 1) {
+                getInfoFromSinglePrimaryOrUniqueKeys(ctx, referenceRecord, primaryKeys, uniqueConstraints);
+            } else {
+                Utils.reportDiagnostic(ctx, referenceRecord.location(),
+                        DiagnosticsCodes.PERSIST_122.getCode(),
+                        DiagnosticsCodes.PERSIST_122.getMessage(),
+                        DiagnosticsCodes.PERSIST_122.getSeverity());
+            }
+        } else {
+            Utils.reportDiagnostic(ctx, referenceRecord.location(),
+                    DiagnosticsCodes.PERSIST_123.getCode(),
+                    DiagnosticsCodes.PERSIST_123.getMessage(),
+                    DiagnosticsCodes.PERSIST_123.getSeverity());
+        }
+    }
+
+    private void getInfoFromSinglePrimaryOrUniqueKeys(SyntaxNodeAnalysisContext ctx,
+                                                      TypeDefinitionNode referenceRecord,
+                                                      List<String> primaryKeys,
+                                                      List<List<String>> uniqueConstraints) {
+        String referenceKey = Constants.EMPTY;
+        if (primaryKeys.size() == 1) {
+            referenceKey = primaryKeys.get(0);
+        } else if (uniqueConstraints.size() == 1 && uniqueConstraints.get(0).size() == 1) {
+            referenceKey = uniqueConstraints.get(0).get(0);
+        }
+        if (referenceKey.isEmpty()) {
+            if (primaryKeys.get(0).isEmpty()) {
+                Utils.reportDiagnostic(ctx, referenceRecord.location(),
+                        DiagnosticsCodes.PERSIST_125.getCode(),
+                        DiagnosticsCodes.PERSIST_125.getMessage(),
+                        DiagnosticsCodes.PERSIST_125.getSeverity());
+            } else if (uniqueConstraints.get(0).get(0).isEmpty()) {
+                Utils.reportDiagnostic(ctx, referenceRecord.location(),
+                        DiagnosticsCodes.PERSIST_124.getCode(),
+                        DiagnosticsCodes.PERSIST_124.getMessage(),
+                        DiagnosticsCodes.PERSIST_124.getSeverity());
+            }
+        }
+        Optional<MetadataNode> entityMetadata = referenceRecord.metadata();
+        RecordTypeDescriptorNode recordTypeDescriptor = (RecordTypeDescriptorNode) referenceRecord.typeDescriptor();
+        if (entityMetadata.isPresent()) {
+            for (Node recordField : recordTypeDescriptor.fields()) {
+                if (referenceKey.isEmpty()) {
+                    continue;
+                }
+                if (recordField instanceof RecordFieldNode) {
+                    RecordFieldNode recordFieldNode = (RecordFieldNode) recordField;
+                    if (recordFieldNode.fieldName().text().equals(referenceKey)) {
+                        validateType(ctx, recordFieldNode, recordFieldNode.typeName().toSourceCode().trim());
+                    }
+                } else {
+                    RecordFieldWithDefaultValueNode recordFieldNode =
+                            (RecordFieldWithDefaultValueNode) recordField;
+                    if (recordFieldNode.fieldName().text().equals(referenceKey)) {
+                        validateType(ctx, recordFieldNode, recordFieldNode.typeName().toSourceCode().trim());
+                    }
+                }
+            }
+        }
+    }
+
+    private void getForeignKeyType(SyntaxNodeAnalysisContext ctx, TypeDefinitionNode referenceRecord,
+                                   String referenceKey) {
+        Node typeDescriptor = referenceRecord.typeDescriptor();
+        RecordTypeDescriptorNode recordTypeDescriptor = (RecordTypeDescriptorNode) typeDescriptor;
+        Optional<MetadataNode> entityMetadata = referenceRecord.metadata();
+        if (entityMetadata.isPresent()) {
+            for (Node recordField : recordTypeDescriptor.fields()) {
+                if (recordField instanceof RecordFieldNode) {
+                    RecordFieldNode recordFieldNode = (RecordFieldNode) recordField;
+                    if (recordFieldNode.fieldName().text().equals(referenceKey)) {
+                        validateType(ctx, recordField, recordFieldNode.typeName().toSourceCode().trim());
+                    }
+                } else {
+                    RecordFieldWithDefaultValueNode recordFieldNode = (RecordFieldWithDefaultValueNode) recordField;
+                    if (recordFieldNode.fieldName().text().equals(referenceKey)) {
+                        validateType(ctx, recordField, recordFieldNode.typeName().toSourceCode().trim());
+                    }
+                }
+            }
+        }
+    }
+
+    private void validateType(SyntaxNodeAnalysisContext ctx, Node node, String type) {
+        switch (type) {
+            case Constants.BallerinaTypes.INT:
+            case Constants.BallerinaTypes.BOOLEAN:
+            case Constants.BallerinaTypes.DECIMAL:
+            case Constants.BallerinaTypes.FLOAT:
+            case Constants.BallerinaTypes.DATE:
+            case Constants.BallerinaTypes.TIME_OF_DAY:
+            case Constants.BallerinaTypes.UTC:
+            case Constants.BallerinaTypes.CIVIL:
+            case Constants.BallerinaTypes.STRING:
+                break;
+            default:
+                Utils.reportDiagnostic(ctx, node.location(),
+                        DiagnosticsCodes.PERSIST_121.getCode(),
+                        MessageFormat.format(DiagnosticsCodes.PERSIST_121.getMessage(), type),
+                        DiagnosticsCodes.PERSIST_121.getSeverity());
+        }
     }
 }

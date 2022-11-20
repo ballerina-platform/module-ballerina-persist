@@ -31,6 +31,8 @@ import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createEmptyM
 public class Constants {
 
     public static final String TRUE = "true";
+    public static final String EMPTY = "";
+    public static final String FALSE = "false";
     public static final String INSERT_METHOD_NAME = "runInsertQuery";
     public static final String ENTITY = "persist:Entity";
     public static final String UNNECESSARY_CHARS_REGEX = "\"|\\n";
