@@ -407,5 +407,5 @@ public client class SQLClient {
 }
 
 # Represents the abstract persist client. This abstract object is used in the generated client.
-public type AbstractPersistClient object {
+public type AbstractPersistClient distinct object {
 };
