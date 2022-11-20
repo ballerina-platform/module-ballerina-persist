@@ -16,6 +16,7 @@
 
 import ballerina/sql;
 import ballerina/jballerina.java;
+import ballerina/time;
 
 isolated function stringToParameterizedQuery(string queryStr) returns sql:ParameterizedQuery {
     sql:ParameterizedQuery query = ``;
@@ -26,7 +27,7 @@ isolated function stringToParameterizedQuery(string queryStr) returns sql:Parame
 isolated function flattenRecord(record {} r) returns record {} {
     record {} returnRecord = {};
     foreach string key in r.keys() {
-        if r[key] is record {} {
+        if r[key] is record {} && !isKnownRecordType(<record {}> r[key]) {
             record {} innerFlattenedRecord = flattenRecord(<record {}>r[key]);
             foreach string innerKey in innerFlattenedRecord.keys() {
                 returnRecord[key + "." + innerKey] = innerFlattenedRecord[innerKey];
@@ -38,7 +39,15 @@ isolated function flattenRecord(record {} r) returns record {} {
     return returnRecord;
 }
 
+isolated function isKnownRecordType(record {} r) returns boolean {
+    if r is time:Civil || 
+       r is time:TimeOfDay || 
+       r is time:Date {
+        return true;
+    }
+    return false;
+}
+
 isolated function convertToArray(typedesc<record {}> elementType, record {}[] arr) returns elementType[] = @java:Method {
     'class: "io.ballerina.stdlib.persist.Utils"
 } external;
-
