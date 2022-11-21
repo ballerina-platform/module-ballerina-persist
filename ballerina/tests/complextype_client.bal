@@ -19,6 +19,7 @@ import ballerinax/mysql;
 import ballerina/time;
 
 public client class ComplexTypeClient {
+    *AbstractPersistClient;
 
     private final string entityName = "ComplexType";
     private final sql:ParameterizedQuery tableName = `ComplexTypes`;

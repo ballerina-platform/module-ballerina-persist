@@ -42,20 +42,10 @@ public class Constants {
     public static final String RELATION = "persist:Relation";
     public static final String KEY_COLUMNS = "keyColumns";
     public static final String REFERENCE = "reference";
-    public static final String START_VALUE = "startValue";
     public static final String ONE = "1";
-    public static final String NOT_NULL = " NOT NULL";
-    public static final String AUTO_INCREMENT_WITH_SPACE = " AUTO_INCREMENT";
-    public static final String AUTO_INCREMENT_WITH_TAB = "\tAUTO_INCREMENT";
-    public static final String CONSTRAINT_STRING = "constraint:String";
-    public static final String LENGTH = "length";
-    public static final String MAX_LENGTH = "maxLength";
     public static final String FILE_NAME = "persist_db_scripts.sql";
-    public static final String VARCHAR_LENGTH = "191";
     public static final String ONE_TO_ONE = "ONE";
     public static final String ONE_TO_MANY = "MANY";
-    public static final String KEY = "key";
-    public static final String UNIQUE_CONSTRAINTS = "uniqueConstraints";
 
     public static final String READ_FUNCTION = "read";
     public static final String EXECUTE_FUNCTION = "execute";
@@ -65,7 +55,7 @@ public class Constants {
     public static final String CLOSE_BRACES = ") ";
     public static final String ASCENDING = "ascending";
     public static final String BAL_ESCAPE_TOKEN = "'";
-
+    public static final String PERSIST_INHERITANCE_NODE = "*persist:AbstractPersistClient;";
     /**
      * Constants related to Ballerina types.
      */
@@ -79,21 +69,6 @@ public class Constants {
         public static final String TIME_OF_DAY = "time:TimeOfDay";
         public static final String UTC = "time:Utc";
         public static final String CIVIL = "time:Civil";
-    }
-
-    /**
-     * Constants related to SQL types.
-     */
-    public static final class SqlTypes {
-        public static final String INT = "INT";
-        public static final String BOOLEAN = "BOOLEAN";
-        public static final String DECIMAL = "DECIMAL";
-        public static final String FLOAT = "FLOAT";
-        public static final String VARCHAR = "VARCHAR";
-        public static final String DATE = "DATE";
-        public static final String TIME = "TIME";
-        public static final String TIME_STAMP = "TIMESTAMP";
-        public static final String DATE_TIME = "DATETIME";
     }
 
     /**

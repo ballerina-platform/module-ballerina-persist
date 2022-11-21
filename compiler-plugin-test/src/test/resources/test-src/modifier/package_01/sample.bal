@@ -20,7 +20,7 @@ import package_01.entity;
 
 public function main() returns error? {
     needclient:MedicalNeedClient mnClient = check new ();
-    int? id = check mnClient->create({
+    entity:MedicalNeed mn = check mnClient->create({
         needId: 1,
         itemId: (),
         beneficiaryId: 1,
@@ -28,7 +28,7 @@ public function main() returns error? {
         urgency: "URGENT",
         quantity: 1
     });
-    io:println(`${id}`);
+    io:println(`${mn}`);
 
     string orderbyColumn = "quantity";
     int quantityMinValue = 5;
@@ -53,18 +53,6 @@ public function main() returns error? {
             };
     }
 
-    record {int needId; string period; int quantity;}[]? mnsFiltered =
-    check from entity:MedicalNeed medicalNeed in mnClient->read({quantity: 5})
-        where medicalNeed.quantity > 5
-        limit 5
-        order by medicalNeed.quantity descending
-        select {
-            needId: medicalNeed.needId,
-            period: medicalNeed.period,
-            quantity: medicalNeed.quantity
-        };
-    io:println(mnsFiltered);
-
     record {int needId; string period; int quantity;}[]? mnsUnfiltered =
     check from entity:MedicalNeed medicalNeed in mnClient->read()
         select {
@@ -73,10 +61,6 @@ public function main() returns error? {
             quantity: medicalNeed.quantity
         };
     io:println(mnsUnfiltered);
-
-    entity:MedicalNeed[]? mns1 = check from entity:MedicalNeed medicalNeed in mnClient->execute(`quantity > ${quantityMinValue}`)
-        select medicalNeed;
-    io:println(mns1);
 
     check mnClient.close();
 }
