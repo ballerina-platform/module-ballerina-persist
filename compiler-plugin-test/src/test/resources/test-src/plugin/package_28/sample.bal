@@ -1,6 +1,6 @@
-// Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2022 WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
 //
-// WSO2 Inc. licenses this file to you under the Apache License,
+// WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
 // in compliance with the License.
 // You may obtain a copy of the License at
@@ -17,22 +17,19 @@
 import ballerina/persist;
 
 @persist:Entity {
-    key: ["id"],
-    tableName: "USER_TABLE"
-}
-public type User record  {
- readonly int id;
- string name;
- Post[] posts?;
-};
-
-@persist:Entity {
-    key: ["id"],
-    tableName: "POST_TABLE"
+    key: []
 }
 public type Post record  {
  readonly int id;
  string name;
- @persist:Relation {keyColumns: ["authorId"], reference: ["id"]}
+ @persist:Relation
  User author?;
+};
+
+@persist:Entity {
+    key: []
+}
+public type User record  {
+ int id;
+ string name;
 };

@@ -68,6 +68,11 @@ public enum DiagnosticsCodes {
             ERROR),
     PERSIST_121("PERSIST_121", "unsupported features: {0} type is not supported",
             ERROR),
+    PERSIST_122("PERSIST_122", "associated entity contains composite primary keys: " +
+            "inferring the relation reference from composite keys is not supported yet. please add the " +
+            "references for relation", ERROR),
+    PERSIST_123("PERSIST_123", "associated entity does not contain any primary keys: the key " +
+            "should have a valid value", ERROR),
 
     // todo: Add expression type in the diagnostic message
     PERSIST_201("PERSIST_201",

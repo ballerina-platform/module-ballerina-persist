@@ -1,6 +1,6 @@
 [package]
 org = "persist_test"
-name = "package_11"
+name = "package_26"
 version = "0.1.0"
 
 [build-options]
