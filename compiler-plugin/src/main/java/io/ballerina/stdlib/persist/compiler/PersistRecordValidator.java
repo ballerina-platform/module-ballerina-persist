@@ -937,7 +937,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
 
         if (primaryKeys.size() > 0) {
             if (primaryKeys.size() == 1) {
-                getInfoFromSinglePrimaryOrUniqueKeys(ctx, referenceRecord, primaryKeys);
+                getInfoFromSinglePrimary(ctx, referenceRecord, primaryKeys);
             } else {
                 Utils.reportDiagnostic(ctx, referenceRecord.location(),
                         DiagnosticsCodes.PERSIST_122.getCode(),
@@ -952,9 +952,8 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         }
     }
 
-    private void getInfoFromSinglePrimaryOrUniqueKeys(SyntaxNodeAnalysisContext ctx,
-                                                      TypeDefinitionNode referenceRecord,
-                                                      List<String> primaryKeys) {
+    private void getInfoFromSinglePrimary(SyntaxNodeAnalysisContext ctx, TypeDefinitionNode referenceRecord,
+                                          List<String> primaryKeys) {
         String referenceKey = Constants.EMPTY;
         if (primaryKeys.size() == 1) {
             referenceKey = primaryKeys.get(0);
