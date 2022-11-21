@@ -68,6 +68,7 @@ public enum DiagnosticsCodes {
             ERROR),
     PERSIST_121("PERSIST_121", "unsupported features: {0} type is not supported",
             ERROR),
+    PERSIST_122("PERSIST_122", "invalid initialization: the entity should be a closed record", ERROR),
 
     // todo: Add expression type in the diagnostic message
     PERSIST_201("PERSIST_201",

@@ -53,6 +53,7 @@ import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.projects.ModuleId;
@@ -179,6 +180,11 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         if (typeDefinitionNode.visibilityQualifier().isEmpty()) {
             reportDiagnosticInfo(ctx, typeDefinitionNode.location(), DiagnosticsCodes.PERSIST_111.getCode(),
                     DiagnosticsCodes.PERSIST_111.getMessage(), DiagnosticsCodes.PERSIST_111.getSeverity());
+        }
+
+        if (!validateIfClosedRecord(typeDefinitionNode)) {
+            reportDiagnosticInfo(ctx, typeDefinitionNode.location(), DiagnosticsCodes.PERSIST_122.getCode(),
+                    DiagnosticsCodes.PERSIST_122.getMessage(), DiagnosticsCodes.PERSIST_122.getSeverity());
         }
     }
 
@@ -542,5 +548,25 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                                      DiagnosticSeverity diagnosticSeverity) {
         Utils.reportDiagnostic(ctx, location, code, message, diagnosticSeverity);
         this.noOfReportDiagnostic++;
+    }
+
+    private boolean validateIfClosedRecord(TypeDefinitionNode typeDefinitionNode) {
+        RecordTypeDescriptorNode recordTypeDescriptorNode =
+                ((RecordTypeDescriptorNode) typeDefinitionNode.typeDescriptor());
+        boolean opened = false;
+        boolean closed = false;
+        for (Node childNode : recordTypeDescriptorNode.children()) {
+            if (childNode.kind() == SyntaxKind.OPEN_BRACE_PIPE_TOKEN) {
+                opened = true;
+            }
+            if (childNode.kind() == SyntaxKind.CLOSE_BRACE_PIPE_TOKEN) {
+                closed = true;
+            }
+        }
+
+        if (!opened || !closed) {
+            return false;
+        }
+        return true;
     }
 }
