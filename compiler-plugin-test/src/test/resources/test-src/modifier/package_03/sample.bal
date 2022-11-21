@@ -31,16 +31,6 @@ public function main() returns error? {
         };
     io:println(mns);
 
-    record {int needId; string period; int quantity;}[]? mns1 =
-    check from entity:MedicalNeed medicalNeed in mnClient->read()
-        order by "medicalNeed.quantity"
-        select {
-            needId: medicalNeed.needId,
-            period: medicalNeed.period,
-            quantity: medicalNeed.quantity
-        };
-    io:println(mns1);
-
     record {int needId; string period; int quantity;}[]? mns2 =
     check from entity:MedicalNeed medicalNeed in mnClient->read()
         order by medicalNeed.quantity ascending
@@ -80,16 +70,6 @@ public function main() returns error? {
             quantity: quantity
         };
     io:println(mns5);
-
-    record {int needId; string period; int quantity;}[]? mns6 =
-    check from entity:MedicalNeed medicalNeed in mnClient->read()
-        order by quantity
-        select {
-            needId: needId,
-            period: period,
-            quantity: quantity
-        };
-    io:println(mns6);
 
     check mnClient.close();
 }

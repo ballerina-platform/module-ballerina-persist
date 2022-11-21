@@ -52,16 +52,6 @@ public function main() returns error? {
         };
     io:println(mns2);
 
-    record {int needId; string period; int quantity;}[]? mns3 =
-        check from var {needId, period, quantity} in mnClient->read()
-        where quantity1 < minQuantity
-        select {
-            needId: needId,
-            period: period,
-            quantity: quantity
-        };
-    io:println(mns3);
-
     record {int needId; string period; int quantity;}[]? mns4 =
         check from var {needId, period, quantity} in mnClient->read()
         where quantity < minQuantity && quantity > 0
@@ -82,7 +72,7 @@ public function main() returns error? {
         };
     io:println(mns5);
 
-    record {int needId; string period; int quantity;}[]? mns5 =
+    record {int needId; string period; int quantity;}[]? mns6 =
         check from var {needId, period, quantity} in mnClient->read()
         where (quantity < minQuantity && quantity > 0) || period == "2022-10-10 01:02:03"
         select {
@@ -90,7 +80,7 @@ public function main() returns error? {
             period: period,
             quantity: quantity
         };
-    io:println(mns5);
+    io:println(mns6);
 
     check mnClient.close();
 }
