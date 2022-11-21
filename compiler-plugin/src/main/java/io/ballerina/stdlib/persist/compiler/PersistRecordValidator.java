@@ -119,9 +119,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
 
     @Override
     public void perform(SyntaxNodeAnalysisContext ctx) {
-        if (!(ctx.node() instanceof TypeDefinitionNode)) {
-            return;
-        }
         ModuleId moduleId = ctx.moduleId();
         String moduleName = ctx.currentPackage().module(moduleId).moduleName().toString().trim();
         String packageName = ctx.currentPackage().packageName().toString().trim();
