@@ -16,23 +16,18 @@
 
 import ballerina/persist;
 
-@persist:Entity {
-    key: ["id"],
-    tableName: "Profiles"
-}
-public type Profile record  {|
-    readonly int id;
-    string name;
-    @persist:Relation {keyColumns: ["userId"], reference: ["id"]}
-    User user?;
-|};
+public type Post record  {
+ int id;
+ string name;
+ @persist:Relation{}
+ User author?;
+};
 
 @persist:Entity {
-    key: ["id"],
-    tableName: "Users"
+    key: [""]
 }
 public type User record  {|
-    readonly int id;
-    string name;
-    Profile profile?;
+ int id;
+ string name;
+ Post[] posts?;
 |};
