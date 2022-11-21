@@ -75,10 +75,6 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -101,7 +97,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
     private final List<String> recordNamesOfForeignKey;
     private final List<String> tableNames;
     private final List<String> recordNames;
-    private boolean isNewBuild;
 
     public PersistRecordValidator() {
         primaryKeys = new ArrayList<>();
@@ -114,7 +109,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         noOfReportDiagnostic = 0;
         tableNames = new ArrayList<>();
         recordNames = new ArrayList<>();
-        isNewBuild = true;
     }
 
     @Override
@@ -123,18 +117,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         String moduleName = ctx.currentPackage().module(moduleId).moduleName().toString().trim();
         String packageName = ctx.currentPackage().packageName().toString().trim();
         if (!moduleName.equals(packageName.concat(".clients"))) {
-            if (isNewBuild) {
-                Path directoryPath = ctx.currentPackage().project().targetDir().toAbsolutePath();
-                Path filePath = Paths.get(String.valueOf(directoryPath), Constants.FILE_NAME);
-                try {
-                    Files.deleteIfExists(filePath);
-                    isNewBuild = false;
-                } catch (IOException e) {
-                    Utils.reportDiagnostic(ctx, ctx.node().location(), DiagnosticsCodes.PERSIST_110.getCode(),
-                            "error in delete the existing script file: " + e.getMessage(),
-                            DiagnosticsCodes.PERSIST_110.getSeverity());
-                }
-            }
             List<Diagnostic> diagnostics = ctx.semanticModel().diagnostics();
             for (Diagnostic diagnostic : diagnostics) {
                 if (diagnostic.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
