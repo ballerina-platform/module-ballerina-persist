@@ -173,8 +173,8 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         }
 
         if (!validateIfClosedRecord(typeDefinitionNode)) {
-            reportDiagnosticInfo(ctx, typeDefinitionNode.location(), DiagnosticsCodes.PERSIST_122.getCode(),
-                    DiagnosticsCodes.PERSIST_122.getMessage(), DiagnosticsCodes.PERSIST_122.getSeverity());
+            reportDiagnosticInfo(ctx, typeDefinitionNode.location(), DiagnosticsCodes.PERSIST_124.getCode(),
+                    DiagnosticsCodes.PERSIST_124.getMessage(), DiagnosticsCodes.PERSIST_124.getSeverity());
         }
     }
 
@@ -1022,9 +1022,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             }
         }
 
-        if (!opened || !closed) {
-            return false;
-        }
-        return true;
+        return opened && closed;
     }
 }

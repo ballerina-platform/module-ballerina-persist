@@ -232,13 +232,13 @@ public class CompilerPluginTest {
     @Test
     public void testEntityClosedRecord() {
         testDiagnostic("package_30", "invalid initialization: the entity should be a closed record",
-                DiagnosticsCodes.PERSIST_122.getCode(), 1);
+                DiagnosticsCodes.PERSIST_124.getCode(), 1);
     }
 
     @Test
     public void testEntityClosedRecord2() {
         testDiagnostic("package_31", "invalid initialization: the entity should be a closed record",
-                DiagnosticsCodes.PERSIST_122.getCode(), 1);
+                DiagnosticsCodes.PERSIST_124.getCode(), 1);
     }
 
     private void testDiagnostic(String packageName, String msg, String code, int count) {
