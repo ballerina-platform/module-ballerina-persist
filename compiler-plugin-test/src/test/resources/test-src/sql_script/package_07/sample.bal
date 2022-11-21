@@ -36,15 +36,15 @@ public type MedicalNeed record {|
 |};
 
 @persist:Entity {key: ["id"]}
-public type Item record {
+public type Item record {|
     @persist:AutoIncrement
     readonly int id = 3;
     string name;
-};
+|};
 
 @persist:Entity {key: ["id"]}
-public type Item1 record {
+public type Item1 record {|
     @persist:AutoIncrement
     readonly int id = 5;
     string name;
-};
+|};

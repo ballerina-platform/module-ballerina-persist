@@ -31,10 +31,10 @@ public type Medical_Need record {|
     uniqueConstraints: [["id"]],
     key: []
 }
-public type Medicine record {
+public type Medicine record {|
     int id;
     string name;
-};
+|};
 
 public type Medicine1 record {
     int id;

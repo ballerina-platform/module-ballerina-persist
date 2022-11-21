@@ -39,30 +39,30 @@ public type MedicalNeed record {|
     key: ["id"],
     uniqueConstraints: [["name"]]
 }
-public type Item record {
+public type Item record {|
     @persist:AutoIncrement
     readonly int id = 3;
     string name;
-};
+|};
 
 @persist:Entity {
     key: ["id"],
     uniqueConstraints: [["name"]]
 }
-public type Item1 record {
+public type Item1 record {|
     @persist:AutoIncrement
     readonly int id = 5;
     string name;
     @persist:Relation {keyColumns: ["itemId" , "itemName"], reference: ["id" , "name"], onDelete: persist:SET_DEFAULT}
     Item2 item?;
-};
+|};
 
 @persist:Entity {
     key: ["id"],
     uniqueConstraints: [["name"]]
 }
-public type Item2 record {
+public type Item2 record {|
     @persist:AutoIncrement
     readonly int id = 2;
     string name;
-};
+|};

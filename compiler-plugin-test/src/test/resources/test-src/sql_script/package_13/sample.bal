@@ -17,17 +17,17 @@
 import ballerina/persist;
 
 @persist:Entity { key: ["id"] }
-public type User record  {
+public type User record  {|
  readonly int id;
  string name;
  Profile profile?;
-};
+|};
 
 @persist:Entity { key: ["id"] }
-public type Profile record  {
+public type Profile record  {|
  readonly int id;
  string name;
  @persist:Relation {keyColumns: ["userId"], reference: ["id"]}
  User user?;
-};
+|};
 
