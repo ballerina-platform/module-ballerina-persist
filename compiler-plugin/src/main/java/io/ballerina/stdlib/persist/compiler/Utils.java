@@ -24,6 +24,7 @@ import io.ballerina.compiler.syntax.tree.NodeFactory;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
@@ -39,6 +40,15 @@ public class Utils {
 
     protected static String eliminateDoubleQuotes(String text) {
         return text.substring(1, text.length() - 1);
+    }
+
+    public static boolean hasCompilationErrors(SyntaxNodeAnalysisContext context) {
+        for (Diagnostic diagnostic : context.semanticModel().diagnostics()) {
+            if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static void reportDiagnostic(SyntaxNodeAnalysisContext ctx, Location location, String code,
@@ -60,12 +70,7 @@ public class Utils {
             String functionName = remoteCall.methodName().name().text();
 
             // Remote function name should be read
-            if (functionName.trim().equals(READ_FUNCTION)) {
-
-                // Function should be invoked with no arguments
-                int argumentsCount = remoteCall.arguments().size();
-                return argumentsCount == 0;
-            }
+            return functionName.trim().equals(READ_FUNCTION);
         }
         return false;
     }

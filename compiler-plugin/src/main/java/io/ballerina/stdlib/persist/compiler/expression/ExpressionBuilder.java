@@ -131,7 +131,6 @@ public class ExpressionBuilder {
                         expressionVisitor.beginVisitStoreVariable(referencedName);
                         expressionVisitor.endVisitStoreVariable(referencedName);
                     } else {
-                        // todo Here wrong reference name cannot be identified as error
                         expressionVisitor.beginVisitBalVariable(referencedName);
                         expressionVisitor.endVisitBalVariable(referencedName);
                     }

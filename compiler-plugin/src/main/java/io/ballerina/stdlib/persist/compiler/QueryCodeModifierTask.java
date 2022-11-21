@@ -53,6 +53,7 @@ import io.ballerina.projects.plugins.ModifierTask;
 import io.ballerina.projects.plugins.SourceModifierContext;
 import io.ballerina.stdlib.persist.compiler.expression.ExpressionBuilder;
 import io.ballerina.stdlib.persist.compiler.expression.ExpressionVisitor;
+import io.ballerina.stdlib.persist.compiler.models.Variable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,21 +62,35 @@ import java.util.stream.Collectors;
 import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createSeparatedNodeList;
 import static io.ballerina.stdlib.persist.compiler.Constants.ASCENDING;
 import static io.ballerina.stdlib.persist.compiler.Constants.EXECUTE_FUNCTION;
+import static io.ballerina.stdlib.persist.compiler.Constants.READ_FUNCTION;
 import static io.ballerina.stdlib.persist.compiler.Constants.SPACE;
 import static io.ballerina.stdlib.persist.compiler.Constants.SQLKeyWords.LIMIT;
 import static io.ballerina.stdlib.persist.compiler.Constants.SQLKeyWords.ORDERBY;
 import static io.ballerina.stdlib.persist.compiler.Constants.SQLKeyWords.ORDER_BY_ASCENDING;
 import static io.ballerina.stdlib.persist.compiler.Constants.SQLKeyWords.ORDER_BY_DECENDING;
 import static io.ballerina.stdlib.persist.compiler.Constants.TokenNodes.BACKTICK_TOKEN;
-import static io.ballerina.stdlib.persist.compiler.Utils.isQueryUsingPersistentClient;
 
 /**
  * Code Modifier task for stream invoking.
  */
 public class QueryCodeModifierTask implements ModifierTask<SourceModifierContext> {
+    private final List<String> persistClientNames;
+    private final List<Variable> variables;
+    private final List<String> persistClientVariables = new ArrayList<>();
+    private boolean isClientVariablesProcessed = false;
+
+    public QueryCodeModifierTask(List<String> persistClientNames, List<Variable> variables) {
+        this.persistClientNames = persistClientNames;
+        this.variables = variables;
+    }
 
     @Override
     public void modify(SourceModifierContext ctx) {
+        if (!this.isClientVariablesProcessed) {
+            processPersistClientVariables();
+            this.isClientVariablesProcessed = true;
+        }
+
         Package pkg = ctx.currentPackage();
 
         for (ModuleId moduleId : pkg.moduleIds()) {
@@ -89,25 +104,46 @@ public class QueryCodeModifierTask implements ModifierTask<SourceModifierContext
         }
     }
 
+    private void processPersistClientVariables() {
+        for (Variable variable : this.variables) {
+            String[] individualTypes = variable.getTypes().split("\\|");
+            for (String type : individualTypes) {
+                for (String persistClient : this.persistClientNames) {
+                    if (type.endsWith(persistClient)) {
+                        if (!this.persistClientNames.contains(variable.getName())) {
+                            this.persistClientVariables.add(variable.getName());
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private SyntaxTree getUpdatedSyntaxTree(Module module, DocumentId documentId) {
 
         Document document = module.document(documentId);
         ModulePartNode rootNode = document.syntaxTree().rootNode();
 
-        QueryConstructModifier queryConstructModifier = new QueryConstructModifier();
+        QueryConstructModifier queryConstructModifier = new QueryConstructModifier(this.persistClientVariables);
         ModulePartNode newRoot = (ModulePartNode) rootNode.apply(queryConstructModifier);
 
         return document.syntaxTree().modifyWith(newRoot);
     }
 
     private static class QueryConstructModifier extends TreeModifier {
+        private final List<String> persistClientVariables;
+
+        public QueryConstructModifier(List<String> persistClientVariables) {
+            this.persistClientVariables = persistClientVariables;
+        }
 
         @Override
         public QueryPipelineNode transform(QueryPipelineNode queryPipelineNode) {
 
             FromClauseNode fromClauseNode = queryPipelineNode.fromClause();
             // verify if node invokes persist client read() method
-            if (!isQueryUsingPersistentClient(fromClauseNode)) {
+            if (!isQueryUsingPersistentClient(fromClauseNode, this.persistClientVariables)) {
                 return queryPipelineNode;
             }
 
@@ -221,6 +257,23 @@ public class QueryCodeModifierTask implements ModifierTask<SourceModifierContext
                     modifiedFromClause,
                     processedClauses
             );
+        }
+
+        private boolean isQueryUsingPersistentClient(FromClauseNode fromClauseNode,
+                                                     List<String> persistClientVariables) {
+            // From clause should contain remote call invocation
+            if (fromClauseNode.expression() instanceof RemoteMethodCallActionNode) {
+                RemoteMethodCallActionNode remoteCall = (RemoteMethodCallActionNode) fromClauseNode.expression();
+                if (remoteCall.expression() instanceof SimpleNameReferenceNode) {
+                    String variable = ((SimpleNameReferenceNode) remoteCall.expression()).name().text().trim();
+                    if (persistClientVariables.contains(variable)) {
+                        String functionName = remoteCall.methodName().name().text();
+                        // Remote function name should be read
+                        return functionName.trim().equals(READ_FUNCTION);
+                    }
+                }
+            }
+            return false;
         }
 
         private List<Node> processWhereClause(WhereClauseNode whereClauseNode,

@@ -31,26 +31,5 @@ public function main() returns error? {
         };
     io:println(mns);
 
-    int quantityMinValue = 5;
-    record {int needId; string period; int quantity;}[]? mns1 =
-    check from entity:MedicalNeed medicalNeed in mnClient->read()
-        limit quantityMinValue
-        select {
-            needId: medicalNeed.needId,
-            period: medicalNeed.period,
-            quantity: medicalNeed.quantity
-        };
-    io:println(mns1);
-
-    record {int needId; string period; int quantity;}[]? mns2 =
-    check from entity:MedicalNeed medicalNeed in mnClient->read()
-        limit "5"
-        select {
-            needId: medicalNeed.needId,
-            period: medicalNeed.period,
-            quantity: medicalNeed.quantity
-        };
-    io:println(mns2);
-
     check mnClient.close();
 }

@@ -68,16 +68,26 @@ public enum DiagnosticsCodes {
             ERROR),
     PERSIST_121("PERSIST_121", "unsupported features: {0} type is not supported",
             ERROR),
+    PERSIST_122("PERSIST_122", "associated entity contains composite primary keys: " +
+            "inferring the relation reference from composite keys is not supported yet. please add the " +
+            "references for relation", ERROR),
+    PERSIST_123("PERSIST_123", "associated entity does not contain any primary keys: the key " +
+            "should have a valid value", ERROR),
 
+    // todo: Add expression type in the diagnostic message
     PERSIST_201("PERSIST_201",
-            "Unsupported expression: read() function of persist client does not support this expression", ERROR),
+            "persist client read() function doesn't support this query expression", ERROR),
     PERSIST_202("PERSIST_202",
-            "Unsupported expression: read() function of persist client only supports int value in limit clause",
-            ERROR),
+            "persist client read() function limit expression doesn't support variable references, " +
+                    "it should be an integer value", ERROR),
     PERSIST_203("PERSIST_203",
-            "Unsupported expression: read() function of persist client only supports selected variables "
-                    + "from the 'from clause' in order by clause",
-            ERROR);
+            "persist client read() function order by key should be ''variables'' in the ''from clause''",
+            ERROR),
+
+    PERSIST_210("PERSIST_210",
+            "persist client execute() function is an internal function and external invocation is not allowed", ERROR),
+    PERSIST_211("PERSIST_211", "this persist client read() function invocation is not optimised, " +
+            "use the function within the query syntax to run optimised fetch", WARNING);
 
     private final String code;
     private final String message;

@@ -37,10 +37,8 @@ import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.stdlib.persist.compiler.expression.ExpressionBuilder;
 import io.ballerina.stdlib.persist.compiler.expression.ExpressionVisitor;
-import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
-import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -56,11 +54,9 @@ public class PersistQueryValidator implements AnalysisTask<SyntaxNodeAnalysisCon
 
     @Override
     public void perform(SyntaxNodeAnalysisContext ctx) {
-        List<Diagnostic> diagnostics = ctx.semanticModel().diagnostics();
-        for (Diagnostic diagnostic : diagnostics) {
-            if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
-                return;
-            }
+
+        if (Utils.hasCompilationErrors(ctx)) {
+            return;
         }
 
         QueryPipelineNode queryPipelineNode = (QueryPipelineNode) ctx.node();
@@ -90,6 +86,7 @@ public class PersistQueryValidator implements AnalysisTask<SyntaxNodeAnalysisCon
             return;
         }
 
+        // todo: Verify for all 10 binding patters
         BindingPatternNode bindingPatternNode = fromClauseNode.typedBindingPattern().bindingPattern();
         if (isWhereClauseUsed) {
             WhereClauseNode whereClauseNode = (WhereClauseNode) whereClauseNodes.get(0);
@@ -110,15 +107,21 @@ public class PersistQueryValidator implements AnalysisTask<SyntaxNodeAnalysisCon
                 if (expression instanceof SimpleNameReferenceNode) {
                     String fieldName = ((SimpleNameReferenceNode) expression).name().text();
                     boolean isCorrectField = false;
-                    SeparatedNodeList<BindingPatternNode> bindingPatternNodes =
-                            ((MappingBindingPatternNode) bindingPatternNode).fieldBindingPatterns();
-                    for (BindingPatternNode patternNode : bindingPatternNodes) {
-                        String field = ((FieldBindingPatternVarnameNode) patternNode).variableName().name().text();
-                        if (fieldName.equals(field)) {
-                            isCorrectField = true;
+                    if (bindingPatternNode instanceof MappingBindingPatternNode) {
+                        SeparatedNodeList<BindingPatternNode> bindingPatternNodes =
+                                ((MappingBindingPatternNode) bindingPatternNode).fieldBindingPatterns();
+                        for (BindingPatternNode patternNode : bindingPatternNodes) {
+                            String field = ((FieldBindingPatternVarnameNode) patternNode).variableName().name().text();
+                            if (fieldName.equals(field)) {
+                                isCorrectField = true;
+                            }
                         }
-                    }
-                    if (!isCorrectField) {
+                        if (!isCorrectField) {
+                            ctx.reportDiagnostic(DiagnosticFactory.createDiagnostic(
+                                    new DiagnosticInfo(PERSIST_203.getCode(), PERSIST_203.getMessage(),
+                                            PERSIST_203.getSeverity()), orderKeyNodes.get(i).expression().location()));
+                        }
+                    } else {
                         ctx.reportDiagnostic(DiagnosticFactory.createDiagnostic(
                                 new DiagnosticInfo(PERSIST_203.getCode(), PERSIST_203.getMessage(),
                                         PERSIST_203.getSeverity()), orderKeyNodes.get(i).expression().location()));

@@ -69,7 +69,7 @@ public class CompilerPluginTest {
     @Test
     public void testPrimaryKeyMarkReadOnly() {
         testDiagnostic("package_03", "invalid initialization: the field is not specified as " +
-                        "read-only", DiagnosticsCodes.PERSIST_106.getCode(), 2);
+                "read-only", DiagnosticsCodes.PERSIST_106.getCode(), 2);
     }
 
     @Test
@@ -94,25 +94,25 @@ public class CompilerPluginTest {
     @Test
     public void testOptionalField() {
         testDiagnostic("package_07", "invalid field type: the persist client does not " +
-                        "support the union type", DiagnosticsCodes.PERSIST_101.getCode(), 1);
+                "support the union type", DiagnosticsCodes.PERSIST_101.getCode(), 1);
     }
 
     @Test
     public void testOptionalField2() {
         testDiagnostic("package_08", "invalid field type: the persist client does not " +
-                        "support the union type", DiagnosticsCodes.PERSIST_101.getCode(), 1);
+                "support the union type", DiagnosticsCodes.PERSIST_101.getCode(), 1);
     }
 
     @Test
     public void testOptionalField3() {
         testDiagnostic("package_09", "invalid field type: the persist client does not " +
-                        "support the union type", DiagnosticsCodes.PERSIST_101.getCode(), 1);
+                "support the union type", DiagnosticsCodes.PERSIST_101.getCode(), 1);
     }
 
     @Test
     public void testAutoIncrementField() {
         testDiagnostic("package_10", "invalid initialization: auto increment field " +
-                        "must be defined as a key", DiagnosticsCodes.PERSIST_108.getCode(), 1);
+                "must be defined as a key", DiagnosticsCodes.PERSIST_108.getCode(), 1);
     }
 
     @Test
@@ -130,27 +130,27 @@ public class CompilerPluginTest {
     @Test
     public void testTableName() {
         testDiagnostic("package_13", "duplicate table name: the table name is already " +
-                        "used in another entity", DiagnosticsCodes.PERSIST_113.getCode(), 1);
+                "used in another entity", DiagnosticsCodes.PERSIST_113.getCode(), 1);
     }
 
     @Test
     public void testTableName1() {
         testDiagnostic("package_20", "duplicate table name: the table name is already used " +
-                        "in another entity", DiagnosticsCodes.PERSIST_113.getCode(), 1);
+                "in another entity", DiagnosticsCodes.PERSIST_113.getCode(), 1);
     }
 
     @Test
     public void testInvalidInitialisation() {
         testDiagnostic("package_14", "invalid entity initialisation: the associated entity of " +
-                "this[Item] does not have the field with the relationship type",
-                DiagnosticsCodes.PERSIST_115.getCode(), 2);
+                        "this[Item] does not have the field with the relationship type",
+                DiagnosticsCodes.PERSIST_115.getCode(), 4);
     }
 
     @Test
     public void testInvalidInitialisation1() {
         testDiagnostic("package_15", "invalid entity initialisation: the relation annotation " +
                         "should only be added to the relationship owner for one-to-one and one-to-many associations",
-                DiagnosticsCodes.PERSIST_116.getCode(), 2);
+                DiagnosticsCodes.PERSIST_116.getCode(), 3);
     }
 
     @Test
@@ -163,7 +163,7 @@ public class CompilerPluginTest {
     @Test
     public void testUnSupportedFeature() {
         testDiagnostic("package_17", "unsupported features: many-to-many association is not " +
-                        "supported yet", DiagnosticsCodes.PERSIST_114.getCode(), 2);
+                "supported yet", DiagnosticsCodes.PERSIST_114.getCode(), 4);
     }
 
     @Test
@@ -171,7 +171,7 @@ public class CompilerPluginTest {
         testDiagnostic("package_22", "unsupported features: array type is not supported",
                 DiagnosticsCodes.PERSIST_120.getCode(), 1);
     }
-    
+
     @Test
     public void testUnSupportedFeature2() {
         testDiagnostic("package_23", "unsupported features: array type is not supported",
@@ -187,20 +187,20 @@ public class CompilerPluginTest {
     @Test
     public void testUnSupportedFeature4() {
         testDiagnostic("package_25", "unsupported features: json type is not supported",
-                DiagnosticsCodes.PERSIST_121.getCode(), 2);
+                DiagnosticsCodes.PERSIST_121.getCode(), 1);
     }
 
     @Test
     public void testInvalidAnnotation() {
         testDiagnostic("package_18",  "invalid annotation attachment: the `one-to-many` relation " +
-                "annotation can not be attached to the array entity record field",
+                        "annotation can not be attached to the array entity record field",
                 DiagnosticsCodes.PERSIST_118.getCode(), 1);
     }
 
     @Test
     public void testInvalidAnnotation1() {
         testDiagnostic("package_19",  "invalid annotation attachment: The relation " +
-                "annotation can only be attached to the entity record field",
+                        "annotation can only be attached to the entity record field",
                 DiagnosticsCodes.PERSIST_117.getCode(), 1);
     }
 
@@ -208,6 +208,25 @@ public class CompilerPluginTest {
     public void testEntityName1() {
         testDiagnostic("package_21", "duplicate entity names are not allowed: the specified name " +
                 "is already used in another entity", DiagnosticsCodes.PERSIST_119.getCode(), 2);
+    }
+
+    @Test
+    public void testGetReferenceWithCompositeKey() {
+        testDiagnostic("package_26", "associated entity contains composite primary keys: " +
+                        "inferring the relation reference from composite keys is not supported yet. " +
+                        "please add the references for relation", DiagnosticsCodes.PERSIST_122.getCode(), 1);
+    }
+
+    @Test
+    public void testGetReferenceWithEmptyKey() {
+        testDiagnostic("package_27", "associated entity does not contain any primary keys: " +
+                        "the key should have a valid value", DiagnosticsCodes.PERSIST_123.getCode(), 1);
+    }
+
+    @Test
+    public void testGetReferenceWithEmptyKey1() {
+        testDiagnostic("package_28", "associated entity does not contain any primary keys: " +
+                "the key should have a valid value", DiagnosticsCodes.PERSIST_123.getCode(), 1);
     }
 
     private void testDiagnostic(String packageName, String msg, String code, int count) {
