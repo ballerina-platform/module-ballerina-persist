@@ -65,4 +65,4 @@ public enum ReferenceAction {
 
 # The annotation is used to indicate the associations of an entity. In one-to-one and one-to-many associations, this is
 # to be used only in the parent entity (the 'one' side of the association).
-public annotation RelationConfig Relation on field;
+public annotation RelationConfig Relation on record field;
