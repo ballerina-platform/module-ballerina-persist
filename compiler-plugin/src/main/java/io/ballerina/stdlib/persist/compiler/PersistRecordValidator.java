@@ -570,7 +570,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         String recordName = typeDefinitionNode.typeName().text();
         NodeList<Node> fields = recordNode.fields();
         String type;
-        Node node;
+        Node typeNode;
         Optional<MetadataNode> metadata;
         TypeDefinitionNode referenceRecord = null;
         for (Node field : fields) {
@@ -581,24 +581,24 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             String hasRelationAnnotation = Constants.FALSE;
             if (field instanceof RecordFieldWithDefaultValueNode) {
                 RecordFieldWithDefaultValueNode fieldNode = (RecordFieldWithDefaultValueNode) field;
-                node = fieldNode.typeName();
+                typeNode = fieldNode.typeName();
                 metadata = fieldNode.metadata();
                 startValue = fieldNode.expression().toSourceCode().trim();
             } else {
                 RecordFieldNode fieldNode = (RecordFieldNode) field;
-                node = fieldNode.typeName();
+                typeNode = fieldNode.typeName();
                 metadata = fieldNode.metadata();
             }
-            if (node instanceof OptionalTypeDescriptorNode) {
-                node = ((OptionalTypeDescriptorNode) node).typeDescriptor();
+            if (typeNode instanceof OptionalTypeDescriptorNode) {
+                typeNode = ((OptionalTypeDescriptorNode) typeNode).typeDescriptor();
             }
-            if (node instanceof ArrayTypeDescriptorNode) {
+            if (typeNode instanceof ArrayTypeDescriptorNode) {
                 isArrayType = true;
-                ArrayTypeDescriptorNode arrayTypeDescriptorNode = ((ArrayTypeDescriptorNode) node);
-                node = arrayTypeDescriptorNode.memberTypeDesc();
+                ArrayTypeDescriptorNode arrayTypeDescriptorNode = ((ArrayTypeDescriptorNode) typeNode);
+                typeNode = arrayTypeDescriptorNode.memberTypeDesc();
             }
-            if (node instanceof QualifiedNameReferenceNode) {
-                QualifiedNameReferenceNode qualifiedNameReferenceNode = (QualifiedNameReferenceNode) node;
+            if (typeNode instanceof QualifiedNameReferenceNode) {
+                QualifiedNameReferenceNode qualifiedNameReferenceNode = (QualifiedNameReferenceNode) typeNode;
                 type = qualifiedNameReferenceNode.identifier().text();
                 String nodeType = qualifiedNameReferenceNode.modulePrefix().text().trim();
                 if (!nodeType.isEmpty()) {
@@ -632,22 +632,22 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                                 }
                             } else {
                                 if (isArrayType) {
-                                    Utils.reportDiagnostic(ctx, node.location(),
+                                    Utils.reportDiagnostic(ctx, typeNode.location(),
                                             DiagnosticsCodes.PERSIST_120.getCode(),
                                             DiagnosticsCodes.PERSIST_120.getMessage(),
                                             DiagnosticsCodes.PERSIST_120.getSeverity());
                                 }
-                                validateType(ctx, node, qualifiedNameReferenceNode.toString().trim());
+                                validateType(ctx, typeNode, qualifiedNameReferenceNode.toString().trim());
                                 break;
                             }
                         }
                     }
                 } else {
-                    validateType(ctx, node, type);
+                    validateType(ctx, typeNode, type);
                 }
-            } else if (node instanceof SimpleNameReferenceNode) {
+            } else if (typeNode instanceof SimpleNameReferenceNode) {
                 isUserDefinedType = true;
-                type = ((SimpleNameReferenceNode) node).name().text();
+                type = ((SimpleNameReferenceNode) typeNode).name().text();
                 Object[] properties = checkRelationShip(recordName, type, ctx);
                 if (isArrayType && properties.length == 5) {
                     Utils.reportDiagnostic(ctx, field.location(),
@@ -668,10 +668,10 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 }
             } else {
                 if (isArrayType) {
-                    Utils.reportDiagnostic(ctx, node.location(), DiagnosticsCodes.PERSIST_120.getCode(),
+                    Utils.reportDiagnostic(ctx, typeNode.location(), DiagnosticsCodes.PERSIST_120.getCode(),
                             DiagnosticsCodes.PERSIST_120.getMessage(), DiagnosticsCodes.PERSIST_120.getSeverity());
                 }
-                validateType(ctx, node, ((BuiltinSimpleNameReferenceNode) node).name().text());
+                validateType(ctx, typeNode, ((BuiltinSimpleNameReferenceNode) typeNode).name().text());
             }
             if (metadata.isPresent()) {
                 for (AnnotationNode annotationNode : metadata.get().annotations()) {
