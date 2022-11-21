@@ -19,8 +19,7 @@ dependencies = [
 [[package]]
 org = "ballerina"
 name = "io"
-version = "1.3.1"
-scope = "testOnly"
+version = "1.3.0"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
 	{org = "ballerina", name = "lang.value"}
@@ -38,13 +37,11 @@ modules = [
 org = "ballerina"
 name = "lang.object"
 version = "0.0.0"
-scope = "testOnly"
 
 [[package]]
 org = "ballerina"
 name = "lang.value"
 version = "0.0.0"
-scope = "testOnly"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
 ]
@@ -55,6 +52,7 @@ name = "persist"
 version = "0.2.0"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
+	{org = "ballerina", name = "sql"},
 	{org = "ballerina", name = "test"},
 	{org = "ballerina", name = "time"},
 	{org = "ballerinax", name = "mysql"}
@@ -67,12 +65,14 @@ modules = [
 org = "ballerina"
 name = "sql"
 version = "1.5.0"
-scope = "testOnly"
 dependencies = [
 	{org = "ballerina", name = "io"},
 	{org = "ballerina", name = "jballerina.java"},
 	{org = "ballerina", name = "lang.object"},
 	{org = "ballerina", name = "time"}
+]
+modules = [
+	{org = "ballerina", packageName = "sql", moduleName = "sql"}
 ]
 
 [[package]]
@@ -90,7 +90,7 @@ modules = [
 [[package]]
 org = "ballerina"
 name = "time"
-version = "2.2.3"
+version = "2.2.2"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
 ]
