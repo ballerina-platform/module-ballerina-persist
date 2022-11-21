@@ -212,27 +212,21 @@ public class CompilerPluginTest {
 
     @Test
     public void testGetReferenceWithCompositeKey() {
-        testDiagnostic("package_26", "Contains composite value: could not infer the reference " +
-                        "as the key or uniqueConstrains does not contain single value",
-                DiagnosticsCodes.PERSIST_122.getCode(), 1);
+        testDiagnostic("package_26", "associated entity contains composite primary keys: " +
+                        "inferring the relation reference from composite keys is not supported yet. " +
+                        "please add the references for relation", DiagnosticsCodes.PERSIST_122.getCode(), 1);
     }
 
     @Test
     public void testGetReferenceWithEmptyKey() {
-        testDiagnostic("package_27", "empty value: Could not infer the reference as " +
-                "the key has an empty value", DiagnosticsCodes.PERSIST_125.getCode(), 3);
+        testDiagnostic("package_27", "associated entity does not contain any primary keys: " +
+                        "the key should have a valid value", DiagnosticsCodes.PERSIST_123.getCode(), 1);
     }
 
     @Test
     public void testGetReferenceWithEmptyKey1() {
-        testDiagnostic("package_28", "empty value: Could not infer the reference" +
-                " as the key has an empty value", DiagnosticsCodes.PERSIST_125.getCode(), 2);
-    }
-
-    @Test
-    public void testGetReferenceWithEmptyUniqueConstraints() {
-        testDiagnostic("package_29", "empty value: Could not infer the reference as the " +
-                "uniqueConstraints has an empty value", DiagnosticsCodes.PERSIST_124.getCode(), 2);
+        testDiagnostic("package_28", "associated entity does not contain any primary keys: " +
+                "the key should have a valid value", DiagnosticsCodes.PERSIST_123.getCode(), 1);
     }
 
     private void testDiagnostic(String packageName, String msg, String code, int count) {

@@ -68,15 +68,12 @@ public enum DiagnosticsCodes {
             ERROR),
     PERSIST_121("PERSIST_121", "unsupported features: {0} type is not supported",
             ERROR),
-    PERSIST_122("PERSIST_122", "Contains composite value: could not infer the reference as " +
-            "the key or uniqueConstrains does not contain single value", ERROR),
-    PERSIST_123("PERSIST_123", "missing key and uniqueConstrains fields: " +
-            "could not infer the reference as key and uniqueConstrains fields are not in the entity annotation", ERROR),
+    PERSIST_122("PERSIST_122", "associated entity contains composite primary keys: " +
+            "inferring the relation reference from composite keys is not supported yet. please add the " +
+            "references for relation", ERROR),
+    PERSIST_123("PERSIST_123", "associated entity does not contain any primary keys: the key " +
+            "should have a valid value", ERROR),
 
-    PERSIST_124("PERSIST_124", "empty value: Could not infer the reference as " +
-            "the uniqueConstraints has an empty value", ERROR),
-    PERSIST_125("PERSIST_125", "empty value: Could not infer the reference " +
-            "as the key has an empty value", ERROR),
     PERSIST_201("PERSIST_201",
             "Unsupported expression: read() function of persist client does not support this expression", ERROR),
     PERSIST_202("PERSIST_202",

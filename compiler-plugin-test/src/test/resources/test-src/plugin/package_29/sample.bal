@@ -17,20 +17,9 @@
 import ballerina/persist;
 
 @persist:Entity {
-    key: ["id", "name"]
+    key: []
 }
 public type Post record  {
- readonly int id;
- readonly string name;
- @persist:Relation
- User author?;
-};
-
-@persist:Entity {
-    key: ["id", "name"],
-    uniqueConstraints: [[""]]
-}
-public type User record  {
  readonly int id;
  readonly string name;
 };

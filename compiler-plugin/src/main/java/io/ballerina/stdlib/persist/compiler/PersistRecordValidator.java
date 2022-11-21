@@ -409,6 +409,12 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 if (expression instanceof BasicLiteralNode) {
                     this.primaryKeys.add(Utils.eliminateDoubleQuotes(expression.toSourceCode().trim()));
                     validateFieldWithFieldRecord(ctx, expression, tableFields);
+                    if (this.primaryKeys.size() == 0) {
+                        reportDiagnosticInfo(ctx, expression.location(),
+                                DiagnosticsCodes.PERSIST_123.getCode(),
+                                DiagnosticsCodes.PERSIST_123.getMessage(),
+                                DiagnosticsCodes.PERSIST_123.getSeverity());
+                    }
                 } else {
                     listConstructorExpressionNode = (ListConstructorExpressionNode) expression;
                     SeparatedNodeList<Node> exps = listConstructorExpressionNode.expressions();
@@ -427,7 +433,12 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
 
     private void validateFieldWithFieldRecord(SyntaxNodeAnalysisContext ctx, Node valueNode,
                                               Set<String> recordFields) {
-        if (!recordFields.contains(Utils.eliminateDoubleQuotes(((BasicLiteralNode) valueNode).literalToken().text()))) {
+        String value = Utils.eliminateDoubleQuotes(((BasicLiteralNode) valueNode).literalToken().text());
+        if (value.isEmpty()) {
+            reportDiagnosticInfo(ctx, valueNode.location(),
+                    DiagnosticsCodes.PERSIST_123.getCode(), DiagnosticsCodes.PERSIST_123.getMessage(),
+                    DiagnosticsCodes.PERSIST_123.getSeverity());
+        } else if (!recordFields.contains(value)) {
             reportDiagnosticInfo(ctx, valueNode.location(),
                     DiagnosticsCodes.PERSIST_102.getCode(), DiagnosticsCodes.PERSIST_102.getMessage(),
                     DiagnosticsCodes.PERSIST_102.getSeverity());
@@ -877,7 +888,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
 
     private void getReferenceKeyAndType(SyntaxNodeAnalysisContext ctx, TypeDefinitionNode referenceRecord) {
         List<String> primaryKeys = new ArrayList<>();
-        List<List<String>> uniqueConstraints = new ArrayList<>();
         Optional<MetadataNode> metadata = referenceRecord.metadata();
         if (metadata.isPresent()) {
             for (AnnotationNode annotation : metadata.get().annotations()) {
@@ -925,9 +935,9 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             }
         }
 
-        if (primaryKeys.size() > 0 || uniqueConstraints.size() > 0) {
-            if (primaryKeys.size() == 1 || uniqueConstraints.size() == 1) {
-                getInfoFromSinglePrimaryOrUniqueKeys(ctx, referenceRecord, primaryKeys, uniqueConstraints);
+        if (primaryKeys.size() > 0) {
+            if (primaryKeys.size() == 1) {
+                getInfoFromSinglePrimaryOrUniqueKeys(ctx, referenceRecord, primaryKeys);
             } else {
                 Utils.reportDiagnostic(ctx, referenceRecord.location(),
                         DiagnosticsCodes.PERSIST_122.getCode(),
@@ -944,26 +954,10 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
 
     private void getInfoFromSinglePrimaryOrUniqueKeys(SyntaxNodeAnalysisContext ctx,
                                                       TypeDefinitionNode referenceRecord,
-                                                      List<String> primaryKeys,
-                                                      List<List<String>> uniqueConstraints) {
+                                                      List<String> primaryKeys) {
         String referenceKey = Constants.EMPTY;
         if (primaryKeys.size() == 1) {
             referenceKey = primaryKeys.get(0);
-        } else if (uniqueConstraints.size() == 1 && uniqueConstraints.get(0).size() == 1) {
-            referenceKey = uniqueConstraints.get(0).get(0);
-        }
-        if (referenceKey.isEmpty()) {
-            if (primaryKeys.get(0).isEmpty()) {
-                Utils.reportDiagnostic(ctx, referenceRecord.location(),
-                        DiagnosticsCodes.PERSIST_125.getCode(),
-                        DiagnosticsCodes.PERSIST_125.getMessage(),
-                        DiagnosticsCodes.PERSIST_125.getSeverity());
-            } else if (uniqueConstraints.get(0).get(0).isEmpty()) {
-                Utils.reportDiagnostic(ctx, referenceRecord.location(),
-                        DiagnosticsCodes.PERSIST_124.getCode(),
-                        DiagnosticsCodes.PERSIST_124.getMessage(),
-                        DiagnosticsCodes.PERSIST_124.getSeverity());
-            }
         }
         Optional<MetadataNode> entityMetadata = referenceRecord.metadata();
         RecordTypeDescriptorNode recordTypeDescriptor = (RecordTypeDescriptorNode) referenceRecord.typeDescriptor();
