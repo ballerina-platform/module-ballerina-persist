@@ -33,6 +33,7 @@ import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
+import io.ballerina.compiler.syntax.tree.ChildNodeList;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
@@ -172,9 +173,11 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                     DiagnosticsCodes.PERSIST_111.getMessage(), DiagnosticsCodes.PERSIST_111.getSeverity());
         }
 
-        if (!validateIfClosedRecord(typeDefinitionNode)) {
+        if (!isClosedRecord(typeDefinitionNode)) {
+            String recordName = typeDefinitionNode.typeName().toSourceCode().trim();
             reportDiagnosticInfo(ctx, typeDefinitionNode.location(), DiagnosticsCodes.PERSIST_124.getCode(),
-                    DiagnosticsCodes.PERSIST_124.getMessage(), DiagnosticsCodes.PERSIST_124.getSeverity());
+                    MessageFormat.format(DiagnosticsCodes.PERSIST_124.getMessage(), recordName),
+                    DiagnosticsCodes.PERSIST_124.getSeverity());
         }
     }
 
@@ -1008,20 +1011,13 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         }
     }
 
-    private boolean validateIfClosedRecord(TypeDefinitionNode typeDefinitionNode) {
+    private boolean isClosedRecord(TypeDefinitionNode typeDefinitionNode) {
         RecordTypeDescriptorNode recordTypeDescriptorNode =
                 ((RecordTypeDescriptorNode) typeDefinitionNode.typeDescriptor());
-        boolean opened = false;
-        boolean closed = false;
-        for (Node childNode : recordTypeDescriptorNode.children()) {
-            if (childNode.kind() == SyntaxKind.OPEN_BRACE_PIPE_TOKEN) {
-                opened = true;
-            }
-            if (childNode.kind() == SyntaxKind.CLOSE_BRACE_PIPE_TOKEN) {
-                closed = true;
-            }
-        }
+        ChildNodeList children = recordTypeDescriptorNode.children();
 
-        return opened && closed;
+        // The second child should be `{|` and the final child should be `|}`
+        return children.get(1).kind() == SyntaxKind.OPEN_BRACE_PIPE_TOKEN &&
+               children.get(children.size() - 1).kind() == SyntaxKind.CLOSE_BRACE_PIPE_TOKEN;
     }
 }
