@@ -22,7 +22,7 @@ import ballerina/persist;
     uniqueConstraints: [["needId"]],
     tableName: "EMPLOYEE"
 }
-public type MedicalNeed record {
+public type MedicalNeed2 record {
     @persist:AutoIncrement {increment: 2}
     readonly int needId = 1;
     int itemId;
