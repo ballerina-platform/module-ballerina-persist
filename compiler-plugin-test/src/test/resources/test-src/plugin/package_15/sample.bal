@@ -20,20 +20,20 @@ import ballerina/persist;
     key: ["id"],
     tableName: "USER_TABLE"
 }
-public type User record  {
+public type User record  {|
  readonly int id;
  string name;
  @persist:Relation {keyColumns: ["postId"], reference: ["id"]}
  Post[] posts?;
-};
+|};
 
 @persist:Entity {
     key: ["id"],
     tableName: "POST_TABLE"
 }
-public type Post record  {
+public type Post record  {|
  readonly int id;
  string name;
  @persist:Relation {keyColumns: ["authorId"], reference: ["id"]}
  User author?;
-};
+|};

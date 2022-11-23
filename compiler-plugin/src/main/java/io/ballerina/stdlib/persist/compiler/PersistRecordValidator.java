@@ -63,6 +63,7 @@ import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.projects.Document;
@@ -169,6 +170,16 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         if (typeDefinitionNode.visibilityQualifier().isEmpty()) {
             reportDiagnosticInfo(ctx, typeDefinitionNode.location(), DiagnosticsCodes.PERSIST_111.getCode(),
                     DiagnosticsCodes.PERSIST_111.getMessage(), DiagnosticsCodes.PERSIST_111.getSeverity());
+        }
+
+        // Check whether the entity is a closed record
+        RecordTypeDescriptorNode recordTypeDescriptorNode =
+                ((RecordTypeDescriptorNode) typeDefinitionNode.typeDescriptor());
+        if (recordTypeDescriptorNode.bodyStartDelimiter().kind() != SyntaxKind.OPEN_BRACE_PIPE_TOKEN) {
+            String recordName = typeDefinitionNode.typeName().toSourceCode().trim();
+            reportDiagnosticInfo(ctx, typeDefinitionNode.location(), DiagnosticsCodes.PERSIST_124.getCode(),
+                    MessageFormat.format(DiagnosticsCodes.PERSIST_124.getMessage(), recordName),
+                    DiagnosticsCodes.PERSIST_124.getSeverity());
         }
     }
 

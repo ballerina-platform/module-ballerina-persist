@@ -229,6 +229,18 @@ public class CompilerPluginTest {
                 "the key should have a valid value", DiagnosticsCodes.PERSIST_123.getCode(), 1);
     }
 
+    @Test
+    public void testEntityClosedRecord() {
+        testDiagnostic("package_30", "The entity 'MedicalNeed' should be a closed record.",
+                DiagnosticsCodes.PERSIST_124.getCode(), 1);
+    }
+
+    @Test
+    public void testEntityClosedRecord2() {
+        testDiagnostic("package_31", "The entity 'MedicalNeed2' should be a closed record.",
+                DiagnosticsCodes.PERSIST_124.getCode(), 1);
+    }
+
     private void testDiagnostic(String packageName, String msg, String code, int count) {
         DiagnosticResult diagnosticResult = loadPackage(packageName).getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().

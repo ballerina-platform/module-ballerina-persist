@@ -20,8 +20,8 @@ import ballerina/persist;
     key: ["id"],
     tableName: "USER_TABLE"
 }
-public type User record  {
+public type User record  {|
  readonly int id;
  @persist:Relation
  string name;
-};
+|};

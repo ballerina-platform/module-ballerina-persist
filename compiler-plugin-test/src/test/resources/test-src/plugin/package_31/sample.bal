@@ -1,6 +1,6 @@
-// Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2022 WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
 //
-// WSO2 Inc. licenses this file to you under the Apache License,
+// WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
 // in compliance with the License.
 // You may obtain a copy of the License at
@@ -19,24 +19,20 @@ import ballerina/persist;
 
 @persist:Entity {
     key: ["needId"],
-    uniqueConstraints: [["itemId", "needId"]],
+    uniqueConstraints: [["needId"]],
     tableName: "EMPLOYEE"
 }
-public type MedicalNeed record {|
+public type MedicalNeed2 record {
     @persist:AutoIncrement {increment: 2}
-    readonly int needId = 12;
-    int|string? itemId;
-    int? beneficiaryId;
-    time:Civil period?;
-    string urgency?;
+    readonly int needId = 1;
+    int itemId;
+    int beneficiaryId;
+    time:Civil period;
+    string urgency = "{|";
+    string urgency2 = "|}";
     int quantity;
-    @persist:Relation {keyColumns: ["itemId"], reference: ["id"]}
-    Item item?;
-|};
-
-@persist:Entity {key: ["id"]}
-public type Item record {|
-    @persist:AutoIncrement
-    readonly int id = -1;
-    string name;
-|};
+    record {|
+        int x;
+        string y;
+    |} xyz;
+};
