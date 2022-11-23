@@ -33,7 +33,6 @@ import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
-import io.ballerina.compiler.syntax.tree.ChildNodeList;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
@@ -173,7 +172,10 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                     DiagnosticsCodes.PERSIST_111.getMessage(), DiagnosticsCodes.PERSIST_111.getSeverity());
         }
 
-        if (!isClosedRecord(typeDefinitionNode)) {
+        // Check whether the entity is a closed record
+        RecordTypeDescriptorNode recordTypeDescriptorNode =
+                ((RecordTypeDescriptorNode) typeDefinitionNode.typeDescriptor());
+        if (recordTypeDescriptorNode.bodyStartDelimiter().kind() != SyntaxKind.OPEN_BRACE_PIPE_TOKEN) {
             String recordName = typeDefinitionNode.typeName().toSourceCode().trim();
             reportDiagnosticInfo(ctx, typeDefinitionNode.location(), DiagnosticsCodes.PERSIST_124.getCode(),
                     MessageFormat.format(DiagnosticsCodes.PERSIST_124.getMessage(), recordName),
@@ -1009,15 +1011,5 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                         MessageFormat.format(DiagnosticsCodes.PERSIST_121.getMessage(), type),
                         DiagnosticsCodes.PERSIST_121.getSeverity());
         }
-    }
-
-    private boolean isClosedRecord(TypeDefinitionNode typeDefinitionNode) {
-        RecordTypeDescriptorNode recordTypeDescriptorNode =
-                ((RecordTypeDescriptorNode) typeDefinitionNode.typeDescriptor());
-        ChildNodeList children = recordTypeDescriptorNode.children();
-
-        // The second child should be `{|` and the final child should be `|}`
-        return children.get(1).kind() == SyntaxKind.OPEN_BRACE_PIPE_TOKEN &&
-               children.get(children.size() - 1).kind() == SyntaxKind.CLOSE_BRACE_PIPE_TOKEN;
     }
 }
