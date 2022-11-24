@@ -16,8 +16,11 @@
 
 import ballerina/persist;
 
+@persist:Entity {
+    key: ["id"]
+}
 public type Post record  {|
- int id;
+ readonly int id;
  string name;
  @persist:Relation{}
  User author?;

@@ -31,8 +31,10 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -98,18 +100,6 @@ public class CompilerPluginTest {
     }
 
     @Test
-    public void testOptionalField2() {
-        testDiagnostic("package_08", "invalid field type: the persist client does not " +
-                "support the union type", DiagnosticsCodes.PERSIST_101.getCode(), 1);
-    }
-
-    @Test
-    public void testOptionalField3() {
-        testDiagnostic("package_09", "invalid field type: the persist client does not " +
-                "support the union type", DiagnosticsCodes.PERSIST_101.getCode(), 1);
-    }
-
-    @Test
     public void testAutoIncrementField() {
         testDiagnostic("package_10", "invalid initialization: auto increment field " +
                 "must be defined as a key", DiagnosticsCodes.PERSIST_108.getCode(), 1);
@@ -118,12 +108,6 @@ public class CompilerPluginTest {
     @Test
     public void testRecordType() {
         testDiagnostic("package_11", "invalid initialization: the entity should be public",
-                DiagnosticsCodes.PERSIST_111.getCode(), 1);
-    }
-
-    @Test
-    public void testRecordType1() {
-        testDiagnostic("package_12", "invalid initialization: the entity should be public",
                 DiagnosticsCodes.PERSIST_111.getCode(), 1);
     }
 
@@ -205,6 +189,20 @@ public class CompilerPluginTest {
     }
 
     @Test
+    public void testInvalidAnnotation2() {
+        testDiagnostic("package_08",  "invalid annotation attachment: relation annotation " +
+                        "cannot be attached without entity annotation",
+                DiagnosticsCodes.PERSIST_125.getCode(), 1);
+    }
+
+    @Test
+    public void testInvalidAnnotation3() {
+        testDiagnostic("package_09",  "invalid annotation attachment: auto increment annotation " +
+                        "cannot be attached without entity annotation",
+                DiagnosticsCodes.PERSIST_126.getCode(), 1);
+    }
+
+    @Test
     public void testEntityName1() {
         testDiagnostic("package_21", "duplicate entity names are not allowed: the specified name " +
                 "is already used in another entity", DiagnosticsCodes.PERSIST_119.getCode(), 2);
@@ -247,6 +245,8 @@ public class CompilerPluginTest {
                 filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
                 collect(Collectors.toList());
         long availableErrors = errorDiagnosticsList.size();
+        PrintStream asd = System.out;
+        asd.println(Arrays.toString(errorDiagnosticsList.toArray()));
         Assert.assertEquals(availableErrors, count);
         DiagnosticInfo error = errorDiagnosticsList.get(0).diagnosticInfo();
         Assert.assertEquals(error.code(), code);

@@ -74,6 +74,10 @@ public enum DiagnosticsCodes {
     PERSIST_123("PERSIST_123", "associated entity does not contain any primary keys: the key " +
             "should have a valid value", ERROR),
     PERSIST_124("PERSIST_124", "The entity ''{0}'' should be a closed record.", ERROR),
+    PERSIST_125("PERSIST_125", "invalid annotation attachment: relation annotation cannot be " +
+            "attached without entity annotation", ERROR),
+    PERSIST_126("PERSIST_126", "invalid annotation attachment: auto increment annotation cannot be " +
+            "attached without entity annotation", ERROR),
 
     // todo: Add expression type in the diagnostic message
     PERSIST_201("PERSIST_201",
