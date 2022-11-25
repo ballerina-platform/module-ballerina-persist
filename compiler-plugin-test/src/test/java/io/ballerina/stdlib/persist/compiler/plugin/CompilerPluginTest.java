@@ -31,10 +31,8 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -239,8 +237,8 @@ public class CompilerPluginTest {
 
      @Test
     public void testEntityClosedRecord3() {
-        testDiagnostic("package_12", "invalid value initialization: A field " +
-                        "only allows direct initialization", DiagnosticsCodes.PERSIST_127.getCode(), 8);
+        testDiagnostic("package_12", "invalid value initialization: a field only " +
+                "allows explicit initialization", DiagnosticsCodes.PERSIST_127.getCode(), 8);
     }
 
     private void testDiagnostic(String packageName, String msg, String code, int count) {
@@ -248,8 +246,6 @@ public class CompilerPluginTest {
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
                 filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
                 collect(Collectors.toList());
-        PrintStream asd = System.out;
-        asd.println(Arrays.toString(errorDiagnosticsList.toArray()));
         long availableErrors = errorDiagnosticsList.size();
         Assert.assertEquals(availableErrors, count);
         DiagnosticInfo error = errorDiagnosticsList.get(0).diagnosticInfo();

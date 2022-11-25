@@ -78,8 +78,8 @@ public enum DiagnosticsCodes {
             ERROR),
     PERSIST_126("PERSIST_126", "auto increment annotation cannot be attached without the entity " +
             "annotation", ERROR),
-
-    PERSIST_127("PERSIST_127", "invalid value initialization: A field only allows direct initialization",
+    PERSIST_127("PERSIST_127", "invalid value initialization: a field only allows explicit " +
+            "initialization",
             ERROR),
 
     // todo: Add expression type in the diagnostic message
