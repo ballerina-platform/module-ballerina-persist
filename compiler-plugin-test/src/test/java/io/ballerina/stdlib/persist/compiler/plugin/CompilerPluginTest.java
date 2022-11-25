@@ -182,20 +182,20 @@ public class CompilerPluginTest {
     @Test
     public void testInvalidAnnotation1() {
         testDiagnostic("package_19",  "invalid annotation attachment: the relation " +
-                        "annotation can only be attached to the entity record field",
+                        "annotation can only be attached to an entity record field",
                 DiagnosticsCodes.PERSIST_117.getCode(), 1);
     }
 
     @Test
     public void testInvalidAnnotation2() {
         testDiagnostic("package_08",  "relation annotation cannot be attached " +
-                        "without entity annotation", DiagnosticsCodes.PERSIST_125.getCode(), 1);
+                        "without the entity annotation", DiagnosticsCodes.PERSIST_125.getCode(), 1);
     }
 
     @Test
     public void testInvalidAnnotation3() {
         testDiagnostic("package_09",  "auto increment annotation cannot be attached without " +
-                        "entity annotation", DiagnosticsCodes.PERSIST_126.getCode(), 1);
+                        "the entity annotation", DiagnosticsCodes.PERSIST_126.getCode(), 1);
     }
 
     @Test
