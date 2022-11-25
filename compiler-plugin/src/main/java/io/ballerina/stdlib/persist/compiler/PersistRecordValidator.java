@@ -128,7 +128,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                                     ctx, symbol.get());
                         }
                     } else {
-                        checkRecordFieldsAnnotation(ctx, recordNode);
+                        checkFieldAnnotationPresent(ctx, recordNode);
                     }
                 }
             }
@@ -194,7 +194,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         }
     }
 
-    private void checkRecordFieldsAnnotation(SyntaxNodeAnalysisContext ctx, Node recordNode) {
+    private void checkFieldAnnotationPresent(SyntaxNodeAnalysisContext ctx, Node recordNode) {
         RecordTypeDescriptorNode recordTypeDescriptorNode = (RecordTypeDescriptorNode) recordNode;
         NodeList<Node> fields = recordTypeDescriptorNode.fields();
         for (Node field : fields) {
@@ -235,7 +235,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         }
     }
 
-    private void validateAnnotationFields(SyntaxNodeAnalysisContext ctx, MetadataNode metadataNode, String filedType,
+    private void validateAnnotationFields(SyntaxNodeAnalysisContext ctx, MetadataNode metadataNode, String fieldType,
                                           Location location, NodeList<ModuleMemberDeclarationNode> memberNodes,
                                           String fieldName) {
         NodeList<AnnotationNode> annotations = metadataNode.annotations();
@@ -251,7 +251,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 if (mappingConstructorExpressionNode.isPresent()) {
                     SeparatedNodeList<MappingFieldNode> annotationFields = mappingConstructorExpressionNode.get().
                             fields();
-                    if (!filedType.trim().equals("int")) {
+                    if (!fieldType.trim().equals("int")) {
                         reportDiagnosticInfo(ctx, location, DiagnosticsCodes.PERSIST_105.getCode(),
                                 DiagnosticsCodes.PERSIST_105.getMessage(),
                                 DiagnosticsCodes.PERSIST_105.getSeverity());
@@ -265,7 +265,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 if (mappingConstructorExpressionNode.isPresent()) {
                     SeparatedNodeList<MappingFieldNode> annotationFields =
                             mappingConstructorExpressionNode.get().fields();
-                    validateRelationAnnotation(ctx, annotationFields, memberNodes, filedType);
+                    validateRelationAnnotation(ctx, annotationFields, memberNodes, fieldType);
                 }
             }
         }
