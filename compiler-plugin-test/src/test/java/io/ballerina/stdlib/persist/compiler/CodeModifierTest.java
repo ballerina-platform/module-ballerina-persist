@@ -32,6 +32,7 @@ import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.text.TextRange;
 import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -57,7 +58,7 @@ public class CodeModifierTest {
         return project.currentPackage();
     }
 
-   // @Test
+    @Test
     public void testCodeModifier() {
 
         Package newPackage = getModifiedPackage("package_01");
@@ -94,7 +95,7 @@ public class CodeModifierTest {
         }
     }
 
-   // @Test
+    @Test
     public void codeModifierNegativeTest() {
 
         Package newPackage = getModifiedPackage("package_11");
@@ -110,7 +111,7 @@ public class CodeModifierTest {
         verifyModifiedFunctions(newPackage, modifiedFunctions);
     }
 
-   // @Test
+    @Test
     public void limitClauseTest() {
 
         Package newPackage = getModifiedPackage("package_02");
@@ -125,7 +126,7 @@ public class CodeModifierTest {
         verifyModifiedFunctions(newPackage, modifiedFunctions);
     }
 
-   // @Test
+    @Test
     public void orderByClauseTest() {
 
         Package newPackage = getModifiedPackage("package_03");
@@ -168,7 +169,7 @@ public class CodeModifierTest {
         verifyModifiedFunctions(newPackage, modifiedFunctions);
     }
 
-   // @Test
+    @Test
     public void whereClauseTest() {
 
         Package newPackage = getModifiedPackage("package_04");
@@ -222,7 +223,7 @@ public class CodeModifierTest {
         verifyModifiedFunctions(newPackage, modifiedFunctions);
     }
 
-   // @Test
+    @Test
     public void combinedClauseTest() {
 
         Package newPackage = getModifiedPackage("package_05");
@@ -261,7 +262,7 @@ public class CodeModifierTest {
         verifyModifiedFunctions(newPackage, modifiedFunctions);
     }
 
-   // @Test
+    @Test
     public void unsupportedExpressionTest() {
         DiagnosticResult reportedDiagnostics = getDiagnosticResult("package_06");
         List<Diagnostic> errorDiagnosticsList = filterErrorDiagnostics(reportedDiagnostics);
@@ -283,7 +284,7 @@ public class CodeModifierTest {
         Assert.assertEquals(whereClauseError.messageFormat(), DiagnosticsCodes.PERSIST_201.getMessage());
     }
 
-   // @Test
+    @Test
     public void testUsageOfExecute() {
         DiagnosticResult reportedDiagnostics = getDiagnosticResult("package_07");
         List<Diagnostic> errorDiagnosticsList = filterErrorDiagnostics(reportedDiagnostics);
@@ -297,7 +298,7 @@ public class CodeModifierTest {
         Assert.assertEquals(limitClauseError.messageFormat(), DiagnosticsCodes.PERSIST_210.getMessage());
     }
 
-   // @Test
+    @Test
     public void limitClauseNegativeTest() {
         DiagnosticResult reportedDiagnostics = getDiagnosticResult("package_08");
         List<Diagnostic> errorDiagnosticsList = filterErrorDiagnostics(reportedDiagnostics);
@@ -311,7 +312,7 @@ public class CodeModifierTest {
         Assert.assertEquals(limitClauseError.messageFormat(), DiagnosticsCodes.PERSIST_202.getMessage());
     }
 
-   // @Test
+    @Test
     public void orderByClauseNegativeTest() {
 
         DiagnosticResult reportedDiagnostics = getDiagnosticResult("package_09");
@@ -327,7 +328,7 @@ public class CodeModifierTest {
         });
     }
 
-   // @Test
+    @Test
     public void readFunctionCallWarnings() {
 
         DiagnosticResult reportedDiagnostics = getDiagnosticResult("package_10");

@@ -57,181 +57,181 @@ public class CompilerPluginTest {
         return project.currentPackage();
     }
 
-    // @Test
+    @Test
     public void testEntityAnnotation1() {
         testDiagnostic("package_01", "invalid key: the given key is not in the record definition",
                 DiagnosticsCodes.PERSIST_102.getCode(), 2);
     }
-    // @Test
+    @Test
     public void testEntityAnnotation2() {
         testDiagnostic("package_02", "invalid key: the given key is not in the record definition",
                 DiagnosticsCodes.PERSIST_102.getCode(), 2);
     }
 
-    // @Test
+    @Test
     public void testPrimaryKeyMarkReadOnly() {
         testDiagnostic("package_03", "invalid initialization: the field is not specified as " +
                 "read-only", DiagnosticsCodes.PERSIST_106.getCode(), 2);
     }
 
-    // @Test
+    @Test
     public void testMultipleAutoIncrementAnnotation() {
         testDiagnostic("package_04", "duplicate annotation: the entity does not allow " +
                         "multiple field with auto increment annotation",
                 DiagnosticsCodes.PERSIST_107.getCode(), 1);
     }
 
-    // @Test
+    @Test
     public void testAutoIncrementAnnotation1() {
         testDiagnostic("package_05", "invalid value: the value only supports positive integer",
                 DiagnosticsCodes.PERSIST_103.getCode(), 1);
     }
 
-    // @Test
+    @Test
     public void testRelationAnnotationMismatchReference() {
         testDiagnostic("package_06", "mismatch reference: the given key count is mismatched " +
                 "with reference key count", DiagnosticsCodes.PERSIST_109.getCode(), 1);
     }
 
-    // @Test
+    @Test
     public void testOptionalField() {
         testDiagnostic("package_07", "invalid field type: the persist client does not " +
                 "support the union type", DiagnosticsCodes.PERSIST_101.getCode(), 1);
     }
 
-    // @Test
+    @Test
     public void testAutoIncrementField() {
         testDiagnostic("package_10", "invalid initialization: auto increment field " +
                 "must be defined as a key", DiagnosticsCodes.PERSIST_108.getCode(), 1);
     }
 
-    // @Test
+    @Test
     public void testRecordType() {
         testDiagnostic("package_11", "invalid initialization: the entity should be public",
                 DiagnosticsCodes.PERSIST_111.getCode(), 1);
     }
 
-    // @Test
+    @Test
     public void testTableName() {
         testDiagnostic("package_13", "duplicate table name: the table name is already " +
                 "used in another entity", DiagnosticsCodes.PERSIST_113.getCode(), 1);
     }
 
-    // @Test
+    @Test
     public void testTableName1() {
         testDiagnostic("package_20", "duplicate table name: the table name is already used " +
                 "in another entity", DiagnosticsCodes.PERSIST_113.getCode(), 1);
     }
 
-    // @Test
+    @Test
     public void testInvalidInitialisation() {
         testDiagnostic("package_14", "invalid entity initialisation: the associated entity of " +
                         "this[Item] does not have the field with the relationship type",
                 DiagnosticsCodes.PERSIST_115.getCode(), 4);
     }
 
-    // @Test
+    @Test
     public void testInvalidInitialisation1() {
         testDiagnostic("package_15", "invalid entity initialisation: the relation annotation " +
                         "should only be added to the relationship owner for one-to-one and one-to-many associations",
                 DiagnosticsCodes.PERSIST_116.getCode(), 3);
     }
 
-    // @Test
+    @Test
     public void testInvalidInitialisation2() {
         testDiagnostic("package_16", "invalid entity initialisation: the relation annotation " +
                         "should only be added to the relationship owner for one-to-one and one-to-many associations",
                 DiagnosticsCodes.PERSIST_116.getCode(), 2);
     }
 
-    // @Test
+    @Test
     public void testUnSupportedFeature() {
         testDiagnostic("package_17", "unsupported features: many-to-many association is not " +
                 "supported yet", DiagnosticsCodes.PERSIST_114.getCode(), 4);
     }
 
-    // @Test
+    @Test
     public void testUnSupportedFeature1() {
         testDiagnostic("package_22", "unsupported features: array type is not supported",
                 DiagnosticsCodes.PERSIST_120.getCode(), 1);
     }
 
-    // @Test
+    @Test
     public void testUnSupportedFeature2() {
         testDiagnostic("package_23", "unsupported features: array type is not supported",
                 DiagnosticsCodes.PERSIST_120.getCode(), 1);
     }
 
-    // @Test
+    @Test
     public void testUnSupportedFeature3() {
         testDiagnostic("package_24", "unsupported features: json type is not supported",
                 DiagnosticsCodes.PERSIST_121.getCode(), 1);
     }
 
-    // @Test
+    @Test
     public void testUnSupportedFeature4() {
         testDiagnostic("package_25", "unsupported features: json type is not supported",
                 DiagnosticsCodes.PERSIST_121.getCode(), 1);
     }
 
-    // @Test
+    @Test
     public void testInvalidAnnotation() {
         testDiagnostic("package_18",  "invalid annotation attachment: the `one-to-many` relation " +
                         "annotation can not be attached to the array entity record field",
                 DiagnosticsCodes.PERSIST_118.getCode(), 1);
     }
 
-    // @Test
+    @Test
     public void testInvalidAnnotation1() {
         testDiagnostic("package_19",  "invalid annotation attachment: the relation " +
                         "annotation can only be attached to an entity record field",
                 DiagnosticsCodes.PERSIST_117.getCode(), 1);
     }
 
-    // @Test
+    @Test
     public void testInvalidAnnotation2() {
         testDiagnostic("package_08",  "relation annotation cannot be attached " +
                         "without the entity annotation", DiagnosticsCodes.PERSIST_125.getCode(), 1);
     }
 
-    // @Test
+    @Test
     public void testInvalidAnnotation3() {
         testDiagnostic("package_09",  "auto increment annotation cannot be attached without " +
                         "the entity annotation", DiagnosticsCodes.PERSIST_126.getCode(), 1);
     }
 
-    // @Test
+    @Test
     public void testEntityName1() {
         testDiagnostic("package_21", "duplicate entity names are not allowed: the specified name " +
                 "is already used in another entity", DiagnosticsCodes.PERSIST_119.getCode(), 2);
     }
 
-    // @Test
+    @Test
     public void testGetReferenceWithCompositeKey() {
         testDiagnostic("package_26", "associated entity contains composite primary keys: " +
                         "inferring the relation reference from composite keys is not supported yet. " +
                         "please add the references for relation", DiagnosticsCodes.PERSIST_122.getCode(), 1);
     }
 
-    // @Test
+    @Test
     public void testGetReferenceWithEmptyKey() {
         testDiagnostic("package_27", "associated entity does not contain any primary keys: " +
                         "the key should have a valid value", DiagnosticsCodes.PERSIST_123.getCode(), 1);
     }
 
-    // @Test
+    @Test
     public void testGetReferenceWithEmptyKey1() {
         testDiagnostic("package_28", "associated entity does not contain any primary keys: " +
                 "the key should have a valid value", DiagnosticsCodes.PERSIST_123.getCode(), 1);
     }
 
-    // @Test
+    @Test
     public void testEntityClosedRecord() {
         testDiagnostic("package_30", "the entity 'MedicalNeed' should be a closed record.",
                 DiagnosticsCodes.PERSIST_124.getCode(), 1);
     }
 
-    // @Test
+    @Test
     public void testEntityClosedRecord2() {
         testDiagnostic("package_31", "the entity 'MedicalNeed2' should be a closed record.",
                 DiagnosticsCodes.PERSIST_124.getCode(), 1);
