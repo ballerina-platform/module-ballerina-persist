@@ -55,6 +55,7 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
+import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -128,7 +129,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                                     ctx, symbol.get());
                         }
                     } else {
-                        checkFieldAnnotationPresent(ctx, recordNode);
+                        checkPresenceOfFieldAnnotation(ctx, recordNode);
                     }
                 }
             }
@@ -194,7 +195,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         }
     }
 
-    private void checkFieldAnnotationPresent(SyntaxNodeAnalysisContext ctx, Node recordNode) {
+    private void checkPresenceOfFieldAnnotation(SyntaxNodeAnalysisContext ctx, Node recordNode) {
         RecordTypeDescriptorNode recordTypeDescriptorNode = (RecordTypeDescriptorNode) recordNode;
         NodeList<Node> fields = recordTypeDescriptorNode.fields();
         for (Node field : fields) {
@@ -215,15 +216,11 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         for (AnnotationNode annotation : annotations) {
             String annotationName = annotation.annotReference().toSourceCode().trim();
             if (annotationName.equals(Constants.AUTO_INCREMENT)) {
-                if (!hasPersistAnnotation) {
-                    reportDiagnosticInfo(ctx, location, DiagnosticsCodes.PERSIST_126.getCode(),
-                            DiagnosticsCodes.PERSIST_126.getMessage(), DiagnosticsCodes.PERSIST_126.getSeverity());
-                }
+                reportDiagnosticInfo(ctx, location, DiagnosticsCodes.PERSIST_126.getCode(),
+                        DiagnosticsCodes.PERSIST_126.getMessage(), DiagnosticsCodes.PERSIST_126.getSeverity());
             } else if (annotation.annotReference().toSourceCode().trim().equals(Constants.RELATION)) {
-                if (!hasPersistAnnotation) {
-                    reportDiagnosticInfo(ctx, location, DiagnosticsCodes.PERSIST_125.getCode(),
-                            DiagnosticsCodes.PERSIST_125.getMessage(), DiagnosticsCodes.PERSIST_125.getSeverity());
-                }
+                reportDiagnosticInfo(ctx, location, DiagnosticsCodes.PERSIST_125.getCode(),
+                        DiagnosticsCodes.PERSIST_125.getMessage(), DiagnosticsCodes.PERSIST_125.getSeverity());
             }
         }
     }
@@ -404,7 +401,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             if (expressionNode.isPresent()) {
                 ExpressionNode valueNode = expressionNode.get();
                 String value = valueNode.toSourceCode();
-                if (valueNode instanceof BasicLiteralNode) {
+                if (valueNode instanceof BasicLiteralNode || valueNode instanceof UnaryExpressionNode) {
                     if (key.equals(Constants.INCREMENT)) {
                         Optional<Symbol> fieldSymbol = ctx.semanticModel().symbol(annotationFieldNode);
                         if (fieldSymbol.isPresent() && fieldSymbol.get() instanceof RecordFieldSymbol) {
