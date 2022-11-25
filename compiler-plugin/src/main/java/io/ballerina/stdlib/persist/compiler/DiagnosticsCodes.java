@@ -73,10 +73,13 @@ public enum DiagnosticsCodes {
             "references for relation", ERROR),
     PERSIST_123("PERSIST_123", "associated entity does not contain any primary keys: the key " +
             "should have a valid value", ERROR),
-    PERSIST_124("PERSIST_124", "The entity ''{0}'' should be a closed record.", ERROR),
+    PERSIST_124("PERSIST_124", "the entity ''{0}'' should be a closed record.", ERROR),
     PERSIST_125("PERSIST_125", "relation annotation cannot be attached without entity annotation",
             ERROR),
     PERSIST_126("PERSIST_126", "auto increment annotation cannot be attached without entity annotation",
+            ERROR),
+
+    PERSIST_127("PERSIST_127", "invalid value initialization: A field only allows direct initialization",
             ERROR),
 
     // todo: Add expression type in the diagnostic message
