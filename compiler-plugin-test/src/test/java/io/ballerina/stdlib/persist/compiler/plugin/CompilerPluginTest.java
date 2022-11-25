@@ -98,18 +98,6 @@ public class CompilerPluginTest {
     }
 
     @Test
-    public void testOptionalField2() {
-        testDiagnostic("package_08", "invalid field type: the persist client does not " +
-                "support the union type", DiagnosticsCodes.PERSIST_101.getCode(), 1);
-    }
-
-    @Test
-    public void testOptionalField3() {
-        testDiagnostic("package_09", "invalid field type: the persist client does not " +
-                "support the union type", DiagnosticsCodes.PERSIST_101.getCode(), 1);
-    }
-
-    @Test
     public void testAutoIncrementField() {
         testDiagnostic("package_10", "invalid initialization: auto increment field " +
                 "must be defined as a key", DiagnosticsCodes.PERSIST_108.getCode(), 1);
@@ -118,12 +106,6 @@ public class CompilerPluginTest {
     @Test
     public void testRecordType() {
         testDiagnostic("package_11", "invalid initialization: the entity should be public",
-                DiagnosticsCodes.PERSIST_111.getCode(), 1);
-    }
-
-    @Test
-    public void testRecordType1() {
-        testDiagnostic("package_12", "invalid initialization: the entity should be public",
                 DiagnosticsCodes.PERSIST_111.getCode(), 1);
     }
 
@@ -199,9 +181,21 @@ public class CompilerPluginTest {
 
     @Test
     public void testInvalidAnnotation1() {
-        testDiagnostic("package_19",  "invalid annotation attachment: The relation " +
-                        "annotation can only be attached to the entity record field",
+        testDiagnostic("package_19",  "invalid annotation attachment: the relation " +
+                        "annotation can only be attached to an entity record field",
                 DiagnosticsCodes.PERSIST_117.getCode(), 1);
+    }
+
+    @Test
+    public void testInvalidAnnotation2() {
+        testDiagnostic("package_08",  "relation annotation cannot be attached " +
+                        "without the entity annotation", DiagnosticsCodes.PERSIST_125.getCode(), 1);
+    }
+
+    @Test
+    public void testInvalidAnnotation3() {
+        testDiagnostic("package_09",  "auto increment annotation cannot be attached without " +
+                        "the entity annotation", DiagnosticsCodes.PERSIST_126.getCode(), 1);
     }
 
     @Test
