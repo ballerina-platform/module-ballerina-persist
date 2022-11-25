@@ -243,39 +243,29 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             Optional<MappingConstructorExpressionNode> mappingConstructorExpressionNode = annotation.annotValue();
             String annotationName = annotation.annotReference().toSourceCode().trim();
             if (annotationName.equals(Constants.AUTO_INCREMENT)) {
-                if (!hasPersistAnnotation) {
-                    reportDiagnosticInfo(ctx, location, DiagnosticsCodes.PERSIST_126.getCode(),
-                            DiagnosticsCodes.PERSIST_126.getMessage(), DiagnosticsCodes.PERSIST_126.getSeverity());
-                } else {
-                    if (this.hasAutoIncrementAnnotation) {
-                        reportDiagnosticInfo(ctx, location, DiagnosticsCodes.PERSIST_107.getCode(),
-                                DiagnosticsCodes.PERSIST_107.getMessage(), DiagnosticsCodes.PERSIST_107.getSeverity());
+                if (this.hasAutoIncrementAnnotation) {
+                    reportDiagnosticInfo(ctx, location, DiagnosticsCodes.PERSIST_107.getCode(),
+                            DiagnosticsCodes.PERSIST_107.getMessage(), DiagnosticsCodes.PERSIST_107.getSeverity());
+                }
+                checkAutoIncrementFieldMarkAsKey(ctx, location, fieldName);
+                if (mappingConstructorExpressionNode.isPresent()) {
+                    SeparatedNodeList<MappingFieldNode> annotationFields = mappingConstructorExpressionNode.get().
+                            fields();
+                    if (!filedType.trim().equals("int")) {
+                        reportDiagnosticInfo(ctx, location, DiagnosticsCodes.PERSIST_105.getCode(),
+                                DiagnosticsCodes.PERSIST_105.getMessage(),
+                                DiagnosticsCodes.PERSIST_105.getSeverity());
                     }
-                    checkAutoIncrementFieldMarkAsKey(ctx, location, fieldName);
-                    if (mappingConstructorExpressionNode.isPresent()) {
-                        SeparatedNodeList<MappingFieldNode> annotationFields = mappingConstructorExpressionNode.get().
-                                fields();
-                        if (!filedType.trim().equals("int")) {
-                            reportDiagnosticInfo(ctx, location, DiagnosticsCodes.PERSIST_105.getCode(),
-                                    DiagnosticsCodes.PERSIST_105.getMessage(),
-                                    DiagnosticsCodes.PERSIST_105.getSeverity());
-                        }
-                        if (annotationFields.size() > 0) {
-                            validateAutoIncrementAnnotation(ctx, annotationFields);
-                        }
-                        this.hasAutoIncrementAnnotation = true;
+                    if (annotationFields.size() > 0) {
+                        validateAutoIncrementAnnotation(ctx, annotationFields);
                     }
+                    this.hasAutoIncrementAnnotation = true;
                 }
             } else if (annotation.annotReference().toSourceCode().trim().equals(Constants.RELATION)) {
-                if (!hasPersistAnnotation) {
-                    reportDiagnosticInfo(ctx, location, DiagnosticsCodes.PERSIST_125.getCode(),
-                            DiagnosticsCodes.PERSIST_125.getMessage(), DiagnosticsCodes.PERSIST_125.getSeverity());
-                } else {
-                    if (mappingConstructorExpressionNode.isPresent()) {
-                        SeparatedNodeList<MappingFieldNode> annotationFields =
-                                mappingConstructorExpressionNode.get().fields();
-                        validateRelationAnnotation(ctx, annotationFields, memberNodes, filedType);
-                    }
+                if (mappingConstructorExpressionNode.isPresent()) {
+                    SeparatedNodeList<MappingFieldNode> annotationFields =
+                            mappingConstructorExpressionNode.get().fields();
+                    validateRelationAnnotation(ctx, annotationFields, memberNodes, filedType);
                 }
             }
         }
