@@ -50,7 +50,8 @@ public enum DiagnosticsCodes {
     PERSIST_111("PERSIST_111", "invalid initialization: the entity should be public", ERROR),
     PERSIST_112("PERSIST_112", "mysql db only allow increment value by one in auto generated field",
             WARNING),
-    PERSIST_113("PERSIST_113", "duplicate table name: the table name is already used in another entity",
+    PERSIST_113("PERSIST_113", "duplicate table name: the table name is already " +
+            "used in another entity in [{0}]",
             ERROR),
     PERSIST_114("PERSIST_114", "unsupported features: many-to-many association is not supported yet",
             ERROR),
@@ -63,7 +64,7 @@ public enum DiagnosticsCodes {
     PERSIST_118("PERSIST_118", "invalid annotation attachment: the `one-to-many` relation annotation " +
             "can not be attached to the array entity record field", ERROR),
     PERSIST_119("PERSIST_119", "duplicate entity names are not allowed: the specified name is already " +
-            "used in another entity", ERROR),
+            "used in another entity in [{0}]", ERROR),
     PERSIST_120("PERSIST_120", "unsupported features: array type is not supported",
             ERROR),
     PERSIST_121("PERSIST_121", "unsupported features: {0} type is not supported",
@@ -78,7 +79,10 @@ public enum DiagnosticsCodes {
             ERROR),
     PERSIST_126("PERSIST_126", "auto increment annotation cannot be attached without the " +
             "entity annotation", ERROR),
-
+    PERSIST_128("PERSIST_128", "annotation 'persist:Entity' is not allowed on enum",
+            ERROR),
+    PERSIST_129("PERSIST_129", "annotation 'persist:Entity' is not allowed on type",
+            ERROR),
     // todo: Add expression type in the diagnostic message
     PERSIST_201("PERSIST_201",
             "persist client read() function doesn't support this query expression", ERROR),

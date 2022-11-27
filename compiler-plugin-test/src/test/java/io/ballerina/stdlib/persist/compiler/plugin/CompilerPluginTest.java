@@ -31,8 +31,10 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -112,13 +114,13 @@ public class CompilerPluginTest {
     @Test
     public void testTableName() {
         testDiagnostic("package_13", "duplicate table name: the table name is already " +
-                "used in another entity", DiagnosticsCodes.PERSIST_113.getCode(), 1);
+                "used in another entity in", DiagnosticsCodes.PERSIST_113.getCode(), 1);
     }
 
     @Test
     public void testTableName1() {
         testDiagnostic("package_20", "duplicate table name: the table name is already used " +
-                "in another entity", DiagnosticsCodes.PERSIST_113.getCode(), 1);
+                "in another entity in ", DiagnosticsCodes.PERSIST_113.getCode(), 1);
     }
 
     @Test
@@ -199,9 +201,15 @@ public class CompilerPluginTest {
     }
 
     @Test
+    public void testInvalidAnnotation4() {
+        testDiagnostic("package_32", "annotation 'persist:Entity' is not allowed on type",
+                DiagnosticsCodes.PERSIST_129.getCode(), 2);
+    }
+
+    @Test
     public void testEntityName1() {
-        testDiagnostic("package_21", "duplicate entity names are not allowed: the specified name " +
-                "is already used in another entity", DiagnosticsCodes.PERSIST_119.getCode(), 2);
+        testDiagnostic("package_21", "duplicate entity names are not allowed: the specified " +
+                "name is already used in another entity in ", DiagnosticsCodes.PERSIST_119.getCode(), 2);
     }
 
     @Test
@@ -241,9 +249,11 @@ public class CompilerPluginTest {
                 filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
                 collect(Collectors.toList());
         long availableErrors = errorDiagnosticsList.size();
+        PrintStream asd = System.out;
+        asd.println(Arrays.toString(errorDiagnosticsList.toArray()));
         Assert.assertEquals(availableErrors, count);
         DiagnosticInfo error = errorDiagnosticsList.get(0).diagnosticInfo();
         Assert.assertEquals(error.code(), code);
-        Assert.assertEquals(error.messageFormat(), msg);
+        Assert.assertTrue(error.messageFormat().startsWith(msg));
     }
 }
