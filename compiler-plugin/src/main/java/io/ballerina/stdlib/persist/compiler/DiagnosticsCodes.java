@@ -58,8 +58,8 @@ public enum DiagnosticsCodes {
             "does not have the field with the relationship type", ERROR),
     PERSIST_116("PERSIST_116", "invalid entity initialisation: the relation annotation should " +
             "only be added to the relationship owner for one-to-one and one-to-many associations", ERROR),
-    PERSIST_117("PERSIST_117", "invalid annotation attachment: the relation annotation can only be " +
-            "attached to an entity record field", ERROR),
+    PERSIST_117("PERSIST_117", "invalid annotation attachment: this non-entity type field " +
+            "does not allow a relation annotation", ERROR),
     PERSIST_118("PERSIST_118", "invalid annotation attachment: the `one-to-many` relation annotation " +
             "can not be attached to the array entity record field", ERROR),
     PERSIST_119("PERSIST_119", "duplicate entity names are not allowed: the specified name is already " +
@@ -74,13 +74,10 @@ public enum DiagnosticsCodes {
     PERSIST_123("PERSIST_123", "associated entity does not contain any primary keys: the key " +
             "should have a valid value", ERROR),
     PERSIST_124("PERSIST_124", "the entity ''{0}'' should be a closed record.", ERROR),
-    PERSIST_125("PERSIST_125", "relation annotation cannot be attached without the entity annotation",
+    PERSIST_125("PERSIST_125", "relation annotation can only be attached to an entity record", ERROR),
+    PERSIST_126("PERSIST_126", "auto increment annotation can only be attached to an entity record",
             ERROR),
-    PERSIST_126("PERSIST_126", "auto increment annotation cannot be attached without the entity " +
-            "annotation", ERROR),
-    PERSIST_127("PERSIST_127", "invalid value initialization: a field only allows explicit " +
-            "initialization",
-            ERROR),
+    PERSIST_127("PERSIST_127", "this field only allows inline initialisation", ERROR),
 
     // todo: Add expression type in the diagnostic message
     PERSIST_201("PERSIST_201",
