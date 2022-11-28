@@ -57,6 +57,7 @@ import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
+import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -141,7 +142,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                                     ctx, symbol.get());
                         }
                     } else {
-                        checkFieldAnnotationPresent(ctx, recordNode);
+                        checkPresenceOfFieldAnnotation(ctx, recordNode);
                     }
                 }
             } else {
@@ -230,7 +231,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         }
     }
 
-    private void checkFieldAnnotationPresent(SyntaxNodeAnalysisContext ctx, Node recordNode) {
+    private void checkPresenceOfFieldAnnotation(SyntaxNodeAnalysisContext ctx, Node recordNode) {
         RecordTypeDescriptorNode recordTypeDescriptorNode = (RecordTypeDescriptorNode) recordNode;
         NodeList<Node> fields = recordTypeDescriptorNode.fields();
         for (Node field : fields) {
@@ -251,15 +252,11 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         for (AnnotationNode annotation : annotations) {
             String annotationName = annotation.annotReference().toSourceCode().trim();
             if (annotationName.equals(Constants.AUTO_INCREMENT)) {
-                if (!hasPersistAnnotation) {
-                    reportDiagnosticInfo(ctx, location, DiagnosticsCodes.PERSIST_126.getCode(),
-                            DiagnosticsCodes.PERSIST_126.getMessage(), DiagnosticsCodes.PERSIST_126.getSeverity());
-                }
+                reportDiagnosticInfo(ctx, location, DiagnosticsCodes.PERSIST_126.getCode(),
+                        DiagnosticsCodes.PERSIST_126.getMessage(), DiagnosticsCodes.PERSIST_126.getSeverity());
             } else if (annotation.annotReference().toSourceCode().trim().equals(Constants.RELATION)) {
-                if (!hasPersistAnnotation) {
-                    reportDiagnosticInfo(ctx, location, DiagnosticsCodes.PERSIST_125.getCode(),
-                            DiagnosticsCodes.PERSIST_125.getMessage(), DiagnosticsCodes.PERSIST_125.getSeverity());
-                }
+                reportDiagnosticInfo(ctx, location, DiagnosticsCodes.PERSIST_125.getCode(),
+                        DiagnosticsCodes.PERSIST_125.getMessage(), DiagnosticsCodes.PERSIST_125.getSeverity());
             }
         }
     }
@@ -345,8 +342,17 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                                 if (!name.equals(Constants.TABLE_NAME)) {
                                     validateEntityProperties(ctx, expressionNode.get(), tableFields);
                                 } else {
-                                    tableName = Utils.eliminateDoubleQuotes(expressionNode.get().toSourceCode().trim());
-                                    validateTableName(ctx, mappingFieldNode.location(), path, tableName);
+                                    ExpressionNode exp = expressionNode.get();
+                                    if (exp instanceof BasicLiteralNode) {
+                                        tableName = Utils.eliminateDoubleQuotes(expressionNode.get().
+                                                toSourceCode().trim());
+                                        validateTableName(ctx, mappingFieldNode.location(), path, tableName);
+                                    } else {
+                                        reportDiagnosticInfo(ctx, exp.location(),
+                                                DiagnosticsCodes.PERSIST_113.getCode(),
+                                                DiagnosticsCodes.PERSIST_113.getMessage(),
+                                                DiagnosticsCodes.PERSIST_113.getSeverity());
+                                    }
                                 }
                             }
                         }
@@ -388,7 +394,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
     private void validateEntityProperties(SyntaxNodeAnalysisContext ctx, Node valueNode, Set<String> tableFields) {
         if (valueNode instanceof BasicLiteralNode) {
             validateFieldWithFieldRecord(ctx, valueNode, tableFields);
-        } else {
+        } else if (valueNode instanceof ListConstructorExpressionNode) {
             ListConstructorExpressionNode listConstructorExpressionNode = (ListConstructorExpressionNode) valueNode;
             SeparatedNodeList<Node> expressions = listConstructorExpressionNode.expressions();
             for (Node expression : expressions) {
@@ -414,6 +420,9 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                     this.uniqueConstraints.add(uniqueConstraint);
                 }
             }
+        } else {
+            reportDiagnosticInfo(ctx, valueNode.location(), DiagnosticsCodes.PERSIST_127.getCode(),
+                    DiagnosticsCodes.PERSIST_127.getMessage(), DiagnosticsCodes.PERSIST_127.getSeverity());
         }
     }
 
@@ -441,16 +450,24 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             if (expressionNode.isPresent()) {
                 ExpressionNode valueNode = expressionNode.get();
                 String value = valueNode.toSourceCode();
-                if (key.equals(Constants.INCREMENT)) {
-                    Optional<Symbol> fieldSymbol = ctx.semanticModel().symbol(annotationFieldNode);
-                    if (fieldSymbol.isPresent() && fieldSymbol.get() instanceof RecordFieldSymbol) {
-                        RecordFieldSymbol recordFieldSymbol = ((RecordFieldSymbol) (fieldSymbol.get()));
-                        if (isIntType(recordFieldSymbol) && Integer.parseInt(value.trim()) < 1) {
-                            reportDiagnosticInfo(ctx, valueNode.location(),
-                                    DiagnosticsCodes.PERSIST_103.getCode(), DiagnosticsCodes.PERSIST_103.getMessage(),
-                                    DiagnosticsCodes.PERSIST_103.getSeverity());
+                if (valueNode instanceof BasicLiteralNode || valueNode instanceof UnaryExpressionNode) {
+                    if (key.equals(Constants.INCREMENT)) {
+                        Optional<Symbol> fieldSymbol = ctx.semanticModel().symbol(annotationFieldNode);
+                        if (fieldSymbol.isPresent() && fieldSymbol.get() instanceof RecordFieldSymbol) {
+                            RecordFieldSymbol recordFieldSymbol = ((RecordFieldSymbol) (fieldSymbol.get()));
+                            if (isIntType(recordFieldSymbol) && Integer.parseInt(value.trim()) < 1) {
+                                reportDiagnosticInfo(ctx, valueNode.location(),
+                                        DiagnosticsCodes.PERSIST_103.getCode(),
+                                        DiagnosticsCodes.PERSIST_103.getMessage(),
+                                        DiagnosticsCodes.PERSIST_103.getSeverity());
+                            }
                         }
                     }
+                }  else {
+                    reportDiagnosticInfo(ctx, annotationField.location(),
+                            DiagnosticsCodes.PERSIST_127.getCode(),
+                            DiagnosticsCodes.PERSIST_127.getMessage(),
+                            DiagnosticsCodes.PERSIST_127.getSeverity());
                 }
             }
         }
@@ -477,19 +494,34 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 Optional<ExpressionNode> expressionNode = annotationFieldNode.valueExpr();
                 if (expressionNode.isPresent()) {
                     ExpressionNode valueNode = expressionNode.get();
-                    ListConstructorExpressionNode listConstructorExpressionNode =
-                            (ListConstructorExpressionNode) valueNode;
-                    SeparatedNodeList<Node> expressions = listConstructorExpressionNode.expressions();
-                    if (key.equals(Constants.KEY_COLUMNS)) {
-                        noOfForeignKeys = expressions.size();
-                        location = valueNode.location();
-                    } else {
-                        for (Node expression : expressions) {
-                            noOfReferences = expressions.size();
+                    if (valueNode instanceof ListConstructorExpressionNode) {
+                        ListConstructorExpressionNode listConstructorExpressionNode =
+                                (ListConstructorExpressionNode) valueNode;
+                        SeparatedNodeList<Node> expressions = listConstructorExpressionNode.expressions();
+                        if (key.equals(Constants.KEY_COLUMNS)) {
+                            noOfForeignKeys = expressions.size();
                             location = valueNode.location();
-                            validateRelationAnnotationReference(ctx, memberNodes, filedType,
-                                    ((BasicLiteralNode) expression).literalToken().text().trim(), valueNode);
+                        } else {
+                            for (Node expression : expressions) {
+                                noOfReferences = expressions.size();
+                                location = valueNode.location();
+                                validateRelationAnnotationReference(ctx, memberNodes, filedType,
+                                        ((BasicLiteralNode) expression).literalToken().text().trim(), valueNode);
+                            }
                         }
+                    } else {
+                        reportDiagnosticInfo(ctx, annotationField.location(), DiagnosticsCodes.PERSIST_127.getCode(),
+                                DiagnosticsCodes.PERSIST_127.getMessage(), DiagnosticsCodes.PERSIST_127.getSeverity());
+                    }
+                }
+            } else if (key.equals(Constants.ON_DELETE) || key.equals(Constants.ON_UPDATE)) {
+                Optional<ExpressionNode> expressionNode = annotationFieldNode.valueExpr();
+                if (expressionNode.isPresent()) {
+                    ExpressionNode valueNode = expressionNode.get();
+                    if (!(valueNode instanceof QualifiedNameReferenceNode) &&
+                            !(valueNode instanceof BasicLiteralNode)) {
+                        reportDiagnosticInfo(ctx, annotationField.location(), DiagnosticsCodes.PERSIST_127.getCode(),
+                                DiagnosticsCodes.PERSIST_127.getMessage(), DiagnosticsCodes.PERSIST_127.getSeverity());
                     }
                 }
             }
@@ -901,7 +933,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                             primaryKeys.add(Utils.
                                     eliminateDoubleQuotes(
                                             expression.toSourceCode().trim()));
-                        } else {
+                        } else if (expression instanceof ListConstructorExpressionNode) {
                             listConstructorExpressionNode =
                                     (ListConstructorExpressionNode) expression;
                             SeparatedNodeList<Node> exps = listConstructorExpressionNode.
@@ -915,6 +947,11 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                                 }
                             }
                             uniqueConstraints.add(uniqueConstraint);
+                        } else {
+                            reportDiagnosticInfo(ctx, mappingFieldNode.location(),
+                                    DiagnosticsCodes.PERSIST_127.getCode(),
+                                    DiagnosticsCodes.PERSIST_127.getMessage(),
+                                    DiagnosticsCodes.PERSIST_127.getSeverity());
                         }
                     }
                 }

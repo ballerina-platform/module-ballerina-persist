@@ -43,7 +43,8 @@ public class Constants {
     public static final String KEY_COLUMNS = "keyColumns";
     public static final String REFERENCE = "reference";
     public static final String ONE = "1";
-    public static final String FILE_NAME = "persist_db_scripts.sql";
+    public static final String ON_DELETE = "onDelete";
+    public static final String ON_UPDATE = "onUpdate";
     public static final String ONE_TO_ONE = "ONE";
     public static final String ONE_TO_MANY = "MANY";
 

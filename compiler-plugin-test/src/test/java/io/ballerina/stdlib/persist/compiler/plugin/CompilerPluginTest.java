@@ -31,8 +31,10 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -181,21 +183,21 @@ public class CompilerPluginTest {
 
     @Test
     public void testInvalidAnnotation1() {
-        testDiagnostic("package_19",  "invalid annotation attachment: the relation " +
-                        "annotation can only be attached to an entity record field",
+        testDiagnostic("package_19",  "invalid annotation attachment: this " +
+                        "non-entity type field does not allow a relation annotation",
                 DiagnosticsCodes.PERSIST_117.getCode(), 1);
     }
 
     @Test
     public void testInvalidAnnotation2() {
-        testDiagnostic("package_08",  "relation annotation cannot be attached " +
-                        "without the entity annotation", DiagnosticsCodes.PERSIST_125.getCode(), 1);
+        testDiagnostic("package_08",  "relation annotation can only be attached to an entity record",
+                DiagnosticsCodes.PERSIST_125.getCode(), 1);
     }
 
     @Test
     public void testInvalidAnnotation3() {
-        testDiagnostic("package_09",  "auto increment annotation cannot be attached without " +
-                        "the entity annotation", DiagnosticsCodes.PERSIST_126.getCode(), 1);
+        testDiagnostic("package_09",  "auto increment annotation can only be attached to " +
+                "an entity record", DiagnosticsCodes.PERSIST_126.getCode(), 1);
     }
 
     @Test
@@ -231,14 +233,20 @@ public class CompilerPluginTest {
 
     @Test
     public void testEntityClosedRecord() {
-        testDiagnostic("package_30", "The entity 'MedicalNeed' should be a closed record.",
+        testDiagnostic("package_30", "the entity 'MedicalNeed' should be a closed record.",
                 DiagnosticsCodes.PERSIST_124.getCode(), 1);
     }
 
     @Test
     public void testEntityClosedRecord2() {
-        testDiagnostic("package_31", "The entity 'MedicalNeed2' should be a closed record.",
+        testDiagnostic("package_31", "the entity 'MedicalNeed2' should be a closed record.",
                 DiagnosticsCodes.PERSIST_124.getCode(), 1);
+    }
+
+     @Test
+    public void testEntityClosedRecord3() {
+        testDiagnostic("package_12", "this field only allows inline initialisation",
+                DiagnosticsCodes.PERSIST_127.getCode(), 8);
     }
 
     private void testDiagnostic(String packageName, String msg, String code, int count) {
@@ -246,6 +254,8 @@ public class CompilerPluginTest {
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
                 filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
                 collect(Collectors.toList());
+        PrintStream asd = System.out;
+        asd.println(Arrays.toString(errorDiagnosticsList.toArray()));
         long availableErrors = errorDiagnosticsList.size();
         Assert.assertEquals(availableErrors, count);
         DiagnosticInfo error = errorDiagnosticsList.get(0).diagnosticInfo();
