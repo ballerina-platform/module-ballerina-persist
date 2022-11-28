@@ -32,6 +32,6 @@ public class PersistCodeAnalyzer extends CodeAnalyzer {
     @Override
     public void init(CodeAnalysisContext codeAnalysisContext) {
         codeAnalysisContext.addSyntaxNodeAnalysisTask(new PersistRecordValidator(),
-                List.of(SyntaxKind.TYPE_DEFINITION, SyntaxKind.ENUM_DECLARATION));
+                List.of(SyntaxKind.TYPE_DEFINITION, SyntaxKind.ENUM_DECLARATION, SyntaxKind.TYPE_CAST_EXPRESSION));
     }
 }

@@ -31,10 +31,8 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -203,7 +201,7 @@ public class CompilerPluginTest {
     @Test
     public void testInvalidAnnotation4() {
         testDiagnostic("package_32", "annotation 'persist:Entity' is not allowed on type",
-                DiagnosticsCodes.PERSIST_129.getCode(), 2);
+                DiagnosticsCodes.PERSIST_129.getCode(), 3);
     }
 
     @Test
@@ -254,8 +252,6 @@ public class CompilerPluginTest {
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
                 filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
                 collect(Collectors.toList());
-        PrintStream asd = System.out;
-        asd.println(Arrays.toString(errorDiagnosticsList.toArray()));
         long availableErrors = errorDiagnosticsList.size();
         Assert.assertEquals(availableErrors, count);
         DiagnosticInfo error = errorDiagnosticsList.get(0).diagnosticInfo();

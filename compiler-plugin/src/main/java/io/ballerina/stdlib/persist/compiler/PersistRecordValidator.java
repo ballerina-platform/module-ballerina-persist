@@ -56,6 +56,7 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerina.projects.Document;
@@ -119,8 +120,12 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             if (node instanceof EnumDeclarationNode) {
                 EnumDeclarationNode enumDeclarationNode = (EnumDeclarationNode) node;
                 Optional<MetadataNode> metadata = enumDeclarationNode.metadata();
-                metadata.ifPresent(metadataNode -> checkPresenceOfEntityAnnotation(ctx,
-                        metadataNode, enumDeclarationNode.location(), DiagnosticsCodes.PERSIST_128));
+                metadata.ifPresent(metadataNode -> checkPresenceOfEntityAnnotation(ctx, metadataNode.annotations(),
+                        DiagnosticsCodes.PERSIST_128));
+                return;
+            } else if (node instanceof TypeCastExpressionNode) {
+                NodeList<AnnotationNode> annotations = ((TypeCastExpressionNode) node).typeCastParam().annotations();
+                checkPresenceOfEntityAnnotation(ctx, annotations, DiagnosticsCodes.PERSIST_129);
                 return;
             }
             TypeDefinitionNode typeDefinitionNode = (TypeDefinitionNode) ctx.node();
@@ -147,8 +152,8 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 }
             } else {
                 Optional<MetadataNode> metadata = typeDefinitionNode.metadata();
-                metadata.ifPresent(metadataNode -> checkPresenceOfEntityAnnotation(ctx, metadataNode,
-                        typeDefinitionNode.location(), DiagnosticsCodes.PERSIST_129));
+                metadata.ifPresent(metadataNode -> checkPresenceOfEntityAnnotation(ctx, metadataNode.annotations(),
+                        DiagnosticsCodes.PERSIST_129));
                 return;
             }
             this.hasAutoIncrementAnnotation = false;
@@ -159,11 +164,12 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         }
     }
 
-    private void checkPresenceOfEntityAnnotation(SyntaxNodeAnalysisContext ctx, MetadataNode metadata,
-                                                 Location location, DiagnosticsCodes diagnosticsCodes) {
-        for (AnnotationNode annotation : metadata.annotations()) {
+    private void checkPresenceOfEntityAnnotation(SyntaxNodeAnalysisContext ctx, NodeList<AnnotationNode> annotations,
+                                                 DiagnosticsCodes diagnosticsCodes) {
+        for (AnnotationNode annotation : annotations) {
             if (annotation.annotReference().toSourceCode().trim().equals(Constants.ENTITY)) {
-                reportDiagnosticInfo(ctx, location, diagnosticsCodes.getCode(), diagnosticsCodes.getMessage(),
+                reportDiagnosticInfo(ctx, annotation.location(), diagnosticsCodes.getCode(),
+                        diagnosticsCodes.getMessage(),
                         diagnosticsCodes.getSeverity());
             }
         }

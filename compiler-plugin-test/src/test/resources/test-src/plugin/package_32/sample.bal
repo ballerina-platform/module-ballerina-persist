@@ -28,3 +28,6 @@ public enum JoinType {
     ONE,
     MANY
 }
+
+any a = 5;
+int intType = <@persist:Entity {key: ["id"]} int>a;
