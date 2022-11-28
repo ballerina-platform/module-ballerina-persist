@@ -172,11 +172,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                                     DocumentId documentId) {
         Token recordNameToken = typeDefinitionNode.typeName();
         String recordName = recordNameToken.text().trim();
-        Optional<Path> optional = ctx.currentPackage().project().documentPath(documentId);
-        String path = "";
-        if (optional.isPresent()) {
-            path = optional.get().toString();
-        }
+        String path = getPath(ctx, documentId);
         List<String> paths;
         if (recordNames.containsKey(recordName)) {
             paths = recordNames.get(recordName);
@@ -331,11 +327,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                                           RecordTypeSymbol recordTypeSymbol, DocumentId documentId) {
         Optional<MetadataNode> metadata = typeDefinitionNode.metadata();
         Set<String> tableFields = recordTypeSymbol.fieldDescriptors().keySet();
-        Optional<Path> optional = ctx.currentPackage().project().documentPath(documentId);
-        String path = "";
-        if (optional.isPresent()) {
-            path = optional.get().toString();
-        }
+        String path = getPath(ctx, documentId);
         if (metadata.isPresent()) {
             for (AnnotationNode annotation : metadata.get().annotations()) {
                 if (annotation.annotReference().toSourceCode().trim().equals(Constants.ENTITY)) {
@@ -367,6 +359,15 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             tableName = typeNameToken.text().trim();
             validateTableName(ctx, typeNameToken.location(), path, tableName);
         }
+    }
+
+    private String getPath(SyntaxNodeAnalysisContext ctx, DocumentId documentId) {
+        Optional<Path> optional = ctx.currentPackage().project().documentPath(documentId);
+        String path = "";
+        if (optional.isPresent()) {
+            path = optional.get().toString();
+        }
+        return path;
     }
 
     private void validateTableName(SyntaxNodeAnalysisContext ctx, NodeLocation location,
