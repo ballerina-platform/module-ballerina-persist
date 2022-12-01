@@ -81,15 +81,6 @@ client class MultipleAssociationsClient {
         }
     }
 
-    remote function execute(sql:ParameterizedQuery filterClause) returns stream<MultipleAssociations, Error?> {
-        stream<anydata, sql:Error?>|Error result = self.persistClient.runExecuteQuery(filterClause, MultipleAssociations);
-        if result is Error {
-            return new stream<MultipleAssociations, Error?>(new MultipleAssociationsStream((), result));
-        } else {
-            return new stream<MultipleAssociations, Error?>(new MultipleAssociationsStream(result));
-        }
-    }
-
     remote function update(MultipleAssociations 'object) returns Error? {
         _ = check self.persistClient.runUpdateQuery('object);
 

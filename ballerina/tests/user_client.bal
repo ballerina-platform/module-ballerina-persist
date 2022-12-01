@@ -62,14 +62,6 @@ client class UserClient {
         }
     }
 
-    remote function execute(sql:ParameterizedQuery filterClause) returns stream<User, Error?> {
-        stream<anydata, sql:Error?>|Error result = self.persistClient.runExecuteQuery(filterClause, User);
-        if result is Error {
-            return new stream<User, Error?>(new UserStream((), result));
-        } else {
-            return new stream<User, Error?>(new UserStream(result));
-        }
-    }
     remote function update(User 'object) returns Error? {
         _ = check self.persistClient.runUpdateQuery('object);
     }

@@ -70,15 +70,6 @@ client class ProfileClient {
         }
     }
 
-    remote function execute(sql:ParameterizedQuery filterClause) returns stream<Profile, Error?> {
-        stream<anydata, sql:Error?>|Error result = self.persistClient.runExecuteQuery(filterClause, Profile);
-        if result is Error {
-            return new stream<Profile, Error?>(new ProfileStream((), result));
-        } else {
-            return new stream<Profile, Error?>(new ProfileStream(result));
-        }
-    }
-
     remote function update(Profile 'object) returns Error? {
         _ = check self.persistClient.runUpdateQuery('object);
 

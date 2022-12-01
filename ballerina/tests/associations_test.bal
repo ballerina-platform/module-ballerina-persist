@@ -422,19 +422,3 @@ function oneToManyUpdateTest4() returns error? {
         employees: [{id: 8, name: "TestEmployeeUpdated8"}, {id: 9, name: "TestEmployee9"}]
     });
 }
-
-@test:Config {
-    groups: ["associations", "one-to-manyx"]
-}
-function verifyExecuteFailureForAssociations() returns error? {
-
-    EmployeeClient employeeClient = check new ();
-    stream<Employee, error?> result = employeeClient->execute(``);
-
-    record {|Employee value;|}|error? value = result.next();
-
-    if value !is UnsupportedOperationError {
-        test:assertFail("UnsupportedOperation error expected!");
-    }
-
-}
