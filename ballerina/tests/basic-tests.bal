@@ -251,33 +251,6 @@ function testComplexTypesUpdate() returns error? {
     test:assertEquals(complexType3.dateType, <time:Date>{year: 2023, month: 11, day: 21});
 }
 
-
-@test:Config {
-    groups: ["basic"]
-}
-function testComplexTypesWithExecute() returns error? {
-    MedicalNeed need = {
-        itemId: 1,
-        beneficiaryId: 1,
-        period: {year: 2022, month: 10, day: 10, hour: 1, minute: 2, second: 3},
-        urgency: "URGENT",
-        quantity: 5
-    };
-    MedicalNeedClient mnClient = check new ();
-    MedicalNeed|Error need2 = mnClient->create(need);
-    test:assertTrue(need2 is MedicalNeed);
-
-    int count = 0;
-    _ = check from MedicalNeed need3 in mnClient->execute(` WHERE itemId = 1`)
-        do {
-            test:assertEquals(need3.itemId, 1);
-            count = count + 1;
-        };
-    test:assertTrue(count > 0);
-
-    check mnClient.close();
-}
-
 @test:Config {
     groups: ["basic", "duplicate-keys"]
 }
