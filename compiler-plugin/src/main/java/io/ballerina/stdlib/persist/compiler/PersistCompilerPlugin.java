@@ -29,6 +29,7 @@ public class PersistCompilerPlugin extends CompilerPlugin {
     @Override
     public void init(CompilerPluginContext compilerPluginContext) {
         compilerPluginContext.addCodeAnalyzer(new PersistCodeAnalyzer());
-        compilerPluginContext.addCodeModifier(new PersistCodeModifier());
+        // Remove advance filter for phase 1
+        // compilerPluginContext.addCodeModifier(new PersistCodeModifier());
     }
 }

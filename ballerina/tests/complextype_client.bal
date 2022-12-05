@@ -60,15 +60,6 @@ public client class ComplexTypeClient {
         }
     }
 
-    remote function execute(sql:ParameterizedQuery filterClause) returns stream<ComplexType, Error?> {
-        stream<anydata, sql:Error?>|Error result = self.persistClient.runExecuteQuery(filterClause, ComplexType);
-        if result is Error {
-            return new stream<ComplexType, Error?>(new ComplexTypeStream((), result));
-        } else {
-            return new stream<ComplexType, Error?>(new ComplexTypeStream(result));
-        }
-    }
-
     remote function update(ComplexType value) returns Error? {
         _ = check self.persistClient.runUpdateQuery(value);
     }
