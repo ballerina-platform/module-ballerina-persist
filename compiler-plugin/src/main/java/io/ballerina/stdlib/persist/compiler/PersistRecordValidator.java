@@ -117,15 +117,22 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 }
             }
             Node node = ctx.node();
+            NodeList<AnnotationNode> annotations = null;
+            String type = "type";
             if (node instanceof EnumDeclarationNode) {
                 EnumDeclarationNode enumDeclarationNode = (EnumDeclarationNode) node;
                 Optional<MetadataNode> metadata = enumDeclarationNode.metadata();
-                metadata.ifPresent(metadataNode -> checkPresenceOfEntityAnnotation(ctx, metadataNode.annotations(),
-                        DiagnosticsCodes.PERSIST_128));
-                return;
+                if (metadata.isPresent()) {
+                    annotations = metadata.get().annotations();
+                    type = "enum";
+                }
             } else if (node instanceof TypeCastExpressionNode) {
-                NodeList<AnnotationNode> annotations = ((TypeCastExpressionNode) node).typeCastParam().annotations();
-                checkPresenceOfEntityAnnotation(ctx, annotations, DiagnosticsCodes.PERSIST_129);
+                annotations = ((TypeCastExpressionNode) node).typeCastParam().annotations();
+            }
+            if (annotations != null && isEnitityAnnotationPresent(annotations)) {
+                reportDiagnosticInfo(ctx, node.location(), DiagnosticsCodes.PERSIST_128.getCode(),
+                        MessageFormat.format(DiagnosticsCodes.PERSIST_128.getMessage(), type),
+                        DiagnosticsCodes.PERSIST_128.getSeverity());
                 return;
             }
             TypeDefinitionNode typeDefinitionNode = (TypeDefinitionNode) ctx.node();
@@ -134,10 +141,10 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 Optional<Symbol> symbol = ctx.semanticModel().symbol(typeDefinitionNode);
                 if (symbol.isPresent()) {
                     TypeDefinitionSymbol typeDefinitionSymbol = (TypeDefinitionSymbol) symbol.get();
-                    validateRecordName(ctx, typeDefinitionNode, documentId);
                     RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeDefinitionSymbol.typeDescriptor();
-                    validateEntityAnnotation(ctx, typeDefinitionNode, recordTypeSymbol, documentId);
+                    validateEntityAnnotation(ctx, typeDefinitionNode, recordTypeSymbol, getPath(ctx, documentId));
                     if (hasPersistAnnotation) {
+                        validateRecordName(ctx, typeDefinitionNode, getPath(ctx, documentId));
                         validateRecordFieldsAnnotation(ctx, recordNode,
                                 ((ModulePartNode) ctx.syntaxTree().rootNode()).members());
                         validateRecordFieldType(ctx, recordTypeSymbol.fieldDescriptors());
@@ -152,9 +159,14 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 }
             } else {
                 Optional<MetadataNode> metadata = typeDefinitionNode.metadata();
-                metadata.ifPresent(metadataNode -> checkPresenceOfEntityAnnotation(ctx, metadataNode.annotations(),
-                        DiagnosticsCodes.PERSIST_129));
-                return;
+                if (metadata.isPresent()) {
+                    if (isEnitityAnnotationPresent(metadata.get().annotations())) {
+                        reportDiagnosticInfo(ctx, node.location(), DiagnosticsCodes.PERSIST_128.getCode(),
+                                MessageFormat.format(DiagnosticsCodes.PERSIST_128.getMessage(), type),
+                                DiagnosticsCodes.PERSIST_128.getSeverity());
+                        return;
+                    }
+                }
             }
             this.hasAutoIncrementAnnotation = false;
             this.hasPersistAnnotation = false;
@@ -164,22 +176,18 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         }
     }
 
-    private void checkPresenceOfEntityAnnotation(SyntaxNodeAnalysisContext ctx, NodeList<AnnotationNode> annotations,
-                                                 DiagnosticsCodes diagnosticsCodes) {
+    private Boolean isEnitityAnnotationPresent(NodeList<AnnotationNode> annotations) {
         for (AnnotationNode annotation : annotations) {
             if (annotation.annotReference().toSourceCode().trim().equals(Constants.ENTITY)) {
-                reportDiagnosticInfo(ctx, annotation.location(), diagnosticsCodes.getCode(),
-                        diagnosticsCodes.getMessage(),
-                        diagnosticsCodes.getSeverity());
+                return true;
             }
         }
+        return false;
     }
 
-    private void validateRecordName(SyntaxNodeAnalysisContext ctx, TypeDefinitionNode typeDefinitionNode,
-                                    DocumentId documentId) {
+    private void validateRecordName(SyntaxNodeAnalysisContext ctx, TypeDefinitionNode typeDefinitionNode, String path) {
         Token recordNameToken = typeDefinitionNode.typeName();
         String recordName = recordNameToken.text().trim();
-        String path = getPath(ctx, documentId);
         List<String> paths;
         if (recordNames.containsKey(recordName)) {
             paths = recordNames.get(recordName);
@@ -327,10 +335,9 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
     }
 
     private void validateEntityAnnotation(SyntaxNodeAnalysisContext ctx, TypeDefinitionNode typeDefinitionNode,
-                                          RecordTypeSymbol recordTypeSymbol, DocumentId documentId) {
+                                          RecordTypeSymbol recordTypeSymbol, String path) {
         Optional<MetadataNode> metadata = typeDefinitionNode.metadata();
         Set<String> tableFields = recordTypeSymbol.fieldDescriptors().keySet();
-        String path = getPath(ctx, documentId);
         if (metadata.isPresent()) {
             for (AnnotationNode annotation : metadata.get().annotations()) {
                 if (annotation.annotReference().toSourceCode().trim().equals(Constants.ENTITY)) {
@@ -375,11 +382,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
 
     private String getPath(SyntaxNodeAnalysisContext ctx, DocumentId documentId) {
         Optional<Path> optional = ctx.currentPackage().project().documentPath(documentId);
-        String path = "";
-        if (optional.isPresent()) {
-            path = optional.get().toString();
-        }
-        return path;
+        return optional.map(Path::toString).orElse("");
     }
 
     private void validateTableName(SyntaxNodeAnalysisContext ctx, NodeLocation location,

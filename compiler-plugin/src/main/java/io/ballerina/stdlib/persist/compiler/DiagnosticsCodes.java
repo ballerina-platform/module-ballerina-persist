@@ -79,9 +79,7 @@ public enum DiagnosticsCodes {
     PERSIST_126("PERSIST_126", "auto increment annotation can only be attached to an entity record",
             ERROR),
     PERSIST_127("PERSIST_127", "this field only allows inline initialisation", ERROR),
-    PERSIST_128("PERSIST_128", "annotation 'persist:Entity' is not allowed on enum",
-            ERROR),
-    PERSIST_129("PERSIST_129", "annotation 'persist:Entity' is not allowed on type",
+    PERSIST_128("PERSIST_128", "annotation ''persist:Entity'' is not allowed on {0}",
             ERROR),
 
     // todo: Add expression type in the diagnostic message

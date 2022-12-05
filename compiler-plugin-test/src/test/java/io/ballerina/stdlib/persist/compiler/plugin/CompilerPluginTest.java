@@ -201,7 +201,7 @@ public class CompilerPluginTest {
     @Test
     public void testInvalidAnnotation4() {
         testDiagnostic("package_32", "annotation 'persist:Entity' is not allowed on type",
-                DiagnosticsCodes.PERSIST_129.getCode(), 3);
+                DiagnosticsCodes.PERSIST_128.getCode(), 3);
     }
 
     @Test
