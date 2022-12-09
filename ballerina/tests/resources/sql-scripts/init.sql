@@ -62,3 +62,24 @@ CREATE TABLE test.Employees (
     companyId INTEGER,
     FOREIGN KEY (companyId) REFERENCES test.Companies(id)
 );
+
+CREATE TABLE test.Students (
+    studentId INTEGER PRIMARY KEY,
+    firstName VARCHAR(20),
+    lastName VARCHAR(20),
+    dob DATE,
+    contact VARCHAR(10)
+);
+
+CREATE TABLE test.Lectures (
+    lectureId INTEGER PRIMARY KEY,
+    subject VARCHAR(20),
+    time TIME,
+    day VARCHAR(10)
+);
+
+CREATE TABLE test.StudentsLectures (
+    studentId INTEGER,
+    lectureId INTEGER,
+    PRIMARY KEY(studentId, lectureId)
+);

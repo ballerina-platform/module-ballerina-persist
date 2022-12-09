@@ -123,3 +123,38 @@ public type Employee record {|
     @Relation {keyColumns: ["companyId"], reference: ["id"]}
     Company company?;
 |};
+
+
+// Many-to-many relation
+@Entity {
+    key: ["studentId"],
+    tableName: "Students"
+}
+public type Student record {|
+    @AutoIncrement
+    readonly int studentId = -1;
+
+    string firstName;
+    string lastName;
+    time:Date dob;
+    string contact;
+
+    @Relation {keyColumns: ["studentId"], reference: ["studentId"]}
+    Lecture[] lectures;
+|};
+
+@Entity {
+    key: ["lectureId"],
+    tableName: "Lectures"
+}
+public type Lecture record {|
+    @AutoIncrement
+    readonly int lectureId = -1;
+
+    string subject;
+    time:DayOfWeek day;
+    time:TimeOfDay time;
+
+    @Relation {keyColumns: ["lectureId"], reference: ["lectureId"]}
+    Student[] students;
+|};
