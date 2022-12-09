@@ -325,19 +325,19 @@ public class CompilerPluginTest {
 
     private void testSqlScript(String packagePath, String fileContent, int count,
                                String warningMsg) throws IOException {
-        Path path = Paths.get("target").toAbsolutePath();
-        Files.createDirectories(path);
-        assertTest(loadPackage(packagePath).getCompilation().diagnosticResult(), fileContent, count, warningMsg);
-        Files.deleteIfExists(Paths.get("target", "persist_db_scripts.sql").toAbsolutePath());
-        Files.deleteIfExists(path);
+        Package currentPackage = loadPackage(packagePath);
+        Path directoryPath = currentPackage.project().targetDir().toAbsolutePath();
+        Path filePath = Path.of(directoryPath + "/persist_db_scripts.sql");
+        assertTest(currentPackage.getCompilation().diagnosticResult(), filePath, fileContent, count, warningMsg);
+        Files.deleteIfExists(filePath);
+        Files.deleteIfExists(directoryPath);
     }
 
-    private void assertTest(DiagnosticResult result, String fileContent, int count, String warningMsg) {
+    private void assertTest(DiagnosticResult result, Path path, String fileContent, int count, String warningMsg) {
         Assert.assertEquals(result.diagnostics().size(), count);
         if (count > 0) {
             Assert.assertTrue(result.warnings().toArray()[0].toString().contains(warningMsg));
         }
-        Path path = Paths.get("target", "persist_db_scripts.sql").toAbsolutePath();
         Assert.assertTrue(Files.exists(path), "The file doesn't exist");
         try {
             Assert.assertSame(Files.readString(path), fileContent, "The file content mismatched");
