@@ -65,7 +65,6 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
-import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 
@@ -83,6 +82,7 @@ import java.util.Set;
  */
 public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisContext> {
 
+    private boolean isCompilationErrorChecked = false;
     private final List<String> primaryKeys;
     private final List<List<String>> uniqueConstraints;
     private boolean hasPersistAnnotation;
@@ -105,17 +105,19 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
 
     @Override
     public void perform(SyntaxNodeAnalysisContext ctx) {
+
+        if (!isCompilationErrorChecked) {
+            this.isCompilationErrorChecked = true;
+            if (Utils.hasCompilationErrors(ctx)) {
+                return;
+            }
+        }
+
         ModuleId moduleId = ctx.moduleId();
         DocumentId documentId = ctx.documentId();
         String moduleName = ctx.currentPackage().module(moduleId).moduleName().toString().trim();
         String packageName = ctx.currentPackage().packageName().toString().trim();
         if (!moduleName.equals(packageName.concat(".clients"))) {
-            List<Diagnostic> diagnostics = ctx.semanticModel().diagnostics();
-            for (Diagnostic diagnostic : diagnostics) {
-                if (diagnostic.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
-                    return;
-                }
-            }
             Node node = ctx.node();
             NodeList<AnnotationNode> annotations = null;
             String type = "type";
