@@ -66,6 +66,7 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.stdlib.persist.compiler.Constants.Annotations;
+import io.ballerina.stdlib.persist.compiler.models.Entity;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 
@@ -91,6 +92,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
     private int noOfReportDiagnostic;
     private final HashMap<String, List<String>> tableNames;
     private final HashMap<String, List<String>> recordNames;
+    private final HashMap<String, Entity> entities;
 
     public PersistRecordValidator() {
         primaryKeys = new ArrayList<>();
@@ -100,6 +102,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         noOfReportDiagnostic = 0;
         tableNames = new HashMap<>();
         recordNames = new HashMap<>();
+        this.entities = new HashMap<>();
     }
 
     @Override
@@ -170,6 +173,8 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         if (metadata.isPresent()) {
             Optional<AnnotationNode> entityAnnotation = getEntityAnnotation(metadata.get().annotations());
             if (entityAnnotation.isPresent()) {
+                String entityName = typeDefinitionNode.typeName().text().trim();
+                Entity entity = new Entity(entityName);
                 validateEntityAnnotation(ctx, typeDefinitionNode, recordTypeSymbol, entityAnnotation.get(),
                         getPath(ctx, documentId));
                 validateRecordName(ctx, typeDefinitionNode, getPath(ctx, documentId));
@@ -181,6 +186,8 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                     validFieldTypeAndRelation((RecordTypeDescriptorNode) typeDescriptorNode, typeDefinitionNode,
                             ctx, symbol.get());
                 }
+                entity.getDiagnostics().forEach((ctx::reportDiagnostic));
+                this.entities.put(entity.getEntityName(), entity);
             } else {
                 checkForFieldAnnotations(ctx, (RecordTypeDescriptorNode) typeDescriptorNode);
             }
