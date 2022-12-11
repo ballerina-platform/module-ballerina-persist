@@ -30,16 +30,25 @@ import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createEmptyM
  */
 public class Constants {
 
+    /**
+     * Constants for annotation names.
+     */
+    public static class Annotations {
+        private Annotations(){
+        }
+
+        public static final String ENTITY = "persist:Entity";
+        public static final String AUTO_INCREMENT = "persist:AutoIncrement";
+        public static final String RELATION = "persist:Relation";
+    }
+
     public static final String TRUE = "true";
     public static final String EMPTY = "";
     public static final String FALSE = "false";
     public static final String INSERT_METHOD_NAME = "runInsertQuery";
-    public static final String ENTITY = "persist:Entity";
     public static final String UNNECESSARY_CHARS_REGEX = "\"|\\n";
     public static final String TABLE_NAME = "tableName";
-    public static final String AUTO_INCREMENT = "persist:AutoIncrement";
     public static final String INCREMENT = "increment";
-    public static final String RELATION = "persist:Relation";
     public static final String KEY_COLUMNS = "keyColumns";
     public static final String REFERENCE = "reference";
     public static final String ONE = "1";

@@ -65,6 +65,7 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
+import io.ballerina.stdlib.persist.compiler.Constants.Annotations;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 
@@ -195,7 +196,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
 
     private Optional<AnnotationNode> getEntityAnnotation(NodeList<AnnotationNode> annotations) {
         for (AnnotationNode annotation : annotations) {
-            if (annotation.annotReference().toSourceCode().trim().equals(Constants.ENTITY)) {
+            if (annotation.annotReference().toSourceCode().trim().equals(Annotations.ENTITY)) {
                 return Optional.of(annotation);
             }
         }
@@ -282,10 +283,10 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         NodeList<AnnotationNode> annotations = metadataNode.annotations();
         for (AnnotationNode annotation : annotations) {
             String annotationName = annotation.annotReference().toSourceCode().trim();
-            if (annotationName.equals(Constants.AUTO_INCREMENT)) {
+            if (annotationName.equals(Annotations.AUTO_INCREMENT)) {
                 reportDiagnosticInfo(ctx, location, DiagnosticsCodes.PERSIST_126.getCode(),
                         DiagnosticsCodes.PERSIST_126.getMessage(), DiagnosticsCodes.PERSIST_126.getSeverity());
-            } else if (annotation.annotReference().toSourceCode().trim().equals(Constants.RELATION)) {
+            } else if (annotation.annotReference().toSourceCode().trim().equals(Annotations.RELATION)) {
                 reportDiagnosticInfo(ctx, location, DiagnosticsCodes.PERSIST_125.getCode(),
                         DiagnosticsCodes.PERSIST_125.getMessage(), DiagnosticsCodes.PERSIST_125.getSeverity());
             }
@@ -306,7 +307,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         for (AnnotationNode annotation : annotations) {
             Optional<MappingConstructorExpressionNode> mappingConstructorExpressionNode = annotation.annotValue();
             String annotationName = annotation.annotReference().toSourceCode().trim();
-            if (annotationName.equals(Constants.AUTO_INCREMENT)) {
+            if (annotationName.equals(Annotations.AUTO_INCREMENT)) {
                 if (this.hasAutoIncrementAnnotation) {
                     reportDiagnosticInfo(ctx, location, DiagnosticsCodes.PERSIST_107.getCode(),
                             DiagnosticsCodes.PERSIST_107.getMessage(), DiagnosticsCodes.PERSIST_107.getSeverity());
@@ -325,7 +326,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                     }
                     this.hasAutoIncrementAnnotation = true;
                 }
-            } else if (annotation.annotReference().toSourceCode().trim().equals(Constants.RELATION)) {
+            } else if (annotation.annotReference().toSourceCode().trim().equals(Annotations.RELATION)) {
                 if (mappingConstructorExpressionNode.isPresent()) {
                     SeparatedNodeList<MappingFieldNode> annotationFields =
                             mappingConstructorExpressionNode.get().fields();
@@ -717,10 +718,10 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 for (AnnotationNode annotationNode : metadata.get().annotations()) {
                     String annotationName = annotationNode.annotReference().toSourceCode().trim();
 
-                    if (annotationName.equals(Constants.AUTO_INCREMENT)) {
+                    if (annotationName.equals(Annotations.AUTO_INCREMENT)) {
                         startValue = processAutoIncrementAnnotations(annotationNode, startValue, ctx);
                     }
-                    if (annotationName.equals(Constants.RELATION)) {
+                    if (annotationName.equals(Annotations.RELATION)) {
                         if (hasRelationAnnotation.equals(Constants.TRUE)) {
                             Utils.reportDiagnostic(ctx, annotationNode.location(),
                                     DiagnosticsCodes.PERSIST_116.getCode(), DiagnosticsCodes.PERSIST_116.getMessage(),
@@ -805,7 +806,8 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                     if (entityMetadata.isPresent()) {
                         NodeList<AnnotationNode> annotations = entityMetadata.get().annotations();
                         for (AnnotationNode annotation : annotations) {
-                            if (!annotation.annotReference().toSourceCode().trim().equals(Constants.ENTITY)) {
+                            if (!annotation.annotReference().toSourceCode().trim()
+                                    .equals(Annotations.ENTITY)) {
                                 continue;
                             }
                             Optional<MappingConstructorExpressionNode> mappingConstructorExpressionNode =
@@ -867,7 +869,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
     private String checkRelationAnnotation(MetadataNode metadataNode) {
         NodeList<AnnotationNode> annotations = metadataNode.annotations();
         for (AnnotationNode annotation : annotations) {
-            if (annotation.annotReference().toSourceCode().trim().equals(Constants.RELATION)) {
+            if (annotation.annotReference().toSourceCode().trim().equals(Annotations.RELATION)) {
                 return Constants.TRUE;
             }
         }
@@ -928,7 +930,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         Optional<MetadataNode> metadata = referenceRecord.metadata();
         if (metadata.isPresent()) {
             for (AnnotationNode annotation : metadata.get().annotations()) {
-                if (!(annotation.annotReference().toSourceCode().trim().equals(Constants.ENTITY))) {
+                if (!(annotation.annotReference().toSourceCode().trim().equals(Annotations.ENTITY))) {
                     continue;
                 }
                 Optional<MappingConstructorExpressionNode> mappingConstructorExpressionNode = annotation.annotValue();
