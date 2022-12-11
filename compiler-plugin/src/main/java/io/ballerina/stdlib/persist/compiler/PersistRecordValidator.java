@@ -117,68 +117,79 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         DocumentId documentId = ctx.documentId();
         String moduleName = ctx.currentPackage().module(moduleId).moduleName().toString().trim();
         String packageName = ctx.currentPackage().packageName().toString().trim();
-        if (!moduleName.equals(packageName.concat(".clients"))) {
-            Node node = ctx.node();
-            NodeList<AnnotationNode> annotations = null;
-            String type = "type";
-            if (node instanceof EnumDeclarationNode) {
-                EnumDeclarationNode enumDeclarationNode = (EnumDeclarationNode) node;
-                Optional<MetadataNode> metadata = enumDeclarationNode.metadata();
-                if (metadata.isPresent()) {
-                    annotations = metadata.get().annotations();
-                    type = "enum";
-                }
-            } else if (node instanceof TypeCastExpressionNode) {
-                annotations = ((TypeCastExpressionNode) node).typeCastParam().annotations();
-            }
-            if (annotations != null && isEnitityAnnotationPresent(annotations)) {
-                reportDiagnosticInfo(ctx, node.location(), DiagnosticsCodes.PERSIST_128.getCode(),
-                        MessageFormat.format(DiagnosticsCodes.PERSIST_128.getMessage(), type),
-                        DiagnosticsCodes.PERSIST_128.getSeverity());
-                return;
-            }
-            TypeDefinitionNode typeDefinitionNode = (TypeDefinitionNode) ctx.node();
-            Node recordNode = typeDefinitionNode.typeDescriptor();
-            if (recordNode instanceof RecordTypeDescriptorNode) {
-                Optional<Symbol> symbol = ctx.semanticModel().symbol(typeDefinitionNode);
-                if (symbol.isPresent()) {
-                    TypeDefinitionSymbol typeDefinitionSymbol = (TypeDefinitionSymbol) symbol.get();
-                    RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeDefinitionSymbol.typeDescriptor();
-                    validateEntityAnnotation(ctx, typeDefinitionNode, recordTypeSymbol, getPath(ctx, documentId));
-                    if (hasPersistAnnotation) {
-                        validateRecordName(ctx, typeDefinitionNode, getPath(ctx, documentId));
-                        validateRecordFieldsAnnotation(ctx, recordNode,
-                                ((ModulePartNode) ctx.syntaxTree().rootNode()).members());
-                        validateRecordFieldType(ctx, recordTypeSymbol.fieldDescriptors());
-                        validateRecordType(ctx, typeDefinitionNode);
-                        if (this.noOfReportDiagnostic == 0) {
-                            validFieldTypeAndRelation((RecordTypeDescriptorNode) recordNode, typeDefinitionNode,
-                                    ctx, symbol.get());
-                        }
-                    } else {
-                        checkPresenceOfFieldAnnotation(ctx, recordNode);
-                    }
-                }
-            } else {
-                Optional<MetadataNode> metadata = typeDefinitionNode.metadata();
-                if (metadata.isPresent()) {
-                    if (isEnitityAnnotationPresent(metadata.get().annotations())) {
-                        reportDiagnosticInfo(ctx, node.location(), DiagnosticsCodes.PERSIST_128.getCode(),
-                                MessageFormat.format(DiagnosticsCodes.PERSIST_128.getMessage(), type),
-                                DiagnosticsCodes.PERSIST_128.getSeverity());
-                        return;
-                    }
-                }
-            }
-            this.hasAutoIncrementAnnotation = false;
-            this.hasPersistAnnotation = false;
-            this.primaryKeys.clear();
-            this.uniqueConstraints.clear();
-            this.tableName = "";
+        // No need to perform analysis for entities inside clients submodule
+        // todo: Remove after https://github.com/ballerina-platform/ballerina-standard-library/issues/3784
+        if (moduleName.equals(packageName.concat(".clients"))) {
+            return;
         }
+
+        Node node = ctx.node();
+        if (node instanceof EnumDeclarationNode) {
+            Optional<MetadataNode> metadata = ((EnumDeclarationNode) node).metadata();
+            if (metadata.isPresent()) {
+                NodeList<AnnotationNode> annotations = metadata.get().annotations();
+                if (isEntityAnnotationPresent(annotations)) {
+                    reportDiagnosticInfo(ctx, node.location(), DiagnosticsCodes.PERSIST_128.getCode(),
+                            MessageFormat.format(DiagnosticsCodes.PERSIST_128.getMessage(), "type"),
+                            DiagnosticsCodes.PERSIST_128.getSeverity());
+                }
+            }
+            return;
+        }
+
+        if (node instanceof TypeCastExpressionNode) {
+            NodeList<AnnotationNode> annotations = ((TypeCastExpressionNode) node).typeCastParam().annotations();
+            if (isEntityAnnotationPresent(annotations)) {
+                reportDiagnosticInfo(ctx, node.location(), DiagnosticsCodes.PERSIST_128.getCode(),
+                        MessageFormat.format(DiagnosticsCodes.PERSIST_128.getMessage(), "enum"),
+                        DiagnosticsCodes.PERSIST_128.getSeverity());
+            }
+            return;
+        }
+
+        TypeDefinitionNode typeDefinitionNode = (TypeDefinitionNode) ctx.node();
+        Node recordNode = typeDefinitionNode.typeDescriptor();
+        if (!(recordNode instanceof RecordTypeDescriptorNode)) {
+            Optional<MetadataNode> metadata = typeDefinitionNode.metadata();
+            if (metadata.isPresent()) {
+                if (isEntityAnnotationPresent(metadata.get().annotations())) {
+                    reportDiagnosticInfo(ctx, node.location(), DiagnosticsCodes.PERSIST_128.getCode(),
+                            MessageFormat.format(DiagnosticsCodes.PERSIST_128.getMessage(), "type"),
+                            DiagnosticsCodes.PERSIST_128.getSeverity());
+                }
+            }
+            return;
+        }
+
+        Optional<Symbol> symbol = ctx.semanticModel().symbol(typeDefinitionNode);
+        if (symbol.isEmpty()) {
+            return;
+        }
+        TypeDefinitionSymbol typeDefinitionSymbol = (TypeDefinitionSymbol) symbol.get();
+        RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeDefinitionSymbol.typeDescriptor();
+        validateEntityAnnotation(ctx, typeDefinitionNode, recordTypeSymbol, getPath(ctx, documentId));
+        if (hasPersistAnnotation) {
+            validateRecordName(ctx, typeDefinitionNode, getPath(ctx, documentId));
+            validateRecordFieldsAnnotation(ctx, recordNode,
+                    ((ModulePartNode) ctx.syntaxTree().rootNode()).members());
+            validateRecordFieldType(ctx, recordTypeSymbol.fieldDescriptors());
+            validateRecordType(ctx, typeDefinitionNode);
+            if (this.noOfReportDiagnostic == 0) {
+                validFieldTypeAndRelation((RecordTypeDescriptorNode) recordNode, typeDefinitionNode,
+                        ctx, symbol.get());
+            }
+        } else {
+            checkPresenceOfFieldAnnotation(ctx, recordNode);
+        }
+
+        this.hasAutoIncrementAnnotation = false;
+        this.hasPersistAnnotation = false;
+        this.primaryKeys.clear();
+        this.uniqueConstraints.clear();
+        this.tableName = "";
     }
 
-    private Boolean isEnitityAnnotationPresent(NodeList<AnnotationNode> annotations) {
+    private Boolean isEntityAnnotationPresent(NodeList<AnnotationNode> annotations) {
         for (AnnotationNode annotation : annotations) {
             if (annotation.annotReference().toSourceCode().trim().equals(Constants.ENTITY)) {
                 return true;

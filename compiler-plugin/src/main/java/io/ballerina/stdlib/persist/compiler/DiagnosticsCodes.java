@@ -79,6 +79,8 @@ public enum DiagnosticsCodes {
     PERSIST_126("PERSIST_126", "auto increment annotation can only be attached to an entity record",
             ERROR),
     PERSIST_127("PERSIST_127", "this field only allows inline initialisation", ERROR),
+    //todo: This should be changed to
+    // `invalid attachment: ''persist:Entity'' annotation is only allowed on record type description`
     PERSIST_128("PERSIST_128", "annotation ''persist:Entity'' is not allowed on {0}",
             ERROR),
 
