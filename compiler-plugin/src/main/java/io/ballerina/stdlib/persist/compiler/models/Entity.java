@@ -32,14 +32,20 @@ import java.util.List;
  */
 public class Entity {
     private String entityName;
+    private String module;
     List<Diagnostic> diagnosticList = new ArrayList<>();
 
-    public Entity(String entityName) {
+    public Entity(String entityName, String module) {
         this.entityName = entityName;
+        this.module = module;
     }
 
     public String getEntityName() {
         return entityName;
+    }
+
+    public String getModule() {
+        return module;
     }
 
     public List<Diagnostic> getDiagnostics() {

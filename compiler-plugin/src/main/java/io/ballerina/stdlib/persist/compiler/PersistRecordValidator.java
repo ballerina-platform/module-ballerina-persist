@@ -70,7 +70,6 @@ import io.ballerina.stdlib.persist.compiler.models.Entity;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 
-import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -91,7 +90,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
     private String tableName;
     private int noOfReportDiagnostic;
     private final HashMap<String, List<String>> tableNames;
-    private final HashMap<String, List<String>> recordNames;
     private final HashMap<String, Entity> entities;
 
     public PersistRecordValidator() {
@@ -101,7 +99,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         tableName = "";
         noOfReportDiagnostic = 0;
         tableNames = new HashMap<>();
-        recordNames = new HashMap<>();
         this.entities = new HashMap<>();
     }
 
@@ -116,7 +113,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         }
 
         ModuleId moduleId = ctx.moduleId();
-        DocumentId documentId = ctx.documentId();
         String moduleName = ctx.currentPackage().module(moduleId).moduleName().toString().trim();
         String packageName = ctx.currentPackage().packageName().toString().trim();
         // No need to perform analysis for entities inside clients submodule
@@ -174,10 +170,18 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             Optional<AnnotationNode> entityAnnotation = getEntityAnnotation(metadata.get().annotations());
             if (entityAnnotation.isPresent()) {
                 String entityName = typeDefinitionNode.typeName().text().trim();
-                Entity entity = new Entity(entityName);
+                Entity entity = new Entity(entityName, moduleName);
+
+                // Remove after entities are validated to be in one module
+                // todo: Remove after https://github.com/ballerina-platform/ballerina-standard-library/issues/3810
+                if (isDuplicateEntity(entity, typeDefinitionNode)) {
+                    entity.getDiagnostics().forEach((ctx::reportDiagnostic));
+                    // Stop processing duplicated entities
+                    return;
+                }
+
                 validateEntityAnnotation(ctx, typeDefinitionNode, recordTypeSymbol, entityAnnotation.get(),
-                        getPath(ctx, documentId));
-                validateRecordName(ctx, typeDefinitionNode, getPath(ctx, documentId));
+                        moduleName);
                 validateRecordFieldsAnnotation(ctx, typeDescriptorNode,
                         ((ModulePartNode) ctx.syntaxTree().rootNode()).members());
                 validateRecordFieldType(ctx, recordTypeSymbol.fieldDescriptors());
@@ -210,20 +214,15 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         return Optional.empty();
     }
 
-    private void validateRecordName(SyntaxNodeAnalysisContext ctx, TypeDefinitionNode typeDefinitionNode, String path) {
-        Token recordNameToken = typeDefinitionNode.typeName();
-        String recordName = recordNameToken.text().trim();
-        List<String> paths;
-        if (recordNames.containsKey(recordName)) {
-            paths = recordNames.get(recordName);
-            reportDiagnosticInfo(ctx, recordNameToken.location(), DiagnosticsCodes.PERSIST_119.getCode(),
-                    MessageFormat.format(DiagnosticsCodes.PERSIST_119.getMessage(), paths.toArray()),
+    private boolean isDuplicateEntity(Entity entity, TypeDefinitionNode typeDefinitionNode) {
+        if (this.entities.containsKey(entity.getEntityName())) {
+            String initialModule = this.entities.get(entity.getEntityName()).getModule();
+            entity.addDiagnostic(typeDefinitionNode.typeName().location(), DiagnosticsCodes.PERSIST_119.getCode(),
+                    MessageFormat.format(DiagnosticsCodes.PERSIST_119.getMessage(), initialModule),
                     DiagnosticsCodes.PERSIST_119.getSeverity());
-        } else {
-            paths = new ArrayList<>();
+            return true;
         }
-        paths.add(path);
-        recordNames.put(recordName, paths);
+        return false;
     }
 
     private void validateRecordType(SyntaxNodeAnalysisContext ctx, TypeDefinitionNode typeDefinitionNode) {
@@ -396,11 +395,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             tableName = typeNameToken.text().trim();
             validateTableName(ctx, typeNameToken.location(), path, tableName);
         }
-    }
-
-    private String getPath(SyntaxNodeAnalysisContext ctx, DocumentId documentId) {
-        Optional<Path> optional = ctx.currentPackage().project().documentPath(documentId);
-        return optional.map(Path::toString).orElse("");
     }
 
     private void validateTableName(SyntaxNodeAnalysisContext ctx, NodeLocation location,
