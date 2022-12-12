@@ -175,7 +175,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                             DiagnosticsCodes.PERSIST_111.getMessage(), DiagnosticsCodes.PERSIST_111.getSeverity());
                 }
 
-                validateClosedRecord(entity, ((RecordTypeDescriptorNode) typeDescriptorNode));
+                validateRecordProperties(entity, ((RecordTypeDescriptorNode) typeDescriptorNode));
 
                 validateEntityAnnotation(entity, entityAnnotation.get());
 
@@ -220,13 +220,18 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         return false;
     }
 
-    private void validateClosedRecord(Entity entity, RecordTypeDescriptorNode recordTypeDescriptorNode) {
+    private void validateRecordProperties(Entity entity, RecordTypeDescriptorNode recordTypeDescriptorNode) {
         // Check whether the entity is a closed record
         if (recordTypeDescriptorNode.bodyStartDelimiter().kind() != SyntaxKind.OPEN_BRACE_PIPE_TOKEN) {
             String recordName = entity.getEntityName();
             entity.addDiagnostic(recordTypeDescriptorNode.location(), DiagnosticsCodes.PERSIST_124.getCode(),
                     MessageFormat.format(DiagnosticsCodes.PERSIST_124.getMessage(), recordName),
                     DiagnosticsCodes.PERSIST_124.getSeverity());
+        }
+        // Check whether the entity has rest field initialization
+        if (recordTypeDescriptorNode.recordRestDescriptor().isPresent()) {
+            entity.addDiagnostic(recordTypeDescriptorNode.location(), DiagnosticsCodes.PERSIST_130.getCode(),
+                    DiagnosticsCodes.PERSIST_130.getMessage(), DiagnosticsCodes.PERSIST_130.getSeverity());
         }
     }
 
@@ -415,7 +420,9 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 field = getField(fieldName, metadataNode);
                 field.setReadOnly(recordFieldNode.readonlyKeyword().isPresent());
             } else {
-                // todo Add validation for other types
+                // Inherited Field
+                entity.addDiagnostic(fieldNode.location(), DiagnosticsCodes.PERSIST_129.getCode(),
+                        DiagnosticsCodes.PERSIST_129.getMessage(), DiagnosticsCodes.PERSIST_129.getSeverity());
                 continue;
             }
             field.setType(typeNode);
@@ -778,10 +785,12 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 RecordFieldWithDefaultValueNode fieldNode = (RecordFieldWithDefaultValueNode) field;
                 typeNode = fieldNode.typeName();
                 metadata = fieldNode.metadata();
-            } else {
+            } else if (field instanceof RecordFieldNode) {
                 RecordFieldNode fieldNode = (RecordFieldNode) field;
                 typeNode = fieldNode.typeName();
                 metadata = fieldNode.metadata();
+            } else {
+                continue;
             }
             if (typeNode instanceof OptionalTypeDescriptorNode) {
                 typeNode = ((OptionalTypeDescriptorNode) typeNode).typeDescriptor();
