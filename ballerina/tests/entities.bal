@@ -131,16 +131,14 @@ public type Employee record {|
     tableName: "Students"
 }
 public type Student record {|
-    @AutoIncrement
-    readonly int studentId = -1;
-
+    int studentId = -1;
     string firstName;
     string lastName;
     time:Date dob;
     string contact;
 
     @Relation {keyColumns: ["studentId"], reference: ["studentId"]}
-    Lecture[] lectures;
+    Lecture[] lectures?;
 |};
 
 @Entity {
@@ -148,13 +146,11 @@ public type Student record {|
     tableName: "Lectures"
 }
 public type Lecture record {|
-    @AutoIncrement
-    readonly int lectureId = -1;
-
+    int lectureId;
     string subject;
-    time:DayOfWeek day;
+    string day;
     time:TimeOfDay time;
 
     @Relation {keyColumns: ["lectureId"], reference: ["lectureId"]}
-    Student[] students;
+    Student[] students?;
 |};

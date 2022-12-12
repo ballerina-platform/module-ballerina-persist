@@ -56,6 +56,9 @@ public type JoinMetadata record {|
     string refTable;
     string[] refFields;
     string[] joinColumns;
+    string intermediateTable?;
+    string[] intermediateRefFields?;
+    string[] intermediateJoinColumns?;
     JoinType 'type = ONE;
 |};
 

@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/io;
 import ballerina/sql;
 
 # The client used by the generated persist clients to abstract and 
@@ -83,7 +84,7 @@ public client class SQLClient {
 
         foreach string joinKey in self.joinMetadata.keys() {
             JoinMetadata joinMetadata = self.joinMetadata.get(joinKey);
-            if include.indexOf(joinKey) != () {
+            if include.indexOf(joinKey) != () && joinMetadata.'type != MANY {
                 query = sql:queryConcat(query, ` LEFT JOIN `, stringToParameterizedQuery(joinMetadata.refTable + " " + joinKey),
                                         ` ON `, check self.getJoinFilters(joinKey, joinMetadata.refFields, <string[]>joinMetadata.joinColumns));
             }
@@ -192,16 +193,59 @@ public client class SQLClient {
             sql:ParameterizedQuery query = ``;
             JoinMetadata joinMetadata = self.joinMetadata.get(joinKey);
 
-            map<string> whereFilter = {};
-            foreach int i in 0 ..< joinMetadata.refFields.length() {
-                whereFilter[joinMetadata.refFields[i]] = 'object[joinMetadata.joinColumns[i]].toBalString();
-            }
 
             if include.indexOf(joinKey) != () && joinMetadata.'type == MANY {
-                query = sql:queryConcat(`SELECT `, self.getManyRelationColumnNames(joinMetadata.fieldName),
-                                        ` FROM `, stringToParameterizedQuery(joinMetadata.refTable),
-                                        ` WHERE`, check self.getWhereClauses(whereFilter, true)
-                                        );
+                if joinMetadata.intermediateTable is () {
+                    // 1-m relation
+                    map<string> whereFilter = {};
+                    foreach int i in 0 ..< joinMetadata.refFields.length() {
+                        whereFilter[joinMetadata.refFields[i]] = 'object[joinMetadata.joinColumns[i]].toBalString();
+                    }
+
+                    query = sql:queryConcat(`SELECT `, self.getManyRelationColumnNames(joinMetadata.fieldName),
+                        ` FROM `, stringToParameterizedQuery(joinMetadata.refTable),
+                        ` WHERE`, check self.getWhereClauses(whereFilter, true)
+                        );
+
+                } else {
+                    // m-n relation
+                    string whereFields = "(";
+                    foreach int i in 0 ..< joinMetadata.refFields.length() {
+                        if i > 0 {
+                            whereFields = whereFields + ", ";
+                        }
+                        whereFields = whereFields + joinMetadata.refFields[i];
+                    }
+                    whereFields = whereFields + ")";
+
+                    string intermediateTable = <string>joinMetadata.intermediateTable;
+                    string[] intermediateRefFields = <string[]>joinMetadata.intermediateRefFields;
+                    string[] intermediateJoinColumns = <string[]>joinMetadata.intermediateJoinColumns;
+
+                    string whereIntermediateFields = "(";
+                    foreach int i in 0 ..< joinMetadata.refFields.length() {
+                        if i > 0 {
+                            whereIntermediateFields = whereIntermediateFields + ", ";
+                        }
+                        whereIntermediateFields = whereIntermediateFields + joinMetadata.refFields[i];
+                    }
+                    whereIntermediateFields = whereIntermediateFields + ")";
+
+                    map<string> whereFilter = {};
+                    foreach int i in 0 ..< joinMetadata.refFields.length() {
+                        whereFilter[intermediateRefFields[i]] = 'object[intermediateJoinColumns[i]].toBalString();
+                    }
+
+                    query = sql:queryConcat(`SELECT`, self.getManyRelationColumnNames(joinMetadata.fieldName),
+                        ` FROM `, stringToParameterizedQuery(joinMetadata.refTable),
+                        ` WHERE `, stringToParameterizedQuery(whereFields), ` IN (`,
+                            ` SELECT `, stringToParameterizedQuery(whereIntermediateFields), 
+                            ` FROM `, stringToParameterizedQuery(intermediateTable),
+                            ` WHERE `, check self.getWhereClauses(whereFilter, true),
+                            `)`
+                    );
+                    io:println(query);
+                }
 
                 stream<record {}, sql:Error?> joinStream = self.dbClient->query(query, joinMetadata.entity);
                 record {}[] arr = [];
@@ -211,7 +255,7 @@ public client class SQLClient {
                     };
 
                 if e is error {
-                    return <Error>e;
+                    return <Error>error(e.message());
                 }
 
                 'object[joinMetadata.fieldName] = convertToArray(joinMetadata.entity, arr);

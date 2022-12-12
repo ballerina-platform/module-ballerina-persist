@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/io;
 import ballerina/test;
 
 @test:Config {
@@ -422,3 +423,53 @@ function oneToManyUpdateTest4() returns error? {
         employees: [{id: 8, name: "TestEmployeeUpdated8"}, {id: 9, name: "TestEmployee9"}]
     });
 }
+
+@test:Config {
+    groups: ["associations", "many-to-many"]
+}
+function manyToManyCreateTest1() returns error? {
+    // Company company = {
+    //     id: 1,
+    //     name: "TestCompany1"
+    // };
+    // CompanyClient companyClient = check new ();
+    // _ = check companyClient->create(company);
+
+    // Employee employee = {
+    //     id: 1,
+    //     name: "TestEmployee1",
+    //     company: company
+    // };
+    // EmployeeClient employeeClient = check new ();
+    // Employee employee2 = check employeeClient->create(employee);
+
+    StudentClient studentClient = check new();
+    Student student = check studentClient->readByKey(1, [LectureEntity]);
+    io:println(student);
+}
+
+@test:Config {
+    groups: ["associations", "many-to-many"]
+}
+function manyToManyCreateTest2() returns error? {
+    LectureClient lectureClient = check new();
+    // Lecture lecture = {
+    //     lectureId: 1,
+    //     subject: "TestLecture1",
+    //     day: "monday",
+    //     time: {hour: 13, minute: 0}
+    // };
+    // _ = check lectureClient->create(lecture);
+
+    // Employee employee = {
+    //     id: 1,
+    //     name: "TestEmployee1",
+    //     company: company
+    // };
+    // EmployeeClient employeeClient = check new ();
+    // Employee employee2 = check employeeClient->create(employee);
+
+    Lecture lecture2 = check lectureClient->readByKey(1, [StudentEntity]);
+    io:println(lecture2);
+}
+
