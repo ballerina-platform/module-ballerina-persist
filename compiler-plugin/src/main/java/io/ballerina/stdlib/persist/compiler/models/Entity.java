@@ -51,11 +51,11 @@ public class Entity {
     }
 
     public String getEntityName() {
-        return entityName;
+        return this.entityName;
     }
 
     public NodeLocation getEntityNameLocation() {
-        return entityNameLocation;
+        return this.entityNameLocation;
     }
 
     public void setEntityNameLocation(NodeLocation entityNameLocation) {
@@ -71,7 +71,7 @@ public class Entity {
     }
 
     public NodeLocation getTableNameExpressionLocation() {
-        return tableNameExpressionLocation;
+        return this.tableNameExpressionLocation;
     }
 
     public void setTableNameExpressionLocation(NodeLocation tableNameExpressionLocation) {
@@ -91,7 +91,7 @@ public class Entity {
     }
 
     public Set<String> getEntityFieldNames() {
-        return entityFieldNames;
+        return this.entityFieldNames;
     }
 
     public void addUniqueConstraints(HashMap<String, NodeLocation> uniqueConstraint) {
@@ -100,7 +100,7 @@ public class Entity {
     }
 
     public List<HashMap<String, NodeLocation>> getUniqueConstraints() {
-        return uniqueConstraints;
+        return this.uniqueConstraints;
     }
 
     public void addField(Field field) {
@@ -108,11 +108,11 @@ public class Entity {
     }
 
     public List<Field> getValidEntityFields() {
-        return validEntityFields;
+        return this.validEntityFields;
     }
 
     public String getModule() {
-        return module;
+        return this.module;
     }
 
     public List<Diagnostic> getDiagnostics() {

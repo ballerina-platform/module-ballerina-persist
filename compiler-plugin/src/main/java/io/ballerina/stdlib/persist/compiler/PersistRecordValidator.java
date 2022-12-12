@@ -84,15 +84,15 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
     private boolean isCompilationErrorChecked = false;
 
     public PersistRecordValidator() {
-        uniqueConstraints = new ArrayList<>();
-        tableNames = new HashMap<>();
+        this.uniqueConstraints = new ArrayList<>();
+        this.tableNames = new HashMap<>();
         this.entities = new HashMap<>();
     }
 
     @Override
     public void perform(SyntaxNodeAnalysisContext ctx) {
 
-        if (!isCompilationErrorChecked) {
+        if (!this.isCompilationErrorChecked) {
             this.isCompilationErrorChecked = true;
             if (Utils.hasCompilationErrors(ctx)) {
                 return;
@@ -387,10 +387,10 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
     }
 
     private void validateTableName(Entity entity, NodeLocation location) {
-        if (tableNames.containsKey(entity.getTableName())) {
+        if (this.tableNames.containsKey(entity.getTableName())) {
             entity.addDiagnostic(location, DiagnosticsCodes.PERSIST_113.getCode(),
                     MessageFormat.format(DiagnosticsCodes.PERSIST_113.getMessage(),
-                            tableNames.get(entity.getTableName())),
+                            this.tableNames.get(entity.getTableName())),
                     DiagnosticsCodes.PERSIST_113.getSeverity());
         } else {
             this.tableNames.put(entity.getTableName(), entity.getModule());
@@ -1099,7 +1099,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                                                     exp.toSourceCode().trim()));
                                 }
                             }
-                            uniqueConstraints.add(uniqueConstraint);
+                            this.uniqueConstraints.add(uniqueConstraint);
                         } else {
                             Utils.reportDiagnostic(ctx, mappingFieldNode.location(),
                                     DiagnosticsCodes.PERSIST_127.getCode(),

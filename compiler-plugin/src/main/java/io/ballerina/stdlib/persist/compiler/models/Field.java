@@ -51,11 +51,11 @@ public class Field {
     }
 
     public void setReadOnly(boolean readOnly) {
-        isReadOnly = readOnly;
+        this.isReadOnly = readOnly;
     }
 
     public Node getType() {
-        return type;
+        return this.type;
     }
 
     public void setType(Node type) {
@@ -63,7 +63,7 @@ public class Field {
     }
 
     public NodeLocation getTypeLocation() {
-        return typeLocation;
+        return this.typeLocation;
     }
 
     public void setTypeLocation(NodeLocation typeLocation) {
