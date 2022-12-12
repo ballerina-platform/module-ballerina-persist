@@ -107,6 +107,10 @@ public class Entity {
      this.validEntityFields.add(field);
     }
 
+    public List<Field> getValidEntityFields() {
+        return validEntityFields;
+    }
+
     public String getModule() {
         return module;
     }

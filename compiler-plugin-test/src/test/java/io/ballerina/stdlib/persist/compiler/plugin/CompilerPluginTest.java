@@ -63,7 +63,7 @@ public class CompilerPluginTest {
     @Test
     public void testEntityAnnotation2() {
         testDiagnostic("package_02", "invalid key: the given key is not in the record definition",
-                DiagnosticsCodes.PERSIST_102.getCode(), 2);
+                DiagnosticsCodes.PERSIST_102.getCode(), 3);
     }
 
     @Test
@@ -72,7 +72,8 @@ public class CompilerPluginTest {
                 "read-only", DiagnosticsCodes.PERSIST_106.getCode(), 2);
     }
 
-    @Test
+    //todo: Should this be a validation
+    @Test(enabled = false)
     public void testMultipleAutoIncrementAnnotation() {
         testDiagnostic("package_04", "duplicate annotation: the entity does not allow " +
                         "multiple field with auto increment annotation",

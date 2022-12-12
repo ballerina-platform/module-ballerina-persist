@@ -19,6 +19,8 @@
 package io.ballerina.stdlib.persist.compiler.models;
 
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeLocation;
 
 /**
  * Model class to represent fields.
@@ -27,6 +29,10 @@ public class Field {
     private final String fieldName;
     private final AnnotationNode autoIncrement;
     private final AnnotationNode relationAnnotation;
+
+    private boolean isReadOnly = false;
+    private Node type;
+    private NodeLocation typeLocation;
     private boolean isRelationAttachedToValidEntity;
 
     public Field(String fieldName, AnnotationNode autoIncrementNode, AnnotationNode relationAnnotation) {
@@ -37,19 +43,43 @@ public class Field {
     }
 
     public String getFieldName() {
-        return fieldName;
+        return this.fieldName;
+    }
+
+    public void setReadOnly(boolean readOnly) {
+        isReadOnly = readOnly;
+    }
+
+    public boolean isReadOnly() {
+        return this.isReadOnly;
+    }
+
+    public Node getType() {
+        return type;
+    }
+
+    public void setType(Node type) {
+        this.type = type;
+    }
+
+    public NodeLocation getTypeLocation() {
+        return typeLocation;
+    }
+
+    public void setTypeLocation(NodeLocation typeLocation) {
+        this.typeLocation = typeLocation;
     }
 
     public AnnotationNode getAutoIncrement() {
-        return autoIncrement;
+        return this.autoIncrement;
     }
 
     public AnnotationNode getRelationAnnotation() {
-        return relationAnnotation;
+        return this.relationAnnotation;
     }
 
     public boolean isRelationAttachedToValidEntity() {
-        return isRelationAttachedToValidEntity;
+        return this.isRelationAttachedToValidEntity;
     }
 
     public void setRelationAttachedToValidEntity(boolean relationAttachedToValidEntity) {

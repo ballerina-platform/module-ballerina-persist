@@ -19,11 +19,9 @@
 package io.ballerina.stdlib.persist.compiler;
 
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
-import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
-import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
@@ -84,12 +82,10 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
     private final HashMap<String, String> tableNames;
     private final HashMap<String, Entity> entities;
     private boolean isCompilationErrorChecked = false;
-    private boolean hasAutoIncrementAnnotation;
     private int noOfReportDiagnostic;
 
     public PersistRecordValidator() {
         uniqueConstraints = new ArrayList<>();
-        hasAutoIncrementAnnotation = false;
         noOfReportDiagnostic = 0;
         tableNames = new HashMap<>();
         this.entities = new HashMap<>();
@@ -187,6 +183,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 validateEntityAnnotation(entity, entityAnnotation.get());
 
                 validateEntityFields(entity, ((RecordTypeDescriptorNode) typeDescriptorNode).fields(), currentModule);
+                validateAutoIncrementAnnotation(entity);
 
                 validateRecordFieldsAnnotation(entity, ctx, typeDescriptorNode,
                         ((ModulePartNode) ctx.syntaxTree().rootNode()).members());
@@ -203,7 +200,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             checkForFieldAnnotations(ctx, (RecordTypeDescriptorNode) typeDescriptorNode);
         }
 
-        this.hasAutoIncrementAnnotation = false;
         this.uniqueConstraints.clear();
     }
 
@@ -245,14 +241,8 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             boolean isKeyFieldFound = false;
             for (MappingFieldNode fieldNode : fields) {
                 SpecificFieldNode specificFieldNode = (SpecificFieldNode) fieldNode;
-                String fieldName;
                 // If field is given as token( key: ) or string ("key": )
-                if (specificFieldNode.fieldName() instanceof IdentifierToken) {
-                    fieldName = ((IdentifierToken) specificFieldNode.fieldName()).text().trim();
-                } else {
-                    fieldName = Utils.eliminateDoubleQuotes(
-                            ((BasicLiteralNode) specificFieldNode.fieldName()).literalToken().text().trim());
-                }
+                String fieldName = getAnnotationFieldName(specificFieldNode);
 
                 @SuppressWarnings("OptionalGetWithoutIsPresent")
                 ExpressionNode specificFieldValue = specificFieldNode.valueExpr().get();
@@ -291,6 +281,17 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         if (entity.getTableName() != null) {
             validateTableName(entity, entity.getTableNameExpressionLocation());
         }
+    }
+
+    private String getAnnotationFieldName(SpecificFieldNode specificFieldNode) {
+        String fieldName;
+        if (specificFieldNode.fieldName() instanceof IdentifierToken) {
+            fieldName = ((IdentifierToken) specificFieldNode.fieldName()).text().trim();
+        } else {
+            fieldName = Utils.eliminateDoubleQuotes(
+                    ((BasicLiteralNode) specificFieldNode.fieldName()).literalToken().text().trim());
+        }
+        return fieldName;
     }
 
     private void validateEntityKeyField(Entity entity, ExpressionNode specificFieldValue) {
@@ -408,16 +409,20 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 String fieldName = recordFieldNode.fieldName().text().trim();
                 typeNode = recordFieldNode.typeName();
                 field = getField(fieldName, metadataNode);
+                field.setReadOnly(recordFieldNode.readonlyKeyword().isPresent());
             } else if (fieldNode instanceof RecordFieldWithDefaultValueNode) {
                 RecordFieldWithDefaultValueNode recordFieldNode = (RecordFieldWithDefaultValueNode) fieldNode;
                 Optional<MetadataNode> metadataNode = recordFieldNode.metadata();
                 String fieldName = recordFieldNode.fieldName().text().trim();
                 typeNode = recordFieldNode.typeName();
                 field = getField(fieldName, metadataNode);
+                field.setReadOnly(recordFieldNode.readonlyKeyword().isPresent());
             } else {
                 // todo Add validation for other types
                 continue;
             }
+            field.setType(typeNode);
+            field.setTypeLocation(typeNode.location());
 
             boolean isArrayType = false;
             if (typeNode instanceof OptionalTypeDescriptorNode) {
@@ -461,11 +466,8 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                     } else {
                         // Have to check all entities present in this module
                         String attachedEntity = ((SimpleNameReferenceNode) typeNode).name().text();
-                        if (!isAttachedToValidEntity(entity, field, attachedEntity, typeNode.location(),
-                                currentModule)) {
-                            continue;
-                        }
-
+                        validateAttachmentType(entity, field, attachedEntity, typeNode.location(),
+                                currentModule);
                     }
                 }
                 // else { todo: Add relevant diagnostics for this case }
@@ -490,8 +492,8 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
          }
     }
 
-    private boolean isAttachedToValidEntity(Entity entity, Field field, String referencedRecordName,
-                                         NodeLocation location, Module currentModule) {
+    private void validateAttachmentType(Entity entity, Field field, String referencedRecordName,
+                                           NodeLocation location, Module currentModule) {
         boolean isValidRecord = false;
         for (DocumentId documentId : currentModule.documentIds()) {
             Document document = currentModule.document(documentId);
@@ -517,11 +519,11 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             entity.addDiagnostic(location, DiagnosticsCodes.PERSIST_115.getCode(),
                     MessageFormat.format(DiagnosticsCodes.PERSIST_115.getMessage(), referencedRecordName),
                     DiagnosticsCodes.PERSIST_115.getSeverity());
+            field.setRelationAttachedToValidEntity(false);
         } else {
             // todo: Validate attached to persist:Entity
             field.setRelationAttachedToValidEntity(true);
         }
-        return isValidRecord;
     }
 
     private Field getField(String fieldName, Optional<MetadataNode> metadataNode) {
@@ -541,6 +543,70 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         return new Field(fieldName, autoIncrementNode, relationNode);
     }
 
+    private void validateAutoIncrementAnnotation(Entity entity) {
+        for (Field validEntityField : entity.getValidEntityFields()) {
+            AnnotationNode autoIncrement = validEntityField.getAutoIncrement();
+            if (autoIncrement == null) {
+                continue;
+            }
+            // todo verify if we need multiple autoincrement check
+            if (!entity.getPrimaryKeys().isEmpty() &&
+                    entity.getPrimaryKeys().containsKey(validEntityField.getFieldName())) {
+                if (!validEntityField.isReadOnly()) {
+                    entity.addDiagnostic(validEntityField.getTypeLocation(), DiagnosticsCodes.PERSIST_106.getCode(),
+                            DiagnosticsCodes.PERSIST_106.getMessage(), DiagnosticsCodes.PERSIST_106.getSeverity());
+                }
+                Node fieldType = validEntityField.getType();
+                if (!(fieldType instanceof BuiltinSimpleNameReferenceNode)) {
+                    entity.addDiagnostic(fieldType.location(), DiagnosticsCodes.PERSIST_105.getCode(),
+                            DiagnosticsCodes.PERSIST_105.getMessage(),
+                            DiagnosticsCodes.PERSIST_105.getSeverity());
+                } else if (!((BuiltinSimpleNameReferenceNode) fieldType).name().text()
+                        .equals(Constants.BallerinaTypes.INT)) {
+                    entity.addDiagnostic(fieldType.location(), DiagnosticsCodes.PERSIST_105.getCode(),
+                            DiagnosticsCodes.PERSIST_105.getMessage(),
+                            DiagnosticsCodes.PERSIST_105.getSeverity());
+                }
+            } else {
+                entity.addDiagnostic(autoIncrement.location(), DiagnosticsCodes.PERSIST_108.getCode(),
+                        DiagnosticsCodes.PERSIST_108.getMessage(), DiagnosticsCodes.PERSIST_108.getSeverity());
+            }
+            if (autoIncrement.annotValue().isPresent()) {
+                SeparatedNodeList<MappingFieldNode> fields = autoIncrement.annotValue().get().fields();
+                for (MappingFieldNode fieldNode : fields) {
+                    SpecificFieldNode specificFieldNode = (SpecificFieldNode) fieldNode;
+                    // If field is given as token( key: ) or string ("key": )
+                    String fieldName = getAnnotationFieldName(specificFieldNode);
+
+                    @SuppressWarnings("OptionalGetWithoutIsPresent")
+                    ExpressionNode specificFieldValue = specificFieldNode.valueExpr().get();
+                    if ((!(specificFieldValue instanceof BasicLiteralNode) &&
+                            !(specificFieldValue instanceof UnaryExpressionNode))) {
+                        entity.addDiagnostic(specificFieldValue.location(),
+                                DiagnosticsCodes.PERSIST_127.getCode(),
+                                DiagnosticsCodes.PERSIST_127.getMessage(),
+                                DiagnosticsCodes.PERSIST_127.getSeverity());
+                    }
+                    if (fieldName.equals(Constants.INCREMENT)) {
+                        if (specificFieldValue instanceof UnaryExpressionNode) {
+                            entity.addDiagnostic(specificFieldValue.location(),
+                                    DiagnosticsCodes.PERSIST_103.getCode(),
+                                    DiagnosticsCodes.PERSIST_103.getMessage(),
+                                    DiagnosticsCodes.PERSIST_103.getSeverity());
+                        } else {
+                            if (!specificFieldNode.toSourceCode().trim().equals(Constants.ONE)) {
+                                entity.addDiagnostic(specificFieldNode.location(),
+                                        DiagnosticsCodes.PERSIST_112.getCode(),
+                                        DiagnosticsCodes.PERSIST_112.getMessage(),
+                                        DiagnosticsCodes.PERSIST_112.getSeverity());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private void validateRecordFieldsAnnotation(Entity entity, SyntaxNodeAnalysisContext ctx, Node recordNode,
                                                 NodeList<ModuleMemberDeclarationNode> memberNodes) {
         RecordTypeDescriptorNode recordTypeDescriptorNode = (RecordTypeDescriptorNode) recordNode;
@@ -548,22 +614,14 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         for (Node field : fields) {
             if (field instanceof RecordFieldNode) {
                 RecordFieldNode fieldNode = (RecordFieldNode) field;
-                if (entity.getPrimaryKeys().containsKey(fieldNode.fieldName().text().trim())) {
-                    validateReadOnly(ctx, fieldNode.readonlyKeyword().isPresent(), fieldNode.location());
-                }
                 Optional<MetadataNode> metadataNode = fieldNode.metadata();
-                metadataNode.ifPresent(node -> validateAnnotationFields(entity, ctx, node,
-                        fieldNode.typeName().toSourceCode().trim(),
-                        fieldNode.location(), memberNodes, fieldNode.fieldName().text().trim()));
+                metadataNode.ifPresent(node -> validateAnnotationFields(ctx, node,
+                        fieldNode.typeName().toSourceCode().trim(), memberNodes));
             } else if (field instanceof RecordFieldWithDefaultValueNode) {
                 RecordFieldWithDefaultValueNode fieldNode = (RecordFieldWithDefaultValueNode) field;
-                if (entity.getPrimaryKeys().containsKey(fieldNode.fieldName().text().trim())) {
-                    validateReadOnly(ctx, fieldNode.readonlyKeyword().isPresent(), fieldNode.location());
-                }
                 Optional<MetadataNode> metadataNode = fieldNode.metadata();
-                metadataNode.ifPresent(node -> validateAnnotationFields(entity, ctx, node,
-                        fieldNode.typeName().toSourceCode().trim(),
-                        fieldNode.location(), memberNodes, fieldNode.fieldName().text().trim()));
+                metadataNode.ifPresent(node -> validateAnnotationFields(ctx, node,
+                        fieldNode.typeName().toSourceCode().trim(), memberNodes));
             }
         }
     }
@@ -598,41 +656,12 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         }
     }
 
-    private void validateReadOnly(SyntaxNodeAnalysisContext ctx, boolean isReadOnly, NodeLocation location) {
-        if (!isReadOnly) {
-            reportDiagnosticInfo(ctx, location, DiagnosticsCodes.PERSIST_106.getCode(),
-                    DiagnosticsCodes.PERSIST_106.getMessage(), DiagnosticsCodes.PERSIST_106.getSeverity());
-        }
-    }
-
-    private void validateAnnotationFields(Entity entity, SyntaxNodeAnalysisContext ctx, MetadataNode metadataNode,
-                                          String fieldType,
-                                          Location location, NodeList<ModuleMemberDeclarationNode> memberNodes,
-                                          String fieldName) {
+    private void validateAnnotationFields(SyntaxNodeAnalysisContext ctx, MetadataNode metadataNode,
+                                          String fieldType, NodeList<ModuleMemberDeclarationNode> memberNodes) {
         NodeList<AnnotationNode> annotations = metadataNode.annotations();
         for (AnnotationNode annotation : annotations) {
             Optional<MappingConstructorExpressionNode> mappingConstructorExpressionNode = annotation.annotValue();
-            String annotationName = annotation.annotReference().toSourceCode().trim();
-            if (annotationName.equals(Annotations.AUTO_INCREMENT)) {
-                if (this.hasAutoIncrementAnnotation) {
-                    reportDiagnosticInfo(ctx, location, DiagnosticsCodes.PERSIST_107.getCode(),
-                            DiagnosticsCodes.PERSIST_107.getMessage(), DiagnosticsCodes.PERSIST_107.getSeverity());
-                }
-                checkAutoIncrementFieldMarkAsKey(entity, ctx, location, fieldName);
-                if (mappingConstructorExpressionNode.isPresent()) {
-                    SeparatedNodeList<MappingFieldNode> annotationFields = mappingConstructorExpressionNode.get().
-                            fields();
-                    if (!fieldType.trim().equals("int")) {
-                        reportDiagnosticInfo(ctx, location, DiagnosticsCodes.PERSIST_105.getCode(),
-                                DiagnosticsCodes.PERSIST_105.getMessage(),
-                                DiagnosticsCodes.PERSIST_105.getSeverity());
-                    }
-                    if (annotationFields.size() > 0) {
-                        validateAutoIncrementAnnotationOld(ctx, annotationFields);
-                    }
-                    this.hasAutoIncrementAnnotation = true;
-                }
-            } else if (annotation.annotReference().toSourceCode().trim().equals(Annotations.RELATION)) {
+            if (annotation.annotReference().toSourceCode().trim().equals(Annotations.RELATION)) {
                 if (mappingConstructorExpressionNode.isPresent()) {
                     SeparatedNodeList<MappingFieldNode> annotationFields =
                             mappingConstructorExpressionNode.get().fields();
@@ -642,68 +671,11 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         }
     }
 
-    private void checkAutoIncrementFieldMarkAsKey(Entity entity, SyntaxNodeAnalysisContext ctx, Location location,
-                                                  String fieldName) {
-        if (!entity.getPrimaryKeys().containsKey(fieldName)) {
-            boolean hasKey = false;
-            for (HashMap<String, NodeLocation> list : entity.getUniqueConstraints()) {
-                if (list.containsKey(fieldName)) {
-                    hasKey = true;
-                    break;
-                }
-            }
-            if (!hasKey) {
-                reportDiagnosticInfo(ctx, location, DiagnosticsCodes.PERSIST_108.getCode(),
-                        DiagnosticsCodes.PERSIST_108.getMessage(), DiagnosticsCodes.PERSIST_108.getSeverity());
-            }
-        }
-    }
-
     private void validateConstraintFieldNames(Entity entity, String value, NodeLocation location) {
         if (!entity.getEntityFieldNames().contains(value)) {
             entity.addDiagnostic(location, DiagnosticsCodes.PERSIST_102.getCode(),
                     DiagnosticsCodes.PERSIST_102.getMessage(), DiagnosticsCodes.PERSIST_102.getSeverity());
         }
-    }
-
-    private void validateAutoIncrementAnnotationOld(SyntaxNodeAnalysisContext ctx,
-                                                    SeparatedNodeList<MappingFieldNode> annotationFields) {
-        for (MappingFieldNode annotationField : annotationFields) {
-            SpecificFieldNode annotationFieldNode = (SpecificFieldNode) annotationField;
-            String key = annotationFieldNode.fieldName().toSourceCode().trim().replaceAll(
-                    Constants.UNNECESSARY_CHARS_REGEX, "");
-            Optional<ExpressionNode> expressionNode = annotationFieldNode.valueExpr();
-            if (expressionNode.isPresent()) {
-                ExpressionNode valueNode = expressionNode.get();
-                String value = valueNode.toSourceCode();
-                if (valueNode instanceof BasicLiteralNode || valueNode instanceof UnaryExpressionNode) {
-                    if (key.equals(Constants.INCREMENT)) {
-                        Optional<Symbol> fieldSymbol = ctx.semanticModel().symbol(annotationFieldNode);
-                        if (fieldSymbol.isPresent() && fieldSymbol.get() instanceof RecordFieldSymbol) {
-                            RecordFieldSymbol recordFieldSymbol = ((RecordFieldSymbol) (fieldSymbol.get()));
-                            if (isIntType(recordFieldSymbol) && Integer.parseInt(value.trim()) < 1) {
-                                reportDiagnosticInfo(ctx, valueNode.location(),
-                                        DiagnosticsCodes.PERSIST_103.getCode(),
-                                        DiagnosticsCodes.PERSIST_103.getMessage(),
-                                        DiagnosticsCodes.PERSIST_103.getSeverity());
-                            }
-                        }
-                    }
-                }  else {
-                    reportDiagnosticInfo(ctx, annotationField.location(),
-                            DiagnosticsCodes.PERSIST_127.getCode(),
-                            DiagnosticsCodes.PERSIST_127.getMessage(),
-                            DiagnosticsCodes.PERSIST_127.getSeverity());
-                }
-            }
-        }
-    }
-
-    private boolean isIntType(RecordFieldSymbol recordFieldSymbol) {
-        return recordFieldSymbol.typeDescriptor().typeKind() == TypeDescKind.INT_UNSIGNED8 ||
-                recordFieldSymbol.typeDescriptor().typeKind() == TypeDescKind.INT_UNSIGNED16 ||
-                recordFieldSymbol.typeDescriptor().typeKind() == TypeDescKind.INT_UNSIGNED32 ||
-                recordFieldSymbol.typeDescriptor().typeKind() == TypeDescKind.INT;
     }
 
     private void validateRelationAnnotation(SyntaxNodeAnalysisContext ctx,
@@ -802,7 +774,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         TypeDefinitionNode referenceRecord = null;
         for (Node field : fields) {
             String tableAssociationType = "";
-            String startValue = Constants.EMPTY;
             boolean isArrayType = false;
             boolean isUserDefinedType = false;
             String hasRelationAnnotation = Constants.FALSE;
@@ -810,7 +781,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 RecordFieldWithDefaultValueNode fieldNode = (RecordFieldWithDefaultValueNode) field;
                 typeNode = fieldNode.typeName();
                 metadata = fieldNode.metadata();
-                startValue = fieldNode.expression().toSourceCode().trim();
             } else {
                 RecordFieldNode fieldNode = (RecordFieldNode) field;
                 typeNode = fieldNode.typeName();
@@ -910,10 +880,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             if (metadata.isPresent()) {
                 for (AnnotationNode annotationNode : metadata.get().annotations()) {
                     String annotationName = annotationNode.annotReference().toSourceCode().trim();
-
-                    if (annotationName.equals(Annotations.AUTO_INCREMENT)) {
-                        startValue = processAutoIncrementAnnotations(annotationNode, startValue, ctx);
-                    }
                     if (annotationName.equals(Annotations.RELATION)) {
                         if (hasRelationAnnotation.equals(Constants.TRUE)) {
                             Utils.reportDiagnostic(ctx, annotationNode.location(),
@@ -1067,31 +1033,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             }
         }
         return Constants.FALSE;
-    }
-
-    private String processAutoIncrementAnnotations(AnnotationNode annotationNode, String startValue,
-                                                   SyntaxNodeAnalysisContext ctx) {
-        Optional<MappingConstructorExpressionNode> annotationFieldNode = annotationNode.annotValue();
-        if (annotationFieldNode.isPresent()) {
-            for (MappingFieldNode mappingFieldNode : annotationFieldNode.get().fields()) {
-                SpecificFieldNode specificFieldNode = (SpecificFieldNode) mappingFieldNode;
-                // todo mysql doesn't support increment. So, set the warning.
-                //  some db support this, So, need to improve this properly.
-                if (specificFieldNode.fieldName().toSourceCode().trim().equals(Constants.INCREMENT)) {
-                    Optional<ExpressionNode> valueExpr = specificFieldNode.valueExpr();
-                    if (valueExpr.isPresent()) {
-                        if (!valueExpr.get().toSourceCode().trim().equals(Constants.ONE)) {
-                            Utils.reportDiagnostic(ctx, specificFieldNode.location(),
-                                    DiagnosticsCodes.PERSIST_112.getCode(),
-                                    DiagnosticsCodes.PERSIST_112.getMessage(),
-                                    DiagnosticsCodes.PERSIST_112.getSeverity());
-                        }
-                    }
-
-                }
-            }
-        }
-        return startValue;
     }
 
     private void processRelationAnnotation(SyntaxNodeAnalysisContext ctx, AnnotationNode annotationNode,
