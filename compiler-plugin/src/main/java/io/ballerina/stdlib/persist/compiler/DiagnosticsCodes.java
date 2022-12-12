@@ -83,6 +83,8 @@ public enum DiagnosticsCodes {
             "on record type description", ERROR),
     PERSIST_129("PERSIST_129", "invalid field initialization: ''persist:Entity'' does not " +
             "allow an inherited field", ERROR),
+    PERSIST_130("PERSIST_130", "invalid field initialization: ''persist:Entity'' fields can not be " +
+            "initialized by using the rest field type definition", ERROR),
 
     // todo: Add expression type in the diagnostic message
     PERSIST_201("PERSIST_201",

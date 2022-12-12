@@ -176,10 +176,12 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
 
                 validateEntityAnnotation(ctx, typeDefinitionNode, recordTypeSymbol, entityAnnotation.get(),
                         moduleName);
+                if (!isValidRecord(ctx, typeDefinitionNode)) {
+                    return;
+                }
                 validateRecordFieldsAnnotation(ctx, typeDescriptorNode,
                         ((ModulePartNode) ctx.syntaxTree().rootNode()).members());
                 validateRecordFieldType(ctx, recordTypeSymbol.fieldDescriptors());
-                validateRecordType(ctx, typeDefinitionNode);
                 if (this.noOfReportDiagnostic == 0) {
                     validFieldTypeAndRelation((RecordTypeDescriptorNode) typeDescriptorNode, typeDefinitionNode,
                             ctx, symbol.get());
@@ -219,10 +221,11 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         return false;
     }
 
-    private void validateRecordType(SyntaxNodeAnalysisContext ctx, TypeDefinitionNode typeDefinitionNode) {
+    private boolean isValidRecord(SyntaxNodeAnalysisContext ctx, TypeDefinitionNode typeDefinitionNode) {
         if (typeDefinitionNode.visibilityQualifier().isEmpty()) {
             reportDiagnosticInfo(ctx, typeDefinitionNode.location(), DiagnosticsCodes.PERSIST_111.getCode(),
                     DiagnosticsCodes.PERSIST_111.getMessage(), DiagnosticsCodes.PERSIST_111.getSeverity());
+            return false;
         }
 
         // Check whether the entity is a closed record
@@ -233,7 +236,14 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             reportDiagnosticInfo(ctx, typeDefinitionNode.location(), DiagnosticsCodes.PERSIST_124.getCode(),
                     MessageFormat.format(DiagnosticsCodes.PERSIST_124.getMessage(), recordName),
                     DiagnosticsCodes.PERSIST_124.getSeverity());
+            return false;
         }
+        if (recordTypeDescriptorNode.recordRestDescriptor().isPresent()) {
+            reportDiagnosticInfo(ctx, recordTypeDescriptorNode.location(), DiagnosticsCodes.PERSIST_130.getCode(),
+                    DiagnosticsCodes.PERSIST_130.getMessage(), DiagnosticsCodes.PERSIST_130.getSeverity());
+            return false;
+        }
+        return true;
     }
 
     private void validateRecordFieldsAnnotation(SyntaxNodeAnalysisContext ctx, Node recordNode,

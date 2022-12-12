@@ -110,6 +110,13 @@ public class CompilerPluginTest {
     }
 
     @Test
+    public void testFieldInitialization1() {
+        testDiagnostic("package_34", "invalid field initialization: ''persist:Entity'' fields can " +
+                "not be initialized by using the rest field type definition",
+                DiagnosticsCodes.PERSIST_130.getCode(), 1);
+    }
+
+    @Test
     public void testRecordType() {
         testDiagnostic("package_11", "invalid initialization: the entity should be public",
                 DiagnosticsCodes.PERSIST_111.getCode(), 1);
