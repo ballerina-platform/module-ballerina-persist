@@ -42,6 +42,18 @@ public class Constants {
         public static final String RELATION = "persist:Relation";
     }
 
+    /**
+     * Constant representing Entity annotation descriptor.
+     */
+    public static class EntityAnnotation {
+        private EntityAnnotation(){
+        }
+
+        public static final String KEY = "key";
+        public static final String UNIQUE_CONSTRAINTS = "uniqueConstraints";
+        public static final String TABLE_NAME = "tableName";
+    }
+
     public static final String TRUE = "true";
     public static final String EMPTY = "";
     public static final String FALSE = "false";

@@ -239,7 +239,7 @@ public class CompilerPluginTest {
     @Test
     public void testGetReferenceWithEmptyKey1() {
         testDiagnostic("package_28", "associated entity does not contain any primary keys: " +
-                "the key should have a valid value", DiagnosticsCodes.PERSIST_123.getCode(), 1);
+                "the key should have a valid value", DiagnosticsCodes.PERSIST_123.getCode(), 3);
     }
 
     @Test
@@ -250,24 +250,29 @@ public class CompilerPluginTest {
 
     @Test
     public void testEntityClosedRecord2() {
+        // todo: test all thrown errors.
         testDiagnostic("package_31", "the entity 'MedicalNeed2' should be a closed record.",
-                DiagnosticsCodes.PERSIST_124.getCode(), 1);
+                DiagnosticsCodes.PERSIST_124.getCode(), 2, 1);
     }
 
     @Test
     public void testEntityClosedRecord3() {
         testDiagnostic("package_12", "this field only allows inline initialisation",
-                DiagnosticsCodes.PERSIST_127.getCode(), 8);
+                DiagnosticsCodes.PERSIST_127.getCode(), 8, 1);
     }
 
     private void testDiagnostic(String packageName, String msg, String code, int count) {
+        testDiagnostic(packageName, msg, code, count, 0);
+    }
+
+    private void testDiagnostic(String packageName, String msg, String code, int count, int index) {
         DiagnosticResult diagnosticResult = loadPackage(packageName).getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
                 filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
                 collect(Collectors.toList());
         long availableErrors = errorDiagnosticsList.size();
         Assert.assertEquals(availableErrors, count);
-        DiagnosticInfo error = errorDiagnosticsList.get(0).diagnosticInfo();
+        DiagnosticInfo error = errorDiagnosticsList.get(index).diagnosticInfo();
         Assert.assertEquals(error.code(), code);
         Assert.assertTrue(error.messageFormat().startsWith(msg));
     }
