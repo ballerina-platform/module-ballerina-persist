@@ -38,15 +38,16 @@ public class Entity {
     private final String module;
     private String tableName;
     private NodeLocation tableNameExpressionLocation;
-    private final Set<String> entityFields;
+    private final Set<String> entityFieldNames;
+    private final List<Field> validEntityFields = new ArrayList<>();
     private final HashMap<String, NodeLocation> primaryKeys = new HashMap<>();
     private final List<HashMap<String, NodeLocation>> uniqueConstraints = new ArrayList<>();
     private final List<Diagnostic> diagnosticList = new ArrayList<>();
 
-    public Entity(String entityName, String module, Set<String> entityFields) {
+    public Entity(String entityName, String module, Set<String> entityFieldNames) {
         this.entityName = entityName;
         this.module = module;
-        this.entityFields = entityFields;
+        this.entityFieldNames = entityFieldNames;
     }
 
     public String getEntityName() {
@@ -89,8 +90,8 @@ public class Entity {
         return this.primaryKeys;
     }
 
-    public Set<String> getEntityFields() {
-        return entityFields;
+    public Set<String> getEntityFieldNames() {
+        return entityFieldNames;
     }
 
     public void addUniqueConstraints(HashMap<String, NodeLocation> uniqueConstraint) {
@@ -100,6 +101,10 @@ public class Entity {
 
     public List<HashMap<String, NodeLocation>> getUniqueConstraints() {
         return uniqueConstraints;
+    }
+
+    public void addField(Field field) {
+     this.validEntityFields.add(field);
     }
 
     public String getModule() {

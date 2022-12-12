@@ -151,7 +151,7 @@ public class CompilerPluginTest {
     @Test
     public void testUnSupportedFeature1() {
         testDiagnostic("package_22", "unsupported features: array type is not supported",
-                DiagnosticsCodes.PERSIST_120.getCode(), 1);
+                DiagnosticsCodes.PERSIST_120.getCode(), 2);
     }
 
     @Test
@@ -163,13 +163,13 @@ public class CompilerPluginTest {
     @Test
     public void testUnSupportedFeature3() {
         testDiagnostic("package_24", "unsupported features: json type is not supported",
-                DiagnosticsCodes.PERSIST_121.getCode(), 1);
+                DiagnosticsCodes.PERSIST_121.getCode(), 2);
     }
 
     @Test
     public void testUnSupportedFeature4() {
         testDiagnostic("package_25", "unsupported features: json type is not supported",
-                DiagnosticsCodes.PERSIST_121.getCode(), 1);
+                DiagnosticsCodes.PERSIST_121.getCode(), 2);
     }
 
     @Test
@@ -239,7 +239,7 @@ public class CompilerPluginTest {
     public void testEntityClosedRecord2() {
         // todo: test all thrown errors.
         testDiagnostic("package_31", "the entity 'MedicalNeed2' should be a closed record.",
-                DiagnosticsCodes.PERSIST_124.getCode(), 2, 1);
+                DiagnosticsCodes.PERSIST_124.getCode(), 3, 1);
     }
 
      @Test
