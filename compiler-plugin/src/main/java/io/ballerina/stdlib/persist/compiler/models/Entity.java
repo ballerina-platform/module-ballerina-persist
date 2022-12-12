@@ -34,15 +34,15 @@ import java.util.Set;
  */
 public class Entity {
     private final String entityName;
-    private NodeLocation entityNameLocation;
     private final String module;
-    private String tableName;
-    private NodeLocation tableNameExpressionLocation;
     private final Set<String> entityFieldNames;
     private final List<Field> validEntityFields = new ArrayList<>();
     private final HashMap<String, NodeLocation> primaryKeys = new HashMap<>();
     private final List<HashMap<String, NodeLocation>> uniqueConstraints = new ArrayList<>();
     private final List<Diagnostic> diagnosticList = new ArrayList<>();
+    private NodeLocation entityNameLocation;
+    private String tableName;
+    private NodeLocation tableNameExpressionLocation;
 
     public Entity(String entityName, String module, Set<String> entityFieldNames) {
         this.entityName = entityName;
@@ -62,12 +62,12 @@ public class Entity {
         this.entityNameLocation = entityNameLocation;
     }
 
-    public void setTableName(String tableName) {
-        this.tableName = tableName;
-    }
-
     public String getTableName() {
         return this.tableName;
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
     }
 
     public NodeLocation getTableNameExpressionLocation() {
@@ -104,7 +104,7 @@ public class Entity {
     }
 
     public void addField(Field field) {
-     this.validEntityFields.add(field);
+        this.validEntityFields.add(field);
     }
 
     public List<Field> getValidEntityFields() {

@@ -46,12 +46,12 @@ public class Field {
         return this.fieldName;
     }
 
-    public void setReadOnly(boolean readOnly) {
-        isReadOnly = readOnly;
-    }
-
     public boolean isReadOnly() {
         return this.isReadOnly;
+    }
+
+    public void setReadOnly(boolean readOnly) {
+        isReadOnly = readOnly;
     }
 
     public Node getType() {

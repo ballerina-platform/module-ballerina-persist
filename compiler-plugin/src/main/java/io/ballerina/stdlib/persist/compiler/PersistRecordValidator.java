@@ -483,8 +483,8 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 continue;
             } else if (typeNode instanceof RecordTypeDescriptorNode) {
                 entity.addDiagnostic(typeNode.location(), DiagnosticsCodes.PERSIST_121.getCode(),
-                            MessageFormat.format(DiagnosticsCodes.PERSIST_121.getMessage(), "in-line record"),
-                            DiagnosticsCodes.PERSIST_121.getSeverity());
+                        MessageFormat.format(DiagnosticsCodes.PERSIST_121.getMessage(), "in-line record"),
+                        DiagnosticsCodes.PERSIST_121.getSeverity());
                 continue;
             } else {
                 entity.addDiagnostic(typeNode.location(), DiagnosticsCodes.PERSIST_121.getCode(),
@@ -493,11 +493,11 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 continue;
             }
             entity.addField(field);
-         }
+        }
     }
 
     private void validateAttachmentType(Entity entity, Field field, String referencedRecordName,
-                                           NodeLocation location, Module currentModule) {
+                                        NodeLocation location, Module currentModule) {
         boolean isValidRecord = false;
         for (DocumentId documentId : currentModule.documentIds()) {
             Document document = currentModule.document(documentId);
@@ -688,7 +688,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         int noOfForeignKeys = 0;
         int noOfReferences = 0;
         Location location = null;
-        for (MappingFieldNode annotationField: annotationFields) {
+        for (MappingFieldNode annotationField : annotationFields) {
             SpecificFieldNode annotationFieldNode = (SpecificFieldNode) annotationField;
             String key = annotationFieldNode.fieldName().toSourceCode().trim().replaceAll(
                     Constants.UNNECESSARY_CHARS_REGEX, "");
@@ -1195,7 +1195,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             case Constants.BallerinaTypes.FLOAT:
             case Constants.BallerinaTypes.DATE:
             case Constants.BallerinaTypes.STRING:
-            //todo: Support byte[]
+                //todo: Support byte[]
                 return true;
             default:
                 return false;
@@ -1212,6 +1212,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 return false;
         }
     }
+
     private void validateType(SyntaxNodeAnalysisContext ctx, Node node, String type) {
         switch (type) {
             case Constants.BallerinaTypes.INT:
