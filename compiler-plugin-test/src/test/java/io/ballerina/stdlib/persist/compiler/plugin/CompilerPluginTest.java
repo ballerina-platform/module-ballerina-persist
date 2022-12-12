@@ -60,6 +60,7 @@ public class CompilerPluginTest {
         testDiagnostic("package_01", "invalid key: the given key is not in the record definition",
                 DiagnosticsCodes.PERSIST_102.getCode(), 2);
     }
+
     @Test
     public void testEntityAnnotation2() {
         testDiagnostic("package_02", "invalid key: the given key is not in the record definition",
@@ -113,7 +114,7 @@ public class CompilerPluginTest {
     @Test
     public void testFieldInitialization1() {
         testDiagnostic("package_34", "invalid field initialization: ''persist:Entity'' fields can " +
-                "not be initialized by using the rest field type definition",
+                        "not be initialized by using the rest field type definition",
                 DiagnosticsCodes.PERSIST_130.getCode(), 1);
     }
 
@@ -188,27 +189,27 @@ public class CompilerPluginTest {
 
     @Test
     public void testInvalidAnnotation() {
-        testDiagnostic("package_18",  "invalid annotation attachment: the `one-to-many` relation " +
+        testDiagnostic("package_18", "invalid annotation attachment: the `one-to-many` relation " +
                         "annotation can not be attached to the array entity record field",
                 DiagnosticsCodes.PERSIST_118.getCode(), 1);
     }
 
     @Test
     public void testInvalidAnnotation1() {
-        testDiagnostic("package_19",  "invalid annotation attachment: this " +
+        testDiagnostic("package_19", "invalid annotation attachment: this " +
                         "non-entity type field does not allow a relation annotation",
                 DiagnosticsCodes.PERSIST_117.getCode(), 1);
     }
 
     @Test
     public void testInvalidAnnotation2() {
-        testDiagnostic("package_08",  "relation annotation can only be attached to an entity record",
+        testDiagnostic("package_08", "relation annotation can only be attached to an entity record",
                 DiagnosticsCodes.PERSIST_125.getCode(), 1);
     }
 
     @Test
     public void testInvalidAnnotation3() {
-        testDiagnostic("package_09",  "auto increment annotation can only be attached to " +
+        testDiagnostic("package_09", "auto increment annotation can only be attached to " +
                 "an entity record", DiagnosticsCodes.PERSIST_126.getCode(), 1);
     }
 
@@ -227,14 +228,14 @@ public class CompilerPluginTest {
     @Test
     public void testGetReferenceWithCompositeKey() {
         testDiagnostic("package_26", "associated entity contains composite primary keys: " +
-                        "inferring the relation reference from composite keys is not supported yet. " +
-                        "please add the references for relation", DiagnosticsCodes.PERSIST_122.getCode(), 1);
+                "inferring the relation reference from composite keys is not supported yet. " +
+                "please add the references for relation", DiagnosticsCodes.PERSIST_122.getCode(), 1);
     }
 
     @Test
     public void testGetReferenceWithEmptyKey() {
         testDiagnostic("package_27", "associated entity does not contain any primary keys: " +
-                        "the key should have a valid value", DiagnosticsCodes.PERSIST_123.getCode(), 1);
+                "the key should have a valid value", DiagnosticsCodes.PERSIST_123.getCode(), 1);
     }
 
     @Test
