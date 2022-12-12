@@ -105,6 +105,19 @@ public class CompilerPluginTest {
     }
 
     @Test
+    public void testFieldInitialization() {
+        testDiagnostic("package_33", "invalid field initialization: ''persist:Entity'' does not " +
+                "allow an inherited field", DiagnosticsCodes.PERSIST_129.getCode(), 1);
+    }
+
+    @Test
+    public void testFieldInitialization1() {
+        testDiagnostic("package_34", "invalid field initialization: ''persist:Entity'' fields can " +
+                "not be initialized by using the rest field type definition",
+                DiagnosticsCodes.PERSIST_130.getCode(), 1);
+    }
+
+    @Test
     public void testRecordType() {
         testDiagnostic("package_11", "invalid initialization: the entity should be public",
                 DiagnosticsCodes.PERSIST_111.getCode(), 1);
@@ -201,8 +214,8 @@ public class CompilerPluginTest {
 
     @Test
     public void testInvalidAnnotation4() {
-        testDiagnostic("package_32", "annotation 'persist:Entity' is not allowed on type",
-                DiagnosticsCodes.PERSIST_128.getCode(), 3);
+        testDiagnostic("package_32", "invalid attachment: ''persist:Entity'' annotation is only " +
+                "allowed on record type description", DiagnosticsCodes.PERSIST_128.getCode(), 3);
     }
 
     @Test
@@ -243,7 +256,7 @@ public class CompilerPluginTest {
                 DiagnosticsCodes.PERSIST_124.getCode(), 3, 1);
     }
 
-     @Test
+    @Test
     public void testEntityClosedRecord3() {
         testDiagnostic("package_12", "this field only allows inline initialisation",
                 DiagnosticsCodes.PERSIST_127.getCode(), 8, 1);

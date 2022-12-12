@@ -118,8 +118,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 NodeList<AnnotationNode> annotations = metadata.get().annotations();
                 if (getEntityAnnotation(annotations).isPresent()) {
                     reportDiagnosticInfo(ctx, node.location(), DiagnosticsCodes.PERSIST_128.getCode(),
-                            MessageFormat.format(DiagnosticsCodes.PERSIST_128.getMessage(), "type"),
-                            DiagnosticsCodes.PERSIST_128.getSeverity());
+                            DiagnosticsCodes.PERSIST_128.getMessage(), DiagnosticsCodes.PERSIST_128.getSeverity());
                 }
             }
             return;
@@ -129,8 +128,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             NodeList<AnnotationNode> annotations = ((TypeCastExpressionNode) node).typeCastParam().annotations();
             if (getEntityAnnotation(annotations).isPresent()) {
                 reportDiagnosticInfo(ctx, node.location(), DiagnosticsCodes.PERSIST_128.getCode(),
-                        MessageFormat.format(DiagnosticsCodes.PERSIST_128.getMessage(), "enum"),
-                        DiagnosticsCodes.PERSIST_128.getSeverity());
+                        DiagnosticsCodes.PERSIST_128.getMessage(), DiagnosticsCodes.PERSIST_128.getSeverity());
             }
             return;
         }
@@ -142,8 +140,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             if (metadata.isPresent()) {
                 if (getEntityAnnotation(metadata.get().annotations()).isPresent()) {
                     reportDiagnosticInfo(ctx, node.location(), DiagnosticsCodes.PERSIST_128.getCode(),
-                            MessageFormat.format(DiagnosticsCodes.PERSIST_128.getMessage(), "type"),
-                            DiagnosticsCodes.PERSIST_128.getSeverity());
+                            DiagnosticsCodes.PERSIST_128.getMessage(), DiagnosticsCodes.PERSIST_128.getSeverity());
                 }
             }
             return;
@@ -726,7 +723,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         }
         // todo If foreign keys or references have one value and one of these is missing in the config,
         //  the missing key has to be inferred from that entity.
-        // todo if foreign keys or references miss, both keys have to be inferred from those entity.
+        // todo if foreign keys and references miss, both keys have to be inferred from those entity.
         if ((noOfForeignKeys > 1 || noOfReferences > 1) && (noOfForeignKeys != noOfReferences)) {
             reportDiagnosticInfo(ctx, location, DiagnosticsCodes.PERSIST_109.getCode(),
                     DiagnosticsCodes.PERSIST_109.getMessage(),

@@ -57,7 +57,6 @@ public class Constants {
     public static final String TRUE = "true";
     public static final String EMPTY = "";
     public static final String FALSE = "false";
-    public static final String INSERT_METHOD_NAME = "runInsertQuery";
     public static final String UNNECESSARY_CHARS_REGEX = "\"|\\n";
     public static final String TABLE_NAME = "tableName";
     public static final String INCREMENT = "increment";
