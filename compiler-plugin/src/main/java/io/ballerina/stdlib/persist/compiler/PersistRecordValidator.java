@@ -128,8 +128,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 NodeList<AnnotationNode> annotations = metadata.get().annotations();
                 if (getEntityAnnotation(annotations).isPresent()) {
                     reportDiagnosticInfo(ctx, node.location(), DiagnosticsCodes.PERSIST_128.getCode(),
-                            MessageFormat.format(DiagnosticsCodes.PERSIST_128.getMessage(), "type"),
-                            DiagnosticsCodes.PERSIST_128.getSeverity());
+                            DiagnosticsCodes.PERSIST_128.getMessage(), DiagnosticsCodes.PERSIST_128.getSeverity());
                 }
             }
             return;
@@ -139,8 +138,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             NodeList<AnnotationNode> annotations = ((TypeCastExpressionNode) node).typeCastParam().annotations();
             if (getEntityAnnotation(annotations).isPresent()) {
                 reportDiagnosticInfo(ctx, node.location(), DiagnosticsCodes.PERSIST_128.getCode(),
-                        MessageFormat.format(DiagnosticsCodes.PERSIST_128.getMessage(), "enum"),
-                        DiagnosticsCodes.PERSIST_128.getSeverity());
+                        DiagnosticsCodes.PERSIST_128.getMessage(), DiagnosticsCodes.PERSIST_128.getSeverity());
             }
             return;
         }
@@ -152,8 +150,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             if (metadata.isPresent()) {
                 if (getEntityAnnotation(metadata.get().annotations()).isPresent()) {
                     reportDiagnosticInfo(ctx, node.location(), DiagnosticsCodes.PERSIST_128.getCode(),
-                            MessageFormat.format(DiagnosticsCodes.PERSIST_128.getMessage(), "type"),
-                            DiagnosticsCodes.PERSIST_128.getSeverity());
+                            DiagnosticsCodes.PERSIST_128.getMessage(), DiagnosticsCodes.PERSIST_128.getSeverity());
                 }
             }
             return;
@@ -262,6 +259,9 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 metadataNode.ifPresent(node -> validateAnnotationFields(ctx, node,
                         fieldNode.typeName().toSourceCode().trim(),
                         fieldNode.location(), memberNodes, fieldNode.fieldName().text().trim()));
+            } else {
+                reportDiagnosticInfo(ctx, field.location(), DiagnosticsCodes.PERSIST_129.getCode(),
+                        DiagnosticsCodes.PERSIST_129.getMessage(), DiagnosticsCodes.PERSIST_129.getSeverity());
             }
         }
     }

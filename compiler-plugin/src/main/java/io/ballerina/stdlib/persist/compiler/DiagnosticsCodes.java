@@ -79,11 +79,10 @@ public enum DiagnosticsCodes {
     PERSIST_126("PERSIST_126", "auto increment annotation can only be attached to an entity record",
             ERROR),
     PERSIST_127("PERSIST_127", "this field only allows inline initialisation", ERROR),
-    //todo: This should be changed to
-    // `invalid attachment: ''persist:Entity'' annotation is only allowed on record type description`
-    PERSIST_128("PERSIST_128", "annotation ''persist:Entity'' is not allowed on {0}",
-            ERROR),
-
+    PERSIST_128("PERSIST_128", "invalid attachment: ''persist:Entity'' annotation is only allowed " +
+            "on record type description", ERROR),
+    PERSIST_129("PERSIST_129", "invalid field initialization: ''persist:Entity'' does not " +
+            "allow an inherited field", ERROR),
     // todo: Add expression type in the diagnostic message
     PERSIST_201("PERSIST_201",
             "persist client read() function doesn't support this query expression", ERROR),
