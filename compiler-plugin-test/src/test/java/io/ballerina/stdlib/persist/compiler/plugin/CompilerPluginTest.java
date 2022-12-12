@@ -226,7 +226,7 @@ public class CompilerPluginTest {
     @Test
     public void testGetReferenceWithEmptyKey1() {
         testDiagnostic("package_28", "associated entity does not contain any primary keys: " +
-                "the key should have a valid value", DiagnosticsCodes.PERSIST_123.getCode(), 1);
+                "the key should have a valid value", DiagnosticsCodes.PERSIST_123.getCode(), 3);
     }
 
     @Test
@@ -245,7 +245,7 @@ public class CompilerPluginTest {
      @Test
     public void testEntityClosedRecord3() {
         testDiagnostic("package_12", "this field only allows inline initialisation",
-                DiagnosticsCodes.PERSIST_127.getCode(), 8);
+                DiagnosticsCodes.PERSIST_127.getCode(), 8, 1);
     }
 
     private void testDiagnostic(String packageName, String msg, String code, int count) {

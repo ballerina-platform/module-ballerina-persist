@@ -25,23 +25,81 @@ import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Process Entity information.
  */
 public class Entity {
-    private String entityName;
-    private String module;
-    List<Diagnostic> diagnosticList = new ArrayList<>();
+    private final String entityName;
+    private NodeLocation entityNameLocation;
+    private final String module;
+    private String tableName;
+    private NodeLocation tableNameExpressionLocation;
+    private final Set<String> entityFields;
+    private final HashMap<String, NodeLocation> primaryKeys = new HashMap<>();
+    private final List<HashMap<String, NodeLocation>> uniqueConstraints = new ArrayList<>();
+    private final List<Diagnostic> diagnosticList = new ArrayList<>();
 
-    public Entity(String entityName, String module) {
+    public Entity(String entityName, String module, Set<String> entityFields) {
         this.entityName = entityName;
         this.module = module;
+        this.entityFields = entityFields;
     }
 
     public String getEntityName() {
         return entityName;
+    }
+
+    public NodeLocation getEntityNameLocation() {
+        return entityNameLocation;
+    }
+
+    public void setEntityNameLocation(NodeLocation entityNameLocation) {
+        this.entityNameLocation = entityNameLocation;
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
+
+    public String getTableName() {
+        return this.tableName;
+    }
+
+    public NodeLocation getTableNameExpressionLocation() {
+        return tableNameExpressionLocation;
+    }
+
+    public void setTableNameExpressionLocation(NodeLocation tableNameExpressionLocation) {
+        this.tableNameExpressionLocation = tableNameExpressionLocation;
+    }
+
+    public boolean primaryKeysContains(String key) {
+        return this.primaryKeys.containsKey(key);
+    }
+
+    public void addPrimaryKey(String key, NodeLocation nodeLocation) {
+        this.primaryKeys.put(key, nodeLocation);
+    }
+
+    public HashMap<String, NodeLocation> getPrimaryKeys() {
+        return this.primaryKeys;
+    }
+
+    public Set<String> getEntityFields() {
+        return entityFields;
+    }
+
+    public void addUniqueConstraints(HashMap<String, NodeLocation> uniqueConstraint) {
+        HashMap<String, NodeLocation> uniqueConstraintCopy = new HashMap<>(uniqueConstraint);
+        this.uniqueConstraints.add(uniqueConstraintCopy);
+    }
+
+    public List<HashMap<String, NodeLocation>> getUniqueConstraints() {
+        return uniqueConstraints;
     }
 
     public String getModule() {
