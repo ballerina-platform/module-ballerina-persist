@@ -180,12 +180,20 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                     return;
                 }
 
+                // Can remove this after generated folder design change
+                // todo: Remove after https://github.com/ballerina-platform/ballerina-standard-library/issues/3784
+                if (typeDefinitionNode.visibilityQualifier().isEmpty()) {
+                    entity.addDiagnostic(typeDefinitionNode.location(), DiagnosticsCodes.PERSIST_111.getCode(),
+                            DiagnosticsCodes.PERSIST_111.getMessage(), DiagnosticsCodes.PERSIST_111.getSeverity());
+                }
+
+                validateClosedRecord(entity, ((RecordTypeDescriptorNode) typeDescriptorNode));
+
                 validateEntityAnnotation(ctx, typeDefinitionNode, recordTypeSymbol, entityAnnotation.get(),
                         moduleName);
                 validateRecordFieldsAnnotation(ctx, typeDescriptorNode,
                         ((ModulePartNode) ctx.syntaxTree().rootNode()).members());
                 validateRecordFieldType(ctx, recordTypeSymbol.fieldDescriptors());
-                validateRecordType(ctx, typeDefinitionNode);
                 if (this.noOfReportDiagnostic == 0) {
                     validFieldTypeAndRelation((RecordTypeDescriptorNode) typeDescriptorNode, typeDefinitionNode,
                             ctx, symbol.get());
@@ -225,18 +233,11 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         return false;
     }
 
-    private void validateRecordType(SyntaxNodeAnalysisContext ctx, TypeDefinitionNode typeDefinitionNode) {
-        if (typeDefinitionNode.visibilityQualifier().isEmpty()) {
-            reportDiagnosticInfo(ctx, typeDefinitionNode.location(), DiagnosticsCodes.PERSIST_111.getCode(),
-                    DiagnosticsCodes.PERSIST_111.getMessage(), DiagnosticsCodes.PERSIST_111.getSeverity());
-        }
-
+    private void validateClosedRecord(Entity entity, RecordTypeDescriptorNode recordTypeDescriptorNode) {
         // Check whether the entity is a closed record
-        RecordTypeDescriptorNode recordTypeDescriptorNode =
-                ((RecordTypeDescriptorNode) typeDefinitionNode.typeDescriptor());
         if (recordTypeDescriptorNode.bodyStartDelimiter().kind() != SyntaxKind.OPEN_BRACE_PIPE_TOKEN) {
-            String recordName = typeDefinitionNode.typeName().toSourceCode().trim();
-            reportDiagnosticInfo(ctx, typeDefinitionNode.location(), DiagnosticsCodes.PERSIST_124.getCode(),
+            String recordName = entity.getEntityName();
+            entity.addDiagnostic(recordTypeDescriptorNode.location(), DiagnosticsCodes.PERSIST_124.getCode(),
                     MessageFormat.format(DiagnosticsCodes.PERSIST_124.getMessage(), recordName),
                     DiagnosticsCodes.PERSIST_124.getSeverity());
         }
@@ -708,6 +709,10 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                                 DiagnosticsCodes.PERSIST_114.getSeverity());
                     }
                 }
+            } else if (typeNode instanceof RecordTypeDescriptorNode) {
+                Utils.reportDiagnostic(ctx, typeNode.location(), DiagnosticsCodes.PERSIST_121.getCode(),
+                        MessageFormat.format(DiagnosticsCodes.PERSIST_121.getMessage(), "in-line record"),
+                        DiagnosticsCodes.PERSIST_121.getSeverity());
             } else {
                 if (isArrayType) {
                     Utils.reportDiagnostic(ctx, typeNode.location(), DiagnosticsCodes.PERSIST_120.getCode(),
