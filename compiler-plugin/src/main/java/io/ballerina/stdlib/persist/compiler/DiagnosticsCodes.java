@@ -86,6 +86,8 @@ public enum DiagnosticsCodes {
             "allow an inherited field", ERROR),
     PERSIST_130("PERSIST_130", "invalid field initialization: ''persist:Entity'' fields can not be " +
             "initialized by using the rest field type definition", ERROR),
+    PERSIST_131("PERSIST_131", "duplicate key/s exist: ''{0}'' does not allow the multiple same field/s",
+            ERROR),
 
     // todo: Add expression type in the diagnostic message
     PERSIST_201("PERSIST_201",

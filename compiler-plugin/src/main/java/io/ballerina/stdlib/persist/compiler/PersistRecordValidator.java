@@ -77,6 +77,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static io.ballerina.stdlib.persist.compiler.Constants.EntityAnnotation.KEY;
+import static io.ballerina.stdlib.persist.compiler.Constants.EntityAnnotation.UNIQUE_CONSTRAINTS;
+
 /**
  * PersistRecordAnalyzer.
  */
@@ -259,7 +262,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 @SuppressWarnings("OptionalGetWithoutIsPresent")
                 ExpressionNode specificFieldValue = specificFieldNode.valueExpr().get();
                 switch (fieldName) {
-                    case EntityAnnotation.KEY:
+                    case KEY:
                         validateEntityKeyField(entity, specificFieldValue);
                         break;
                     case EntityAnnotation.UNIQUE_CONSTRAINTS:
@@ -322,8 +325,12 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                     }
                     if (!entity.primaryKeysContains(key)) {
                         entity.addPrimaryKey(key, expression.location());
+                    } else {
+                        entity.addDiagnostic(expression.location(),
+                                DiagnosticsCodes.PERSIST_131.getCode(),
+                                MessageFormat.format(DiagnosticsCodes.PERSIST_131.getMessage(), KEY),
+                                DiagnosticsCodes.PERSIST_131.getSeverity());
                     }
-                    // else { todo: Add diagnostics for duplicated key }
                 } else {
                     entity.addDiagnostic(expression.location(), DiagnosticsCodes.PERSIST_127.getCode(),
                             DiagnosticsCodes.PERSIST_127.getMessage(),
@@ -363,8 +370,13 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                             }
                             if (!uniqueConstraints.containsKey(key)) {
                                 uniqueConstraints.put(key, expression.location());
+                            } else {
+                                entity.addDiagnostic(expression.location(),
+                                        DiagnosticsCodes.PERSIST_131.getCode(),
+                                        MessageFormat.format(DiagnosticsCodes.PERSIST_131.getMessage(),
+                                                UNIQUE_CONSTRAINTS),
+                                        DiagnosticsCodes.PERSIST_131.getSeverity());
                             }
-                            // else { todo: Add diagnostics for duplicated key }
                         } else {
                             entity.addDiagnostic(expression.location(), DiagnosticsCodes.PERSIST_127.getCode(),
                                     DiagnosticsCodes.PERSIST_127.getMessage(),

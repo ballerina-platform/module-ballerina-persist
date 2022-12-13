@@ -67,6 +67,12 @@ public class CompilerPluginTest {
     }
 
     @Test
+    public void testEntityAnnotation3() {
+        testDiagnostic("package_35", "duplicate key/s exist: 'key' does not allow " +
+                "the multiple same field/s", DiagnosticsCodes.PERSIST_131.getCode(), 2);
+    }
+
+    @Test
     public void testPrimaryKeyMarkReadOnly() {
         testDiagnostic("package_03", "invalid initialization: the field is not specified as " +
                 "read-only", DiagnosticsCodes.PERSIST_106.getCode(), 2);
