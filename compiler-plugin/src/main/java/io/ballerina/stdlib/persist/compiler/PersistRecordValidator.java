@@ -716,6 +716,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             String startValue = Constants.EMPTY;
             boolean isArrayType = false;
             boolean isUserDefinedType = false;
+            boolean isOptionalField = false;
             String hasRelationAnnotation = Constants.FALSE;
             if (field instanceof RecordFieldWithDefaultValueNode) {
                 RecordFieldWithDefaultValueNode fieldNode = (RecordFieldWithDefaultValueNode) field;
@@ -724,6 +725,9 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 startValue = fieldNode.expression().toSourceCode().trim();
             } else {
                 RecordFieldNode fieldNode = (RecordFieldNode) field;
+                if (fieldNode.questionMarkToken().isPresent()) {
+                    isOptionalField = true;
+                }
                 typeNode = fieldNode.typeName();
                 metadata = fieldNode.metadata();
             }
@@ -814,6 +818,11 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                             DiagnosticsCodes.PERSIST_120.getMessage(), DiagnosticsCodes.PERSIST_120.getSeverity());
                 }
                 validateType(ctx, typeNode, ((BuiltinSimpleNameReferenceNode) typeNode).name().text());
+            }
+            if (!isUserDefinedType && isOptionalField) {
+                Utils.reportDiagnostic(ctx, field.location(), DiagnosticsCodes.PERSIST_104.getCode(),
+                        MessageFormat.format(DiagnosticsCodes.PERSIST_104.getMessage(),
+                                ((RecordFieldNode) field).fieldName()), DiagnosticsCodes.PERSIST_104.getSeverity());
             }
             if (metadata.isPresent()) {
                 for (AnnotationNode annotationNode : metadata.get().annotations()) {

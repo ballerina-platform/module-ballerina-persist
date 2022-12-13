@@ -31,10 +31,8 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -109,6 +107,12 @@ public class CompilerPluginTest {
     public void testOptionalTypeField() {
         testDiagnostic("package_07", "invalid field type: the persist client does not " +
                 "support the union type", DiagnosticsCodes.PERSIST_101.getCode(), 1);
+    }
+
+    @Test
+    public void testOptionalField() {
+        testDiagnostic("package_37", "invalid field initialization: 'id' does not support " +
+                "optional filed initialization", DiagnosticsCodes.PERSIST_104.getCode(), 1);
     }
 
     @Test
@@ -285,13 +289,9 @@ public class CompilerPluginTest {
                 filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
                 collect(Collectors.toList());
         long availableErrors = errorDiagnosticsList.size();
-        PrintStream asd = System.out;
-        asd.println(Arrays.toString(errorDiagnosticsList.toArray()));
         Assert.assertEquals(availableErrors, count);
         DiagnosticInfo error = errorDiagnosticsList.get(index).diagnosticInfo();
         Assert.assertEquals(error.code(), code);
-        asd.println(error.messageFormat());
-        asd.println(msg);
         Assert.assertTrue(error.messageFormat().startsWith(msg));
     }
 }
