@@ -67,7 +67,6 @@ public class Constants {
     public static final String ON_UPDATE = "onUpdate";
     public static final String ONE_TO_ONE = "ONE";
     public static final String ONE_TO_MANY = "MANY";
-
     public static final String READ_FUNCTION = "read";
     public static final String EXECUTE_FUNCTION = "execute";
     public static final String BACKTICK = "`";

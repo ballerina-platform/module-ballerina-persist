@@ -34,43 +34,44 @@ import java.util.Set;
  */
 public class Entity {
     private final String entityName;
-    private NodeLocation entityNameLocation;
     private final String module;
-    private String tableName;
-    private NodeLocation tableNameExpressionLocation;
-    private final Set<String> entityFields;
+    private final Set<String> entityFieldNames;
+    private final List<Field> validEntityFields = new ArrayList<>();
     private final HashMap<String, NodeLocation> primaryKeys = new HashMap<>();
     private final List<HashMap<String, NodeLocation>> uniqueConstraints = new ArrayList<>();
     private final List<Diagnostic> diagnosticList = new ArrayList<>();
+    private NodeLocation entityNameLocation;
+    private String tableName;
+    private NodeLocation tableNameExpressionLocation;
 
-    public Entity(String entityName, String module, Set<String> entityFields) {
+    public Entity(String entityName, String module, Set<String> entityFieldNames) {
         this.entityName = entityName;
         this.module = module;
-        this.entityFields = entityFields;
+        this.entityFieldNames = entityFieldNames;
     }
 
     public String getEntityName() {
-        return entityName;
+        return this.entityName;
     }
 
     public NodeLocation getEntityNameLocation() {
-        return entityNameLocation;
+        return this.entityNameLocation;
     }
 
     public void setEntityNameLocation(NodeLocation entityNameLocation) {
         this.entityNameLocation = entityNameLocation;
     }
 
-    public void setTableName(String tableName) {
-        this.tableName = tableName;
-    }
-
     public String getTableName() {
         return this.tableName;
     }
 
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
+
     public NodeLocation getTableNameExpressionLocation() {
-        return tableNameExpressionLocation;
+        return this.tableNameExpressionLocation;
     }
 
     public void setTableNameExpressionLocation(NodeLocation tableNameExpressionLocation) {
@@ -89,8 +90,8 @@ public class Entity {
         return this.primaryKeys;
     }
 
-    public Set<String> getEntityFields() {
-        return entityFields;
+    public Set<String> getEntityFieldNames() {
+        return this.entityFieldNames;
     }
 
     public void addUniqueConstraints(HashMap<String, NodeLocation> uniqueConstraint) {
@@ -99,11 +100,19 @@ public class Entity {
     }
 
     public List<HashMap<String, NodeLocation>> getUniqueConstraints() {
-        return uniqueConstraints;
+        return this.uniqueConstraints;
+    }
+
+    public void addField(Field field) {
+        this.validEntityFields.add(field);
+    }
+
+    public List<Field> getValidEntityFields() {
+        return this.validEntityFields;
     }
 
     public String getModule() {
-        return module;
+        return this.module;
     }
 
     public List<Diagnostic> getDiagnostics() {

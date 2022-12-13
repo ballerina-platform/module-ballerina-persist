@@ -18,7 +18,7 @@ import ballerina/time;
 import ballerina/persist;
 
 @persist:Entity {
-    key: ["itemId"],
+    key: ["needId", "itemId"],
     uniqueConstraints: [["itemId", "needId"]],
     tableName: "EMPLOYEE"
 }
