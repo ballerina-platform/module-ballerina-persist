@@ -35,7 +35,7 @@ public enum DiagnosticsCodes {
     PERSIST_103("PERSIST_103",
             "invalid value: the value only supports positive integer", ERROR),
     PERSIST_104("PERSIST_104",
-            "invalid value: the value does not support negative integer", ERROR),
+            "invalid field initialization: ''{0}'' does not support optional filed initialization", ERROR),
     PERSIST_105("PERSIST_105",
             "invalid type: the field type should be in integer", ERROR),
     PERSIST_106("PERSIST_106",
@@ -72,14 +72,14 @@ public enum DiagnosticsCodes {
     PERSIST_122("PERSIST_122", "associated entity contains composite primary keys: " +
             "inferring the relation reference from composite keys is not supported yet. please add the " +
             "references for relation", ERROR),
-    PERSIST_123("PERSIST_123", "associated entity does not contain any primary keys: the key " +
+    PERSIST_123("PERSIST_123", "associated entity does not contain any keys: the ''{0}'' " +
             "should have a valid value", ERROR),
     PERSIST_124("PERSIST_124", "the entity ''{0}'' should be a closed record.", ERROR),
     PERSIST_125("PERSIST_125", "relation annotation can only be attached to an entity record", ERROR),
     PERSIST_126("PERSIST_126", "auto increment annotation can only be attached to an entity record",
             ERROR),
     // todo: Give field name in message
-    PERSIST_127("PERSIST_127", "this field only allows inline initialisation", ERROR),
+    PERSIST_127("PERSIST_127", "''{0}'' field only allows inline initialisation", ERROR),
     PERSIST_128("PERSIST_128", "invalid attachment: ''persist:Entity'' annotation is only allowed " +
             "on record type description", ERROR),
     PERSIST_129("PERSIST_129", "invalid field initialization: ''persist:Entity'' does not " +

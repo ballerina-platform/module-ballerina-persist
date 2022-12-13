@@ -31,8 +31,10 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -73,6 +75,12 @@ public class CompilerPluginTest {
     }
 
     @Test
+    public void testEntityAnnotation4() {
+        testDiagnostic("package_36", "associated entity does not contain any keys: " +
+                "the 'key' should have a valid value", DiagnosticsCodes.PERSIST_123.getCode(), 3);
+    }
+
+    @Test
     public void testPrimaryKeyMarkReadOnly() {
         testDiagnostic("package_03", "invalid initialization: the field is not specified as " +
                 "read-only", DiagnosticsCodes.PERSIST_106.getCode(), 2);
@@ -98,7 +106,7 @@ public class CompilerPluginTest {
     }
 
     @Test
-    public void testOptionalField() {
+    public void testOptionalTypeField() {
         testDiagnostic("package_07", "invalid field type: the persist client does not " +
                 "support the union type", DiagnosticsCodes.PERSIST_101.getCode(), 1);
     }
@@ -238,14 +246,14 @@ public class CompilerPluginTest {
 
     @Test
     public void testGetReferenceWithEmptyKey() {
-        testDiagnostic("package_27", "associated entity does not contain any primary keys: " +
-                        "the key should have a valid value", DiagnosticsCodes.PERSIST_123.getCode(), 1);
+        testDiagnostic("package_27", "associated entity does not contain any keys: " +
+                        "the 'key' should have a valid value", DiagnosticsCodes.PERSIST_123.getCode(), 1);
     }
 
     @Test
     public void testGetReferenceWithEmptyKey1() {
-        testDiagnostic("package_28", "associated entity does not contain any primary keys: " +
-                "the key should have a valid value", DiagnosticsCodes.PERSIST_123.getCode(), 3);
+        testDiagnostic("package_28", "associated entity does not contain any keys: " +
+                "the 'key' should have a valid value", DiagnosticsCodes.PERSIST_123.getCode(), 3);
     }
 
     @Test
@@ -263,7 +271,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testEntityClosedRecord3() {
-        testDiagnostic("package_12", "this field only allows inline initialisation",
+        testDiagnostic("package_12", "'startValue' field only allows inline initialisation",
                 DiagnosticsCodes.PERSIST_127.getCode(), 8, 1);
     }
 
@@ -277,9 +285,13 @@ public class CompilerPluginTest {
                 filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
                 collect(Collectors.toList());
         long availableErrors = errorDiagnosticsList.size();
+        PrintStream asd = System.out;
+        asd.println(Arrays.toString(errorDiagnosticsList.toArray()));
         Assert.assertEquals(availableErrors, count);
         DiagnosticInfo error = errorDiagnosticsList.get(index).diagnosticInfo();
         Assert.assertEquals(error.code(), code);
+        asd.println(error.messageFormat());
+        asd.println(msg);
         Assert.assertTrue(error.messageFormat().startsWith(msg));
     }
 }

@@ -278,8 +278,8 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                             entity.setTableNameExpressionLocation(specificFieldValue.location());
                         } else {
                             entity.addDiagnostic(specificFieldValue.location(), DiagnosticsCodes.PERSIST_127.getCode(),
-                                    DiagnosticsCodes.PERSIST_127.getMessage(),
-                                    DiagnosticsCodes.PERSIST_127.getSeverity());
+                                    MessageFormat.format(DiagnosticsCodes.PERSIST_127.getMessage(),
+                                            EntityAnnotation.TABLE_NAME), DiagnosticsCodes.PERSIST_127.getSeverity());
                         }
                         break;
                     default:
@@ -307,7 +307,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             if (expressions.isEmpty()) {
                 entity.addDiagnostic(listConstructorExpressionNode.location(),
                         DiagnosticsCodes.PERSIST_123.getCode(),
-                        DiagnosticsCodes.PERSIST_123.getMessage(),
+                        MessageFormat.format(DiagnosticsCodes.PERSIST_123.getMessage(), KEY),
                         DiagnosticsCodes.PERSIST_123.getSeverity());
                 return;
             }
@@ -319,7 +319,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                     if (key.isEmpty()) {
                         entity.addDiagnostic(expression.location(),
                                 DiagnosticsCodes.PERSIST_123.getCode(),
-                                DiagnosticsCodes.PERSIST_123.getMessage(),
+                                MessageFormat.format(DiagnosticsCodes.PERSIST_123.getMessage(), KEY),
                                 DiagnosticsCodes.PERSIST_123.getSeverity());
                         continue;
                     }
@@ -333,14 +333,14 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                     }
                 } else {
                     entity.addDiagnostic(expression.location(), DiagnosticsCodes.PERSIST_127.getCode(),
-                            DiagnosticsCodes.PERSIST_127.getMessage(),
+                            MessageFormat.format(DiagnosticsCodes.PERSIST_127.getMessage(), EntityAnnotation.KEY),
                             DiagnosticsCodes.PERSIST_127.getSeverity());
                 }
             }
             entity.getPrimaryKeys().forEach((key, location) -> validateConstraintFieldNames(entity, key, location));
         } else {
             entity.addDiagnostic(specificFieldValue.location(), DiagnosticsCodes.PERSIST_127.getCode(),
-                    DiagnosticsCodes.PERSIST_127.getMessage(),
+                    MessageFormat.format(DiagnosticsCodes.PERSIST_127.getMessage(), EntityAnnotation.KEY),
                     DiagnosticsCodes.PERSIST_127.getSeverity());
         }
     }
@@ -350,36 +350,50 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             ListConstructorExpressionNode listConstructorExpressionNode =
                     (ListConstructorExpressionNode) specificFieldValue;
             SeparatedNodeList<Node> expressions = listConstructorExpressionNode.expressions();
-            // todo: Validate for empty uniqueConstraints list
+            if (expressions.isEmpty()) {
+                entity.addDiagnostic(listConstructorExpressionNode.location(),
+                        DiagnosticsCodes.PERSIST_123.getCode(),
+                        MessageFormat.format(DiagnosticsCodes.PERSIST_123.getMessage(), UNIQUE_CONSTRAINTS),
+                        DiagnosticsCodes.PERSIST_123.getSeverity());
+                return;
+            }
             for (Node expression : expressions) {
                 if (expression instanceof ListConstructorExpressionNode) {
                     SeparatedNodeList<Node> uniqueConstraintNodes =
                             ((ListConstructorExpressionNode) expression).expressions();
                     HashMap<String, NodeLocation> uniqueConstraints = new HashMap<>();
-                    // todo: validate for empty uniqueConstraintNodes
+                    if (uniqueConstraintNodes.isEmpty()) {
+                        entity.addDiagnostic(expression.location(),
+                                DiagnosticsCodes.PERSIST_123.getCode(),
+                                MessageFormat.format(DiagnosticsCodes.PERSIST_123.getMessage(), UNIQUE_CONSTRAINTS),
+                                DiagnosticsCodes.PERSIST_123.getSeverity());
+                        continue;
+                    }
                     for (Node constraintNode : uniqueConstraintNodes) {
                         if (constraintNode instanceof BasicLiteralNode) {
                             String key = Utils.eliminateDoubleQuotes(
                                     ((BasicLiteralNode) constraintNode).literalToken().text().trim());
                             if (key.isEmpty()) {
-                                entity.addDiagnostic(expression.location(),
+                                entity.addDiagnostic(constraintNode.location(),
                                         DiagnosticsCodes.PERSIST_123.getCode(),
-                                        DiagnosticsCodes.PERSIST_123.getMessage(),
+                                        MessageFormat.format(DiagnosticsCodes.PERSIST_123.getMessage(),
+                                                UNIQUE_CONSTRAINTS),
                                         DiagnosticsCodes.PERSIST_123.getSeverity());
                                 continue;
                             }
                             if (!uniqueConstraints.containsKey(key)) {
                                 uniqueConstraints.put(key, expression.location());
                             } else {
-                                entity.addDiagnostic(expression.location(),
+                                entity.addDiagnostic(constraintNode.location(),
                                         DiagnosticsCodes.PERSIST_131.getCode(),
                                         MessageFormat.format(DiagnosticsCodes.PERSIST_131.getMessage(),
                                                 UNIQUE_CONSTRAINTS),
                                         DiagnosticsCodes.PERSIST_131.getSeverity());
                             }
                         } else {
-                            entity.addDiagnostic(expression.location(), DiagnosticsCodes.PERSIST_127.getCode(),
-                                    DiagnosticsCodes.PERSIST_127.getMessage(),
+                            entity.addDiagnostic(constraintNode.location(), DiagnosticsCodes.PERSIST_127.getCode(),
+                                    MessageFormat.format(DiagnosticsCodes.PERSIST_127.getMessage(),
+                                            UNIQUE_CONSTRAINTS),
                                     DiagnosticsCodes.PERSIST_127.getSeverity());
                         }
                     }
@@ -390,13 +404,13 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                     uniqueConstraints.clear();
                 } else {
                     entity.addDiagnostic(expression.location(), DiagnosticsCodes.PERSIST_127.getCode(),
-                            DiagnosticsCodes.PERSIST_127.getMessage(),
+                            MessageFormat.format(DiagnosticsCodes.PERSIST_127.getMessage(), UNIQUE_CONSTRAINTS),
                             DiagnosticsCodes.PERSIST_127.getSeverity());
                 }
             }
         } else {
             entity.addDiagnostic(specificFieldValue.location(), DiagnosticsCodes.PERSIST_127.getCode(),
-                    DiagnosticsCodes.PERSIST_127.getMessage(),
+                    MessageFormat.format(DiagnosticsCodes.PERSIST_127.getMessage(), UNIQUE_CONSTRAINTS),
                     DiagnosticsCodes.PERSIST_127.getSeverity());
         }
     }
@@ -566,7 +580,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 }  else {
                     reportDiagnosticInfo(ctx, annotationField.location(),
                             DiagnosticsCodes.PERSIST_127.getCode(),
-                            DiagnosticsCodes.PERSIST_127.getMessage(),
+                            MessageFormat.format(DiagnosticsCodes.PERSIST_127.getMessage(), key),
                             DiagnosticsCodes.PERSIST_127.getSeverity());
                 }
             }
@@ -611,7 +625,8 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                         }
                     } else {
                         reportDiagnosticInfo(ctx, annotationField.location(), DiagnosticsCodes.PERSIST_127.getCode(),
-                                DiagnosticsCodes.PERSIST_127.getMessage(), DiagnosticsCodes.PERSIST_127.getSeverity());
+                                MessageFormat.format(DiagnosticsCodes.PERSIST_127.getMessage(), key),
+                                DiagnosticsCodes.PERSIST_127.getSeverity());
                     }
                 }
             } else if (key.equals(Constants.ON_DELETE) || key.equals(Constants.ON_UPDATE)) {
@@ -621,7 +636,8 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                     if (!(valueNode instanceof QualifiedNameReferenceNode) &&
                             !(valueNode instanceof BasicLiteralNode)) {
                         reportDiagnosticInfo(ctx, annotationField.location(), DiagnosticsCodes.PERSIST_127.getCode(),
-                                DiagnosticsCodes.PERSIST_127.getMessage(), DiagnosticsCodes.PERSIST_127.getSeverity());
+                                MessageFormat.format(DiagnosticsCodes.PERSIST_127.getMessage(), key),
+                                DiagnosticsCodes.PERSIST_127.getSeverity());
                     }
                 }
             }
@@ -1047,16 +1063,14 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                             List<String> uniqueConstraint = new ArrayList<>();
                             for (Node exp : exps) {
                                 if (exp instanceof BasicLiteralNode) {
-                                    uniqueConstraint.add(Utils.
-                                            eliminateDoubleQuotes(
-                                                    exp.toSourceCode().trim()));
+                                    uniqueConstraint.add(Utils.eliminateDoubleQuotes(exp.toSourceCode().trim()));
                                 }
                             }
                             uniqueConstraints.add(uniqueConstraint);
                         } else {
-                            reportDiagnosticInfo(ctx, mappingFieldNode.location(),
+                            reportDiagnosticInfo(ctx, expression.location(),
                                     DiagnosticsCodes.PERSIST_127.getCode(),
-                                    DiagnosticsCodes.PERSIST_127.getMessage(),
+                                    MessageFormat.format(DiagnosticsCodes.PERSIST_127.getMessage(), UNIQUE_CONSTRAINTS),
                                     DiagnosticsCodes.PERSIST_127.getSeverity());
                         }
                     }
@@ -1076,7 +1090,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         } else {
             Utils.reportDiagnostic(ctx, referenceRecord.location(),
                     DiagnosticsCodes.PERSIST_123.getCode(),
-                    DiagnosticsCodes.PERSIST_123.getMessage(),
+                    MessageFormat.format(DiagnosticsCodes.PERSIST_123.getMessage(), KEY),
                     DiagnosticsCodes.PERSIST_123.getSeverity());
         }
     }

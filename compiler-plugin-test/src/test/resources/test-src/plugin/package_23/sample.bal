@@ -24,5 +24,5 @@ import ballerina/time;
 public type Profile record  {|
     readonly int id;
     string name;
-    time:Civil[] period?;
+    time:Civil[] period;
 |};
