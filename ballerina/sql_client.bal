@@ -14,9 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/sql;
-
+ 
 # The client used by the generated persist clients to abstract and 
 # execute SQL queries that are required to perform CRUD operations.
 public client class SQLClient {
@@ -71,6 +70,60 @@ public client class SQLClient {
         return result;
     }
 
+    public isolated function populateIntermediateTables(record {} 'object) returns Error? {
+        foreach JoinMetadata joinMetadata in self.joinMetadata {
+            string fieldName = joinMetadata.fieldName;
+
+            if joinMetadata.joinTable is string && 'object[fieldName] != () {
+                string intermediateTable = <string>joinMetadata.joinTable;
+                string[] intermediateJoinColumns = <string[]>joinMetadata.intermediateJoinColumns; //studentId
+                string[] joinColumns = <string[]>joinMetadata.joinColumns; //i_lectureId
+                string[] refColumns = <string[]>joinMetadata.intermediateRefFields; //i_studentId
+                string[] refFields = <string[]>joinMetadata.refColumns; //lectureId
+
+                record{}[] toBeInserted = <record{}[]>'object[fieldName];
+                string[] insertFields = [...refColumns, ...joinColumns];
+                sql:Value[] parentTableValues = [];
+                sql:Value[][] childTableValues = [];
+
+                foreach string intermediateJoinColumn in intermediateJoinColumns {
+                    foreach string key in self.fieldMetadata.keys() {
+                        if self.fieldMetadata.get(key).columnName == intermediateJoinColumn {
+                            parentTableValues.push(<sql:Value>'object[key]);
+                        }
+                    }
+                }
+
+                foreach record{} row in toBeInserted {
+                    sql:Value[] values = [...parentTableValues];
+                    foreach string refField in refFields {
+                        foreach string key in self.fieldMetadata.keys() {
+                            if key.includes(fieldName + "[]") && (<RelationMetadata>self.fieldMetadata.get(key).relation).refColumnName == refField {
+                                values.push(<sql:Value>row[(<RelationMetadata>self.fieldMetadata.get(key).relation).refField]);
+                            }
+                        }
+                    }
+                    childTableValues.push(values);
+                }
+
+                sql:ParameterizedQuery[] sqlQueries = 
+                    from var row in childTableValues
+                        select sql:queryConcat(
+                            `INSERT INTO `, stringToParameterizedQuery(intermediateTable),
+                            ` (`, arrayToParameterizedQuery(insertFields), `) `,
+                            `VALUES (`, arrayToParameterizedQuery(row, false), `)`
+                        );
+
+                sql:ExecutionResult[]|sql:Error result = self.dbClient->batchExecute(sqlQueries);
+
+                if result is sql:Error {
+                    return <Error>error(result.message());
+                }
+            }
+        }
+    }
+
+
     # Performs an SQL `SELECT` operation to read a single record from the database.
     #
     # + rowType - The record-type to be retrieved (the record type of the entity)    
@@ -86,7 +139,7 @@ public client class SQLClient {
             JoinMetadata joinMetadata = self.joinMetadata.get(joinKey);
             if include.indexOf(joinKey) != () && joinMetadata.'type != MANY {
                 query = sql:queryConcat(query, ` LEFT JOIN `, stringToParameterizedQuery(joinMetadata.refTable + " " + joinKey),
-                                        ` ON `, check self.getJoinFilters(joinKey, joinMetadata.refFields, <string[]>joinMetadata.joinColumns));
+                                        ` ON `, check self.getJoinFilters(joinKey, joinMetadata.refColumns, <string[]>joinMetadata.joinColumns));
             }
         }
 
@@ -124,7 +177,7 @@ public client class SQLClient {
             if include.indexOf(joinKey) != () {
                 JoinMetadata joinMetadata = self.joinMetadata.get(joinKey);
                 query = sql:queryConcat(query, ` LEFT JOIN `, stringToParameterizedQuery(joinMetadata.refTable + " " + joinKey),
-                                        ` ON `, check self.getJoinFilters(joinKey, joinMetadata.refFields, <string[]>joinMetadata.joinColumns));
+                                        ` ON `, check self.getJoinFilters(joinKey, joinMetadata.refColumns, <string[]>joinMetadata.joinColumns));
             }
         }
 
@@ -195,11 +248,11 @@ public client class SQLClient {
 
 
             if include.indexOf(joinKey) != () && joinMetadata.'type == MANY {
-                if joinMetadata.intermediateTable is () {
+                if joinMetadata.joinTable is () {
                     // 1-m relation
                     map<string> whereFilter = {};
-                    foreach int i in 0 ..< joinMetadata.refFields.length() {
-                        whereFilter[joinMetadata.refFields[i]] = 'object[joinMetadata.joinColumns[i]].toBalString();
+                    foreach int i in 0 ..< joinMetadata.refColumns.length() {
+                        whereFilter[joinMetadata.refColumns[i]] = 'object[joinMetadata.joinColumns[i]].toBalString();
                     }
 
                     query = sql:queryConcat(`SELECT `, self.getManyRelationColumnNames(joinMetadata.fieldName),
@@ -210,29 +263,29 @@ public client class SQLClient {
                 } else {
                     // m-n relation
                     string whereFields = "(";
-                    foreach int i in 0 ..< joinMetadata.refFields.length() {
+                    foreach int i in 0 ..< joinMetadata.refColumns.length() {
                         if i > 0 {
                             whereFields = whereFields + ", ";
                         }
-                        whereFields = whereFields + joinMetadata.refFields[i];
+                        whereFields = whereFields + joinMetadata.refColumns[i];
                     }
                     whereFields = whereFields + ")";
 
-                    string intermediateTable = <string>joinMetadata.intermediateTable;
+                    string intermediateTable = <string>joinMetadata.joinTable;
                     string[] intermediateRefFields = <string[]>joinMetadata.intermediateRefFields;
                     string[] intermediateJoinColumns = <string[]>joinMetadata.intermediateJoinColumns;
 
                     string whereIntermediateFields = "(";
-                    foreach int i in 0 ..< joinMetadata.refFields.length() {
+                    foreach int i in 0 ..< joinMetadata.joinColumns.length() {
                         if i > 0 {
                             whereIntermediateFields = whereIntermediateFields + ", ";
                         }
-                        whereIntermediateFields = whereIntermediateFields + joinMetadata.refFields[i];
+                        whereIntermediateFields = whereIntermediateFields + joinMetadata.joinColumns[i];
                     }
                     whereIntermediateFields = whereIntermediateFields + ")";
 
                     map<string> whereFilter = {};
-                    foreach int i in 0 ..< joinMetadata.refFields.length() {
+                    foreach int i in 0 ..< joinMetadata.refColumns.length() {
                         whereFilter[intermediateRefFields[i]] = 'object[intermediateJoinColumns[i]].toBalString();
                     }
 
@@ -244,7 +297,6 @@ public client class SQLClient {
                             ` WHERE `, check self.getWhereClauses(whereFilter, true),
                             `)`
                     );
-                    io:println(query);
                 }
 
                 stream<record {}, sql:Error?> joinStream = self.dbClient->query(query, joinMetadata.entity);
