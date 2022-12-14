@@ -567,6 +567,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             entity.addDiagnostic(location, DiagnosticsCodes.PERSIST_132.getCode(),
                     MessageFormat.format(DiagnosticsCodes.PERSIST_132.getMessage(), referencedRecordName),
                     DiagnosticsCodes.PERSIST_132.getSeverity());
+            field.setRelationAttachedToValidEntity(false);
         } else {
             field.setRelationAttachedToValidEntity(true);
         }
