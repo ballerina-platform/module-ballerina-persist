@@ -24,19 +24,19 @@ client class StudentClient {
     private final string entityName = "Student";
     private final sql:ParameterizedQuery tableName = `Students`;
     private final map<FieldMetadata> fieldMetadata = {
-        studentId: {columnName: "studentId", 'type: int},
-        firstName: {columnName: "firstName", 'type: string},
-        lastName: {columnName: "lastName", 'type: string},
-        dob: {columnName: "dob", 'type: time:Date},
-        contact: {columnName: "contact", 'type: string},
-        "lectures[].lectureId": {'type: int, relation: {entityName: "lecture", refTable: "Lecture", refField: "lectureId", refColumnName: "lectureId"}},
-        "lectures[].subject": {'type: string, relation: {entityName: "lecture", refTable: "Lecture", refField: "subject", refColumnName: "subject"}},
-        "lectures[].day": {'type: string, relation: {entityName: "lecture", refTable: "Lecture", refField: "day", refColumnName: "day"}},
-        "lectures[].time": {'type: string, relation: {entityName: "lecture", refTable: "Lecture", refField: "time", refColumnName: "time"}}
+        o_studentId: {columnName: "studentId", 'type: int},
+        o_firstName: {columnName: "firstName", 'type: string},
+        o_lastName: {columnName: "lastName", 'type: string},
+        o_dob: {columnName: "dob", 'type: time:Date},
+        o_contact: {columnName: "contact", 'type: string},
+        "o_lectures[].o_lectureId": {'type: int, relation: {entityName: "lecture", refTable: "Lecture", refField: "o_lectureId", refColumnName: "lectureId"}},
+        "o_lectures[].o_subject": {'type: string, relation: {entityName: "lecture", refTable: "Lecture", refField: "o_subject", refColumnName: "subject"}},
+        "o_lectures[].o_day": {'type: string, relation: {entityName: "lecture", refTable: "Lecture", refField: "o_day", refColumnName: "day"}},
+        "o_lectures[].o_time": {'type: string, relation: {entityName: "lecture", refTable: "Lecture", refField: "o_time", refColumnName: "time"}}
     };
-    private string[] keyFields = ["studentId"];
+    private string[] keyFields = ["o_studentId"];
     private final map<JoinMetadata> joinMetadata = {
-        lecture: {entity: Lecture, fieldName: "lectures", refTable: "Lectures", refColumns: ["lectureId"], joinColumns: ["i_lectureId"], joinTable: "StudentsLectures", intermediateJoinColumns: ["studentId"], intermediateRefFields: ["i_studentId"], 'type: MANY}
+        lecture: {entity: Lecture, fieldName: "o_lectures", refTable: "Lectures", refColumns: ["lectureId"], joinColumns: ["i_lectureId"], joinTable: "StudentsLectures", joiningJoinColumns: ["studentId"], joiningRefColumns: ["i_studentId"], 'type: MANY}
     };
 
     private SQLClient persistClient;
@@ -51,10 +51,10 @@ client class StudentClient {
     }
 
     remote function create(Student value) returns Student|Error {
-        if value.lectures is Lecture[] {
+        if value.o_lectures is Lecture[] {
             LectureClient lectureClient = check new LectureClient();
             Lecture[] insertedEntities = [];
-            foreach Lecture lecture in <Lecture[]>value.lectures {
+            foreach Lecture lecture in <Lecture[]>value.o_lectures {
                 Lecture inserted = lecture;
                 boolean exists = check lectureClient->exists(lecture);
                 if !exists {
@@ -62,11 +62,11 @@ client class StudentClient {
                 }
                 insertedEntities.push(inserted);
             }
-            value.lectures = insertedEntities;
+            value.o_lectures = insertedEntities;
         }
 
         _ = check self.persistClient.runInsertQuery(value);
-        _ = check self.persistClient.populateIntermediateTables(value);
+        _ = check self.persistClient.populateJoinTables(value);
 
         return value;
     }
@@ -99,7 +99,7 @@ client class StudentClient {
     }
 
     remote function exists(Student student) returns boolean|Error {
-        Student|Error result = self->readByKey(student.studentId);
+        Student|Error result = self->readByKey(student.o_studentId);
         if result is Student {
             return true;
         } else if result is InvalidKeyError {

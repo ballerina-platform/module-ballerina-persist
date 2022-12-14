@@ -428,26 +428,26 @@ function oneToManyUpdateTest4() returns error? {
 }
 function manyToManyCreateTest1() returns error? {
     Lecture lecture = {
-        lectureId: 1,
-        subject: "TestLecture1",
-        day: "monday",
-        time: {hour: 13, minute: 1, second: 0}
+        o_lectureId: 1,
+        o_subject: "TestLecture1",
+        o_day: "monday",
+        o_time: {hour: 13, minute: 1, second: 0}
     };
 
     Lecture lecture2 = {
-        lectureId: 2,
-        subject: "TestLecture2",
-        day: "tuesday",
-        time: {hour: 13, minute: 2, second: 0}
+        o_lectureId: 2,
+        o_subject: "TestLecture2",
+        o_day: "tuesday",
+        o_time: {hour: 13, minute: 2, second: 0}
     };
 
     Student student = {
-        studentId: 32,
-        firstName: "Tom",
-        lastName: "Scott",
-        dob: {year: 1996, month: 12, day: 12},
-        contact: "0771952226",
-        lectures: [lecture, lecture2]
+        o_studentId: 32,
+        o_firstName: "Tom",
+        o_lastName: "Scott",
+        o_dob: {year: 1996, month: 12, day: 12},
+        o_contact: "0771952226",
+        o_lectures: [lecture, lecture2]
     };
     StudentClient studentClient = check new();
     _ = check studentClient->create(student);
@@ -461,27 +461,27 @@ function manyToManyCreateTest1() returns error? {
 }
 function manyToManyCreateTest2() returns error? {
     Student student = {
-        studentId: 11,
-        firstName: "Tom",
-        lastName: "Scott",
-        dob: {year: 1996, month: 12, day: 12},
-        contact: "0771952226"
+        o_studentId: 11,
+        o_firstName: "Tom",
+        o_lastName: "Scott",
+        o_dob: {year: 1996, month: 12, day: 12},
+        o_contact: "0771952226"
     };
 
     Student student2 = {
-        studentId: 12,
-        firstName: "Tom2",
-        lastName: "Scott2",
-        dob: {year: 1996, month: 12, day: 12},
-        contact: "0771952222"
+        o_studentId: 12,
+        o_firstName: "Tom2",
+        o_lastName: "Scott2",
+        o_dob: {year: 1996, month: 12, day: 12},
+        o_contact: "0771952222"
     };
 
     Lecture lecture = {
-        lectureId: 11,
-        subject: "TestLecture11",
-        day: "monday",
-        time: {hour: 13, minute: 1, second: 0},
-        students: [student, student2]
+        o_lectureId: 11,
+        o_subject: "TestLecture11",
+        o_day: "monday",
+        o_time: {hour: 13, minute: 1, second: 0},
+        o_students: [student, student2]
     };
 
     LectureClient lectureClient = check new();

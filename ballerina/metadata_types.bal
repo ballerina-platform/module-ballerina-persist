@@ -49,11 +49,11 @@ public type RelationMetadata record {|
 # + entity - The name of the entity that is being joined  
 # + fieldName - The name of the field in the `entity` that is being joined  
 # + refTable - The name of the SQL table to be joined  
-# + refFields - The names of the fields to be used in the JOIN `WHERE` operation  
+# + refColumns - The names of the fields to be used in the JOIN `WHERE` operation  
 # + joinColumns - The names of the SQL table columns to be used in the JOIN `WHERE` operation
 # + joinTable - The name of the joining table used for a many-to-many relation
-# + intermediateRefFields - The names of the referenced columns in the joining table     
-# + intermediateJoinColumns - The names of the join columns in the joining table     
+# + joiningRefColumns - The names of the referenced columns in the joining table     
+# + joiningJoinColumns - The names of the join columns in the joining table     
 # + 'type - The type of the relation
 public type JoinMetadata record {|
     typedesc<record {}> entity;
@@ -62,8 +62,8 @@ public type JoinMetadata record {|
     string[] refColumns;
     string[] joinColumns;
     string joinTable?;
-    string[] intermediateRefFields?;
-    string[] intermediateJoinColumns?;
+    string[] joiningRefColumns?;
+    string[] joiningJoinColumns?;
     JoinType 'type = ONE;
 |};
 

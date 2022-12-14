@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/sql;
+import ballerina/regex;
  
 # The client used by the generated persist clients to abstract and 
 # execute SQL queries that are required to perform CRUD operations.
@@ -70,49 +71,49 @@ public client class SQLClient {
         return result;
     }
 
-    public isolated function populateIntermediateTables(record {} 'object) returns Error? {
+    public isolated function populateJoinTables(record {} 'object) returns Error? {
         foreach JoinMetadata joinMetadata in self.joinMetadata {
             string fieldName = joinMetadata.fieldName;
 
-            if joinMetadata.joinTable is string && 'object[fieldName] != () {
-                string intermediateTable = <string>joinMetadata.joinTable;
-                string[] intermediateJoinColumns = <string[]>joinMetadata.intermediateJoinColumns; //studentId
-                string[] joinColumns = <string[]>joinMetadata.joinColumns; //i_lectureId
-                string[] refColumns = <string[]>joinMetadata.intermediateRefFields; //i_studentId
-                string[] refFields = <string[]>joinMetadata.refColumns; //lectureId
+            if joinMetadata.joinTable is string && 'object[fieldName] is record{}[] {
+                string joinTable = <string>joinMetadata.joinTable;
+                string[] joiningJoinColumns = <string[]>joinMetadata.joiningJoinColumns;
+                string[] joinColumns = <string[]>joinMetadata.joinColumns;
+                string[] joiningRefColumns = <string[]>joinMetadata.joiningRefColumns;
+                string[] refColumns = <string[]>joinMetadata.refColumns;
 
                 record{}[] toBeInserted = <record{}[]>'object[fieldName];
-                string[] insertFields = [...refColumns, ...joinColumns];
-                sql:Value[] parentTableValues = [];
-                sql:Value[][] childTableValues = [];
+                string[] insertFields = [...joiningRefColumns, ...joinColumns];
+                sql:Value[] lhsColumnsValues = [];
+                sql:Value[][] joinTableValues = [];
 
-                foreach string intermediateJoinColumn in intermediateJoinColumns {
+                foreach string joiningJoinColumn in joiningJoinColumns {
                     foreach string key in self.fieldMetadata.keys() {
-                        if self.fieldMetadata.get(key).columnName == intermediateJoinColumn {
-                            parentTableValues.push(<sql:Value>'object[key]);
+                        if self.fieldMetadata.get(key).columnName == joiningJoinColumn {
+                            lhsColumnsValues.push(<sql:Value>'object[key]);
                         }
                     }
                 }
 
                 foreach record{} row in toBeInserted {
-                    sql:Value[] values = [...parentTableValues];
-                    foreach string refField in refFields {
+                    sql:Value[] values = [...lhsColumnsValues];
+                    foreach string refColumn in refColumns {
                         foreach string key in self.fieldMetadata.keys() {
-                            if key.includes(fieldName + "[]") && (<RelationMetadata>self.fieldMetadata.get(key).relation).refColumnName == refField {
+                            if key.includes(fieldName + "[]") && (<RelationMetadata>self.fieldMetadata.get(key).relation).refColumnName == refColumn {
                                 values.push(<sql:Value>row[(<RelationMetadata>self.fieldMetadata.get(key).relation).refField]);
                             }
                         }
                     }
-                    childTableValues.push(values);
+                    joinTableValues.push(values);
                 }
 
                 sql:ParameterizedQuery[] sqlQueries = 
-                    from var row in childTableValues
-                        select sql:queryConcat(
-                            `INSERT INTO `, stringToParameterizedQuery(intermediateTable),
-                            ` (`, arrayToParameterizedQuery(insertFields), `) `,
-                            `VALUES (`, arrayToParameterizedQuery(row, false), `)`
-                        );
+                    from var row in joinTableValues
+                    select sql:queryConcat(
+                        `INSERT INTO `, stringToParameterizedQuery(joinTable),
+                        ` (`, arrayToParameterizedQuery(insertFields), `) `,
+                        `VALUES (`, arrayToParameterizedQuery(row, false), `)`
+                    );
 
                 sql:ExecutionResult[]|sql:Error result = self.dbClient->batchExecute(sqlQueries);
 
@@ -122,7 +123,6 @@ public client class SQLClient {
             }
         }
     }
-
 
     # Performs an SQL `SELECT` operation to read a single record from the database.
     #
@@ -246,68 +246,51 @@ public client class SQLClient {
             sql:ParameterizedQuery query = ``;
             JoinMetadata joinMetadata = self.joinMetadata.get(joinKey);
 
-
             if include.indexOf(joinKey) != () && joinMetadata.'type == MANY {
                 if joinMetadata.joinTable is () {
                     // 1-m relation
                     map<string> whereFilter = {};
                     foreach int i in 0 ..< joinMetadata.refColumns.length() {
-                        whereFilter[joinMetadata.refColumns[i]] = 'object[joinMetadata.joinColumns[i]].toBalString();
+                        whereFilter[joinMetadata.refColumns[i]] = 'object[self.getFieldFromColumn(joinMetadata.joinColumns[i])].toBalString();
                     }
 
-                    query = sql:queryConcat(`SELECT `, self.getManyRelationColumnNames(joinMetadata.fieldName),
+                    query = sql:queryConcat(
+                        ` SELECT `, self.getManyRelationColumnNames(joinMetadata.fieldName),
                         ` FROM `, stringToParameterizedQuery(joinMetadata.refTable),
                         ` WHERE`, check self.getWhereClauses(whereFilter, true)
-                        );
+                    );
 
                 } else {
                     // m-n relation
-                    string whereFields = "(";
+                    string joinTable = <string>joinMetadata.joinTable;
+                    string[] joiningRefColumns = <string[]>joinMetadata.joiningRefColumns;
+                    string[] joiningJoinColumns = <string[]>joinMetadata.joiningJoinColumns;
+
+                    sql:ParameterizedQuery whereFields = arrayToParameterizedQuery(joinMetadata.refColumns);
+                    sql:ParameterizedQuery joinSelectColumns = arrayToParameterizedQuery(joinMetadata.joinColumns);                 
+
+                    map<string> innerWhereFilter = {};
                     foreach int i in 0 ..< joinMetadata.refColumns.length() {
-                        if i > 0 {
-                            whereFields = whereFields + ", ";
-                        }
-                        whereFields = whereFields + joinMetadata.refColumns[i];
-                    }
-                    whereFields = whereFields + ")";
-
-                    string intermediateTable = <string>joinMetadata.joinTable;
-                    string[] intermediateRefFields = <string[]>joinMetadata.intermediateRefFields;
-                    string[] intermediateJoinColumns = <string[]>joinMetadata.intermediateJoinColumns;
-
-                    string whereIntermediateFields = "(";
-                    foreach int i in 0 ..< joinMetadata.joinColumns.length() {
-                        if i > 0 {
-                            whereIntermediateFields = whereIntermediateFields + ", ";
-                        }
-                        whereIntermediateFields = whereIntermediateFields + joinMetadata.joinColumns[i];
-                    }
-                    whereIntermediateFields = whereIntermediateFields + ")";
-
-                    map<string> whereFilter = {};
-                    foreach int i in 0 ..< joinMetadata.refColumns.length() {
-                        whereFilter[intermediateRefFields[i]] = 'object[intermediateJoinColumns[i]].toBalString();
+                        innerWhereFilter[joiningRefColumns[i]] = 'object[self.getFieldFromColumn(joiningJoinColumns[i])].toBalString();
                     }
 
-                    query = sql:queryConcat(`SELECT`, self.getManyRelationColumnNames(joinMetadata.fieldName),
+                    query = sql:queryConcat(
+                        ` SELECT`, self.getManyRelationColumnNames(joinMetadata.fieldName),
                         ` FROM `, stringToParameterizedQuery(joinMetadata.refTable),
-                        ` WHERE `, stringToParameterizedQuery(whereFields), ` IN (`,
-                            ` SELECT `, stringToParameterizedQuery(whereIntermediateFields), 
-                            ` FROM `, stringToParameterizedQuery(intermediateTable),
-                            ` WHERE `, check self.getWhereClauses(whereFilter, true),
-                            `)`
+                        ` WHERE `, whereFields, ` IN (`,
+                            ` SELECT `, joinSelectColumns, 
+                            ` FROM `, stringToParameterizedQuery(joinTable),
+                            ` WHERE `, check self.getWhereClauses(innerWhereFilter, true),
+                        `)`
                     );
                 }
 
                 stream<record {}, sql:Error?> joinStream = self.dbClient->query(query, joinMetadata.entity);
-                record {}[] arr = [];
-                error? e = from record {} item in joinStream
-                    do {
-                        arr.push(item);
-                    };
-
-                if e is error {
-                    return <Error>error(e.message());
+                record{}[]|error arr = from record {} item in joinStream
+                                       select item;
+                
+                if arr is error {
+                    return <Error>error(arr.message());
                 }
 
                 'object[joinMetadata.fieldName] = convertToArray(joinMetadata.entity, arr);
@@ -346,9 +329,9 @@ public client class SQLClient {
             }
 
             if key.includes(".") {
-                int splitPosition = <int>key.indexOf(".", 0);
-                string entity = key.substring(0, splitPosition);
-                string fieldName = key.substring(splitPosition + 1, key.length());
+                string[] splits = regex:split(key, "\\.");
+                string entity = splits[0];
+                string fieldName = splits[1];
                 if 'object[entity] is () {
                     params = sql:queryConcat(params, `NULL`);
                 } else {
@@ -389,17 +372,18 @@ public client class SQLClient {
                 if columnCount > 0 {
                     params = sql:queryConcat(params, `, `);
                 }
-                params = sql:queryConcat(params, stringToParameterizedQuery(self.entityName + "." + <string>self.fieldMetadata.get(key).columnName + " AS `" + <string>self.fieldMetadata.get(key).columnName + "`"));
+                params = sql:queryConcat(params, stringToParameterizedQuery(self.entityName + "." + <string>self.fieldMetadata.get(key).columnName + " AS `" + key + "`"));
                 columnCount = columnCount + 1;
             } else if include.indexOf((<RelationMetadata>self.fieldMetadata.get(key).relation).entityName) != () {
                 if !key.includes("[]") {
+                    string fieldName = regex:split(key, "\\.")[0];
                     if columnCount > 0 {
                         params = sql:queryConcat(params, `, `);
                     }
                     params = sql:queryConcat(params, stringToParameterizedQuery(
                         (<RelationMetadata>self.fieldMetadata.get(key).relation).entityName + "." +
                         (<RelationMetadata>self.fieldMetadata.get(key).relation).refField +
-                        " AS `" + (<RelationMetadata>self.fieldMetadata.get(key).relation).entityName + "." + (<RelationMetadata>self.fieldMetadata.get(key).relation).refField + "`"
+                        " AS `" + fieldName + "." + (<RelationMetadata>self.fieldMetadata.get(key).relation).refField + "`"
                     ));
                     columnCount = columnCount + 1;
                 }
@@ -422,7 +406,7 @@ public client class SQLClient {
             }
 
             string fieldName = key.substring((prefix + "[].").length());
-            string columnName = (<RelationMetadata>(<FieldMetadata>self.fieldMetadata[key]).relation).refField;
+            string columnName = (<RelationMetadata>(<FieldMetadata>self.fieldMetadata[key]).relation).refColumnName;
             params = sql:queryConcat(params, stringToParameterizedQuery(columnName + " AS " + fieldName));
             columnCount = columnCount + 1;
         }
@@ -499,6 +483,13 @@ public client class SQLClient {
                 string `Unable to directly insert into field ${fieldName}`);
         }
         return stringToParameterizedQuery(<string>(<FieldMetadata>fieldMetadata).columnName);
+    }
+
+    private isolated function getFieldFromColumn(string columnName) returns string {
+        string fieldName = from string key in self.fieldMetadata.keys()
+                           where (<FieldMetadata>self.fieldMetadata[key]).columnName == columnName
+                           select key;
+        return fieldName;
     }
 }
 

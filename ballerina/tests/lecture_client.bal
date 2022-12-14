@@ -24,19 +24,19 @@ client class LectureClient {
     private final string entityName = "Lecture";
     private final sql:ParameterizedQuery tableName = `Lectures`;
     private final map<FieldMetadata> fieldMetadata = {
-        lectureId: {columnName: "lectureId", 'type: int},
-        subject: {columnName: "subject", 'type: string},
-        time: {columnName: "time", 'type: time:TimeOfDay},
-        day: {columnName: "day", 'type: string},
-        "students[].studentId": {'type: int, relation: {entityName: "student", refTable: "Lecture", refField: "studentId", refColumnName: "studentId"}},
-        "students[].firstName": {'type: string, relation: {entityName: "student", refTable: "Lecture", refField: "firstName", refColumnName: "firstName"}},
-        "students[].lastName": {'type: string, relation: {entityName: "student", refTable: "Lecture", refField: "lastName", refColumnName: "lastName"}},
-        "students[].dob": {'type: time:Date, relation: {entityName: "student", refTable: "Lecture", refField: "dob", refColumnName: "dob"}},
-        "students[].contact": {'type: string, relation: {entityName: "student", refTable: "Lecture", refField: "contact", refColumnName: "contact"}}
+        o_lectureId: {columnName: "lectureId", 'type: int},
+        o_subject: {columnName: "subject", 'type: string},
+        o_time: {columnName: "time", 'type: time:TimeOfDay},
+        o_day: {columnName: "day", 'type: string},
+        "o_students[].o_studentId": {'type: int, relation: {entityName: "student", refTable: "Lecture", refField: "o_studentId", refColumnName: "studentId"}},
+        "o_students[].o_firstName": {'type: string, relation: {entityName: "student", refTable: "Lecture", refField: "o_firstName", refColumnName: "firstName"}},
+        "o_students[].o_lastName": {'type: string, relation: {entityName: "student", refTable: "Lecture", refField: "o_lastName", refColumnName: "lastName"}},
+        "o_students[].o_dob": {'type: time:Date, relation: {entityName: "student", refTable: "Lecture", refField: "o_dob", refColumnName: "dob"}},
+        "o_students[].o_contact": {'type: string, relation: {entityName: "student", refTable: "Lecture", refField: "o_contact", refColumnName: "contact"}}
     };
-    private string[] keyFields = ["lectureId"];
+    private string[] keyFields = ["o_lectureId"];
     private final map<JoinMetadata> joinMetadata = {
-        student: {entity: Student, fieldName: "students", refTable: "Students", refColumns: ["studentId"], joinColumns: ["i_studentId"], joinTable: "StudentsLectures", intermediateJoinColumns: ["lectureId"], intermediateRefFields: ["i_lectureId"], 'type: MANY}
+        student: {entity: Student, fieldName: "o_students", refTable: "Students", refColumns: ["studentId"], joinColumns: ["i_studentId"], joinTable: "StudentsLectures", joiningJoinColumns: ["lectureId"], joiningRefColumns: ["i_lectureId"], 'type: MANY}
     };
 
     private SQLClient persistClient;
@@ -51,10 +51,10 @@ client class LectureClient {
     }
 
     remote function create(Lecture value) returns Lecture|Error {
-        if value.students is Student[] {
+        if value.o_students is Student[] {
             StudentClient studentClient = check new StudentClient();
             Student[] insertedEntities = [];
-            foreach Student student in <Student[]>value.students {
+            foreach Student student in <Student[]>value.o_students {
                 Student inserted = student;
                 boolean exists = check studentClient->exists(student);
                 if !exists {
@@ -62,11 +62,11 @@ client class LectureClient {
                 }
                 insertedEntities.push(inserted);
             }
-            value.students = insertedEntities;
+            value.o_students = insertedEntities;
             }
 
         _ = check self.persistClient.runInsertQuery(value);
-        _ = check self.persistClient.populateIntermediateTables(value);
+        _ = check self.persistClient.populateJoinTables(value);
 
         return value;
     }
@@ -93,7 +93,7 @@ client class LectureClient {
     }
 
     remote function exists(Lecture lecture) returns boolean|Error {
-        Lecture|Error result = self->readByKey(lecture.lectureId);
+        Lecture|Error result = self->readByKey(lecture.o_lectureId);
         if result is Lecture {
             return true;
         } else if result is InvalidKeyError {

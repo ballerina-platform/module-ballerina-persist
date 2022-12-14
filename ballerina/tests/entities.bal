@@ -131,14 +131,14 @@ public type Employee record {|
     tableName: "Students"
 }
 public type Student record {|
-    int studentId = -1;
-    string firstName;
-    string lastName;
-    time:Date dob;
-    string contact;
+    int o_studentId = -1;
+    string o_firstName;
+    string o_lastName;
+    time:Date o_dob;
+    string o_contact;
 
     @Relation {keyColumns: ["studentId"], reference: ["studentId"]}
-    Lecture[] lectures?;
+    Lecture[] o_lectures?;
 |};
 
 @Entity {
@@ -146,11 +146,11 @@ public type Student record {|
     tableName: "Lectures"
 }
 public type Lecture record {|
-    int lectureId;
-    string subject;
-    string day;
-    time:TimeOfDay time;
+    int o_lectureId;
+    string o_subject;
+    string o_day;
+    time:TimeOfDay o_time;
 
     @Relation {keyColumns: ["lectureId"], reference: ["lectureId"]}
-    Student[] students?;
+    Student[] o_students?;
 |};
