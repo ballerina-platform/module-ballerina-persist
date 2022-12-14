@@ -1280,7 +1280,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             case Constants.BallerinaTypes.BOOLEAN:
             case Constants.BallerinaTypes.DECIMAL:
             case Constants.BallerinaTypes.FLOAT:
-            case Constants.BallerinaTypes.DATE:
             case Constants.BallerinaTypes.STRING:
             case Constants.BallerinaTypes.BYTE:
                 return true;
@@ -1291,6 +1290,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
 
     private boolean isValidImportedType(String type) {
         switch (type) {
+            case Constants.BallerinaTypes.DATE:
             case Constants.BallerinaTypes.TIME_OF_DAY:
             case Constants.BallerinaTypes.UTC:
             case Constants.BallerinaTypes.CIVIL:
