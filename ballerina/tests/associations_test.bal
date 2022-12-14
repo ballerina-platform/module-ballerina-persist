@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/test;
 
 @test:Config {
@@ -428,48 +427,66 @@ function oneToManyUpdateTest4() returns error? {
     groups: ["associations", "many-to-many"]
 }
 function manyToManyCreateTest1() returns error? {
-    // Company company = {
-    //     id: 1,
-    //     name: "TestCompany1"
-    // };
-    // CompanyClient companyClient = check new ();
-    // _ = check companyClient->create(company);
+    Lecture lecture = {
+        lectureId: 1,
+        subject: "TestLecture1",
+        day: "monday",
+        time: {hour: 13, minute: 1, second: 0}
+    };
 
-    // Employee employee = {
-    //     id: 1,
-    //     name: "TestEmployee1",
-    //     company: company
-    // };
-    // EmployeeClient employeeClient = check new ();
-    // Employee employee2 = check employeeClient->create(employee);
+    Lecture lecture2 = {
+        lectureId: 2,
+        subject: "TestLecture2",
+        day: "tuesday",
+        time: {hour: 13, minute: 2, second: 0}
+    };
 
+    Student student = {
+        studentId: 32,
+        firstName: "Tom",
+        lastName: "Scott",
+        dob: {year: 1996, month: 12, day: 12},
+        contact: "0771952226",
+        lectures: [lecture, lecture2]
+    };
     StudentClient studentClient = check new();
-    Student student = check studentClient->readByKey(1, [LectureEntity]);
-    io:println(student);
+    _ = check studentClient->create(student);
+
+    Student studentR = check studentClient->readByKey(32, [LectureEntity]);
+    test:assertEquals(student, studentR);
 }
 
 @test:Config {
     groups: ["associations", "many-to-many"]
 }
 function manyToManyCreateTest2() returns error? {
+    Student student = {
+        studentId: 11,
+        firstName: "Tom",
+        lastName: "Scott",
+        dob: {year: 1996, month: 12, day: 12},
+        contact: "0771952226"
+    };
+
+    Student student2 = {
+        studentId: 12,
+        firstName: "Tom2",
+        lastName: "Scott2",
+        dob: {year: 1996, month: 12, day: 12},
+        contact: "0771952222"
+    };
+
+    Lecture lecture = {
+        lectureId: 11,
+        subject: "TestLecture11",
+        day: "monday",
+        time: {hour: 13, minute: 1, second: 0},
+        students: [student, student2]
+    };
+
     LectureClient lectureClient = check new();
-    // Lecture lecture = {
-    //     lectureId: 1,
-    //     subject: "TestLecture1",
-    //     day: "monday",
-    //     time: {hour: 13, minute: 0}
-    // };
-    // _ = check lectureClient->create(lecture);
+    _ = check lectureClient->create(lecture);
 
-    // Employee employee = {
-    //     id: 1,
-    //     name: "TestEmployee1",
-    //     company: company
-    // };
-    // EmployeeClient employeeClient = check new ();
-    // Employee employee2 = check employeeClient->create(employee);
-
-    Lecture lecture2 = check lectureClient->readByKey(1, [StudentEntity]);
-    io:println(lecture2);
+    Lecture lectureR = check lectureClient->readByKey(11, [StudentEntity]);
+    test:assertEquals(lecture, lectureR);
 }
-

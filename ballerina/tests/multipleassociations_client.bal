@@ -25,15 +25,15 @@ client class MultipleAssociationsClient {
     private final map<FieldMetadata> fieldMetadata = {
         id: {columnName: "id", 'type: int},
         name: {columnName: "name", 'type: string},
-        "profile.id": {columnName: "profileId", 'type: int, relation: {entityName: "profile", refTable: "Profiles", refField: "id"}},
-        "profile.name": {'type: int, relation: {entityName: "profile", refTable: "Profiles", refField: "name"}},
-        "user.id": {columnName: "userId", 'type: int, relation: {entityName: "user", refTable: "Users", refField: "id"}},
-        "user.name": {'type: int, relation: {entityName: "user", refTable: "Users", refField: "name"}}
+        "profile.id": {columnName: "profileId", 'type: int, relation: {entityName: "profile", refTable: "Profiles", refField: "id", refColumnName: "id"}},
+        "profile.name": {'type: int, relation: {entityName: "profile", refTable: "Profiles", refField: "name", refColumnName: "name"}},
+        "user.id": {columnName: "userId", 'type: int, relation: {entityName: "user", refTable: "Users", refField: "id", refColumnName: "id"}},
+        "user.name": {'type: int, relation: {entityName: "user", refTable: "Users", refField: "name", refColumnName: "name"}}
     };
     private string[] keyFields = ["id"];
     private final map<JoinMetadata> joinMetadata = {
-        profile: {entity: Profile, fieldName: "profile", refTable: "Profiles", refFields: ["id"], joinColumns: ["profileId"]},
-        user: {entity: User, fieldName: "user", refTable: "Users", refFields: ["id"], joinColumns: ["userId"]}
+        profile: {entity: Profile, fieldName: "profile", refTable: "Profiles", refColumns: ["id"], joinColumns: ["profileId"]},
+        user: {entity: User, fieldName: "user", refTable: "Users", refColumns: ["id"], joinColumns: ["userId"]}
     };
 
     private SQLClient persistClient;

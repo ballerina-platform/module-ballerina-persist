@@ -47,11 +47,24 @@ public annotation AutoIncrementConfig AutoIncrement on record field;
 # + reference - The names of the fields of the other entity, which are referenced by the `keyColumns`
 # + onDelete - The action to be taken when the referenced value in the parent entity is deleted
 # + onUpdate - The action to be taken when the referenced value in the parent entity is updated
+# + joiningTable - The details of the joining table to be used in a many-to-many relation
 public type RelationConfig record {|
     string[] keyColumns?;
     string[] reference?;
     ReferenceAction onDelete?;
     ReferenceAction onUpdate?;
+    JoiningTable joiningTable?;
+|};
+
+# Defines the joining table to be used to maintain many-to-many relations.
+#
+# + name - The names of the joining table
+# + lhsColumns - The names of the columns on the left-hand side of the joining table
+# + rhsColumns - The names of the columns on the right-hand side of the joining table
+public type JoiningTable record {|
+    string name;
+    string[] lhsColumns;
+    string[] rhsColumns;
 |};
 
 # Defines the actions that can be taken when deleting or updating the values of the parent entity.
