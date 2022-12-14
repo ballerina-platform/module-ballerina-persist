@@ -79,7 +79,7 @@ CREATE TABLE test.Lectures (
 );
 
 CREATE TABLE test.StudentsLectures (
-    studentId INTEGER,
-    lectureId INTEGER,
-    PRIMARY KEY(studentId, lectureId)
+    i_studentId INTEGER,
+    i_lectureId INTEGER,
+    PRIMARY KEY(i_studentId, i_lectureId)
 );
