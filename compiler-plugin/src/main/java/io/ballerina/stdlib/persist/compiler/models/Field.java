@@ -34,7 +34,6 @@ public class Field {
     private Node type;
     private NodeLocation typeLocation;
     private boolean isRelationAttachedToValidEntity;
-
     private boolean isOptional = false;
 
     public Field(String fieldName, AnnotationNode autoIncrementNode, AnnotationNode relationAnnotation) {
