@@ -60,10 +60,11 @@ public class CompilerPluginTest {
         testDiagnostic("package_01", "invalid key: the given key is not in the record definition",
                 DiagnosticsCodes.PERSIST_102.getCode(), 2);
     }
+
     @Test
     public void testEntityAnnotation2() {
         testDiagnostic("package_02", "invalid key: the given key is not in the record definition",
-                DiagnosticsCodes.PERSIST_102.getCode(), 2);
+                DiagnosticsCodes.PERSIST_102.getCode(), 3);
     }
 
     @Test
@@ -72,7 +73,8 @@ public class CompilerPluginTest {
                 "read-only", DiagnosticsCodes.PERSIST_106.getCode(), 2);
     }
 
-    @Test
+    //todo: Should this be a validation
+    @Test(enabled = false)
     public void testMultipleAutoIncrementAnnotation() {
         testDiagnostic("package_04", "duplicate annotation: the entity does not allow " +
                         "multiple field with auto increment annotation",
@@ -101,6 +103,19 @@ public class CompilerPluginTest {
     public void testAutoIncrementField() {
         testDiagnostic("package_10", "invalid initialization: auto increment field " +
                 "must be defined as a key", DiagnosticsCodes.PERSIST_108.getCode(), 1);
+    }
+
+    @Test
+    public void testFieldInitialization() {
+        testDiagnostic("package_33", "invalid field initialization: ''persist:Entity'' does not " +
+                "allow an inherited field", DiagnosticsCodes.PERSIST_129.getCode(), 1);
+    }
+
+    @Test
+    public void testFieldInitialization1() {
+        testDiagnostic("package_34", "invalid field initialization: ''persist:Entity'' fields can " +
+                        "not be initialized by using the rest field type definition",
+                DiagnosticsCodes.PERSIST_130.getCode(), 1);
     }
 
     @Test
@@ -151,7 +166,7 @@ public class CompilerPluginTest {
     @Test
     public void testUnSupportedFeature1() {
         testDiagnostic("package_22", "unsupported features: array type is not supported",
-                DiagnosticsCodes.PERSIST_120.getCode(), 1);
+                DiagnosticsCodes.PERSIST_120.getCode(), 2);
     }
 
     @Test
@@ -163,45 +178,45 @@ public class CompilerPluginTest {
     @Test
     public void testUnSupportedFeature3() {
         testDiagnostic("package_24", "unsupported features: json type is not supported",
-                DiagnosticsCodes.PERSIST_121.getCode(), 1);
+                DiagnosticsCodes.PERSIST_121.getCode(), 2);
     }
 
     @Test
     public void testUnSupportedFeature4() {
         testDiagnostic("package_25", "unsupported features: json type is not supported",
-                DiagnosticsCodes.PERSIST_121.getCode(), 1);
+                DiagnosticsCodes.PERSIST_121.getCode(), 2);
     }
 
     @Test
     public void testInvalidAnnotation() {
-        testDiagnostic("package_18",  "invalid annotation attachment: the `one-to-many` relation " +
+        testDiagnostic("package_18", "invalid annotation attachment: the `one-to-many` relation " +
                         "annotation can not be attached to the array entity record field",
                 DiagnosticsCodes.PERSIST_118.getCode(), 1);
     }
 
     @Test
     public void testInvalidAnnotation1() {
-        testDiagnostic("package_19",  "invalid annotation attachment: this " +
+        testDiagnostic("package_19", "invalid annotation attachment: this " +
                         "non-entity type field does not allow a relation annotation",
                 DiagnosticsCodes.PERSIST_117.getCode(), 1);
     }
 
     @Test
     public void testInvalidAnnotation2() {
-        testDiagnostic("package_08",  "relation annotation can only be attached to an entity record",
+        testDiagnostic("package_08", "relation annotation can only be attached to an entity record",
                 DiagnosticsCodes.PERSIST_125.getCode(), 1);
     }
 
     @Test
     public void testInvalidAnnotation3() {
-        testDiagnostic("package_09",  "auto increment annotation can only be attached to " +
+        testDiagnostic("package_09", "auto increment annotation can only be attached to " +
                 "an entity record", DiagnosticsCodes.PERSIST_126.getCode(), 1);
     }
 
     @Test
     public void testInvalidAnnotation4() {
-        testDiagnostic("package_32", "annotation 'persist:Entity' is not allowed on type",
-                DiagnosticsCodes.PERSIST_128.getCode(), 3);
+        testDiagnostic("package_32", "invalid attachment: ''persist:Entity'' annotation is only " +
+                "allowed on record type description", DiagnosticsCodes.PERSIST_128.getCode(), 3);
     }
 
     @Test
@@ -213,20 +228,20 @@ public class CompilerPluginTest {
     @Test
     public void testGetReferenceWithCompositeKey() {
         testDiagnostic("package_26", "associated entity contains composite primary keys: " +
-                        "inferring the relation reference from composite keys is not supported yet. " +
-                        "please add the references for relation", DiagnosticsCodes.PERSIST_122.getCode(), 1);
+                "inferring the relation reference from composite keys is not supported yet. " +
+                "please add the references for relation", DiagnosticsCodes.PERSIST_122.getCode(), 1);
     }
 
     @Test
     public void testGetReferenceWithEmptyKey() {
         testDiagnostic("package_27", "associated entity does not contain any primary keys: " +
-                        "the key should have a valid value", DiagnosticsCodes.PERSIST_123.getCode(), 1);
+                "the key should have a valid value", DiagnosticsCodes.PERSIST_123.getCode(), 1);
     }
 
     @Test
     public void testGetReferenceWithEmptyKey1() {
         testDiagnostic("package_28", "associated entity does not contain any primary keys: " +
-                "the key should have a valid value", DiagnosticsCodes.PERSIST_123.getCode(), 1);
+                "the key should have a valid value", DiagnosticsCodes.PERSIST_123.getCode(), 3);
     }
 
     @Test
@@ -237,24 +252,29 @@ public class CompilerPluginTest {
 
     @Test
     public void testEntityClosedRecord2() {
+        // todo: test all thrown errors.
         testDiagnostic("package_31", "the entity 'MedicalNeed2' should be a closed record.",
-                DiagnosticsCodes.PERSIST_124.getCode(), 1);
+                DiagnosticsCodes.PERSIST_124.getCode(), 3, 1);
     }
 
-     @Test
+    @Test
     public void testEntityClosedRecord3() {
         testDiagnostic("package_12", "this field only allows inline initialisation",
-                DiagnosticsCodes.PERSIST_127.getCode(), 8);
+                DiagnosticsCodes.PERSIST_127.getCode(), 8, 1);
     }
 
     private void testDiagnostic(String packageName, String msg, String code, int count) {
+        testDiagnostic(packageName, msg, code, count, 0);
+    }
+
+    private void testDiagnostic(String packageName, String msg, String code, int count, int index) {
         DiagnosticResult diagnosticResult = loadPackage(packageName).getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().
                 filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).
                 collect(Collectors.toList());
         long availableErrors = errorDiagnosticsList.size();
         Assert.assertEquals(availableErrors, count);
-        DiagnosticInfo error = errorDiagnosticsList.get(0).diagnosticInfo();
+        DiagnosticInfo error = errorDiagnosticsList.get(index).diagnosticInfo();
         Assert.assertEquals(error.code(), code);
         Assert.assertTrue(error.messageFormat().startsWith(msg));
     }

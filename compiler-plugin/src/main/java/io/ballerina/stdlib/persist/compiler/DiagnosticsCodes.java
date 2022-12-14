@@ -34,19 +34,17 @@ public enum DiagnosticsCodes {
             "invalid key: the given key is not in the record definition", ERROR),
     PERSIST_103("PERSIST_103",
             "invalid value: the value only supports positive integer", ERROR),
-    PERSIST_104("PERSIST_104",
-            "invalid value: the value does not support negative integer", ERROR),
     PERSIST_105("PERSIST_105",
             "invalid type: the field type should be in integer", ERROR),
     PERSIST_106("PERSIST_106",
             "invalid initialization: the field is not specified as read-only", ERROR),
     PERSIST_107("PERSIST_107", "duplicate annotation: the entity does not allow " +
             "multiple field with auto increment annotation", ERROR),
+    // todo change to say auto increment is only allowed with primary key
     PERSIST_108("PERSIST_108", "invalid initialization: auto increment field" +
             " must be defined as a key", ERROR),
     PERSIST_109("PERSIST_109", "mismatch reference: the given key count is mismatched " +
             "with reference key count", ERROR),
-    PERSIST_110("PERSIST_110", "", WARNING),
     PERSIST_111("PERSIST_111", "invalid initialization: the entity should be public", ERROR),
     PERSIST_112("PERSIST_112", "mysql db only allow increment value by one in auto generated field",
             WARNING),
@@ -65,6 +63,7 @@ public enum DiagnosticsCodes {
             "can not be attached to the array entity record field", ERROR),
     PERSIST_119("PERSIST_119", "duplicate entity names are not allowed: the specified name is already " +
             "used in another entity in [{0}]", ERROR),
+    // todo Array of simple type is not supported.
     PERSIST_120("PERSIST_120", "unsupported features: array type is not supported",
             ERROR),
     PERSIST_121("PERSIST_121", "unsupported features: {0} type is not supported",
@@ -78,9 +77,14 @@ public enum DiagnosticsCodes {
     PERSIST_125("PERSIST_125", "relation annotation can only be attached to an entity record", ERROR),
     PERSIST_126("PERSIST_126", "auto increment annotation can only be attached to an entity record",
             ERROR),
+    // todo: Give field name in message
     PERSIST_127("PERSIST_127", "this field only allows inline initialisation", ERROR),
-    PERSIST_128("PERSIST_128", "annotation ''persist:Entity'' is not allowed on {0}",
-            ERROR),
+    PERSIST_128("PERSIST_128", "invalid attachment: ''persist:Entity'' annotation is only allowed " +
+            "on record type description", ERROR),
+    PERSIST_129("PERSIST_129", "invalid field initialization: ''persist:Entity'' does not " +
+            "allow an inherited field", ERROR),
+    PERSIST_130("PERSIST_130", "invalid field initialization: ''persist:Entity'' fields can not be " +
+            "initialized by using the rest field type definition", ERROR),
 
     // todo: Add expression type in the diagnostic message
     PERSIST_201("PERSIST_201",

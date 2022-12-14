@@ -30,16 +30,36 @@ import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createEmptyM
  */
 public class Constants {
 
+    /**
+     * Constants for annotation names.
+     */
+    public static class Annotations {
+        private Annotations(){
+        }
+
+        public static final String ENTITY = "persist:Entity";
+        public static final String AUTO_INCREMENT = "persist:AutoIncrement";
+        public static final String RELATION = "persist:Relation";
+    }
+
+    /**
+     * Constant representing Entity annotation descriptor.
+     */
+    public static class EntityAnnotation {
+        private EntityAnnotation(){
+        }
+
+        public static final String KEY = "key";
+        public static final String UNIQUE_CONSTRAINTS = "uniqueConstraints";
+        public static final String TABLE_NAME = "tableName";
+    }
+
     public static final String TRUE = "true";
     public static final String EMPTY = "";
     public static final String FALSE = "false";
-    public static final String INSERT_METHOD_NAME = "runInsertQuery";
-    public static final String ENTITY = "persist:Entity";
     public static final String UNNECESSARY_CHARS_REGEX = "\"|\\n";
     public static final String TABLE_NAME = "tableName";
-    public static final String AUTO_INCREMENT = "persist:AutoIncrement";
     public static final String INCREMENT = "increment";
-    public static final String RELATION = "persist:Relation";
     public static final String KEY_COLUMNS = "keyColumns";
     public static final String REFERENCE = "reference";
     public static final String ONE = "1";
@@ -47,7 +67,6 @@ public class Constants {
     public static final String ON_UPDATE = "onUpdate";
     public static final String ONE_TO_ONE = "ONE";
     public static final String ONE_TO_MANY = "MANY";
-
     public static final String READ_FUNCTION = "read";
     public static final String EXECUTE_FUNCTION = "execute";
     public static final String BACKTICK = "`";
