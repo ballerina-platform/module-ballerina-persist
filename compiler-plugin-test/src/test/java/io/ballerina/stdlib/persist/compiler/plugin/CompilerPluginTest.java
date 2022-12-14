@@ -156,8 +156,8 @@ public class CompilerPluginTest {
 
     @Test
     public void testInvalidInitialisation() {
-        testDiagnostic("package_14", "invalid entity initialisation: the associated entity of " +
-                        "this[Item] does not have the field with the relationship type",
+        testDiagnostic("package_14", "invalid entity initialisation: the associated entity[Item] " +
+                        "does not have the field with the relationship type",
                 DiagnosticsCodes.PERSIST_115.getCode(), 4);
     }
 
@@ -173,6 +173,13 @@ public class CompilerPluginTest {
         testDiagnostic("package_16", "invalid entity initialisation: the relation annotation " +
                         "should only be added to the relationship owner for one-to-one and one-to-many associations",
                 DiagnosticsCodes.PERSIST_116.getCode(), 2);
+    }
+
+    @Test
+    public void testInvalidInitialisation3() {
+        testDiagnostic("package_38", "invalid entity initialisation: the " +
+                        "associated entity[RecordTest1] is not an entity",
+                DiagnosticsCodes.PERSIST_132.getCode(), 2, 1);
     }
 
     @Test

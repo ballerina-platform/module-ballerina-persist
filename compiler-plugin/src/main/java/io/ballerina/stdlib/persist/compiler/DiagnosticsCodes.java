@@ -54,7 +54,7 @@ public enum DiagnosticsCodes {
             ERROR),
     PERSIST_114("PERSIST_114", "unsupported features: many-to-many association is not supported yet",
             ERROR),
-    PERSIST_115("PERSIST_115", "invalid entity initialisation: the associated entity of this[{0}] " +
+    PERSIST_115("PERSIST_115", "invalid entity initialisation: the associated entity[{0}] " +
             "does not have the field with the relationship type", ERROR),
     PERSIST_116("PERSIST_116", "invalid entity initialisation: the relation annotation should " +
             "only be added to the relationship owner for one-to-one and one-to-many associations", ERROR),
@@ -87,6 +87,8 @@ public enum DiagnosticsCodes {
             "initialized by using the rest field type definition", ERROR),
     PERSIST_131("PERSIST_131", "duplicate key/s exist: ''{0}'' does not allow the multiple same field/s",
             ERROR),
+    PERSIST_132("PERSIST_132", "invalid entity initialisation: the associated entity[{0}] is not " +
+            "an entity", ERROR),
 
     // todo: Add expression type in the diagnostic message
     PERSIST_201("PERSIST_201",

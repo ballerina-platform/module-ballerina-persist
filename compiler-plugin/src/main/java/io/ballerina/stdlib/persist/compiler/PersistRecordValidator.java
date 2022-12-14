@@ -531,6 +531,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
     private void validateAttachmentType(Entity entity, Field field, String referencedRecordName,
                                         NodeLocation location, Module currentModule) {
         boolean isValidRecord = false;
+        boolean isEntity = false;
         for (DocumentId documentId : currentModule.documentIds()) {
             Document document = currentModule.document(documentId);
             NodeList<ModuleMemberDeclarationNode> memberNodes = ((ModulePartNode) document.syntaxTree().rootNode()).
@@ -546,6 +547,12 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 }
                 if (typeDefinitionNode.typeName().text().equals(referencedRecordName)) {
                     isValidRecord = true;
+                    Optional<MetadataNode> metadata = typeDefinitionNode.metadata();
+                    if (metadata.isPresent()) {
+                        if (getEntityAnnotation(metadata.get().annotations()).isPresent()) {
+                            isEntity = true;
+                        }
+                    }
                     break;
                 }
             }
@@ -556,8 +563,11 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                     MessageFormat.format(DiagnosticsCodes.PERSIST_115.getMessage(), referencedRecordName),
                     DiagnosticsCodes.PERSIST_115.getSeverity());
             field.setRelationAttachedToValidEntity(false);
+        } else if (!isEntity) {
+            entity.addDiagnostic(location, DiagnosticsCodes.PERSIST_132.getCode(),
+                    MessageFormat.format(DiagnosticsCodes.PERSIST_132.getMessage(), referencedRecordName),
+                    DiagnosticsCodes.PERSIST_132.getSeverity());
         } else {
-            // todo: Validate attached to persist:Entity
             field.setRelationAttachedToValidEntity(true);
         }
     }
