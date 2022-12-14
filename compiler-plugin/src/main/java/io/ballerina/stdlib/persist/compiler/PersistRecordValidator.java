@@ -496,17 +496,25 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 }
             } else if (typeNode instanceof SimpleNameReferenceNode) {
                 // Verify these are fields annotated with @Relation
+                String attachedEntity = ((SimpleNameReferenceNode) typeNode).name().text();
                 if (field.getRelationAnnotation() != null) {
                     if (this.entities.containsKey(field.getFieldName())) {
                         field.setRelationAttachedToValidEntity(true);
                     } else {
                         // Have to check all entities present in this module
-                        String attachedEntity = ((SimpleNameReferenceNode) typeNode).name().text();
                         validateAttachmentType(entity, field, attachedEntity, typeNode.location(),
                                 currentModule);
                     }
+                } else {
+                    TypeDefinitionNode typeDefinitionNode = getAttachmentEntity(attachedEntity, currentModule);
+                    if (typeDefinitionNode != null &&
+                            !hasAttachedEntityFieldRelationAnnotation(typeDefinitionNode, entity.getEntityName())) {
+                        entity.addDiagnostic(typeNode.location(), DiagnosticsCodes.PERSIST_133.getCode(),
+                                MessageFormat.format(DiagnosticsCodes.PERSIST_133.getMessage(), field.getFieldName()),
+                                DiagnosticsCodes.PERSIST_133.getSeverity());
+                        continue;
+                    }
                 }
-                // else { todo: Add relevant diagnostics for this case }
             } else if (typeNode instanceof UnionTypeDescriptorNode) {
                 // All other types are invalid.
                 entity.addDiagnostic(typeNode.location(), DiagnosticsCodes.PERSIST_101.getCode(),
@@ -530,8 +538,33 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
 
     private void validateAttachmentType(Entity entity, Field field, String referencedRecordName,
                                         NodeLocation location, Module currentModule) {
-        boolean isValidRecord = false;
-        boolean isEntity = false;
+        TypeDefinitionNode typeDefinitionNode = getAttachmentEntity(referencedRecordName, currentModule);
+        if (typeDefinitionNode == null) {
+            entity.addDiagnostic(location, DiagnosticsCodes.PERSIST_115.getCode(),
+                    MessageFormat.format(DiagnosticsCodes.PERSIST_115.getMessage(), referencedRecordName),
+                    DiagnosticsCodes.PERSIST_115.getSeverity());
+            field.setRelationAttachedToValidEntity(false);
+        } else {
+            Optional<MetadataNode> metadata = typeDefinitionNode.metadata();
+            if (metadata.isEmpty()) {
+                entity.addDiagnostic(location, DiagnosticsCodes.PERSIST_132.getCode(),
+                        MessageFormat.format(DiagnosticsCodes.PERSIST_132.getMessage(), referencedRecordName),
+                        DiagnosticsCodes.PERSIST_132.getSeverity());
+                field.setRelationAttachedToValidEntity(false);
+            } else {
+                if (getEntityAnnotation(metadata.get().annotations()).isEmpty()) {
+                    entity.addDiagnostic(location, DiagnosticsCodes.PERSIST_132.getCode(),
+                            MessageFormat.format(DiagnosticsCodes.PERSIST_132.getMessage(), referencedRecordName),
+                            DiagnosticsCodes.PERSIST_132.getSeverity());
+                    field.setRelationAttachedToValidEntity(false);
+                } else {
+                    field.setRelationAttachedToValidEntity(true);
+                }
+            }
+        }
+    }
+
+    private TypeDefinitionNode getAttachmentEntity(String referencedRecordName, Module currentModule) {
         for (DocumentId documentId : currentModule.documentIds()) {
             Document document = currentModule.document(documentId);
             NodeList<ModuleMemberDeclarationNode> memberNodes = ((ModulePartNode) document.syntaxTree().rootNode()).
@@ -546,30 +579,45 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                     continue;
                 }
                 if (typeDefinitionNode.typeName().text().equals(referencedRecordName)) {
-                    isValidRecord = true;
-                    Optional<MetadataNode> metadata = typeDefinitionNode.metadata();
-                    if (metadata.isPresent()) {
-                        if (getEntityAnnotation(metadata.get().annotations()).isPresent()) {
-                            isEntity = true;
-                        }
-                    }
-                    break;
+                    return typeDefinitionNode;
                 }
             }
         }
+        return null;
+    }
 
-        if (!isValidRecord) {
-            entity.addDiagnostic(location, DiagnosticsCodes.PERSIST_115.getCode(),
-                    MessageFormat.format(DiagnosticsCodes.PERSIST_115.getMessage(), referencedRecordName),
-                    DiagnosticsCodes.PERSIST_115.getSeverity());
-            field.setRelationAttachedToValidEntity(false);
-        } else if (!isEntity) {
-            entity.addDiagnostic(location, DiagnosticsCodes.PERSIST_132.getCode(),
-                    MessageFormat.format(DiagnosticsCodes.PERSIST_132.getMessage(), referencedRecordName),
-                    DiagnosticsCodes.PERSIST_132.getSeverity());
-        } else {
-            field.setRelationAttachedToValidEntity(true);
+    private boolean hasAttachedEntityFieldRelationAnnotation(TypeDefinitionNode typeDefinitionNode,
+                                                             String entityName) {
+        for (Node fieldNode : ((RecordTypeDescriptorNode) typeDefinitionNode.typeDescriptor()).fields()) {
+            Node typeNode;
+            Field field;
+            if (fieldNode instanceof RecordFieldNode) {
+                RecordFieldNode recordFieldNode = (RecordFieldNode) fieldNode;
+                Optional<MetadataNode> metadataNode = recordFieldNode.metadata();
+                field = getField(recordFieldNode.fieldName().text().trim(), metadataNode);
+                typeNode = recordFieldNode.typeName();
+            } else {
+                RecordFieldWithDefaultValueNode recordFieldNode = (RecordFieldWithDefaultValueNode) fieldNode;
+                Optional<MetadataNode> metadataNode = recordFieldNode.metadata();
+                field = getField(recordFieldNode.fieldName().text().trim(), metadataNode);
+                typeNode = recordFieldNode.typeName();
+            }
+            if (typeNode instanceof OptionalTypeDescriptorNode) {
+                typeNode = ((OptionalTypeDescriptorNode) typeNode).typeDescriptor();
+            }
+            if (typeNode instanceof ArrayTypeDescriptorNode) {
+                ArrayTypeDescriptorNode arrayTypeDescriptorNode = ((ArrayTypeDescriptorNode) typeNode);
+                typeNode = arrayTypeDescriptorNode.memberTypeDesc();
+            }
+            if (typeNode instanceof SimpleNameReferenceNode) {
+                if (((SimpleNameReferenceNode) typeNode).name().text().trim().equals(entityName)) {
+                    if (field.getRelationAnnotation() != null) {
+                        return true;
+                    }
+                }
+            }
         }
+        return false;
     }
 
     private Field getField(String fieldName, Optional<MetadataNode> metadataNode) {
@@ -1234,7 +1282,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             case Constants.BallerinaTypes.FLOAT:
             case Constants.BallerinaTypes.DATE:
             case Constants.BallerinaTypes.STRING:
-                //todo: Support byte[]
+            case Constants.BallerinaTypes.BYTE:
                 return true;
             default:
                 return false;

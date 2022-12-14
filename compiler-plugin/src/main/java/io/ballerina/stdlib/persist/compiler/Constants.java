@@ -85,6 +85,7 @@ public class Constants {
         public static final String BOOLEAN = "boolean";
         public static final String DECIMAL = "decimal";
         public static final String FLOAT = "float";
+        public static final String BYTE = "byte[]";
         public static final String DATE = "time:Date";
         public static final String TIME_OF_DAY = "time:TimeOfDay";
         public static final String UTC = "time:Utc";

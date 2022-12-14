@@ -89,6 +89,8 @@ public enum DiagnosticsCodes {
             ERROR),
     PERSIST_132("PERSIST_132", "invalid entity initialisation: the associated entity[{0}] is not " +
             "an entity", ERROR),
+    PERSIST_133("PERSIST_133", "invalid field type: can not be added the entity field " +
+            "without ''persist:Relation'' annotation", ERROR),
 
     // todo: Add expression type in the diagnostic message
     PERSIST_201("PERSIST_201",

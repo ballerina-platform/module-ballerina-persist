@@ -207,6 +207,13 @@ public class CompilerPluginTest {
     }
 
     @Test
+    public void testInvalidType() {
+        testDiagnostic("package_39", "invalid field type: can not be added the entity " +
+                        "field without 'persist:Relation' annotation",
+                DiagnosticsCodes.PERSIST_133.getCode(), 2);
+    }
+
+    @Test
     public void testUnSupportedFeature4() {
         testDiagnostic("package_25", "unsupported features: json type is not supported",
                 DiagnosticsCodes.PERSIST_121.getCode(), 2);
