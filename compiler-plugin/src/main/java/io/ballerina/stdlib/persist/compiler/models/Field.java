@@ -34,6 +34,7 @@ public class Field {
     private Node type;
     private NodeLocation typeLocation;
     private boolean isRelationAttachedToValidEntity;
+    private boolean isOptional = false;
 
     public Field(String fieldName, AnnotationNode autoIncrementNode, AnnotationNode relationAnnotation) {
         this.fieldName = fieldName;
@@ -84,5 +85,13 @@ public class Field {
 
     public void setRelationAttachedToValidEntity(boolean relationAttachedToValidEntity) {
         this.isRelationAttachedToValidEntity = relationAttachedToValidEntity;
+    }
+
+    public boolean isOptional() {
+        return this.isOptional;
+    }
+
+    public void setOptional(boolean optional) {
+        this.isOptional = optional;
     }
 }

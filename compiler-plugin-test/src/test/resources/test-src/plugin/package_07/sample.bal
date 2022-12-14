@@ -27,8 +27,8 @@ public type MedicalNeed record {|
     readonly int needId = 12;
     int|string? itemId;
     int? beneficiaryId;
-    time:Civil period?;
-    string urgency?;
+    time:Civil period;
+    string urgency;
     int quantity;
     @persist:Relation {keyColumns: ["itemId"], reference: ["id"]}
     Item item?;

@@ -1,6 +1,6 @@
-// Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2022 WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
 //
-// WSO2 Inc. licenses this file to you under the Apache License,
+// WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
 // in compliance with the License.
 // You may obtain a copy of the License at
@@ -15,26 +15,19 @@
 // under the License.
 
 import ballerina/persist;
-import ballerina/time;
 
 @persist:Entity {
-    key: ["needId"]
+    key: [],
+    uniqueConstraints : [[]]
 }
-type Medical_Need2 record {|
-    @persist:AutoIncrement
-    readonly int needId = 12;
-    int beneficiaryId;
-    time:Civil period;
-    string urgency;
-    int quantity;
+public type RecordTest record {|
+    readonly int id;
 |};
 
-public type Medicine2 record {
-    int id;
-    string name;
-};
-
-public type Medicine1 record {
-    int id;
-    string name;
-};
+@persist:Entity {
+    key: ["id"],
+    uniqueConstraints : []
+}
+public type RecordTest1 record {|
+    readonly int id;
+|};

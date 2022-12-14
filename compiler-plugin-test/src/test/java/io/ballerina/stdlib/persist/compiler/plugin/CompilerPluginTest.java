@@ -68,6 +68,18 @@ public class CompilerPluginTest {
     }
 
     @Test
+    public void testEntityAnnotation3() {
+        testDiagnostic("package_35", "duplicate key/s exist: 'key' does not allow " +
+                "the multiple same field/s", DiagnosticsCodes.PERSIST_131.getCode(), 2);
+    }
+
+    @Test
+    public void testEntityAnnotation4() {
+        testDiagnostic("package_36", "associated entity does not contain any keys: " +
+                "the 'key' should have a valid value", DiagnosticsCodes.PERSIST_123.getCode(), 3);
+    }
+
+    @Test
     public void testPrimaryKeyMarkReadOnly() {
         testDiagnostic("package_03", "invalid initialization: the field is not specified as " +
                 "read-only", DiagnosticsCodes.PERSIST_106.getCode(), 2);
@@ -94,15 +106,21 @@ public class CompilerPluginTest {
     }
 
     @Test
-    public void testOptionalField() {
+    public void testOptionalTypeField() {
         testDiagnostic("package_07", "invalid field type: the persist client does not " +
                 "support the union type", DiagnosticsCodes.PERSIST_101.getCode(), 1);
     }
 
     @Test
+    public void testOptionalField() {
+        testDiagnostic("package_37", "invalid field initialization: 'id' does not support " +
+                "optional filed initialization", DiagnosticsCodes.PERSIST_104.getCode(), 1);
+    }
+
+    @Test
     public void testAutoIncrementField() {
-        testDiagnostic("package_10", "invalid initialization: auto increment field " +
-                "must be defined as a key", DiagnosticsCodes.PERSIST_108.getCode(), 1);
+        testDiagnostic("package_10", "invalid initialization: auto increment is only allowed for " +
+                "primary key field", DiagnosticsCodes.PERSIST_108.getCode(), 1);
     }
 
     @Test
@@ -138,8 +156,8 @@ public class CompilerPluginTest {
 
     @Test
     public void testInvalidInitialisation() {
-        testDiagnostic("package_14", "invalid entity initialisation: the associated entity of " +
-                        "this[Item] does not have the field with the relationship type",
+        testDiagnostic("package_14", "invalid entity initialisation: the associated entity[Item] " +
+                        "does not have the field with the relationship type",
                 DiagnosticsCodes.PERSIST_115.getCode(), 4);
     }
 
@@ -155,6 +173,13 @@ public class CompilerPluginTest {
         testDiagnostic("package_16", "invalid entity initialisation: the relation annotation " +
                         "should only be added to the relationship owner for one-to-one and one-to-many associations",
                 DiagnosticsCodes.PERSIST_116.getCode(), 2);
+    }
+
+    @Test
+    public void testInvalidInitialisation3() {
+        testDiagnostic("package_38", "invalid entity initialisation: the " +
+                        "associated entity[RecordTest1] is not an entity",
+                DiagnosticsCodes.PERSIST_132.getCode(), 2, 1);
     }
 
     @Test
@@ -234,14 +259,14 @@ public class CompilerPluginTest {
 
     @Test
     public void testGetReferenceWithEmptyKey() {
-        testDiagnostic("package_27", "associated entity does not contain any primary keys: " +
-                "the key should have a valid value", DiagnosticsCodes.PERSIST_123.getCode(), 1);
+        testDiagnostic("package_27", "associated entity does not contain any keys: " +
+                        "the 'key' should have a valid value", DiagnosticsCodes.PERSIST_123.getCode(), 1);
     }
 
     @Test
     public void testGetReferenceWithEmptyKey1() {
-        testDiagnostic("package_28", "associated entity does not contain any primary keys: " +
-                "the key should have a valid value", DiagnosticsCodes.PERSIST_123.getCode(), 3);
+        testDiagnostic("package_28", "associated entity does not contain any keys: " +
+                "the 'key' should have a valid value", DiagnosticsCodes.PERSIST_123.getCode(), 3);
     }
 
     @Test
@@ -259,7 +284,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testEntityClosedRecord3() {
-        testDiagnostic("package_12", "this field only allows inline initialisation",
+        testDiagnostic("package_12", "'reference' field only allows inline initialisation",
                 DiagnosticsCodes.PERSIST_127.getCode(), 8, 1);
     }
 
