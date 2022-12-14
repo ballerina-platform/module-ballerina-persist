@@ -42,8 +42,8 @@ public enum DiagnosticsCodes {
             "invalid initialization: the field is not specified as read-only", ERROR),
     PERSIST_107("PERSIST_107", "duplicate annotation: the entity does not allow " +
             "multiple field with auto increment annotation", ERROR),
-    PERSIST_108("PERSIST_108", "invalid initialization: auto increment is only allowed with primary key",
-            ERROR),
+    PERSIST_108("PERSIST_108", "invalid initialization: auto increment is only allowed for " +
+            "primary key field", ERROR),
     PERSIST_109("PERSIST_109", "mismatch reference: the given key count is mismatched " +
             "with reference key count", ERROR),
     PERSIST_111("PERSIST_111", "invalid initialization: the entity should be public", ERROR),

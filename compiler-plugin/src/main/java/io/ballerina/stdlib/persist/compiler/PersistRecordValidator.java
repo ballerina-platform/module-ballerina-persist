@@ -432,6 +432,9 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 typeNode = recordFieldNode.typeName();
                 field = getField(fieldName, metadataNode);
                 field.setReadOnly(recordFieldNode.readonlyKeyword().isPresent());
+                if (recordFieldNode.questionMarkToken().isPresent()) {
+                    field.setOptional(true);
+                }
             } else if (fieldNode instanceof RecordFieldWithDefaultValueNode) {
                 RecordFieldWithDefaultValueNode recordFieldNode = (RecordFieldWithDefaultValueNode) fieldNode;
                 Optional<MetadataNode> metadataNode = recordFieldNode.metadata();
@@ -459,7 +462,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             }
 
             if (typeNode instanceof BuiltinSimpleNameReferenceNode) {
-                // todo: Add validation to skip non mandatory simple fields i.e `T field?`
                 if (isArrayType) {
                     entity.addDiagnostic(typeNode.location(), DiagnosticsCodes.PERSIST_120.getCode(),
                             DiagnosticsCodes.PERSIST_120.getMessage(), DiagnosticsCodes.PERSIST_120.getSeverity());
@@ -471,6 +473,11 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                             MessageFormat.format(DiagnosticsCodes.PERSIST_121.getMessage(), type),
                             DiagnosticsCodes.PERSIST_121.getSeverity());
                     continue;
+                } else if (field.isOptional()) {
+                    entity.addDiagnostic(typeNode.location(), DiagnosticsCodes.PERSIST_104.getCode(),
+                            MessageFormat.format(DiagnosticsCodes.PERSIST_104.getMessage(), field.getFieldName()),
+                            DiagnosticsCodes.PERSIST_104.getSeverity());
+                    continue;
                 }
             } else if (typeNode instanceof QualifiedNameReferenceNode) {
                 // Support only time constructs
@@ -480,6 +487,11 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                     entity.addDiagnostic(typeNode.location(), DiagnosticsCodes.PERSIST_121.getCode(),
                             MessageFormat.format(DiagnosticsCodes.PERSIST_121.getMessage(), qualifiedType),
                             DiagnosticsCodes.PERSIST_121.getSeverity());
+                    continue;
+                } else if (field.isOptional()) {
+                    entity.addDiagnostic(typeNode.location(), DiagnosticsCodes.PERSIST_104.getCode(),
+                            MessageFormat.format(DiagnosticsCodes.PERSIST_104.getMessage(), field.getFieldName()),
+                            DiagnosticsCodes.PERSIST_104.getSeverity());
                     continue;
                 }
             } else if (typeNode instanceof SimpleNameReferenceNode) {
@@ -796,7 +808,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             String tableAssociationType = "";
             boolean isArrayType = false;
             boolean isUserDefinedType = false;
-            boolean isOptionalField = false;
             String hasRelationAnnotation = Constants.FALSE;
             if (field instanceof RecordFieldWithDefaultValueNode) {
                 RecordFieldWithDefaultValueNode fieldNode = (RecordFieldWithDefaultValueNode) field;
@@ -804,9 +815,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 metadata = fieldNode.metadata();
             } else if (field instanceof RecordFieldNode) {
                 RecordFieldNode fieldNode = (RecordFieldNode) field;
-                if (fieldNode.questionMarkToken().isPresent()) {
-                    isOptionalField = true;
-                }
                 typeNode = fieldNode.typeName();
                 metadata = fieldNode.metadata();
             } else {
@@ -902,11 +910,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 if (typeNode instanceof BuiltinSimpleNameReferenceNode) {
                     validateType(ctx, typeNode, ((BuiltinSimpleNameReferenceNode) typeNode).name().text());
                 }
-            }
-            if (!isUserDefinedType && isOptionalField) {
-                Utils.reportDiagnostic(ctx, field.location(), DiagnosticsCodes.PERSIST_104.getCode(),
-                        MessageFormat.format(DiagnosticsCodes.PERSIST_104.getMessage(),
-                                ((RecordFieldNode) field).fieldName()), DiagnosticsCodes.PERSIST_104.getSeverity());
             }
             if (metadata.isPresent()) {
                 for (AnnotationNode annotationNode : metadata.get().annotations()) {

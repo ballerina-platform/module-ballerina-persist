@@ -119,8 +119,8 @@ public class CompilerPluginTest {
 
     @Test
     public void testAutoIncrementField() {
-        testDiagnostic("package_10", "invalid initialization: auto increment is " +
-                "only allowed with primary key", DiagnosticsCodes.PERSIST_108.getCode(), 1);
+        testDiagnostic("package_10", "invalid initialization: auto increment is only allowed for " +
+                "primary key field", DiagnosticsCodes.PERSIST_108.getCode(), 1);
     }
 
     @Test
