@@ -1,5 +1,6 @@
 import ballerina/test;
 import ballerinax/mysql;
+import ballerinax/mysql.driver as _;
 
 configurable string user = ?;
 configurable string password = ?;

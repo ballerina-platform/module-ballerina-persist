@@ -1,4 +1,4 @@
-[wso2.medical_center.clients]
+[medical_center]
 host = "localhost"
 port = 3306
 user = "root"

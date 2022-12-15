@@ -15,10 +15,9 @@
 // under the License.
 
 import ballerina/io;
-import wso2/medical_center.clients;
 
 public function main() returns error? {
-    clients:MedicalItemClient miClient = check new ();
+    MedicalItemClient miClient = check new ();
     MedicalItem item = {
         itemId: 1,
         name: "item name",
@@ -97,7 +96,7 @@ public function main() returns error? {
     check miClient.close();
 
     io:println("\n========== create medical needs ==========");
-    clients:MedicalNeedClient mnClient = check new ();
+    MedicalNeedClient mnClient = check new ();
     MedicalNeed mnItem = check mnClient->create({
         itemId: 1,
         beneficiaryId: 1,

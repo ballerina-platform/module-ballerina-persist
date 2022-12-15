@@ -47,7 +47,7 @@ public class ExpressionBuilder {
     private final ExpressionNode expressionNode;
     private boolean isCaptureBindingPattern = false;
     private String bindingVariableName = "";
-    private List<String> fieldNames = new ArrayList<>();
+    private final List<String> fieldNames = new ArrayList<>();
 
     public ExpressionBuilder(ExpressionNode expression, BindingPatternNode bindingPatternNode) {
         this.expressionNode = expression;

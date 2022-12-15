@@ -15,14 +15,19 @@
 // under the License.
 
 import ballerina/persist;
-import ballerina/time;
+
+@persist:Entity {
+    key: [],
+    uniqueConstraints : [[]]
+}
+public type RecordTest record {|
+    readonly int id;
+|};
 
 @persist:Entity {
     key: ["id"],
-    tableName: "Profiles"
+    uniqueConstraints : []
 }
-public type Profile record  {|
+public type RecordTest1 record {|
     readonly int id;
-    string name;
-    time:Civil[] period;
 |};
