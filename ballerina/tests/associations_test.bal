@@ -427,7 +427,7 @@ function oneToManyUpdateTest4() returns error? {
     groups: ["associations", "many-to-many"]
 }
 function manyToManyCreateTest1() returns error? {
-    Lecture lecture = {
+    Lecture lecture1 = {
         o_lectureId: 1,
         o_subject: "TestLecture1",
         o_day: "monday",
@@ -441,19 +441,38 @@ function manyToManyCreateTest1() returns error? {
         o_time: {hour: 13, minute: 2, second: 0}
     };
 
+    Paper paper1 = {
+        o_subjectId: 1,
+        o_date: {year: 2022, month: 12, day: 14},
+        o_title: "Maths"
+    };
+
+    Paper paper2 = {
+        o_subjectId: 1,
+        o_date: {year: 2022, month: 11, day: 14},
+        o_title: "Maths2"
+    };
+
+    Paper paper3 = {
+        o_subjectId: 2,
+        o_date: {year: 2022, month: 12, day: 15},
+        o_title: "English"
+    };
+
     Student student = {
-        o_studentId: 32,
+        o_studentId: 1,
         o_firstName: "Tom",
         o_lastName: "Scott",
         o_dob: {year: 1996, month: 12, day: 12},
         o_contact: "0771952226",
-        o_lectures: [lecture, lecture2]
+        o_lectures: [lecture1, lecture2],
+        o_papers: [paper2, paper1, paper3]
     };
     StudentClient studentClient = check new();
     _ = check studentClient->create(student);
 
-    Student studentR = check studentClient->readByKey(32, [LectureEntity]);
-    test:assertEquals(student, studentR);
+    Student studentR = check studentClient->readByKey(1, [LectureEntity, PaperEntity]);
+    test:assertEquals(studentR, student);
 }
 
 @test:Config {
@@ -488,5 +507,5 @@ function manyToManyCreateTest2() returns error? {
     _ = check lectureClient->create(lecture);
 
     Lecture lectureR = check lectureClient->readByKey(11, [StudentEntity]);
-    test:assertEquals(lecture, lectureR);
+    test:assertEquals(lectureR, lecture);
 }

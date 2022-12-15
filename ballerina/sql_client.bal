@@ -83,7 +83,7 @@ public client class SQLClient {
                 string[] refColumns = <string[]>joinMetadata.refColumns;
 
                 record{}[] toBeInserted = <record{}[]>'object[fieldName];
-                string[] insertFields = [...joiningRefColumns, ...joinColumns];
+                string[] insertColumns = [...joiningRefColumns, ...joinColumns];
                 sql:Value[] lhsColumnsValues = [];
                 sql:Value[][] joinTableValues = [];
 
@@ -111,7 +111,7 @@ public client class SQLClient {
                     from var row in joinTableValues
                     select sql:queryConcat(
                         `INSERT INTO `, stringToParameterizedQuery(joinTable),
-                        ` (`, arrayToParameterizedQuery(insertFields), `) `,
+                        ` (`, arrayToParameterizedQuery(insertColumns), `) `,
                         `VALUES (`, arrayToParameterizedQuery(row, false), `)`
                     );
 
@@ -270,14 +270,14 @@ public client class SQLClient {
                     sql:ParameterizedQuery joinSelectColumns = arrayToParameterizedQuery(joinMetadata.joinColumns);                 
 
                     map<string> innerWhereFilter = {};
-                    foreach int i in 0 ..< joinMetadata.refColumns.length() {
+                    foreach int i in 0 ..< joiningRefColumns.length() {
                         innerWhereFilter[joiningRefColumns[i]] = 'object[self.getFieldFromColumn(joiningJoinColumns[i])].toBalString();
                     }
 
                     query = sql:queryConcat(
                         ` SELECT`, self.getManyRelationColumnNames(joinMetadata.fieldName),
                         ` FROM `, stringToParameterizedQuery(joinMetadata.refTable),
-                        ` WHERE `, whereFields, ` IN (`,
+                        ` WHERE (`, whereFields, `) IN (`,
                             ` SELECT `, joinSelectColumns, 
                             ` FROM `, stringToParameterizedQuery(joinTable),
                             ` WHERE `, check self.getWhereClauses(innerWhereFilter, true),

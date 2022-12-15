@@ -131,14 +131,33 @@ public type Employee record {|
     tableName: "Students"
 }
 public type Student record {|
-    int o_studentId = -1;
+    int o_studentId;
     string o_firstName;
     string o_lastName;
     time:Date o_dob;
     string o_contact;
 
-    @Relation {keyColumns: ["studentId"], reference: ["studentId"]}
+    @Relation {
+        keyColumns: ["studentId"],
+        reference: ["o_lectureId"],
+        joiningTable: {
+            name: "StudentsLectures",
+            lhsColumns: ["i_studentId"],
+            rhsColumns: ["i_lectureId"]
+        }
+    }
     Lecture[] o_lectures?;
+
+    @Relation {
+        keyColumns: ["studentId"], 
+        reference: ["o_subjectId", "o_date"],
+        joiningTable: {
+            name: "StudentsPapers",
+            lhsColumns: ["i_studentId"],
+            rhsColumns: ["i_subjectId", "i_date"]
+        }
+    }
+    Paper[] o_papers?;
 |};
 
 @Entity {
@@ -151,6 +170,35 @@ public type Lecture record {|
     string o_day;
     time:TimeOfDay o_time;
 
-    @Relation {keyColumns: ["lectureId"], reference: ["lectureId"]}
+    @Relation {
+        keyColumns: ["lectureId"], 
+        reference: ["lectureId"],
+        joiningTable: {
+            name: "StudentsLectures",
+            lhsColumns: ["i_lectureId"],
+            rhsColumns: ["i_studentId"]
+        }
+    }
+    Student[] o_students?;
+|};
+
+@Entity {
+    key: ["o_subjectId", "o_date"],
+    tableName: "Papers"
+}
+public type Paper record {|
+    int o_subjectId;
+    time:Date o_date;
+    string o_title;
+    
+    @Relation {
+        keyColumns: ["studentId"], 
+        reference: ["o_subjectId", "o_date"], 
+        joiningTable: {
+            name: "StudentsPapers", 
+            lhsColumns: ["i_subjectId", "i_date"], 
+            rhsColumns: ["i_studentId"]
+        }
+    }
     Student[] o_students?;
 |};

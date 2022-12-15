@@ -83,3 +83,17 @@ CREATE TABLE test.StudentsLectures (
     i_lectureId INTEGER,
     PRIMARY KEY(i_studentId, i_lectureId)
 );
+
+CREATE TABLE test.Papers (
+    subjectId INTEGER,
+    paperDate DATE,
+    title VARCHAR(10),
+    PRIMARY KEY(subjectId, paperDate)
+);
+
+CREATE TABLE test.StudentsPapers (
+    i_studentId INTEGER,
+    i_subjectId INTEGER,
+    i_date date,
+    PRIMARY KEY(i_studentId, i_subjectId, i_date)
+);

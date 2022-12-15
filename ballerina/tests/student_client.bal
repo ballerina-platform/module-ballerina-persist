@@ -32,11 +32,15 @@ client class StudentClient {
         "o_lectures[].o_lectureId": {'type: int, relation: {entityName: "lecture", refTable: "Lecture", refField: "o_lectureId", refColumnName: "lectureId"}},
         "o_lectures[].o_subject": {'type: string, relation: {entityName: "lecture", refTable: "Lecture", refField: "o_subject", refColumnName: "subject"}},
         "o_lectures[].o_day": {'type: string, relation: {entityName: "lecture", refTable: "Lecture", refField: "o_day", refColumnName: "day"}},
-        "o_lectures[].o_time": {'type: string, relation: {entityName: "lecture", refTable: "Lecture", refField: "o_time", refColumnName: "time"}}
+        "o_lectures[].o_time": {'type: string, relation: {entityName: "lecture", refTable: "Lecture", refField: "o_time", refColumnName: "time"}},
+        "o_papers[].o_subjectId": {'type: int, relation: {entityName: "paper", refTable: "Papers", refField: "o_subjectId", refColumnName: "subjectId"}},
+        "o_papers[].o_date": {'type: time:Date, relation: {entityName: "paper", refTable: "Papers", refField: "o_date", refColumnName: "paperDate"}},
+        "o_papers[].o_title": {'type: string, relation: {entityName: "paper", refTable: "Papers", refField: "o_title", refColumnName: "title"}}
     };
     private string[] keyFields = ["o_studentId"];
     private final map<JoinMetadata> joinMetadata = {
-        lecture: {entity: Lecture, fieldName: "o_lectures", refTable: "Lectures", refColumns: ["lectureId"], joinColumns: ["i_lectureId"], joinTable: "StudentsLectures", joiningJoinColumns: ["studentId"], joiningRefColumns: ["i_studentId"], 'type: MANY}
+        lecture: {entity: Lecture, fieldName: "o_lectures", refTable: "Lectures", refColumns: ["lectureId"], joinColumns: ["i_lectureId"], joinTable: "StudentsLectures", joiningJoinColumns: ["studentId"], joiningRefColumns: ["i_studentId"], 'type: MANY},
+        paper: {entity: Paper, fieldName: "o_papers", refTable: "Papers", refColumns: ["subjectId", "paperDate"], joinColumns: ["i_subjectId", "i_date"], joinTable: "StudentsPapers", joiningJoinColumns: ["studentId"], joiningRefColumns: ["i_studentId"], 'type: MANY}
     };
 
     private SQLClient persistClient;
@@ -63,6 +67,20 @@ client class StudentClient {
                 insertedEntities.push(inserted);
             }
             value.o_lectures = insertedEntities;
+        }
+
+        if value.o_papers is Paper[] {
+            PaperClient paperClient = check new PaperClient();
+            Paper[] insertedEntities = [];
+            foreach Paper paper in <Paper[]>value.o_papers {
+                Paper inserted = paper;
+                boolean exists = check paperClient->exists(paper);
+                if !exists {
+                    inserted = check paperClient->create(paper);
+                }
+                insertedEntities.push(inserted);
+            }
+            value.o_papers = insertedEntities;
         }
 
         _ = check self.persistClient.runInsertQuery(value);
@@ -110,7 +128,8 @@ client class StudentClient {
 }
 
 public enum StudentRelations {
-    LectureEntity = "lecture"
+    LectureEntity = "lecture",
+    PaperEntity = "paper"
 }
 
 public class StudentStream {
