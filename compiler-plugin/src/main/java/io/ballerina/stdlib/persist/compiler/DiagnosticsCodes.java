@@ -73,7 +73,7 @@ public enum DiagnosticsCodes {
             "references for relation", ERROR),
     PERSIST_123("PERSIST_123", "associated entity does not contain any keys: the ''{0}'' " +
             "should have a valid value", ERROR),
-    PERSIST_124("PERSIST_124", "the entity ''{0}'' should be a closed record.", ERROR),
+    PERSIST_124("PERSIST_124", "the entity ''{0}'' should be a closed record", ERROR),
     PERSIST_125("PERSIST_125", "relation annotation can only be attached to an entity record", ERROR),
     PERSIST_126("PERSIST_126", "auto increment annotation can only be attached to an entity record",
             ERROR),
