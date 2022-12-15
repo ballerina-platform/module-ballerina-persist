@@ -30,6 +30,8 @@ import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createEmptyM
  */
 public class Constants {
 
+    public static final String PERSIST_MODULE = "persist";
+
     /**
      * Constants for annotation names.
      */
@@ -37,9 +39,9 @@ public class Constants {
         private Annotations(){
         }
 
-        public static final String ENTITY = "persist:Entity";
-        public static final String AUTO_INCREMENT = "persist:AutoIncrement";
-        public static final String RELATION = "persist:Relation";
+        public static final String ENTITY = "Entity";
+        public static final String AUTO_INCREMENT = "AutoIncrement";
+        public static final String RELATION = "Relation";
     }
 
     /**
@@ -85,6 +87,12 @@ public class Constants {
         public static final String BOOLEAN = "boolean";
         public static final String DECIMAL = "decimal";
         public static final String FLOAT = "float";
+    }
+
+    /**
+     * Constants related to Ballerina time type.
+     */
+    public static final class BallerinaTimeTypes {
         public static final String DATE = "time:Date";
         public static final String TIME_OF_DAY = "time:TimeOfDay";
         public static final String UTC = "time:Utc";
