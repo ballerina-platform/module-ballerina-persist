@@ -55,7 +55,8 @@ dependencies = [
 	{org = "ballerina", name = "sql"},
 	{org = "ballerina", name = "test"},
 	{org = "ballerina", name = "time"},
-	{org = "ballerinax", name = "mysql"}
+	{org = "ballerinax", name = "mysql"},
+	{org = "ballerinax", name = "mysql.driver"}
 ]
 modules = [
 	{org = "ballerina", packageName = "persist", moduleName = "persist"}
@@ -64,7 +65,7 @@ modules = [
 [[package]]
 org = "ballerina"
 name = "sql"
-version = "1.6.0"
+version = "1.7.0"
 dependencies = [
 	{org = "ballerina", name = "io"},
 	{org = "ballerina", name = "jballerina.java"},
@@ -101,7 +102,7 @@ modules = [
 [[package]]
 org = "ballerinax"
 name = "mysql"
-version = "1.6.1"
+version = "1.7.0"
 scope = "testOnly"
 dependencies = [
 	{org = "ballerina", name = "crypto"},
@@ -112,6 +113,15 @@ dependencies = [
 ]
 modules = [
 	{org = "ballerinax", packageName = "mysql", moduleName = "mysql"}
+]
+
+[[package]]
+org = "ballerinax"
+name = "mysql.driver"
+version = "1.4.0"
+scope = "testOnly"
+modules = [
+	{org = "ballerinax", packageName = "mysql.driver", moduleName = "mysql.driver"}
 ]
 
 

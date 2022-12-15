@@ -102,12 +102,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         ModuleId moduleId = ctx.moduleId();
         Module currentModule = ctx.currentPackage().module(moduleId);
         String moduleName = currentModule.moduleName().toString().trim();
-        String packageName = ctx.currentPackage().packageName().toString().trim();
-        // No need to perform analysis for entities inside clients submodule
-        // todo: Remove after https://github.com/ballerina-platform/ballerina-standard-library/issues/3784
-        if (moduleName.equals(packageName.concat(".clients"))) {
-            return;
-        }
 
         Node node = ctx.node();
         if (node instanceof EnumDeclarationNode) {
@@ -164,13 +158,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                     entity.getDiagnostics().forEach((ctx::reportDiagnostic));
                     // Stop processing duplicated entities
                     return;
-                }
-
-                // Can remove this after generated folder design change
-                // todo: Remove after https://github.com/ballerina-platform/ballerina-standard-library/issues/3784
-                if (typeDefinitionNode.visibilityQualifier().isEmpty()) {
-                    entity.addDiagnostic(typeDefinitionNode.location(), DiagnosticsCodes.PERSIST_111.getCode(),
-                            DiagnosticsCodes.PERSIST_111.getMessage(), DiagnosticsCodes.PERSIST_111.getSeverity());
                 }
 
                 validateRecordProperties(entity, ((RecordTypeDescriptorNode) typeDescriptorNode));

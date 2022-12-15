@@ -46,7 +46,6 @@ public enum DiagnosticsCodes {
             "primary key field", ERROR),
     PERSIST_109("PERSIST_109", "mismatch reference: the given key count is mismatched " +
             "with reference key count", ERROR),
-    PERSIST_111("PERSIST_111", "invalid initialization: the entity should be public", ERROR),
     PERSIST_112("PERSIST_112", "mysql db only allow increment value by one in auto generated field",
             WARNING),
     PERSIST_113("PERSIST_113", "duplicate table name: the table name is already " +
