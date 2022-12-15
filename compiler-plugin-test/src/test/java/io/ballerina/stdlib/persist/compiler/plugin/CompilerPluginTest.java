@@ -137,12 +137,6 @@ public class CompilerPluginTest {
     }
 
     @Test
-    public void testRecordType() {
-        testDiagnostic("package_11", "invalid initialization: the entity should be public",
-                DiagnosticsCodes.PERSIST_111.getCode(), 1);
-    }
-
-    @Test
     public void testTableName() {
         testDiagnostic("package_13", "duplicate table name: the table name is already " +
                 "used in another entity in", DiagnosticsCodes.PERSIST_113.getCode(), 1);
