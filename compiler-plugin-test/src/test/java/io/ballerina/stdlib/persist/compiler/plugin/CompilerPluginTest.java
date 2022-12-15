@@ -31,7 +31,6 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -656,14 +655,9 @@ public class CompilerPluginTest {
     }
 
     private void testDiagnostic(List<Diagnostic> errorDiagnosticsList, String[] msg, String[] code, int count) {
-        long availableErrors = errorDiagnosticsList.size();
-        PrintStream asd = System.out;
-        asd.println(availableErrors);
-        Assert.assertEquals(availableErrors, count);
+        Assert.assertEquals(errorDiagnosticsList.size(), count);
         for (int index = 0; index < errorDiagnosticsList.size(); index++) {
             DiagnosticInfo error = errorDiagnosticsList.get(index).diagnosticInfo();
-            asd.println(error.code());
-            asd.println(error.messageFormat());
             Assert.assertEquals(error.code(), code[index]);
             Assert.assertTrue(error.messageFormat().startsWith(msg[index]));
         }
