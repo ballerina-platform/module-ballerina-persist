@@ -86,12 +86,6 @@ client class StudentClient {
 
     remote function update(record {} 'object) returns Error? {
         _ = check self.persistClient.runUpdateQuery('object);
-
-        // if 'object["lectures"] is Lecture[] {
-        //     Company companyEntity = <Company>'object["company"];
-        //     CompanyClient companyClient = check new CompanyClient();
-        //     check companyClient->update(companyEntity);
-        // }
     }
 
     remote function delete(Student 'object) returns Error? {
