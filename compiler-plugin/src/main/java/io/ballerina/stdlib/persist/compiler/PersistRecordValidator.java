@@ -82,7 +82,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
     private final List<List<String>> uniqueConstraints;
     private final HashMap<String, String> tableNames;
     private final HashMap<String, Entity> entities;
-    private boolean isCompilationErrorChecked = false;
 
     public PersistRecordValidator() {
         this.uniqueConstraints = new ArrayList<>();
@@ -93,11 +92,8 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
     @Override
     public void perform(SyntaxNodeAnalysisContext ctx) {
 
-        if (!this.isCompilationErrorChecked) {
-            this.isCompilationErrorChecked = true;
-            if (Utils.hasCompilationErrors(ctx)) {
-                return;
-            }
+        if (Utils.hasCompilationErrors(ctx)) {
+            return;
         }
 
         ModuleId moduleId = ctx.moduleId();
