@@ -45,7 +45,7 @@ public class Utils {
     }
 
     public static boolean hasCompilationErrors(SyntaxNodeAnalysisContext context) {
-        for (Diagnostic diagnostic : context.semanticModel().diagnostics()) {
+        for (Diagnostic diagnostic : context.compilation().diagnosticResult().diagnostics()) {
             if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
                 return true;
             }
