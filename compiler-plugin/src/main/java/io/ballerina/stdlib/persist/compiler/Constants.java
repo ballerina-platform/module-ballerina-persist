@@ -31,6 +31,7 @@ import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createEmptyM
 public class Constants {
 
     public static final String PERSIST_MODULE = "persist";
+    public static final String TIME_MODULE = "time";
 
     /**
      * Constants for annotation names.
@@ -95,10 +96,10 @@ public class Constants {
      * Constants related to Ballerina time type.
      */
     public static final class BallerinaTimeTypes {
-        public static final String DATE = "time:Date";
-        public static final String TIME_OF_DAY = "time:TimeOfDay";
-        public static final String UTC = "time:Utc";
-        public static final String CIVIL = "time:Civil";
+        public static final String DATE = "Date";
+        public static final String TIME_OF_DAY = "TimeOfDay";
+        public static final String UTC = "Utc";
+        public static final String CIVIL = "Civil";
     }
 
     /**

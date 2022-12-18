@@ -455,10 +455,10 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 QualifiedNameReferenceNode qualifiedName = (QualifiedNameReferenceNode) typeNode;
                 String modulePrefix = qualifiedName.modulePrefix().text();
                 String identifier = qualifiedName.identifier().text();
-                String qualifiedType = modulePrefix + ":" + identifier;
-                if (!isValidImportedType(qualifiedType)) {
+                if (!isValidImportedType(modulePrefix, identifier)) {
                     entity.addDiagnostic(typeNode.location(), DiagnosticsCodes.PERSIST_121.getCode(),
-                            MessageFormat.format(DiagnosticsCodes.PERSIST_121.getMessage(), qualifiedType),
+                            MessageFormat.format(DiagnosticsCodes.PERSIST_121.getMessage(),
+                                    modulePrefix + ":" + identifier),
                             DiagnosticsCodes.PERSIST_121.getSeverity());
                     continue;
                 } else {
@@ -873,8 +873,11 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         }
     }
 
-    private boolean isValidImportedType(String type) {
-        switch (type) {
+    private boolean isValidImportedType(String modulePrefix, String identifier) {
+        if (!modulePrefix.equals(Constants.TIME_MODULE)) {
+            return false;
+        }
+        switch (identifier) {
             case BallerinaTimeTypes.DATE:
             case BallerinaTimeTypes.TIME_OF_DAY:
             case BallerinaTimeTypes.UTC:
