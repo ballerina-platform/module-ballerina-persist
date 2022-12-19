@@ -57,33 +57,39 @@ public class CompilerPluginTest {
 
     @Test
     public void testEntityAnnotation1() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_01", 2);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_01", 3);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
                         "invalid key: the given key is not in the record definition",
-                        "invalid key: the given key is not in the record definition"
+                        "invalid key: the given key is not in the record definition",
+                        "invalid entity initialisation: the associated entity[Item] does not have the " +
+                                "field with the relationship type"
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_102.getCode(),
-                        DiagnosticsCodes.PERSIST_102.getCode()
+                        DiagnosticsCodes.PERSIST_102.getCode(),
+                        DiagnosticsCodes.PERSIST_115.getCode(),
                 });
     }
 
     @Test
     public void testEntityAnnotation2() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_02", 3);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_02", 4);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
                         "invalid key: the given key is not in the record definition",
                         "invalid key: the given key is not in the record definition",
-                        "invalid initialization: auto increment is only allowed for primary key field"
+                        "invalid initialization: auto increment is only allowed for primary key field",
+                        "invalid entity initialisation: the associated entity[Item] does not have the field " +
+                                "with the relationship type"
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_102.getCode(),
                         DiagnosticsCodes.PERSIST_102.getCode(),
-                        DiagnosticsCodes.PERSIST_108.getCode()
+                        DiagnosticsCodes.PERSIST_108.getCode(),
+                        DiagnosticsCodes.PERSIST_115.getCode()
                 });
     }
 
@@ -123,20 +129,23 @@ public class CompilerPluginTest {
 
     @Test
     public void testPrimaryKeyMarkReadOnly() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_03", 2);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_03", 3);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
                         "invalid initialization: the field is not specified as read-only",
-                        "invalid initialization: the field is not specified as read-only"
+                        "invalid initialization: the field is not specified as read-only",
+                        "invalid entity initialisation: the associated entity[Item] does not have the field " +
+                                "with the relationship type"
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_106.getCode(),
-                        DiagnosticsCodes.PERSIST_106.getCode()
+                        DiagnosticsCodes.PERSIST_106.getCode(),
+                        DiagnosticsCodes.PERSIST_115.getCode()
                 });
     }
 
-    //todo: Should this be a validation
+    //todo: This should be a MySQL specific validation
     @Test(enabled = false)
     public void testMultipleAutoIncrementAnnotation() {
        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_04", 1);
@@ -152,40 +161,49 @@ public class CompilerPluginTest {
 
     @Test
     public void testAutoIncrementAnnotation1() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_05", 1);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_05", 2);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
-                        "invalid value: the value only supports positive integer"
+                        "invalid value: the value only supports positive integer",
+                        "invalid entity initialisation: the associated entity[Item] does not have the field " +
+                                "with the relationship type"
                 },
                 new String[]{
-                        DiagnosticsCodes.PERSIST_103.getCode()
+                        DiagnosticsCodes.PERSIST_103.getCode(),
+                        DiagnosticsCodes.PERSIST_115.getCode()
                 });
     }
 
     @Test
     public void testRelationAnnotationMismatchReference() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_06", 1);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_06", 2);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
-                        "mismatch reference: the given key count is mismatched with reference key count"
+                        "mismatch reference: the given key count is mismatched with reference key count",
+                        "invalid entity initialisation: the associated entity[Item] does not have the field " +
+                                "with the relationship type"
                 },
                 new String[]{
-                        DiagnosticsCodes.PERSIST_109.getCode()
+                        DiagnosticsCodes.PERSIST_109.getCode(),
+                        DiagnosticsCodes.PERSIST_115.getCode()
                 });
     }
 
     @Test
     public void testOptionalTypeField() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_07", 1);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_07", 2);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
-                        "invalid field type: the persist client does not support the union type"
+                        "invalid field type: the persist client does not support the union type",
+                        "invalid entity initialisation: the associated entity[Item] does not have the field " +
+                                "with the relationship type"
                 },
                 new String[]{
-                        DiagnosticsCodes.PERSIST_101.getCode()
+                        DiagnosticsCodes.PERSIST_101.getCode(),
+                        DiagnosticsCodes.PERSIST_115.getCode()
                 });
     }
 
@@ -204,14 +222,17 @@ public class CompilerPluginTest {
 
     @Test
     public void testAutoIncrementField() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_10", 1);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_10", 2);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
-                        "invalid initialization: auto increment is only allowed for primary key field"
+                        "invalid initialization: auto increment is only allowed for primary key field",
+                        "invalid entity initialisation: the associated entity[Item] does not have the field with " +
+                                "the relationship type"
                 },
                 new String[]{
-                        DiagnosticsCodes.PERSIST_108.getCode()
+                        DiagnosticsCodes.PERSIST_108.getCode(),
+                        DiagnosticsCodes.PERSIST_115.getCode()
                 });
     }
 
@@ -270,60 +291,45 @@ public class CompilerPluginTest {
 
     @Test
     public void testInvalidInitialisation() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_14", 4);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_14", 2);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
                         "invalid entity initialisation: the associated entity[Item] does not have the " +
                                 "field with the relationship type",
-                        "invalid annotation attachment: the `one-to-many` relation annotation can not be " +
-                                "attached to the array entity record field",
-                        "invalid entity initialisation: the associated entity[Item1] does not have the " +
-                                "field with the relationship type",
-                        "invalid annotation attachment: the `one-to-many` relation annotation can not be attached " +
-                                "to the array entity record field"
+                        "invalid entity initialisation: the associated entity[Item1] does not have the field " +
+                                "with the relationship type"
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_115.getCode(),
-                        DiagnosticsCodes.PERSIST_118.getCode(),
-                        DiagnosticsCodes.PERSIST_115.getCode(),
-                        DiagnosticsCodes.PERSIST_118.getCode()
+                        DiagnosticsCodes.PERSIST_115.getCode()
                 });
     }
 
     @Test
     public void testInvalidInitialisation1() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_15", 3);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_15", 1);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
-                        "invalid entity initialisation: the relation annotation should only be added to the " +
-                                "relationship owner for one-to-one and one-to-many associations",
                         "invalid annotation attachment: the `one-to-many` relation annotation can not be attached " +
-                                "to the array entity record field",
-                        "invalid entity initialisation: the relation annotation should only be added to the " +
-                                "relationship owner for one-to-one and one-to-many associations"
+                                "to the array entity record field"
                 },
                 new String[]{
-                        DiagnosticsCodes.PERSIST_116.getCode(),
-                        DiagnosticsCodes.PERSIST_118.getCode(),
-                        DiagnosticsCodes.PERSIST_116.getCode()
+                        DiagnosticsCodes.PERSIST_118.getCode()
                 });
     }
 
     @Test
     public void testInvalidInitialisation2() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_16", 2);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_16", 1);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
                         "invalid entity initialisation: the relation annotation should only be added to the " +
-                                "relationship owner for one-to-one and one-to-many associations",
-                        "invalid entity initialisation: the relation annotation should only be added to " +
-                                "the relationship owner for one-to-one and one-to-many associations"
+                                "relationship owner for one-to-one associations"
                 },
                 new String[]{
-                        DiagnosticsCodes.PERSIST_116.getCode(),
                         DiagnosticsCodes.PERSIST_116.getCode()
                 });
     }
@@ -346,16 +352,11 @@ public class CompilerPluginTest {
 
     @Test
     public void testUnSupportedFeature() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_17", 4);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_17", 1);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
-                        "unsupported features: many-to-many association is not supported yet",
-                        "invalid entity initialisation: the relation annotation should only be " +
-                                "added to the relationship owner for one-to-one and one-to-many associations",
-                        "unsupported features: many-to-many association is not supported yet",
-                        "invalid entity initialisation: the relation annotation should only be added " +
-                                "to the relationship owner for one-to-one and one-to-many associations"
+                        "unsupported features: many-to-many association is not supported yet"
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_114.getCode(),
@@ -367,15 +368,13 @@ public class CompilerPluginTest {
 
     @Test
     public void testUnSupportedFeature1() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_22", 2);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_22", 1);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
-                        "unsupported features: array type is not supported",
                         "unsupported features: array type is not supported"
                 },
                 new String[]{
-                        DiagnosticsCodes.PERSIST_120.getCode(),
                         DiagnosticsCodes.PERSIST_120.getCode()
                 });
     }
@@ -395,22 +394,20 @@ public class CompilerPluginTest {
 
     @Test
     public void testUnSupportedFeature3() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_24", 2);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_24", 1);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
-                        "unsupported features: json type is not supported",
                         "unsupported features: json type is not supported"
                 },
                 new String[]{
-                        DiagnosticsCodes.PERSIST_121.getCode(),
                         DiagnosticsCodes.PERSIST_121.getCode()
                 });
     }
 
     @Test
     public void testUnSupportedFeature4() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_25", 2);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_25", 1);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -512,7 +509,8 @@ public class CompilerPluginTest {
                 });
     }
 
-    @Test
+    // todo -> check if valid diagnostics
+    @Test(enabled = false)
     public void testGetReferenceWithCompositeKey() {
         List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_26", 1);
         testDiagnostic(
@@ -526,7 +524,8 @@ public class CompilerPluginTest {
                 });
     }
 
-    @Test
+    // Unnecessary as currently we dont support entitites w/o primary key
+    @Test(enabled = false)
     public void testGetReferenceWithEmptyKey() {
         List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_27", 1);
         testDiagnostic(
@@ -539,7 +538,8 @@ public class CompilerPluginTest {
                 });
     }
 
-    @Test
+    // Unnecessary as currently we dont support entitites w/o primary key
+    @Test(enabled = false)
     public void testGetReferenceWithEmptyKey1() {
         List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_28", 3);
         testDiagnostic(
@@ -571,16 +571,14 @@ public class CompilerPluginTest {
 
     @Test
     public void testEntityClosedRecord2() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_31", 3);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_31", 2);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
-                        "unsupported features: in-line record type is not supported",
                         "the entity 'MedicalNeed2' should be a closed record",
                         "unsupported features: in-line record type is not supported"
                 },
                 new String[]{
-                        DiagnosticsCodes.PERSIST_121.getCode(),
                         DiagnosticsCodes.PERSIST_124.getCode(),
                         DiagnosticsCodes.PERSIST_121.getCode()
                 });
@@ -588,28 +586,31 @@ public class CompilerPluginTest {
 
     @Test
     public void testFieldInitialisation() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_12", 8);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_12", 9);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
-                        "'keyColumns' field only allows inline initialisation",
-                        "'reference' field only allows inline initialisation",
                         "'key' field only allows inline initialisation",
                         "'uniqueConstraints' field only allows inline initialisation",
                         "'tableName' field only allows inline initialisation",
                         "invalid initialization: auto increment is only allowed for primary key field",
                         "'startValue ' field only allows inline initialisation",
-                        "'increment' field only allows inline initialisation"
+                        "'increment' field only allows inline initialisation",
+                        "'keyColumns' field only allows inline initialisation",
+                        "'reference' field only allows inline initialisation",
+                        "invalid entity initialisation: the associated entity[Post] does not have the field " +
+                                "with the relationship type",
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_127.getCode(),
                         DiagnosticsCodes.PERSIST_127.getCode(),
                         DiagnosticsCodes.PERSIST_127.getCode(),
-                        DiagnosticsCodes.PERSIST_127.getCode(),
-                        DiagnosticsCodes.PERSIST_127.getCode(),
                         DiagnosticsCodes.PERSIST_108.getCode(),
                         DiagnosticsCodes.PERSIST_127.getCode(),
-                        DiagnosticsCodes.PERSIST_127.getCode()
+                        DiagnosticsCodes.PERSIST_127.getCode(),
+                        DiagnosticsCodes.PERSIST_127.getCode(),
+                        DiagnosticsCodes.PERSIST_127.getCode(),
+                        DiagnosticsCodes.PERSIST_115.getCode()
                 });
     }
 
