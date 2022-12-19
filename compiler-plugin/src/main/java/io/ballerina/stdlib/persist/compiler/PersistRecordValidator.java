@@ -141,7 +141,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 String entityName = typeDefinitionNode.typeName().text().trim();
                 Entity entity = new Entity(entityName, moduleName, recordTypeSymbol.fieldDescriptors().keySet());
 
-                checkDuplicateEntity(entity, typeDefinitionNode);
+                addWarningIfDuplicateEntity(entity, typeDefinitionNode);
 
                 validateRecordProperties(entity, ((RecordTypeDescriptorNode) typeDescriptorNode));
                 validateEntityAnnotation(entity, entityAnnotation.get());
@@ -174,7 +174,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         return Optional.empty();
     }
 
-    private void checkDuplicateEntity(Entity entity, TypeDefinitionNode typeDefinitionNode) {
+    private void addWarningIfDuplicateEntity(Entity entity, TypeDefinitionNode typeDefinitionNode) {
         if (this.entities.containsKey(entity.getEntityName())) {
             String initialModule = this.entities.get(entity.getEntityName()).getModule();
             entity.addDiagnostic(typeDefinitionNode.typeName().location(), DiagnosticsCodes.PERSIST_119.getCode(),
