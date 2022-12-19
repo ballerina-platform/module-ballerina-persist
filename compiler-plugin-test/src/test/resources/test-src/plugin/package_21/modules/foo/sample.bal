@@ -42,3 +42,11 @@ public type MedicalNeed record {|
     string urgency;
     int quantity;
 |};
+
+@persist:Entity {
+    key: ["id"]
+}
+public type Items record {|
+    @persist:AutoIncrement
+    readonly int id = 1;
+|};
