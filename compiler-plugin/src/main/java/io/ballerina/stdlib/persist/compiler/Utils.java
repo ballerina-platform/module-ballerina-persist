@@ -18,9 +18,11 @@
 
 package io.ballerina.stdlib.persist.compiler;
 
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.FromClauseNode;
 import io.ballerina.compiler.syntax.tree.LiteralValueToken;
 import io.ballerina.compiler.syntax.tree.NodeFactory;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
@@ -43,7 +45,7 @@ public class Utils {
     }
 
     public static boolean hasCompilationErrors(SyntaxNodeAnalysisContext context) {
-        for (Diagnostic diagnostic : context.semanticModel().diagnostics()) {
+        for (Diagnostic diagnostic : context.compilation().diagnosticResult().diagnostics()) {
             if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
                 return true;
             }
@@ -71,6 +73,15 @@ public class Utils {
 
             // Remote function name should be read
             return functionName.trim().equals(READ_FUNCTION);
+        }
+        return false;
+    }
+
+    public static boolean isPersistAnnotation(AnnotationNode annotation, String annotationName) {
+        if (annotation.annotReference() instanceof QualifiedNameReferenceNode) {
+            QualifiedNameReferenceNode annotationReference = (QualifiedNameReferenceNode) annotation.annotReference();
+            return annotationReference.modulePrefix().text().equals(Constants.PERSIST_MODULE) &&
+                    annotationReference.identifier().text().equals(annotationName);
         }
         return false;
     }
