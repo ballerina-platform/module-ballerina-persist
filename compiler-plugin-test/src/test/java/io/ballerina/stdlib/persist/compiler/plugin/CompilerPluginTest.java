@@ -57,7 +57,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testEntityAnnotation1() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_01");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_01", 2);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -67,13 +67,12 @@ public class CompilerPluginTest {
                 new String[]{
                         DiagnosticsCodes.PERSIST_102.getCode(),
                         DiagnosticsCodes.PERSIST_102.getCode()
-                },
-                2);
+                });
     }
 
     @Test
     public void testEntityAnnotation2() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_02");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_02", 3);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -85,13 +84,12 @@ public class CompilerPluginTest {
                         DiagnosticsCodes.PERSIST_102.getCode(),
                         DiagnosticsCodes.PERSIST_102.getCode(),
                         DiagnosticsCodes.PERSIST_108.getCode()
-                },
-                3);
+                });
     }
 
     @Test
     public void testEntityAnnotation3() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_35");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_35", 2);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -101,13 +99,12 @@ public class CompilerPluginTest {
                 new String[]{
                         DiagnosticsCodes.PERSIST_131.getCode(),
                         DiagnosticsCodes.PERSIST_131.getCode()
-                },
-                2);
+                });
     }
 
     @Test
     public void testEntityAnnotation4() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_36");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_36", 3);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -121,13 +118,12 @@ public class CompilerPluginTest {
                         DiagnosticsCodes.PERSIST_123.getCode(),
                         DiagnosticsCodes.PERSIST_123.getCode(),
                         DiagnosticsCodes.PERSIST_123.getCode()
-                },
-                3);
+                });
     }
 
     @Test
     public void testPrimaryKeyMarkReadOnly() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_03");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_03", 2);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -137,14 +133,13 @@ public class CompilerPluginTest {
                 new String[]{
                         DiagnosticsCodes.PERSIST_106.getCode(),
                         DiagnosticsCodes.PERSIST_106.getCode()
-                },
-                2);
+                });
     }
 
     //todo: Should this be a validation
     @Test(enabled = false)
     public void testMultipleAutoIncrementAnnotation() {
-       List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_04");
+       List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_04", 1);
        testDiagnostic(
                errorDiagnosticsList,
                new String[]{
@@ -152,13 +147,12 @@ public class CompilerPluginTest {
                },
                new String[]{
                        DiagnosticsCodes.PERSIST_107.getCode()
-               },
-               1);
+               });
     }
 
     @Test
     public void testAutoIncrementAnnotation1() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_05");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_05", 1);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -166,13 +160,12 @@ public class CompilerPluginTest {
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_103.getCode()
-                },
-                1);
+                });
     }
 
     @Test
     public void testRelationAnnotationMismatchReference() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_06");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_06", 1);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -180,13 +173,12 @@ public class CompilerPluginTest {
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_109.getCode()
-                },
-                1);
+                });
     }
 
     @Test
     public void testOptionalTypeField() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_07");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_07", 1);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -194,13 +186,12 @@ public class CompilerPluginTest {
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_101.getCode()
-                },
-                1);
+                });
     }
 
     @Test
     public void testOptionalField() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_37");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_37", 1);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -208,13 +199,12 @@ public class CompilerPluginTest {
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_104.getCode()
-                },
-                1);
+                });
     }
 
     @Test
     public void testAutoIncrementField() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_10");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_10", 1);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -222,13 +212,12 @@ public class CompilerPluginTest {
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_108.getCode()
-                },
-                1);
+                });
     }
 
     @Test
     public void testFieldInitialization() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_33");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_33", 1);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -236,13 +225,12 @@ public class CompilerPluginTest {
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_129.getCode()
-                },
-                1);
+                });
     }
 
     @Test
     public void testFieldInitialization1() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_34");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_34", 1);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -251,13 +239,12 @@ public class CompilerPluginTest {
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_130.getCode()
-                },
-                1);
+                });
     }
 
     @Test
     public void testTableName() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_13");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_13", 1);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -265,13 +252,12 @@ public class CompilerPluginTest {
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_113.getCode()
-                },
-                1);
+                });
     }
 
     @Test
     public void testTableName1() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_20");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_20", 1);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -279,13 +265,12 @@ public class CompilerPluginTest {
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_113.getCode()
-                },
-                1);
+                });
     }
 
     @Test
     public void testInvalidInitialisation() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_14");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_14", 4);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -303,13 +288,12 @@ public class CompilerPluginTest {
                         DiagnosticsCodes.PERSIST_118.getCode(),
                         DiagnosticsCodes.PERSIST_115.getCode(),
                         DiagnosticsCodes.PERSIST_118.getCode()
-                },
-                4);
+                });
     }
 
     @Test
     public void testInvalidInitialisation1() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_15");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_15", 3);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -324,13 +308,12 @@ public class CompilerPluginTest {
                         DiagnosticsCodes.PERSIST_116.getCode(),
                         DiagnosticsCodes.PERSIST_118.getCode(),
                         DiagnosticsCodes.PERSIST_116.getCode()
-                },
-                3);
+                });
     }
 
     @Test
     public void testInvalidInitialisation2() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_16");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_16", 2);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -342,13 +325,12 @@ public class CompilerPluginTest {
                 new String[]{
                         DiagnosticsCodes.PERSIST_116.getCode(),
                         DiagnosticsCodes.PERSIST_116.getCode()
-                },
-                2);
+                });
     }
 
     @Test
     public void testInvalidInitialisation3() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_38");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_38", 2);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -358,13 +340,12 @@ public class CompilerPluginTest {
                 new String[]{
                         DiagnosticsCodes.PERSIST_123.getCode(),
                         DiagnosticsCodes.PERSIST_132.getCode()
-                },
-                2);
+                });
     }
 
     @Test
     public void testUnSupportedFeature() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_17");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_17", 4);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -380,13 +361,12 @@ public class CompilerPluginTest {
                         DiagnosticsCodes.PERSIST_116.getCode(),
                         DiagnosticsCodes.PERSIST_114.getCode(),
                         DiagnosticsCodes.PERSIST_116.getCode()
-                },
-                4);
+                });
     }
 
     @Test
     public void testUnSupportedFeature1() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_22");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_22", 2);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -396,13 +376,12 @@ public class CompilerPluginTest {
                 new String[]{
                         DiagnosticsCodes.PERSIST_120.getCode(),
                         DiagnosticsCodes.PERSIST_120.getCode()
-                },
-                2);
+                });
     }
 
     @Test
     public void testUnSupportedFeature2() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_23");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_23", 1);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -410,13 +389,12 @@ public class CompilerPluginTest {
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_120.getCode()
-                },
-                1);
+                });
     }
 
     @Test
     public void testUnSupportedFeature3() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_24");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_24", 2);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -426,13 +404,12 @@ public class CompilerPluginTest {
                 new String[]{
                         DiagnosticsCodes.PERSIST_121.getCode(),
                         DiagnosticsCodes.PERSIST_121.getCode()
-                },
-                2);
+                });
     }
 
     @Test
     public void testUnSupportedFeature4() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_25");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_25", 2);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -442,13 +419,12 @@ public class CompilerPluginTest {
                 new String[]{
                         DiagnosticsCodes.PERSIST_121.getCode(),
                         DiagnosticsCodes.PERSIST_121.getCode()
-                },
-                2);
+                });
     }
 
     @Test
     public void testInvalidAnnotation() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_18");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_18", 1);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -457,13 +433,12 @@ public class CompilerPluginTest {
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_118.getCode()
-                },
-                1);
+                });
     }
 
     @Test
     public void testInvalidAnnotation1() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_19");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_19", 1);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -471,13 +446,12 @@ public class CompilerPluginTest {
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_117.getCode()
-                },
-                1);
+                });
     }
 
     @Test
     public void testInvalidAnnotation2() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_08");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_08", 1);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -485,13 +459,12 @@ public class CompilerPluginTest {
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_125.getCode()
-                },
-                1);
+                });
     }
 
     @Test
     public void testInvalidAnnotation3() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_09");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_09", 1);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -499,13 +472,12 @@ public class CompilerPluginTest {
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_126.getCode()
-                },
-                1);
+                });
     }
 
     @Test
     public void testInvalidAnnotation4() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_32");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_32", 3);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -517,14 +489,13 @@ public class CompilerPluginTest {
                         DiagnosticsCodes.PERSIST_128.getCode(),
                         DiagnosticsCodes.PERSIST_128.getCode(),
                         DiagnosticsCodes.PERSIST_128.getCode()
-                },
-                3);
+                });
 
     }
 
     @Test
     public void testEntityName1() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_21");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_21", 2);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -536,13 +507,12 @@ public class CompilerPluginTest {
                 new String[]{
                         DiagnosticsCodes.PERSIST_119.getCode(),
                         DiagnosticsCodes.PERSIST_119.getCode()
-                },
-                2);
+                });
     }
 
     @Test
     public void testGetReferenceWithCompositeKey() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_26");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_26", 1);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -551,13 +521,12 @@ public class CompilerPluginTest {
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_122.getCode()
-                },
-                1);
+                });
     }
 
     @Test
     public void testGetReferenceWithEmptyKey() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_27");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_27", 1);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -565,13 +534,12 @@ public class CompilerPluginTest {
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_123.getCode()
-                },
-                1);
+                });
     }
 
     @Test
     public void testGetReferenceWithEmptyKey1() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_28");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_28", 3);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -583,13 +551,12 @@ public class CompilerPluginTest {
                         DiagnosticsCodes.PERSIST_123.getCode(),
                         DiagnosticsCodes.PERSIST_123.getCode(),
                         DiagnosticsCodes.PERSIST_123.getCode()
-                },
-                3);
+                });
     }
 
     @Test
     public void testEntityClosedRecord() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_30");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_30", 1);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -597,13 +564,12 @@ public class CompilerPluginTest {
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_124.getCode()
-                },
-                1);
+                });
     }
 
     @Test
     public void testEntityClosedRecord2() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_31");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_31", 3);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -615,13 +581,12 @@ public class CompilerPluginTest {
                         DiagnosticsCodes.PERSIST_121.getCode(),
                         DiagnosticsCodes.PERSIST_124.getCode(),
                         DiagnosticsCodes.PERSIST_121.getCode()
-                },
-                3);
+                });
     }
 
     @Test
     public void testFieldInitialisation() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_12");
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_12", 8);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -643,19 +608,19 @@ public class CompilerPluginTest {
                         DiagnosticsCodes.PERSIST_108.getCode(),
                         DiagnosticsCodes.PERSIST_127.getCode(),
                         DiagnosticsCodes.PERSIST_127.getCode()
-                },
-                8);
+                });
     }
 
-    private List<Diagnostic> getDiagnostic(String packageName) {
+    private List<Diagnostic> getDiagnostic(String packageName, int count) {
         DiagnosticResult diagnosticResult = loadPackage(packageName).getCompilation().diagnosticResult();
-        return diagnosticResult.diagnostics().stream().filter(r -> r.diagnosticInfo().severity().
-                        equals(DiagnosticSeverity.ERROR)).collect(Collectors.toList());
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().filter
+                (r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).collect(Collectors.toList());
+        Assert.assertEquals(errorDiagnosticsList.size(), count);
+        return errorDiagnosticsList;
 
     }
 
-    private void testDiagnostic(List<Diagnostic> errorDiagnosticsList, String[] msg, String[] code, int count) {
-        Assert.assertEquals(errorDiagnosticsList.size(), count);
+    private void testDiagnostic(List<Diagnostic> errorDiagnosticsList, String[] msg, String[] code) {
         for (int index = 0; index < errorDiagnosticsList.size(); index++) {
             DiagnosticInfo error = errorDiagnosticsList.get(index).diagnosticInfo();
             Assert.assertEquals(error.code(), code[index]);
