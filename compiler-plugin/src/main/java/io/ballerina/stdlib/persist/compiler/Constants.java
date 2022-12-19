@@ -54,7 +54,6 @@ public class Constants {
 
         public static final String KEY = "key";
         public static final String UNIQUE_CONSTRAINTS = "uniqueConstraints";
-        public static final String TABLE_NAME = "tableName";
     }
 
     /**

@@ -21,12 +21,10 @@ string[] keyColumns = ["v1", "v2"];
 string[] reference = ["v1", "v2"];
 string[][] uniqueConstraint = [["v1", "v2"]];
 int value = 1;
-string tableName = "USER_TABLE";
 
 @persist:Entity {
     key: key,
-    uniqueConstraints: uniqueConstraint,
-    tableName: tableName
+    uniqueConstraints: uniqueConstraint
 }
 public type User record  {|
     @persist:AutoIncrement{startValue :value, increment: value }
@@ -37,8 +35,7 @@ public type User record  {|
 |};
 
 @persist:Entity {
-    key: ["id"],
-    tableName: "POST_TABLE"
+    key: ["id"]
 }
 public type Post record  {|
  readonly int id;

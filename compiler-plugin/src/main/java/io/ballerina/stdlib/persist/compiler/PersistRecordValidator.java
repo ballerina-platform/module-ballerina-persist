@@ -74,12 +74,10 @@ import java.util.Optional;
  */
 public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisContext> {
 
-    private final HashMap<String, String> tableNames;
     private final HashMap<String, Entity> entities;
     private final HashMap<String, List<Field>> deferredRelationKeyEntities;
 
     public PersistRecordValidator() {
-        this.tableNames = new HashMap<>();
         this.entities = new HashMap<>();
         this.deferredRelationKeyEntities = new HashMap<>();
     }
@@ -142,7 +140,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             if (entityAnnotation.isPresent()) {
                 String entityName = typeDefinitionNode.typeName().text().trim();
                 Entity entity = new Entity(entityName, moduleName, recordTypeSymbol.fieldDescriptors().keySet());
-                entity.setEntityNameLocation(typeDefinitionNode.typeName().location());
 
                 // Remove after entities are validated to be in one module
                 // todo: Remove after https://github.com/ballerina-platform/ballerina-standard-library/issues/3810
@@ -214,7 +211,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 annotationNode.annotValue();
         if (mappingConstructorExpressionNode.isPresent()) {
             SeparatedNodeList<MappingFieldNode> fields = mappingConstructorExpressionNode.get().fields();
-            boolean isKeyFieldFound = false;
             for (MappingFieldNode fieldNode : fields) {
                 SpecificFieldNode specificFieldNode = (SpecificFieldNode) fieldNode;
                 // If field is given as token( key: ) or string ("key": )
@@ -229,33 +225,12 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                     case EntityAnnotation.UNIQUE_CONSTRAINTS:
                         validateUniqueConstraintField(entity, specificFieldValue);
                         break;
-                    case EntityAnnotation.TABLE_NAME:
-                        //todo: Remove with V2
-                        isKeyFieldFound = true;
-                        if (specificFieldValue instanceof BasicLiteralNode) {
-                            String tableName = Utils.eliminateDoubleQuotes(
-                                    ((BasicLiteralNode) specificFieldValue).literalToken().text().trim());
-                            entity.setTableName(tableName);
-                            entity.setTableNameExpressionLocation(specificFieldValue.location());
-                        } else {
-                            entity.addDiagnostic(specificFieldValue.location(), DiagnosticsCodes.PERSIST_127.getCode(),
-                                    MessageFormat.format(DiagnosticsCodes.PERSIST_127.getMessage(),
-                                            EntityAnnotation.TABLE_NAME), DiagnosticsCodes.PERSIST_127.getSeverity());
-                        }
-                        break;
                     default:
                         // Unreachable code as type descriptor is a closed record.
                         throw new RuntimeException("Unsupported @persist:Entity annotation field, " + fieldName);
                 }
 
             }
-            if (!isKeyFieldFound) {
-                entity.setTableName(entity.getEntityName());
-                entity.setTableNameExpressionLocation(entity.getEntityNameLocation());
-            }
-        }
-        if (entity.getTableName() != null) {
-            validateTableName(entity, entity.getTableNameExpressionLocation());
         }
     }
 
@@ -383,17 +358,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             entity.addDiagnostic(specificFieldValue.location(), DiagnosticsCodes.PERSIST_127.getCode(),
                     MessageFormat.format(DiagnosticsCodes.PERSIST_127.getMessage(),
                             EntityAnnotation.UNIQUE_CONSTRAINTS), DiagnosticsCodes.PERSIST_127.getSeverity());
-        }
-    }
-
-    private void validateTableName(Entity entity, NodeLocation location) {
-        if (this.tableNames.containsKey(entity.getTableName())) {
-            entity.addDiagnostic(location, DiagnosticsCodes.PERSIST_113.getCode(),
-                    MessageFormat.format(DiagnosticsCodes.PERSIST_113.getMessage(),
-                            this.tableNames.get(entity.getTableName())),
-                    DiagnosticsCodes.PERSIST_113.getSeverity());
-        } else {
-            this.tableNames.put(entity.getTableName(), entity.getModule());
         }
     }
 

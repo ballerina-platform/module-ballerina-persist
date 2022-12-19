@@ -40,9 +40,6 @@ public class Entity {
     private final HashMap<String, NodeLocation> primaryKeys = new HashMap<>();
     private final List<HashMap<String, NodeLocation>> uniqueConstraints = new ArrayList<>();
     private final List<Diagnostic> diagnosticList = new ArrayList<>();
-    private NodeLocation entityNameLocation;
-    private String tableName;
-    private NodeLocation tableNameExpressionLocation;
 
     public Entity(String entityName, String module, Set<String> entityFieldNames) {
         this.entityName = entityName;
@@ -52,30 +49,6 @@ public class Entity {
 
     public String getEntityName() {
         return this.entityName;
-    }
-
-    public NodeLocation getEntityNameLocation() {
-        return this.entityNameLocation;
-    }
-
-    public void setEntityNameLocation(NodeLocation entityNameLocation) {
-        this.entityNameLocation = entityNameLocation;
-    }
-
-    public String getTableName() {
-        return this.tableName;
-    }
-
-    public void setTableName(String tableName) {
-        this.tableName = tableName;
-    }
-
-    public NodeLocation getTableNameExpressionLocation() {
-        return this.tableNameExpressionLocation;
-    }
-
-    public void setTableNameExpressionLocation(NodeLocation tableNameExpressionLocation) {
-        this.tableNameExpressionLocation = tableNameExpressionLocation;
     }
 
     public boolean primaryKeysContains(String key) {

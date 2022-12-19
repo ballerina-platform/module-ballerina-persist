@@ -17,8 +17,7 @@
 import ballerina/time;
 
 @Entity {
-    key: ["needId"],
-    tableName: "MedicalNeeds"
+    key: ["needId"]
 }
 public type MedicalNeed record {|
     @AutoIncrement
@@ -32,8 +31,7 @@ public type MedicalNeed record {|
 |};
 
 @Entity {
-    key: ["itemId"],
-    tableName: "MedicalItems"
+    key: ["itemId"]
 }
 public type MedicalItem record {|
     readonly int itemId;
@@ -43,8 +41,7 @@ public type MedicalItem record {|
 |};
 
 @Entity {
-    key: ["complexTypeId"],
-    tableName: "ComplexTypes"
+    key: ["complexTypeId"]
 }
 public type ComplexType record {|
     @AutoIncrement
@@ -55,8 +52,7 @@ public type ComplexType record {|
 |};
 
 @Entity {
-    key: ["hospitalCode", "departmentId"],
-    tableName: "Departments"
+    key: ["hospitalCode", "departmentId"]
 }
 public type Department record {|
     string hospitalCode;
@@ -66,8 +62,7 @@ public type Department record {|
 
 // One-to-one relation
 @Entity {
-    key: ["id"],
-    tableName: "Users"
+    key: ["id"]
 }
 public type User record {|
     readonly int id;
@@ -76,8 +71,7 @@ public type User record {|
 |};
 
 @Entity {
-    key: ["id"],
-    tableName: "Profiles"
+    key: ["id"]
 }
 public type Profile record {|
     readonly int id;
@@ -87,8 +81,7 @@ public type Profile record {|
 |};
 
 @Entity {
-    key: ["id"],
-    tableName: "MultipleAssociations"
+    key: ["id"]
 }
 public type MultipleAssociations record {|
     readonly int id;
@@ -103,8 +96,7 @@ public type MultipleAssociations record {|
 
 // One-to-many relation
 @Entity {
-    key: ["id"],
-    tableName: "Companies"
+    key: ["id"]
 }
 public type Company record {|
     readonly int id;
@@ -113,8 +105,7 @@ public type Company record {|
 |};
 
 @Entity {
-    key: ["id"],
-    tableName: "Employees"
+    key: ["id"]
 }
 public type Employee record {|
     readonly int id;

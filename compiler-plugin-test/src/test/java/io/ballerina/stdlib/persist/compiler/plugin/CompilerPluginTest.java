@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Tests the persist compiler plugin.
+ * Tests persist compiler plugin.
  */
 public class CompilerPluginTest {
 
@@ -260,32 +260,6 @@ public class CompilerPluginTest {
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_130.getCode()
-                });
-    }
-
-    @Test
-    public void testTableName() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_13", 1);
-        testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "duplicate table name: the table name is already used in another entity in"
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_113.getCode()
-                });
-    }
-
-    @Test
-    public void testTableName1() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_20", 1);
-        testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "duplicate table name: the table name is already used in another entity in "
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_113.getCode()
                 });
     }
 
@@ -524,7 +498,7 @@ public class CompilerPluginTest {
                 });
     }
 
-    // Unnecessary as currently we dont support entitites w/o primary key
+    // Unnecessary as currently we don't support entities w/o primary key
     @Test(enabled = false)
     public void testGetReferenceWithEmptyKey() {
         List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_27", 1);
@@ -538,7 +512,7 @@ public class CompilerPluginTest {
                 });
     }
 
-    // Unnecessary as currently we dont support entitites w/o primary key
+    // Unnecessary as currently we don't support entities w/o primary key
     @Test(enabled = false)
     public void testGetReferenceWithEmptyKey1() {
         List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_28", 3);
@@ -586,13 +560,12 @@ public class CompilerPluginTest {
 
     @Test
     public void testFieldInitialisation() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_12", 9);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_12", 8);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
                         "'key' field only allows inline initialisation",
                         "'uniqueConstraints' field only allows inline initialisation",
-                        "'tableName' field only allows inline initialisation",
                         "invalid initialization: auto increment is only allowed for primary key field",
                         "'startValue ' field only allows inline initialisation",
                         "'increment' field only allows inline initialisation",
@@ -602,7 +575,6 @@ public class CompilerPluginTest {
                                 "with the relationship type",
                 },
                 new String[]{
-                        DiagnosticsCodes.PERSIST_127.getCode(),
                         DiagnosticsCodes.PERSIST_127.getCode(),
                         DiagnosticsCodes.PERSIST_127.getCode(),
                         DiagnosticsCodes.PERSIST_108.getCode(),
