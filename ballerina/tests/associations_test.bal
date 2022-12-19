@@ -536,4 +536,121 @@ function manyToManyUpdateTest1() returns error? {
     test:assertEquals(lectureR, lecture);
 }
 
+@test:Config {
+    groups: ["associations", "many-to-many"],
+    dependsOn: [manyToManyCreateTest1]
+}
+function manyToManyUpdateTest2() returns error? {
+    Student student = {
+        o_studentId: 1,
+        o_firstName: "TomUpdated",
+        o_lastName: "Scott",
+        o_dob: {year: 1996, month: 12, day: 12},
+        o_contact: "0771952226"
+    };
+    StudentClient studentClient = check new();
+    _ = check studentClient->update(student);
+    Student studentR = check studentClient->readByKey(1, [LectureEntity, PaperEntity]);
 
+    Lecture lecture1 = {
+        o_lectureId: 1,
+        o_subject: "TestLecture1",
+        o_day: "monday",
+        o_time: {hour: 13, minute: 1, second: 0}
+    };
+
+    Lecture lecture2 = {
+        o_lectureId: 2,
+        o_subject: "TestLecture2",
+        o_day: "tuesday",
+        o_time: {hour: 13, minute: 2, second: 0}
+    };
+
+    Paper paper1 = {
+        o_subjectId: 1,
+        o_date: {year: 2022, month: 12, day: 14},
+        o_title: "Maths"
+    };
+
+    Paper paper2 = {
+        o_subjectId: 1,
+        o_date: {year: 2022, month: 11, day: 14},
+        o_title: "Maths2"
+    };
+
+    Paper paper3 = {
+        o_subjectId: 2,
+        o_date: {year: 2022, month: 12, day: 15},
+        o_title: "English"
+    };
+
+    Student expectedStudent = {
+        o_studentId: 1,
+        o_firstName: "TomUpdated",
+        o_lastName: "Scott",
+        o_dob: {year: 1996, month: 12, day: 12},
+        o_contact: "0771952226",
+        o_lectures: [lecture1, lecture2],
+        o_papers: [paper2, paper1, paper3]
+    };
+
+    test:assertEquals(studentR, expectedStudent);
+}
+
+@test:Config {
+    groups: ["associations", "many-to-many"],
+    dependsOn: [manyToManyUpdateTest2]
+}
+function manyToManyUpdateTest3() returns error? {
+    StudentClient studentClient = check new();
+    Student student = check studentClient->readByKey(1, [LectureEntity]);
+    student.o_lectures[0].o_subject = "TestLecture1Updated";
+    student.o_firstName = "TomUpdatedAgain";
+    _ = check studentClient->update(student, [LectureEntity]);
+
+    Student studentR = check studentClient->readByKey(1, [LectureEntity, PaperEntity]);
+
+    Lecture lecture1 = {
+        o_lectureId: 1,
+        o_subject: "TestLecture1Updated",
+        o_day: "monday",
+        o_time: {hour: 13, minute: 1, second: 0}
+    };
+
+    Lecture lecture2 = {
+        o_lectureId: 2,
+        o_subject: "TestLecture2",
+        o_day: "tuesday",
+        o_time: {hour: 13, minute: 2, second: 0}
+    };
+
+    Paper paper1 = {
+        o_subjectId: 1,
+        o_date: {year: 2022, month: 12, day: 14},
+        o_title: "Maths"
+    };
+
+    Paper paper2 = {
+        o_subjectId: 1,
+        o_date: {year: 2022, month: 11, day: 14},
+        o_title: "Maths2"
+    };
+
+    Paper paper3 = {
+        o_subjectId: 2,
+        o_date: {year: 2022, month: 12, day: 15},
+        o_title: "English"
+    };
+
+    Student expectedStudent = {
+        o_studentId: 1,
+        o_firstName: "TomUpdatedAgain",
+        o_lastName: "Scott",
+        o_dob: {year: 1996, month: 12, day: 12},
+        o_contact: "0771952226",
+        o_lectures: [lecture1, lecture2],
+        o_papers: [paper2, paper1, paper3]
+    };
+
+    test:assertEquals(studentR, expectedStudent);
+}
