@@ -70,10 +70,10 @@ client class ProfileClient {
         }
     }
 
-    remote function update(Profile 'object) returns Error? {
+    remote function update(Profile 'object, ProfileRelations[] updateAssociations = []) returns Error? {
         _ = check self.persistClient.runUpdateQuery('object);
 
-        if 'object["user"] is User {
+        if (<string[]> updateAssociations).indexOf(UserEntity) != () && 'object["user"] != () {
             User userEntity = <User>'object["user"];
             UserClient userClient = check new UserClient();
             check userClient->update(userEntity);

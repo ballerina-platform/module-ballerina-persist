@@ -16,7 +16,7 @@
 
 import ballerina/sql;
 import ballerina/regex;
- 
+
 # The client used by the generated persist clients to abstract and 
 # execute SQL queries that are required to perform CRUD operations.
 public client class SQLClient {
@@ -39,7 +39,7 @@ public client class SQLClient {
     # + joinMetadata - The metadata associated with performing SQL `JOIN` operations
     # + return - A `persist:Error` if the client creation fails
     public function init(sql:Client dbClient, string entityName, sql:ParameterizedQuery tableName, string[] keyFields, map<FieldMetadata> fieldMetadata,
-                        map<JoinMetadata> joinMetadata = {}) returns Error? {
+            map<JoinMetadata> joinMetadata = {}) returns Error? {
         self.entityName = entityName;
         self.tableName = tableName;
         self.fieldMetadata = fieldMetadata;
@@ -52,7 +52,7 @@ public client class SQLClient {
     #
     # + 'object - The record to be inserted into the table
     # + return - An `sql:ExecutionResult` containing the metadata of the query execution
-    #            or a `persist:Error` if the operation fails
+    # or a `persist:Error` if the operation fails
     public isolated function runInsertQuery(record {} 'object) returns sql:ExecutionResult|Error {
         sql:ParameterizedQuery query = sql:queryConcat(
             `INSERT INTO `, self.tableName, ` (`,
@@ -68,60 +68,9 @@ public client class SQLClient {
             return <Error>error(result.message());
         }
 
+        check self.populateJoinTables('object);
+
         return result;
-    }
-
-    public isolated function populateJoinTables(record {} 'object) returns Error? {
-        foreach JoinMetadata joinMetadata in self.joinMetadata {
-            string fieldName = joinMetadata.fieldName;
-
-            if joinMetadata.joinTable is string && 'object[fieldName] is record{}[] {
-                string joinTable = <string>joinMetadata.joinTable;
-                string[] joiningJoinColumns = <string[]>joinMetadata.joiningJoinColumns;
-                string[] joinColumns = <string[]>joinMetadata.joinColumns;
-                string[] joiningRefColumns = <string[]>joinMetadata.joiningRefColumns;
-                string[] refColumns = <string[]>joinMetadata.refColumns;
-
-                record{}[] toBeInserted = <record{}[]>'object[fieldName];
-                string[] insertColumns = [...joiningRefColumns, ...joinColumns];
-                sql:Value[] lhsColumnsValues = [];
-                sql:Value[][] joinTableValues = [];
-
-                foreach string joiningJoinColumn in joiningJoinColumns {
-                    foreach string key in self.fieldMetadata.keys() {
-                        if self.fieldMetadata.get(key).columnName == joiningJoinColumn {
-                            lhsColumnsValues.push(<sql:Value>'object[key]);
-                        }
-                    }
-                }
-
-                foreach record{} row in toBeInserted {
-                    sql:Value[] values = [...lhsColumnsValues];
-                    foreach string refColumn in refColumns {
-                        foreach string key in self.fieldMetadata.keys() {
-                            if key.includes(fieldName + "[]") && (<RelationMetadata>self.fieldMetadata.get(key).relation).refColumnName == refColumn {
-                                values.push(<sql:Value>row[(<RelationMetadata>self.fieldMetadata.get(key).relation).refField]);
-                            }
-                        }
-                    }
-                    joinTableValues.push(values);
-                }
-
-                sql:ParameterizedQuery[] sqlQueries = 
-                    from var row in joinTableValues
-                    select sql:queryConcat(
-                        `INSERT INTO `, stringToParameterizedQuery(joinTable),
-                        ` (`, arrayToParameterizedQuery(insertColumns), `) `,
-                        `VALUES (`, arrayToParameterizedQuery(row, false), `)`
-                    );
-
-                sql:ExecutionResult[]|sql:Error result = self.dbClient->batchExecute(sqlQueries);
-
-                if result is sql:Error {
-                    return <Error>error(result.message());
-                }
-            }
-        }
     }
 
     # Performs an SQL `SELECT` operation to read a single record from the database.
@@ -204,11 +153,12 @@ public client class SQLClient {
     # Performs an SQL `UPDATE` operation to update multiple records in the database.
     #
     # + 'object - the record to be updated
+    # + updateAssociations - The associations that should be updated
     # + return - `()` if the operation is performed successfully.
-    #            A `ForeignKeyConstraintViolationError` if the operation violates a foreign key constraint.
-    #            A `persist:Error` if the operation fails due to another reason.
-    public isolated function runUpdateQuery(record {} 'object) returns ForeignKeyConstraintViolationError|Error? {
-        sql:ParameterizedQuery query = sql:queryConcat(`UPDATE `, self.tableName, stringToParameterizedQuery(" " + self.entityName), ` SET`, check self.getSetClauses('object));
+    # A `ForeignKeyConstraintViolationError` if the operation violates a foreign key constraint.
+    # A `persist:Error` if the operation fails due to another reason.
+    public isolated function runUpdateQuery(record {} 'object, string[] updateAssociations = []) returns ForeignKeyConstraintViolationError|Error? {
+        sql:ParameterizedQuery query = sql:queryConcat(`UPDATE `, self.tableName, stringToParameterizedQuery(" " + self.entityName), ` SET`, check self.getSetClauses('object, updateAssociations));
         query = sql:queryConcat(query, ` WHERE`, check self.getWhereClauses(self.getKey('object)));
 
         sql:ExecutionResult|sql:Error? e = self.dbClient->execute(query);
@@ -220,6 +170,9 @@ public client class SQLClient {
                 return <ForeignKeyConstraintViolationError>error(e.message());
             }
         }
+
+        check self.depopulateJoinTables('object, updateAssociations);
+        check self.populateJoinTables('object, updateAssociations);
     }
 
     # Performs an SQL `DELETE` operation to delete a record from the database.
@@ -267,7 +220,7 @@ public client class SQLClient {
                     string[] joiningJoinColumns = <string[]>joinMetadata.joiningJoinColumns;
 
                     sql:ParameterizedQuery whereFields = arrayToParameterizedQuery(joinMetadata.refColumns);
-                    sql:ParameterizedQuery joinSelectColumns = arrayToParameterizedQuery(joinMetadata.joinColumns);                 
+                    sql:ParameterizedQuery joinSelectColumns = arrayToParameterizedQuery(joinMetadata.joinColumns);
 
                     map<string> innerWhereFilter = {};
                     foreach int i in 0 ..< joiningRefColumns.length() {
@@ -278,7 +231,7 @@ public client class SQLClient {
                         ` SELECT`, self.getManyRelationColumnNames(joinMetadata.fieldName),
                         ` FROM `, stringToParameterizedQuery(joinMetadata.refTable),
                         ` WHERE (`, whereFields, `) IN (`,
-                            ` SELECT `, joinSelectColumns, 
+                            ` SELECT `, joinSelectColumns,
                             ` FROM `, stringToParameterizedQuery(joinTable),
                             ` WHERE `, check self.getWhereClauses(innerWhereFilter, true),
                         `)`
@@ -286,9 +239,9 @@ public client class SQLClient {
                 }
 
                 stream<record {}, sql:Error?> joinStream = self.dbClient->query(query, joinMetadata.entity);
-                record{}[]|error arr = from record {} item in joinStream
-                                       select item;
-                
+                record {}[]|error arr = from record {} item in joinStream
+                    select item;
+
                 if arr is error {
                     return <Error>error(arr.message());
                 }
@@ -442,11 +395,22 @@ public client class SQLClient {
         return query;
     }
 
-    private isolated function getSetClauses(record {} 'object) returns sql:ParameterizedQuery|Error {
+    private isolated function getSetClauses(record {} 'object, string[] updateAssociations = []) returns sql:ParameterizedQuery|Error {
         record {} r = flattenRecord('object);
         sql:ParameterizedQuery query = ` `;
         int count = 0;
         foreach string key in r.keys() {
+
+            // Check whether the column can be inserted to
+            if !self.fieldMetadata.hasKey(key) || self.fieldMetadata.get(key).columnName == () {
+                continue;
+            }
+
+            // If the column is associated with a relation, check whether that association should be updated
+            if self.fieldMetadata.get(key).relation != () && updateAssociations.indexOf(key) != () {
+                continue;
+            }
+
             sql:ParameterizedQuery|InvalidInsertionError|FieldDoesNotExistError fieldName = self.getFieldParamQuery(key);
             if fieldName is sql:ParameterizedQuery {
                 if count > 0 {
@@ -487,10 +451,103 @@ public client class SQLClient {
 
     private isolated function getFieldFromColumn(string columnName) returns string {
         string fieldName = from string key in self.fieldMetadata.keys()
-                           where (<FieldMetadata>self.fieldMetadata[key]).columnName == columnName
-                           select key;
+            where (<FieldMetadata>self.fieldMetadata[key]).columnName == columnName
+            select key;
         return fieldName;
     }
+
+    private isolated function populateJoinTables(record {} 'object, string[]? updateAssociations = ()) returns Error? {
+        foreach string key in self.joinMetadata.keys() {
+            if updateAssociations != () && updateAssociations.indexOf(key) is () {
+                continue;
+            }
+
+            JoinMetadata joinMetadata = self.joinMetadata.get(key);
+            string fieldName = joinMetadata.fieldName;
+
+            if joinMetadata.joinTable is string && 'object[fieldName] is record {}[] {
+                string joinTable = <string>joinMetadata.joinTable;
+                string[] joiningJoinColumns = <string[]>joinMetadata.joiningJoinColumns;
+                string[] joinColumns = <string[]>joinMetadata.joinColumns;
+                string[] joiningRefColumns = <string[]>joinMetadata.joiningRefColumns;
+                string[] refColumns = <string[]>joinMetadata.refColumns;
+
+                record {}[] toBeInserted = <record {}[]>'object[fieldName];
+                string[] insertColumns = [...joiningRefColumns, ...joinColumns];
+                sql:Value[] lhsColumnsValues = [];
+                sql:Value[][] joinTableValues = [];
+
+                foreach string joiningJoinColumn in joiningJoinColumns {
+                    foreach string joinKey in self.fieldMetadata.keys() {
+                        if self.fieldMetadata.get(joinKey).columnName == joiningJoinColumn {
+                            lhsColumnsValues.push(<sql:Value>'object[joinKey]);
+                        }
+                    }
+                }
+
+                foreach record {} row in toBeInserted {
+                    sql:Value[] values = [...lhsColumnsValues];
+                    foreach string refColumn in refColumns {
+                        foreach string refKey in self.fieldMetadata.keys() {
+                            if refKey.includes(fieldName + "[]") && (<RelationMetadata>self.fieldMetadata.get(refKey).relation).refColumnName == refColumn {
+                                values.push(<sql:Value>row[(<RelationMetadata>self.fieldMetadata.get(refKey).relation).refField]);
+                            }
+                        }
+                    }
+                    joinTableValues.push(values);
+                }
+
+                sql:ParameterizedQuery[] sqlQueries =
+                    from var row in joinTableValues
+                select sql:queryConcat(
+                        `INSERT INTO `, stringToParameterizedQuery(joinTable),
+                        ` (`, arrayToParameterizedQuery(insertColumns), `) `,
+                        `VALUES (`, arrayToParameterizedQuery(row, false), `)`
+                    );
+
+                sql:ExecutionResult[]|sql:Error result = self.dbClient->batchExecute(sqlQueries);
+
+                if result is sql:Error {
+                    return <Error>error(result.message());
+                }
+            }
+        }
+    }
+
+    public isolated function depopulateJoinTables(record {} 'object, string[] updateAssociations) returns Error? {
+        foreach string key in self.joinMetadata.keys() {
+            if updateAssociations.indexOf(key) is () {
+                continue;
+            }
+
+            JoinMetadata joinMetadata = self.joinMetadata.get(key);
+            if joinMetadata.joinTable is string {
+
+                string joinTable = <string>joinMetadata.joinTable;
+                string[] joiningJoinColumns = <string[]>joinMetadata.joiningJoinColumns;
+                string[] joiningRefColumns = <string[]>joinMetadata.joiningRefColumns;
+
+                map<anydata> whereFilter = {};
+                foreach int i in 0 ..< joiningJoinColumns.length() {
+                    string columnName = joiningRefColumns[i];
+                    string fieldName = self.getFieldFromColumn(joiningJoinColumns[i]);
+                    anydata value = 'object[fieldName];
+                    whereFilter[columnName] = value;
+                }
+
+                sql:ParameterizedQuery query = sql:queryConcat(
+                    ` DELETE FROM `, stringToParameterizedQuery(joinTable),
+                    ` WHERE `, check self.getWhereClauses(whereFilter, true)
+                );
+                sql:ExecutionResult|sql:Error result = self.dbClient->execute(query);
+
+                if result is sql:Error {
+                    return <Error>error(result.message());
+                }
+            }
+        }
+    }
+
 }
 
 # Represents the abstract persist client. This abstract object is used in the generated client.

@@ -84,7 +84,6 @@ client class StudentClient {
         }
 
         _ = check self.persistClient.runInsertQuery(value);
-        _ = check self.persistClient.populateJoinTables(value);
 
         return value;
     }
@@ -102,8 +101,32 @@ client class StudentClient {
         }
     }
 
-    remote function update(record {} 'object) returns Error? {
-        _ = check self.persistClient.runUpdateQuery('object);
+    remote function update(Student 'object, StudentRelations[] updateAssociations = []) returns Error? {
+        if (<string[]>updateAssociations).indexOf(LectureEntity) != () && 'object["o_lectures"] is Lecture[] {
+            LectureClient lectureClient = check new LectureClient();
+            foreach Lecture lecture in <Lecture[]>'object["o_lectures"] {
+                boolean exists = check lectureClient->exists(lecture);
+                if !exists {
+                    _ = check lectureClient->create(lecture);
+                } else {
+                    check lectureClient->update(lecture);
+                }
+            }
+        }
+
+         if (<string[]>updateAssociations).indexOf(PaperEntity) != () && 'object["o_papers"] is Paper[] {
+            PaperClient paperClient = check new PaperClient();
+            foreach Paper paper in <Paper[]>'object["o_papers"] {
+                boolean exists = check paperClient->exists(paper);
+                if !exists {
+                    _ = check paperClient->create(paper);
+                } else {
+                    check paperClient->update(paper);
+                }
+            }
+        }
+
+        _ = check self.persistClient.runUpdateQuery('object, updateAssociations);
     }
 
     remote function delete(Student 'object) returns Error? {

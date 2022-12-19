@@ -62,8 +62,8 @@ client class CompanyClient {
         }
     }
 
-    remote function update(Company 'object) returns Error? {
-        _ = check self.persistClient.runUpdateQuery('object);
+    remote function update(Company 'object, CompanyRelations[] updateAssociations = []) returns Error? {
+        _ = check self.persistClient.runUpdateQuery('object, updateAssociations);
     }
 
     remote function delete(Company 'object) returns Error? {

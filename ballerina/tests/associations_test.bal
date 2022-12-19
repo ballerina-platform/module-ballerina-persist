@@ -136,7 +136,7 @@ function oneToOneUpdateTest1() returns error? {
 
     profile.name = "TestUpdatedProfile";
     profile.user.name = "TestUpdatedUser";
-    _ = check profileClient->update(profile);
+    _ = check profileClient->update(profile, [UserEntity]);
 
     Profile profile2 = check profileClient->readByKey(5, [UserEntity]);
     Profile expectedProfile = {
@@ -170,7 +170,7 @@ function oneToOneUpdateTest2() returns error? {
         id: 4,
         name: "TestUpdatedUser2"
     };
-    _ = check profileClient->update(profile);
+    _ = check profileClient->update(profile, [UserEntity]);
 
     Profile profile2 = check profileClient->readByKey(6, [UserEntity]);
     Profile expectedProfile = {
@@ -414,7 +414,7 @@ function oneToManyUpdateTest4() returns error? {
 
     employee1.name = "TestEmployeeUpdated8";
     employee1.company.name = "TestCompanyUpdated5";
-    _ = check employeeClient->update(employee1);
+    _ = check employeeClient->update(employee1, [CompanyEntity]);
     Company company2 = check companyClient->readByKey(5, [EmployeeEntity]);
     test:assertEquals(company2, <Company>{
         id: 5,
@@ -509,3 +509,31 @@ function manyToManyCreateTest2() returns error? {
     Lecture lectureR = check lectureClient->readByKey(11, [StudentEntity]);
     test:assertEquals(lectureR, lecture);
 }
+
+@test:Config {
+    groups: ["associations", "many-to-many"],
+    dependsOn: [manyToManyCreateTest2]
+}
+function manyToManyUpdateTest1() returns error? {
+    LectureClient lectureClient = check new();
+    Lecture lecture = check lectureClient->readByKey(11, [StudentEntity]);
+
+    Student student1 = (<Student[]>lecture.o_students)[0];
+    student1.o_firstName = "TomUpdated";
+
+    Student student3 = {
+        o_studentId: 13,
+        o_firstName: "Tom3",
+        o_lastName: "Scott3",
+        o_dob: {year: 1996, month: 12, day: 12},
+        o_contact: "0771952222"
+    };
+
+    lecture.o_students = [student1, student3];
+    _ = check lectureClient->update(lecture, [StudentEntity]);
+
+    Lecture lectureR = check lectureClient->readByKey(11, [StudentEntity]);
+    test:assertEquals(lectureR, lecture);
+}
+
+

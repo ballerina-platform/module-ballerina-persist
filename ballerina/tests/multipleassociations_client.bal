@@ -81,16 +81,16 @@ client class MultipleAssociationsClient {
         }
     }
 
-    remote function update(MultipleAssociations 'object) returns Error? {
+    remote function update(MultipleAssociations 'object, MultipleAssociationsRelations[] updateAssociations = []) returns Error? {
         _ = check self.persistClient.runUpdateQuery('object);
 
-        if 'object["profile"] is Profile {
+        if (<string[]> updateAssociations).indexOf(ProfileEntity) != () && 'object["profile"] is Profile {
             Profile profileEntity = <Profile>'object["profile"];
             ProfileClient profileClient = check new ProfileClient();
             check profileClient->update(profileEntity);
         }
 
-        if 'object["user"] is User {
+        if (<string[]> updateAssociations).indexOf(UserEntity) != () && 'object["user"] is User {
             User userEntity = <User>'object["user"];
             UserClient userClient = check new UserClient();
             check userClient->update(userEntity);

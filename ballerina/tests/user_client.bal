@@ -62,8 +62,8 @@ client class UserClient {
         }
     }
 
-    remote function update(User 'object) returns Error? {
-        _ = check self.persistClient.runUpdateQuery('object);
+    remote function update(User 'object, UserRelations[] updateAssociations = []) returns Error? {
+        _ = check self.persistClient.runUpdateQuery('object, updateAssociations);
     }
 
     remote function delete(User 'object) returns Error? {

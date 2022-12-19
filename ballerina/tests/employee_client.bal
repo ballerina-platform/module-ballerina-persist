@@ -70,10 +70,10 @@ client class EmployeeClient {
         }
     }
 
-    remote function update(record {} 'object) returns Error? {
-        _ = check self.persistClient.runUpdateQuery('object);
+    remote function update(Employee 'object, EmployeeRelations[] updateAssociations = []) returns Error? {
+        _ = check self.persistClient.runUpdateQuery('object, updateAssociations);
 
-        if 'object["company"] is Company {
+        if (<string[]> updateAssociations).indexOf(CompanyEntity) != () && 'object["company"] is Company {
             Company companyEntity = <Company>'object["company"];
             CompanyClient companyClient = check new CompanyClient();
             check companyClient->update(companyEntity);
