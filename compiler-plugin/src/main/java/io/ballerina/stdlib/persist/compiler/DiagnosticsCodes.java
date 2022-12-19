@@ -40,6 +40,7 @@ public enum DiagnosticsCodes {
             "invalid type: the field type should be in integer", ERROR),
     PERSIST_106("PERSIST_106",
             "invalid initialization: the field is not specified as read-only", ERROR),
+    // todo : Move to dataprovider validations
     PERSIST_107("PERSIST_107", "duplicate annotation: the entity does not allow " +
             "multiple field with auto increment annotation", ERROR),
     PERSIST_108("PERSIST_108", "invalid initialization: auto increment is only allowed for " +
@@ -48,15 +49,12 @@ public enum DiagnosticsCodes {
             "with reference key count", ERROR),
     PERSIST_112("PERSIST_112", "mysql db only allow increment value by one in auto generated field",
             WARNING),
-    PERSIST_113("PERSIST_113", "duplicate table name: the table name is already " +
-            "used in another entity in [{0}]",
-            ERROR),
     PERSIST_114("PERSIST_114", "unsupported features: many-to-many association is not supported yet",
             ERROR),
     PERSIST_115("PERSIST_115", "invalid entity initialisation: the associated entity[{0}] " +
             "does not have the field with the relationship type", ERROR),
     PERSIST_116("PERSIST_116", "invalid entity initialisation: the relation annotation should " +
-            "only be added to the relationship owner for one-to-one and one-to-many associations", ERROR),
+            "only be added to the relationship owner for one-to-one associations", ERROR),
     PERSIST_117("PERSIST_117", "invalid annotation attachment: this non-entity type field " +
             "does not allow a relation annotation", ERROR),
     PERSIST_118("PERSIST_118", "invalid annotation attachment: the `one-to-many` relation annotation " +
@@ -68,12 +66,13 @@ public enum DiagnosticsCodes {
             ERROR),
     PERSIST_121("PERSIST_121", "unsupported features: {0} type is not supported",
             ERROR),
+    //todo: Check validity
     PERSIST_122("PERSIST_122", "associated entity contains composite primary keys: " +
             "inferring the relation reference from composite keys is not supported yet. please add the " +
             "references for relation", ERROR),
     PERSIST_123("PERSIST_123", "associated entity does not contain any keys: the ''{0}'' " +
             "should have a valid value", ERROR),
-    PERSIST_124("PERSIST_124", "the entity ''{0}'' should be a closed record.", ERROR),
+    PERSIST_124("PERSIST_124", "the entity ''{0}'' should be a closed record", ERROR),
     PERSIST_125("PERSIST_125", "relation annotation can only be attached to an entity record", ERROR),
     PERSIST_126("PERSIST_126", "auto increment annotation can only be attached to an entity record",
             ERROR),
@@ -88,6 +87,7 @@ public enum DiagnosticsCodes {
             ERROR),
     PERSIST_132("PERSIST_132", "invalid entity initialisation: the associated entity[{0}] is not " +
             "an entity", ERROR),
+    PERSIST_133("PERSIST_133", "field attached with ''Relation'' annotation must be optional", ERROR),
 
     // todo: Add expression type in the diagnostic message
     PERSIST_201("PERSIST_201",

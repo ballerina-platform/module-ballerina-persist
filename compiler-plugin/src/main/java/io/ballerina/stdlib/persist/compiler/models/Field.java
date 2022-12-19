@@ -21,26 +21,35 @@ package io.ballerina.stdlib.persist.compiler.models;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeLocation;
+import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 
 /**
  * Model class to represent fields.
  */
 public class Field {
     private final String fieldName;
+    private final NodeLocation fieldLocation;
     private final AnnotationNode autoIncrement;
     private final AnnotationNode relationAnnotation;
+    // Keep a reference to containing entity for easy of processing in relations
+    private final String containingEntityName;
+    private SeparatedNodeList<Node> keyColumnExpressions;
+    private SeparatedNodeList<Node> referenceExpressions;
 
     private boolean isReadOnly = false;
     private Node type;
     private NodeLocation typeLocation;
-    private boolean isRelationAttachedToValidEntity;
+    private boolean isRelationAttachedToValidEntity = false;
     private boolean isOptional = false;
+    private boolean isArrayType = false;
 
-    public Field(String fieldName, AnnotationNode autoIncrementNode, AnnotationNode relationAnnotation) {
+    public Field(String fieldName, NodeLocation fieldLocation, AnnotationNode autoIncrementNode,
+                 AnnotationNode relationAnnotation, String containingEntityName) {
         this.fieldName = fieldName;
+        this.fieldLocation = fieldLocation;
         this.autoIncrement = autoIncrementNode;
         this.relationAnnotation = relationAnnotation;
-        this.isRelationAttachedToValidEntity = false;
+        this.containingEntityName = containingEntityName;
     }
 
     public String getFieldName() {
@@ -93,5 +102,37 @@ public class Field {
 
     public void setOptional(boolean optional) {
         this.isOptional = optional;
+    }
+
+    public NodeLocation getFieldLocation() {
+        return fieldLocation;
+    }
+
+    public boolean isArrayType() {
+        return isArrayType;
+    }
+
+    public void setArrayType(boolean arrayType) {
+        isArrayType = arrayType;
+    }
+
+    public String getContainingEntityName() {
+        return containingEntityName;
+    }
+
+    public SeparatedNodeList<Node> getKeyColumnExpressions() {
+        return keyColumnExpressions;
+    }
+
+    public void setKeyColumnExpressions(SeparatedNodeList<Node> keyColumnExpressions) {
+        this.keyColumnExpressions = keyColumnExpressions;
+    }
+
+    public SeparatedNodeList<Node> getReferenceExpressions() {
+        return referenceExpressions;
+    }
+
+    public void setReferenceExpressions(SeparatedNodeList<Node> referenceExpressions) {
+        this.referenceExpressions = referenceExpressions;
     }
 }

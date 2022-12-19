@@ -22,7 +22,6 @@
 public type EntityConfig record {|
     string[] key;
     string[][] uniqueConstraints?;
-    string tableName?;
 |};
 
 # The annotation used to indicate a record-type as an `Entity`.

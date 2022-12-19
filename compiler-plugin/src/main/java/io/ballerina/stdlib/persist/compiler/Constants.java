@@ -30,6 +30,9 @@ import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createEmptyM
  */
 public class Constants {
 
+    public static final String PERSIST_MODULE = "persist";
+    public static final String TIME_MODULE = "time";
+
     /**
      * Constants for annotation names.
      */
@@ -37,9 +40,9 @@ public class Constants {
         private Annotations(){
         }
 
-        public static final String ENTITY = "persist:Entity";
-        public static final String AUTO_INCREMENT = "persist:AutoIncrement";
-        public static final String RELATION = "persist:Relation";
+        public static final String ENTITY = "Entity";
+        public static final String AUTO_INCREMENT = "AutoIncrement";
+        public static final String RELATION = "Relation";
     }
 
     /**
@@ -51,22 +54,23 @@ public class Constants {
 
         public static final String KEY = "key";
         public static final String UNIQUE_CONSTRAINTS = "uniqueConstraints";
-        public static final String TABLE_NAME = "tableName";
     }
 
-    public static final String TRUE = "true";
-    public static final String EMPTY = "";
-    public static final String FALSE = "false";
-    public static final String UNNECESSARY_CHARS_REGEX = "\"|\\n";
-    public static final String TABLE_NAME = "tableName";
+    /**
+     * Constant representing Relation annotation descriptor.
+     */
+    public static class RelationAnnotation {
+        private RelationAnnotation(){
+        }
+
+        public static final String KEY_COLUMNS = "keyColumns";
+        public static final String REFERENCE = "reference";
+        public static final String ON_DELETE = "onDelete";
+        public static final String ON_UPDATE = "onUpdate";
+    }
+
     public static final String INCREMENT = "increment";
-    public static final String KEY_COLUMNS = "keyColumns";
-    public static final String REFERENCE = "reference";
     public static final String ONE = "1";
-    public static final String ON_DELETE = "onDelete";
-    public static final String ON_UPDATE = "onUpdate";
-    public static final String ONE_TO_ONE = "ONE";
-    public static final String ONE_TO_MANY = "MANY";
     public static final String READ_FUNCTION = "read";
     public static final String EXECUTE_FUNCTION = "execute";
     public static final String BACKTICK = "`";
@@ -85,10 +89,16 @@ public class Constants {
         public static final String BOOLEAN = "boolean";
         public static final String DECIMAL = "decimal";
         public static final String FLOAT = "float";
-        public static final String DATE = "time:Date";
-        public static final String TIME_OF_DAY = "time:TimeOfDay";
-        public static final String UTC = "time:Utc";
-        public static final String CIVIL = "time:Civil";
+    }
+
+    /**
+     * Constants related to Ballerina time type.
+     */
+    public static final class BallerinaTimeTypes {
+        public static final String DATE = "Date";
+        public static final String TIME_OF_DAY = "TimeOfDay";
+        public static final String UTC = "Utc";
+        public static final String CIVIL = "Civil";
     }
 
     /**
