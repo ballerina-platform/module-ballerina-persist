@@ -139,8 +139,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             Optional<AnnotationNode> entityAnnotation = getEntityAnnotation(metadata.get().annotations());
             if (entityAnnotation.isPresent()) {
                 String entityName = typeDefinitionNode.typeName().text().trim();
-                Entity entity = new Entity(entityName, moduleName, recordTypeSymbol.fieldDescriptors().keySet(),
-                        typeDefinitionNode.typeName().location());
+                Entity entity = new Entity(entityName, moduleName, recordTypeSymbol.fieldDescriptors().keySet());
 
                 checkDuplicateEntity(entity, typeDefinitionNode);
 

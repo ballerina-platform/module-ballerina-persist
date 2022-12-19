@@ -30,10 +30,8 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -592,9 +590,6 @@ public class CompilerPluginTest {
         DiagnosticResult diagnosticResult = loadPackage(packageName).getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().filter
                 (r -> r.diagnosticInfo().severity().equals(diagnosticSeverity)).collect(Collectors.toList());
-        PrintStream asd = System.out;
-        asd.println(errorDiagnosticsList.size());
-        asd.println(Arrays.toString(errorDiagnosticsList.toArray()));
         Assert.assertEquals(errorDiagnosticsList.size(), count);
         return errorDiagnosticsList;
 
