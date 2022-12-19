@@ -467,15 +467,23 @@ public class CompilerPluginTest {
 
     @Test
     public void testEntityName1() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_21", 3, DiagnosticSeverity.WARNING);
+        PrintStream asd = System.out;
+        List<Diagnostic> warningDiagnosticsList = getDiagnostic("package_21", 4, DiagnosticSeverity.WARNING);
+        asd.println(Arrays.toString(warningDiagnosticsList.toArray()));
         testDiagnostic(
-                errorDiagnosticsList,
+                warningDiagnosticsList,
                 new String[]{
-                        "duplicate entity: the entity is already defined in",
-                        "duplicate entity: the entity is already defined in",
-                        "duplicate entity: the entity is already defined in"
+                        "remove the redeclare entity[Items1] as it is defined in more than one " +
+                                "places such as ",
+                        "remove the redeclare entity[Items1] as it is defined in more than one" +
+                                " places such as ",
+                        "remove the redeclare entity[Items1] as it is defined in more than one" +
+                                " places such as ",
+                        "remove the redeclare entity[Items1] as it is defined in more than one" +
+                                " places such as "
                 },
                 new String[]{
+                        DiagnosticsCodes.PERSIST_119.getCode(),
                         DiagnosticsCodes.PERSIST_119.getCode(),
                         DiagnosticsCodes.PERSIST_119.getCode(),
                         DiagnosticsCodes.PERSIST_119.getCode()

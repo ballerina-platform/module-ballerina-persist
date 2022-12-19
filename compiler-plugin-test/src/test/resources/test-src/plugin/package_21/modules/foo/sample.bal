@@ -14,34 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/time;
 import ballerina/persist;
-
-@persist:Entity {
-    key: ["needId"],
-    uniqueConstraints: [["beneficiaryId", "urgency"]]
-}
-public type MedicalNeed1 record {|
-    @persist:AutoIncrement
-    readonly int needId = 1;
-    int beneficiaryId;
-    time:Civil period;
-    string urgency;
-    int quantity;
-|};
-
-@persist:Entity {
-    key: ["needId"],
-    uniqueConstraints: [["beneficiaryId", "urgency"]]
-}
-public type MedicalNeed record {|
-    @persist:AutoIncrement
-    readonly int needId = 1;
-    int beneficiaryId;
-    time:Civil period;
-    string urgency;
-    int quantity;
-|};
 
 @persist:Entity {
     key: ["id"]
@@ -49,4 +22,13 @@ public type MedicalNeed record {|
 public type Items record {|
     @persist:AutoIncrement
     readonly int id = 1;
+|};
+
+@persist:Entity {
+    key: ["id"]
+}
+public type Items1 record {|
+    @persist:AutoIncrement
+    readonly int id = 1;
+    int beneficiaryId;
 |};
