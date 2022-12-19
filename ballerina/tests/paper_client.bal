@@ -18,25 +18,24 @@ import ballerinax/mysql;
 import ballerina/sql;
 import ballerina/time;
 
-client class LectureClient {
+client class PaperClient {
     *AbstractPersistClient;
 
-    private final string entityName = "Lecture";
-    private final sql:ParameterizedQuery tableName = `Lectures`;
+    private final string entityName = "Paper";
+    private final sql:ParameterizedQuery tableName = `Papers`;
     private final map<FieldMetadata> fieldMetadata = {
-        o_lectureId: {columnName: "lectureId", 'type: int},
-        o_subject: {columnName: "subject", 'type: string},
-        o_time: {columnName: "time", 'type: time:TimeOfDay},
-        o_day: {columnName: "day", 'type: string},
+        o_subjectId: {columnName: "subjectId", 'type: int},
+        o_date: {columnName: "paperDate", 'type: time:Date},
+        o_title: {columnName: "title", 'type: string},
         "o_students[].o_studentId": {'type: int, relation: {entityName: "student", refTable: "Lecture", refField: "o_studentId", refColumnName: "studentId"}},
         "o_students[].o_firstName": {'type: string, relation: {entityName: "student", refTable: "Lecture", refField: "o_firstName", refColumnName: "firstName"}},
         "o_students[].o_lastName": {'type: string, relation: {entityName: "student", refTable: "Lecture", refField: "o_lastName", refColumnName: "lastName"}},
         "o_students[].o_dob": {'type: time:Date, relation: {entityName: "student", refTable: "Lecture", refField: "o_dob", refColumnName: "dob"}},
         "o_students[].o_contact": {'type: string, relation: {entityName: "student", refTable: "Lecture", refField: "o_contact", refColumnName: "contact"}}
     };
-    private string[] keyFields = ["o_lectureId"];
+    private string[] keyFields = ["o_subjectId", "o_date"];
     private final map<JoinMetadata> joinMetadata = {
-        student: {entity: Student, fieldName: "o_students", refTable: "Students", refColumns: ["studentId"], joinColumns: ["i_studentId"], joinTable: "StudentsLectures", joiningJoinColumns: ["lectureId"], joiningRefColumns: ["i_lectureId"], 'type: MANY}
+        student: {entity: Student, fieldName: "o_students", refTable: "Students", refColumns: ["studentId"], joinColumns: ["i_studentId"], joinTable: "StudentsLectures", joiningJoinColumns: ["subjectId", "paperDate"], joiningRefColumns: ["i_subjectId", "i_date"], 'type: MANY}
     };
 
     private SQLClient persistClient;
@@ -50,7 +49,7 @@ client class LectureClient {
         self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata, self.joinMetadata);
     }
 
-    remote function create(Lecture value) returns Lecture|Error {
+    remote function create(Paper value) returns Paper|Error {
         if value.o_students is Student[] {
             StudentClient studentClient = check new StudentClient();
             Student[] insertedEntities = [];
@@ -70,23 +69,23 @@ client class LectureClient {
         return value;
     }
 
-    remote function readByKey(int key, LectureRelations[] include = []) returns Lecture|Error {
-        return <Lecture>check self.persistClient.runReadByKeyQuery(Lecture, key, include);
+    remote function readByKey(record {|int o_subjectId; time:Date o_date;|} key) returns Paper|Error {
+        return <Paper>check self.persistClient.runReadByKeyQuery(Paper, key);
     }
 
-    remote function read(LectureRelations[] include = []) returns stream<Lecture, Error?> {
-        stream<anydata, sql:Error?>|Error result = self.persistClient.runReadQuery(Lecture, include);
+    remote function read(PaperRelations[] include = []) returns stream<Paper, Error?> {
+        stream<anydata, sql:Error?>|Error result = self.persistClient.runReadQuery(Paper, include);
         if result is Error {
-            return new stream<Lecture, Error?>(new LectureStream((), result));
+            return new stream<Paper, Error?>(new PaperStream((), result));
         } else {
-            return new stream<Lecture, Error?>(new LectureStream(result, (), include, self.persistClient));
+            return new stream<Paper, Error?>(new PaperStream(result));
         }
     }
 
-    remote function update(Lecture 'object, LectureRelations[] updateAssociations = []) returns Error? {
+    remote function update(Paper 'object, PaperRelations[] updateAssociations = []) returns Error? {
         if (<string[]>updateAssociations).indexOf(StudentEntity) != () && 'object["o_students"] is Student[] {
             StudentClient studentClient = check new StudentClient();
-            foreach Student student in <Student[]>'object.o_students {
+            foreach Student student in <Student[]>'object["o_students"] {
                 boolean exists = check studentClient->exists(student);
                 if !exists {
                     _ = check studentClient->create(student);
@@ -99,13 +98,13 @@ client class LectureClient {
         _ = check self.persistClient.runUpdateQuery('object, updateAssociations);
     }
 
-    remote function delete(Lecture 'object) returns Error? {
+    remote function delete(Paper 'object) returns Error? {
         _ = check self.persistClient.runDeleteQuery('object);
     }
 
-    remote function exists(Lecture lecture) returns boolean|Error {
-        Lecture|Error result = self->readByKey(lecture.o_lectureId);
-        if result is Lecture {
+    remote function exists(Paper paper) returns boolean|Error {
+        Paper|Error result = self->readByKey({o_subjectId: paper.o_subjectId, o_date:paper.o_date});
+        if result is Paper {
             return true;
         } else if result is InvalidKeyError {
             return false;
@@ -120,24 +119,24 @@ client class LectureClient {
 
 }
 
-public enum LectureRelations {
+public enum PaperRelations {
     StudentEntity = "student"
 }
 
-public class LectureStream {
+public class PaperStream {
     private stream<anydata, sql:Error?>? anydataStream;
     private Error? err;
-    private LectureRelations[]? include;
+    private PaperRelations[]? include;
     private SQLClient? persistClient;
 
-    public isolated function init(stream<anydata, sql:Error?>? anydataStream, Error? err = (), LectureRelations[]? include = (), SQLClient? persistClient = ()) {
+    public isolated function init(stream<anydata, sql:Error?>? anydataStream, Error? err = (), PaperRelations[]? include = (), SQLClient? persistClient = ()) {
         self.anydataStream = anydataStream;
         self.err = err;
         self.include = include;
         self.persistClient = persistClient;
     }
 
-    public isolated function next() returns record {|Lecture value;|}|Error? {
+    public isolated function next() returns record {|Paper value;|}|Error? {
         if self.err is Error {
             return self.err;
         } else if self.anydataStream is stream<anydata, error?> {
@@ -148,8 +147,8 @@ public class LectureStream {
             } else if (streamValue is error) {
                 return <Error>error(streamValue.message());
             } else {
-                record {|Lecture value;|} nextRecord = {value: <Lecture>streamValue.value};
-                check (<SQLClient>self.persistClient).getManyRelations(nextRecord.value, <LectureRelations[]>self.include);
+                record {|Paper value;|} nextRecord = {value: <Paper>streamValue.value};
+                check (<SQLClient>self.persistClient).getManyRelations(nextRecord.value, <PaperRelations[]>self.include);
                 return nextRecord;
             }
         } else {
