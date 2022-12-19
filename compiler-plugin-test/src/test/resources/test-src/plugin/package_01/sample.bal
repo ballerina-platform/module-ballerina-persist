@@ -19,8 +19,7 @@ import ballerina/persist;
 
 @persist:Entity {
     key: ["needId"],
-    uniqueConstraints: [["needId1", "id"]],
-    tableName: "EMPLOYEE"
+    uniqueConstraints: [["needId1", "id"]]
 }
 public type MedicalNeed record {|
     @persist:AutoIncrement {increment: 2}
