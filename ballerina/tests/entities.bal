@@ -118,8 +118,7 @@ public type Employee record {|
 
 // Many-to-many relation
 @Entity {
-    key: ["studentId"],
-    tableName: "Students"
+    key: ["studentId"]
 }
 public type Student record {|
     int o_studentId;
@@ -152,8 +151,7 @@ public type Student record {|
 |};
 
 @Entity {
-    key: ["lectureId"],
-    tableName: "Lectures"
+    key: ["lectureId"]
 }
 public type Lecture record {|
     int o_lectureId;
@@ -174,8 +172,7 @@ public type Lecture record {|
 |};
 
 @Entity {
-    key: ["o_subjectId", "o_date"],
-    tableName: "Papers"
+    key: ["o_subjectId", "o_date"]
 }
 public type Paper record {|
     int o_subjectId;
