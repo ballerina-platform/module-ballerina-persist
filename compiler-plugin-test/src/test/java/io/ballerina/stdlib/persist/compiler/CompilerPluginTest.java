@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.stdlib.persist.compiler.plugin;
+package io.ballerina.stdlib.persist.compiler;
 
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Package;
@@ -24,7 +24,6 @@ import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
-import io.ballerina.stdlib.persist.compiler.DiagnosticsCodes;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
