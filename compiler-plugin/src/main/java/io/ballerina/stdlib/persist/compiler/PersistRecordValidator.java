@@ -54,7 +54,6 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
-import io.ballerina.projects.Package;
 import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.stdlib.persist.compiler.Constants.Annotations;
@@ -93,8 +92,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         }
 
         ModuleId moduleId = ctx.moduleId();
-        Package currentPackage = ctx.currentPackage();
-        Module currentModule = currentPackage.module(moduleId);
+        Module currentModule = ctx.currentPackage().module(moduleId);
         String moduleName = currentModule.moduleName().toString().trim();
 
         Node node = ctx.node();
