@@ -70,7 +70,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * PersistRecordAnalyzer.
@@ -79,12 +78,11 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
 
     private final HashMap<String, Entity> entities;
     private final HashMap<String, List<Field>> deferredRelationKeyEntities;
-    private final HashMap<String, List<String>> sameEntityLocations;
+    private boolean isEntityInMultipleSubModules = false;
 
     public PersistRecordValidator() {
         this.entities = new HashMap<>();
         this.deferredRelationKeyEntities = new HashMap<>();
-        this.sameEntityLocations = new HashMap<>();
     }
 
     @Override
@@ -145,7 +143,8 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             Optional<AnnotationNode> entityAnnotation = getEntityAnnotation(metadata.get().annotations());
             if (entityAnnotation.isPresent()) {
                 String entityName = typeDefinitionNode.typeName().text().trim();
-                Entity entity = new Entity(entityName, moduleName, recordTypeSymbol.fieldDescriptors().keySet());
+                Entity entity = new Entity(entityName, moduleName, recordTypeSymbol.fieldDescriptors().keySet(),
+                        typeDefinitionNode.typeName().location());
 
                 validateRecordProperties(entity, ((RecordTypeDescriptorNode) typeDescriptorNode));
                 validateEntityAnnotation(entity, entityAnnotation.get());
@@ -158,8 +157,11 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                         validateRelations(field, entity, entity);
                     }
                 }
-                validateEntityAlreadyExist(entity, typeDefinitionNode, currentPackage);
+                if (this.entities.size() > 0) {
+                    validateEntityInMultipleSubModule(entity);
+                }
                 entity.getDiagnostics().forEach((ctx::reportDiagnostic));
+                this.entities.put(entity.getEntityName(), entity);
             } else {
                 checkForFieldAnnotations(ctx, (RecordTypeDescriptorNode) typeDescriptorNode);
             }
@@ -177,70 +179,27 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         return Optional.empty();
     }
 
-    private void validateEntityAlreadyExist(Entity entity, TypeDefinitionNode typeDefinitionNode,
-                                            Package currentPackage) {
-        if (isEntityAlreadyExist(entity)) {
-            addWarningToEntities(entity, currentPackage);
-        } else {
-            if (sameEntityLocations.size() > 0) {
-                for (Map.Entry<String , List<String>> entry : sameEntityLocations.entrySet()) {
-                    List<String> location = entry.getValue();
-                    entity.addDiagnostic(typeDefinitionNode.typeName().location(),
-                            DiagnosticsCodes.PERSIST_119.getCode(),
-                            MessageFormat.format(DiagnosticsCodes.PERSIST_119.getMessage(),
-                                    entry.getKey(), location.get(0), location.get(1)),
-                            DiagnosticsCodes.PERSIST_119.getSeverity());
-                }
+    private void validateEntityInMultipleSubModule(Entity entity) {
+        if (this.isEntityInMultipleSubModules) {
+            entity.addDiagnostic(entity.getLocation(), DiagnosticsCodes.PERSIST_119.getCode(),
+                    DiagnosticsCodes.PERSIST_119.getMessage(), DiagnosticsCodes.PERSIST_119.getSeverity());
+        } else if (entityInMultipleSubModules(entity)){
+            for (Map.Entry<String, Entity> entry : this.entities.entrySet()) {
+                entity.addDiagnostic(entry.getValue().getLocation(), DiagnosticsCodes.PERSIST_119.getCode(),
+                        DiagnosticsCodes.PERSIST_119.getMessage(), DiagnosticsCodes.PERSIST_119.getSeverity());
             }
-            this.entities.put(entity.getEntityName(), entity);
+            entity.addDiagnostic(entity.getLocation(), DiagnosticsCodes.PERSIST_119.getCode(),
+                    DiagnosticsCodes.PERSIST_119.getMessage(), DiagnosticsCodes.PERSIST_119.getSeverity());
         }
     }
 
-    private boolean isEntityAlreadyExist(Entity currentEntity) {
-        if (this.entities.containsKey(currentEntity.getEntityName())) {
-            Entity existEntity = this.entities.get(currentEntity.getEntityName());
-            this.sameEntityLocations.put(existEntity.getEntityName(),
-                    List.of(currentEntity.getModule(), existEntity.getModule()));
+    private boolean entityInMultipleSubModules(Entity entity) {
+        String entityLocation = this.entities.get(this.entities.keySet().iterator().next()).getModule();
+        if (!entityLocation.equals(entity.getModule())) {
+            this.isEntityInMultipleSubModules = true;
             return true;
         }
         return false;
-    }
-
-    private void addWarningToEntities(Entity currentEntity, Package currentPackage) {
-        Entity existingEntity = this.entities.get(currentEntity.getEntityName());
-        for (Module module : currentPackage.modules()) {
-            for (DocumentId documentId : module.documentIds()) {
-                Document document = module.document(documentId);
-                NodeList<ModuleMemberDeclarationNode> memberNodes =
-                        ((ModulePartNode) document.syntaxTree().rootNode()).members();
-                for (ModuleMemberDeclarationNode memberNode : memberNodes) {
-                    if (!(memberNode instanceof TypeDefinitionNode)) {
-                        continue;
-                    }
-                    TypeDefinitionNode typeDefinitionNode = (TypeDefinitionNode) memberNode;
-                    Node typeDescriptor = typeDefinitionNode.typeDescriptor();
-                    if (!(typeDescriptor instanceof RecordTypeDescriptorNode)) {
-                        continue;
-                    }
-                    Set<String> entity = this.entities.keySet();
-                    String entityName = typeDefinitionNode.typeName().text().trim();
-                    if (!entity.contains(entityName)) {
-                        continue;
-                    }
-                    Entity validatedEntity = this.entities.get(entityName);
-                    if (currentEntity.getEntityName().equals(validatedEntity.getEntityName()) &&
-                            currentEntity.getModule().equals(module.moduleName().toString().trim())) {
-                        continue;
-                    }
-                    currentEntity.addDiagnostic(typeDefinitionNode.typeName().location(),
-                            DiagnosticsCodes.PERSIST_119.getCode(),
-                            MessageFormat.format(DiagnosticsCodes.PERSIST_119.getMessage(),
-                                    currentEntity.getEntityName(), currentEntity.getModule(),
-                                    existingEntity.getModule()),
-                            DiagnosticsCodes.PERSIST_119.getSeverity());
-                }
-            }
-        }
     }
 
     private void validateRecordProperties(Entity entity, RecordTypeDescriptorNode recordTypeDescriptorNode) {
