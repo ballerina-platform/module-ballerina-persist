@@ -181,7 +181,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         if (this.isEntityInMultipleSubModules) {
             entity.addDiagnostic(entity.getLocation(), DiagnosticsCodes.PERSIST_119.getCode(),
                     DiagnosticsCodes.PERSIST_119.getMessage(), DiagnosticsCodes.PERSIST_119.getSeverity());
-        } else if (entityInMultipleSubModules(entity)){
+        } else if (entityInMultipleSubModules(entity)) {
             for (Map.Entry<String, Entity> entry : this.entities.entrySet()) {
                 entity.addDiagnostic(entry.getValue().getLocation(), DiagnosticsCodes.PERSIST_119.getCode(),
                         DiagnosticsCodes.PERSIST_119.getMessage(), DiagnosticsCodes.PERSIST_119.getSeverity());
