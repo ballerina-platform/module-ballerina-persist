@@ -212,7 +212,6 @@ public client class SQLClient {
                         ` FROM `, stringToParameterizedQuery(joinMetadata.refTable),
                         ` WHERE`, check self.getWhereClauses(whereFilter, true)
                     );
-
                 } else {
                     // m-n relation
                     string joinTable = <string>joinMetadata.joinTable;
@@ -224,7 +223,7 @@ public client class SQLClient {
 
                     map<string> innerWhereFilter = {};
                     foreach int i in 0 ..< joiningRefColumns.length() {
-                        innerWhereFilter[joiningRefColumns[i]] = 'object[self.getFieldFromColumn(joiningJoinColumns[i])].toBalString();
+                        innerWhereFilter[joiningRefColumns[i]] = 'object[self.getFieldFromColumn(joiningJoinColumns[i])].toString();
                     }
 
                     query = sql:queryConcat(
@@ -233,7 +232,7 @@ public client class SQLClient {
                         ` WHERE (`, whereFields, `) IN (`,
                             ` SELECT `, joinSelectColumns,
                             ` FROM `, stringToParameterizedQuery(joinTable),
-                            ` WHERE `, check self.getWhereClauses(innerWhereFilter, true),
+                            ` WHERE`, check self.getWhereClauses(innerWhereFilter, true),
                         `)`
                     );
                 }
@@ -245,7 +244,7 @@ public client class SQLClient {
                 if arr is error {
                     return <Error>error(arr.message());
                 }
-
+                
                 'object[joinMetadata.fieldName] = convertToArray(joinMetadata.entity, arr);
             }
         }

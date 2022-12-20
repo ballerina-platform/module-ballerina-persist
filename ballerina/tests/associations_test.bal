@@ -428,50 +428,50 @@ function oneToManyUpdateTest4() returns error? {
 }
 function manyToManyCreateTest1() returns error? {
     Lecture lecture1 = {
-        o_lectureId: 1,
-        o_subject: "TestLecture1",
-        o_day: "monday",
-        o_time: {hour: 13, minute: 1, second: 0}
+        code: "L1",
+        subject: "TestLecture1",
+        day: "monday",
+        time: {hour: 13, minute: 1, second: 0}
     };
 
     Lecture lecture2 = {
-        o_lectureId: 2,
-        o_subject: "TestLecture2",
-        o_day: "tuesday",
-        o_time: {hour: 13, minute: 2, second: 0}
+        code: "L2",
+        subject: "TestLecture2",
+        day: "tuesday",
+        time: {hour: 13, minute: 2, second: 0}
     };
 
     Paper paper1 = {
-        o_subjectId: 1,
-        o_date: {year: 2022, month: 12, day: 14},
-        o_title: "Maths"
+        subjectId: 1,
+        paperDate: {year: 2022, month: 12, day: 14},
+        title: "Maths"
     };
 
     Paper paper2 = {
-        o_subjectId: 1,
-        o_date: {year: 2022, month: 11, day: 14},
-        o_title: "Maths2"
+        subjectId: 1,
+        paperDate: {year: 2022, month: 11, day: 14},
+        title: "Maths2"
     };
 
     Paper paper3 = {
-        o_subjectId: 2,
-        o_date: {year: 2022, month: 12, day: 15},
-        o_title: "English"
+        subjectId: 2,
+        paperDate: {year: 2022, month: 12, day: 15},
+        title: "English"
     };
 
     Student student = {
-        o_studentId: 1,
-        o_firstName: "Tom",
-        o_lastName: "Scott",
-        o_dob: {year: 1996, month: 12, day: 12},
-        o_contact: "0771952226",
-        o_lectures: [lecture1, lecture2],
-        o_papers: [paper2, paper1, paper3]
+        nic: "938582039V",
+        firstName: "Tom",
+        lastName: "Scott",
+        dob: {year: 1996, month: 12, day: 12},
+        contact: "0771952226",
+        lectures: [lecture1, lecture2],
+        papers: [paper2, paper1, paper3]
     };
     StudentClient studentClient = check new();
     _ = check studentClient->create(student);
 
-    Student studentR = check studentClient->readByKey(1, [LectureEntity, PaperEntity]);
+    Student studentR = check studentClient->readByKey("938582039V", [LectureEntity, PaperEntity]);
     test:assertEquals(studentR, student);
 }
 
@@ -480,33 +480,33 @@ function manyToManyCreateTest1() returns error? {
 }
 function manyToManyCreateTest2() returns error? {
     Student student = {
-        o_studentId: 11,
-        o_firstName: "Tom",
-        o_lastName: "Scott",
-        o_dob: {year: 1996, month: 12, day: 12},
-        o_contact: "0771952226"
+        nic: "983749204V",
+        firstName: "Tom",
+        lastName: "Scott",
+        dob: {year: 1996, month: 12, day: 12},
+        contact: "0771952226"
     };
 
     Student student2 = {
-        o_studentId: 12,
-        o_firstName: "Tom2",
-        o_lastName: "Scott2",
-        o_dob: {year: 1996, month: 12, day: 12},
-        o_contact: "0771952222"
+        nic: "982759294V",
+        firstName: "Tom2",
+        lastName: "Scott2",
+        dob: {year: 1996, month: 12, day: 12},
+        contact: "0771952222"
     };
 
     Lecture lecture = {
-        o_lectureId: 11,
-        o_subject: "TestLecture11",
-        o_day: "monday",
-        o_time: {hour: 13, minute: 1, second: 0},
-        o_students: [student, student2]
+        code: "L3",
+        subject: "TestLecture11",
+        day: "monday",
+        time: {hour: 13, minute: 1, second: 0},
+        students: [student2, student]
     };
 
     LectureClient lectureClient = check new();
     _ = check lectureClient->create(lecture);
 
-    Lecture lectureR = check lectureClient->readByKey(11, [StudentEntity]);
+    Lecture lectureR = check lectureClient->readByKey("L3", [StudentEntity]);
     test:assertEquals(lectureR, lecture);
 }
 
@@ -516,23 +516,23 @@ function manyToManyCreateTest2() returns error? {
 }
 function manyToManyUpdateTest1() returns error? {
     LectureClient lectureClient = check new();
-    Lecture lecture = check lectureClient->readByKey(11, [StudentEntity]);
+    Lecture lecture = check lectureClient->readByKey("L3", [StudentEntity]);
 
-    Student student1 = (<Student[]>lecture.o_students)[0];
-    student1.o_firstName = "TomUpdated";
+    Student student1 = (<Student[]>lecture.students)[0];
+    student1.firstName = "TomUpdated";
 
     Student student3 = {
-        o_studentId: 13,
-        o_firstName: "Tom3",
-        o_lastName: "Scott3",
-        o_dob: {year: 1996, month: 12, day: 12},
-        o_contact: "0771952222"
+        nic: "973749278V",
+        firstName: "Tom3",
+        lastName: "Scott3",
+        dob: {year: 1996, month: 12, day: 12},
+        contact: "0771952222"
     };
 
-    lecture.o_students = [student1, student3];
+    lecture.students = [student3, student1];
     _ = check lectureClient->update(lecture, [StudentEntity]);
 
-    Lecture lectureR = check lectureClient->readByKey(11, [StudentEntity]);
+    Lecture lectureR = check lectureClient->readByKey("L3", [StudentEntity]);
     test:assertEquals(lectureR, lecture);
 }
 
@@ -542,56 +542,56 @@ function manyToManyUpdateTest1() returns error? {
 }
 function manyToManyUpdateTest2() returns error? {
     Student student = {
-        o_studentId: 1,
-        o_firstName: "TomUpdated",
-        o_lastName: "Scott",
-        o_dob: {year: 1996, month: 12, day: 12},
-        o_contact: "0771952226"
+        nic: "938582039V",
+        firstName: "TomUpdated",
+        lastName: "Scott",
+        dob: {year: 1996, month: 12, day: 12},
+        contact: "0771952226"
     };
     StudentClient studentClient = check new();
     _ = check studentClient->update(student);
-    Student studentR = check studentClient->readByKey(1, [LectureEntity, PaperEntity]);
+    Student studentR = check studentClient->readByKey("938582039V", [LectureEntity, PaperEntity]);
 
     Lecture lecture1 = {
-        o_lectureId: 1,
-        o_subject: "TestLecture1",
-        o_day: "monday",
-        o_time: {hour: 13, minute: 1, second: 0}
+        code: "L1",
+        subject: "TestLecture1",
+        day: "monday",
+        time: {hour: 13, minute: 1, second: 0}
     };
 
     Lecture lecture2 = {
-        o_lectureId: 2,
-        o_subject: "TestLecture2",
-        o_day: "tuesday",
-        o_time: {hour: 13, minute: 2, second: 0}
+        code: "L2",
+        subject: "TestLecture2",
+        day: "tuesday",
+        time: {hour: 13, minute: 2, second: 0}
     };
 
     Paper paper1 = {
-        o_subjectId: 1,
-        o_date: {year: 2022, month: 12, day: 14},
-        o_title: "Maths"
+        subjectId: 1,
+        paperDate: {year: 2022, month: 12, day: 14},
+        title: "Maths"
     };
 
     Paper paper2 = {
-        o_subjectId: 1,
-        o_date: {year: 2022, month: 11, day: 14},
-        o_title: "Maths2"
+        subjectId: 1,
+        paperDate: {year: 2022, month: 11, day: 14},
+        title: "Maths2"
     };
 
     Paper paper3 = {
-        o_subjectId: 2,
-        o_date: {year: 2022, month: 12, day: 15},
-        o_title: "English"
+        subjectId: 2,
+        paperDate: {year: 2022, month: 12, day: 15},
+        title: "English"
     };
 
     Student expectedStudent = {
-        o_studentId: 1,
-        o_firstName: "TomUpdated",
-        o_lastName: "Scott",
-        o_dob: {year: 1996, month: 12, day: 12},
-        o_contact: "0771952226",
-        o_lectures: [lecture1, lecture2],
-        o_papers: [paper2, paper1, paper3]
+        nic: "938582039V",
+        firstName: "TomUpdated",
+        lastName: "Scott",
+        dob: {year: 1996, month: 12, day: 12},
+        contact: "0771952226",
+        lectures: [lecture1, lecture2],
+        papers: [paper2, paper1, paper3]
     };
 
     test:assertEquals(studentR, expectedStudent);
@@ -603,53 +603,53 @@ function manyToManyUpdateTest2() returns error? {
 }
 function manyToManyUpdateTest3() returns error? {
     StudentClient studentClient = check new();
-    Student student = check studentClient->readByKey(1, [LectureEntity]);
-    student.o_lectures[0].o_subject = "TestLecture1Updated";
-    student.o_firstName = "TomUpdatedAgain";
+    Student student = check studentClient->readByKey("938582039V", [LectureEntity]);
+    student.lectures[0].subject = "TestLecture1Updated";
+    student.firstName = "TomUpdatedAgain";
     _ = check studentClient->update(student, [LectureEntity]);
 
-    Student studentR = check studentClient->readByKey(1, [LectureEntity, PaperEntity]);
+    Student studentR = check studentClient->readByKey("938582039V", [LectureEntity, PaperEntity]);
 
     Lecture lecture1 = {
-        o_lectureId: 1,
-        o_subject: "TestLecture1Updated",
-        o_day: "monday",
-        o_time: {hour: 13, minute: 1, second: 0}
+        code: "L1",
+        subject: "TestLecture1Updated",
+        day: "monday",
+        time: {hour: 13, minute: 1, second: 0}
     };
 
     Lecture lecture2 = {
-        o_lectureId: 2,
-        o_subject: "TestLecture2",
-        o_day: "tuesday",
-        o_time: {hour: 13, minute: 2, second: 0}
+        code: "L2",
+        subject: "TestLecture2",
+        day: "tuesday",
+        time: {hour: 13, minute: 2, second: 0}
     };
 
     Paper paper1 = {
-        o_subjectId: 1,
-        o_date: {year: 2022, month: 12, day: 14},
-        o_title: "Maths"
+        subjectId: 1,
+        paperDate: {year: 2022, month: 12, day: 14},
+        title: "Maths"
     };
 
     Paper paper2 = {
-        o_subjectId: 1,
-        o_date: {year: 2022, month: 11, day: 14},
-        o_title: "Maths2"
+        subjectId: 1,
+        paperDate: {year: 2022, month: 11, day: 14},
+        title: "Maths2"
     };
 
     Paper paper3 = {
-        o_subjectId: 2,
-        o_date: {year: 2022, month: 12, day: 15},
-        o_title: "English"
+        subjectId: 2,
+        paperDate: {year: 2022, month: 12, day: 15},
+        title: "English"
     };
 
     Student expectedStudent = {
-        o_studentId: 1,
-        o_firstName: "TomUpdatedAgain",
-        o_lastName: "Scott",
-        o_dob: {year: 1996, month: 12, day: 12},
-        o_contact: "0771952226",
-        o_lectures: [lecture1, lecture2],
-        o_papers: [paper2, paper1, paper3]
+        nic: "938582039V",
+        firstName: "TomUpdatedAgain",
+        lastName: "Scott",
+        dob: {year: 1996, month: 12, day: 12},
+        contact: "0771952226",
+        lectures: [lecture1, lecture2],
+        papers: [paper2, paper1, paper3]
     };
 
     test:assertEquals(studentR, expectedStudent);

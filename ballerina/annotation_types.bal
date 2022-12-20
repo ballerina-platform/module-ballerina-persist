@@ -57,12 +57,8 @@ public type RelationConfig record {|
 # Defines the joining table to be used to maintain many-to-many relations.
 #
 # + name - The names of the joining table
-# + lhsColumns - The names of the columns on the left-hand side of the joining table
-# + rhsColumns - The names of the columns on the right-hand side of the joining table
 public type JoiningTable record {|
     string name;
-    string[] lhsColumns;
-    string[] rhsColumns;
 |};
 
 # Defines the actions that can be taken when deleting or updating the values of the parent entity.

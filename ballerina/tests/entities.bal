@@ -118,75 +118,67 @@ public type Employee record {|
 
 // Many-to-many relation
 @Entity {
-    key: ["studentId"]
+    key: ["nic"]
 }
 public type Student record {|
-    int o_studentId;
-    string o_firstName;
-    string o_lastName;
-    time:Date o_dob;
-    string o_contact;
+    string nic;
+    string firstName;
+    string lastName;
+    time:Date dob;
+    string contact;
 
     @Relation {
-        keyColumns: ["studentId"],
-        reference: ["o_lectureId"],
+        keyColumns: ["nic"],
+        reference: ["code"],
         joiningTable: {
-            name: "StudentsLectures",
-            lhsColumns: ["i_studentId"],
-            rhsColumns: ["i_lectureId"]
+            name: "Student_Lecture"
         }
     }
-    Lecture[] o_lectures?;
+    Lecture[] lectures?;
 
     @Relation {
-        keyColumns: ["studentId"], 
-        reference: ["o_subjectId", "o_date"],
+        keyColumns: ["nic"], 
+        reference: ["subjectId", "paperDate"],
         joiningTable: {
-            name: "StudentsPapers",
-            lhsColumns: ["i_studentId"],
-            rhsColumns: ["i_subjectId", "i_date"]
+            name: "Student_Paper"
         }
     }
-    Paper[] o_papers?;
+    Paper[] papers?;
 |};
 
 @Entity {
-    key: ["lectureId"]
+    key: ["code"]
 }
 public type Lecture record {|
-    int o_lectureId;
-    string o_subject;
-    string o_day;
-    time:TimeOfDay o_time;
+    string code;
+    string subject;
+    string day;
+    time:TimeOfDay time;
 
     @Relation {
-        keyColumns: ["lectureId"], 
-        reference: ["lectureId"],
+        keyColumns: ["code"], 
+        reference: ["nic"],
         joiningTable: {
-            name: "StudentsLectures",
-            lhsColumns: ["i_lectureId"],
-            rhsColumns: ["i_studentId"]
+            name: "Student_Lecture"
         }
     }
-    Student[] o_students?;
+    Student[] students?;
 |};
 
 @Entity {
-    key: ["o_subjectId", "o_date"]
+    key: ["subjectId", "paperDate"]
 }
 public type Paper record {|
-    int o_subjectId;
-    time:Date o_date;
-    string o_title;
+    int subjectId;
+    time:Date paperDate;
+    string title;
     
     @Relation {
-        keyColumns: ["studentId"], 
-        reference: ["o_subjectId", "o_date"], 
+        keyColumns: ["nic"], 
+        reference: ["subjectId", "paperDate"], 
         joiningTable: {
-            name: "StudentsPapers", 
-            lhsColumns: ["i_subjectId", "i_date"], 
-            rhsColumns: ["i_studentId"]
+            name: "Student_Paper"
         }
     }
-    Student[] o_students?;
+    Student[] students?;
 |};

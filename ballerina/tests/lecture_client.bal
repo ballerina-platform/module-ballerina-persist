@@ -22,21 +22,21 @@ client class LectureClient {
     *AbstractPersistClient;
 
     private final string entityName = "Lecture";
-    private final sql:ParameterizedQuery tableName = `Lectures`;
+    private final sql:ParameterizedQuery tableName = `Lecture`;
     private final map<FieldMetadata> fieldMetadata = {
-        o_lectureId: {columnName: "lectureId", 'type: int},
-        o_subject: {columnName: "subject", 'type: string},
-        o_time: {columnName: "time", 'type: time:TimeOfDay},
-        o_day: {columnName: "day", 'type: string},
-        "o_students[].o_studentId": {'type: int, relation: {entityName: "student", refTable: "Lecture", refField: "o_studentId", refColumnName: "studentId"}},
-        "o_students[].o_firstName": {'type: string, relation: {entityName: "student", refTable: "Lecture", refField: "o_firstName", refColumnName: "firstName"}},
-        "o_students[].o_lastName": {'type: string, relation: {entityName: "student", refTable: "Lecture", refField: "o_lastName", refColumnName: "lastName"}},
-        "o_students[].o_dob": {'type: time:Date, relation: {entityName: "student", refTable: "Lecture", refField: "o_dob", refColumnName: "dob"}},
-        "o_students[].o_contact": {'type: string, relation: {entityName: "student", refTable: "Lecture", refField: "o_contact", refColumnName: "contact"}}
+        code: {columnName: "code", 'type: string},
+        subject: {columnName: "subject", 'type: string},
+        time: {columnName: "time", 'type: time:TimeOfDay},
+        day: {columnName: "day", 'type: string},
+        "students[].nic": {'type: string, relation: {entityName: "student", refTable: "Student", refField: "nic", refColumnName: "nic"}},
+        "students[].firstName": {'type: string, relation: {entityName: "student", refTable: "Student", refField: "firstName", refColumnName: "firstName"}},
+        "students[].lastName": {'type: string, relation: {entityName: "student", refTable: "Student", refField: "lastName", refColumnName: "lastName"}},
+        "students[].dob": {'type: time:Date, relation: {entityName: "student", refTable: "Student", refField: "dob", refColumnName: "dob"}},
+        "students[].contact": {'type: string, relation: {entityName: "student", refTable: "Student", refField: "contact", refColumnName: "contact"}}
     };
-    private string[] keyFields = ["o_lectureId"];
+    private string[] keyFields = ["code"];
     private final map<JoinMetadata> joinMetadata = {
-        student: {entity: Student, fieldName: "o_students", refTable: "Students", refColumns: ["studentId"], joinColumns: ["i_studentId"], joinTable: "StudentsLectures", joiningJoinColumns: ["lectureId"], joiningRefColumns: ["i_lectureId"], 'type: MANY}
+        student: {entity: Student, fieldName: "students", refTable: "Student", refColumns: ["nic"], joinColumns: ["student_nic"], joinTable: "Student_Lecture", joiningJoinColumns: ["code"], joiningRefColumns: ["lecture_code"], 'type: MANY}
     };
 
     private SQLClient persistClient;
@@ -51,10 +51,10 @@ client class LectureClient {
     }
 
     remote function create(Lecture value) returns Lecture|Error {
-        if value.o_students is Student[] {
+        if value.students is Student[] {
             StudentClient studentClient = check new StudentClient();
             Student[] insertedEntities = [];
-            foreach Student student in <Student[]>value.o_students {
+            foreach Student student in <Student[]>value.students {
                 Student inserted = student;
                 boolean exists = check studentClient->exists(student);
                 if !exists {
@@ -62,7 +62,7 @@ client class LectureClient {
                 }
                 insertedEntities.push(inserted);
             }
-            value.o_students = insertedEntities;
+            value.students = insertedEntities;
         }
 
         _ = check self.persistClient.runInsertQuery(value);
@@ -70,7 +70,7 @@ client class LectureClient {
         return value;
     }
 
-    remote function readByKey(int key, LectureRelations[] include = []) returns Lecture|Error {
+    remote function readByKey(string key, LectureRelations[] include = []) returns Lecture|Error {
         return <Lecture>check self.persistClient.runReadByKeyQuery(Lecture, key, include);
     }
 
@@ -84,9 +84,9 @@ client class LectureClient {
     }
 
     remote function update(Lecture 'object, LectureRelations[] updateAssociations = []) returns Error? {
-        if (<string[]>updateAssociations).indexOf(StudentEntity) != () && 'object["o_students"] is Student[] {
+        if (<string[]>updateAssociations).indexOf(StudentEntity) != () && 'object.students is Student[] {
             StudentClient studentClient = check new StudentClient();
-            foreach Student student in <Student[]>'object.o_students {
+            foreach Student student in <Student[]>'object.students {
                 boolean exists = check studentClient->exists(student);
                 if !exists {
                     _ = check studentClient->create(student);
@@ -104,7 +104,7 @@ client class LectureClient {
     }
 
     remote function exists(Lecture lecture) returns boolean|Error {
-        Lecture|Error result = self->readByKey(lecture.o_lectureId);
+        Lecture|Error result = self->readByKey(lecture.code);
         if result is Lecture {
             return true;
         } else if result is InvalidKeyError {

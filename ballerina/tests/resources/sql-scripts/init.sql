@@ -63,37 +63,37 @@ CREATE TABLE test.Employees (
     FOREIGN KEY (companyId) REFERENCES test.Companies(id)
 );
 
-CREATE TABLE test.Students (
-    studentId INTEGER PRIMARY KEY,
+CREATE TABLE test.Student (
+    nic VARCHAR(15) PRIMARY KEY,
     firstName VARCHAR(20),
     lastName VARCHAR(20),
     dob DATE,
     contact VARCHAR(10)
 );
 
-CREATE TABLE test.Lectures (
-    lectureId INTEGER PRIMARY KEY,
+CREATE TABLE test.Lecture (
+    code VARCHAR(5) PRIMARY KEY,
     subject VARCHAR(20),
     time TIME,
     day VARCHAR(10)
 );
 
-CREATE TABLE test.StudentsLectures (
-    i_studentId INTEGER,
-    i_lectureId INTEGER,
-    PRIMARY KEY(i_studentId, i_lectureId)
+CREATE TABLE test.Student_Lecture (
+    student_nic VARCHAR(15),
+    lecture_code VARCHAR(5),
+    PRIMARY KEY(student_nic, lecture_code)
 );
 
-CREATE TABLE test.Papers (
+CREATE TABLE test.Paper (
     subjectId INTEGER,
     paperDate DATE,
     title VARCHAR(10),
     PRIMARY KEY(subjectId, paperDate)
 );
 
-CREATE TABLE test.StudentsPapers (
-    i_studentId INTEGER,
-    i_subjectId INTEGER,
-    i_date date,
-    PRIMARY KEY(i_studentId, i_subjectId, i_date)
+CREATE TABLE test.Student_Paper (
+    student_nic VARCHAR(15),
+    paper_subjectId INTEGER,
+    paper_paperDate date,
+    PRIMARY KEY(student_nic, paper_subjectId, paper_paperDate)
 );
