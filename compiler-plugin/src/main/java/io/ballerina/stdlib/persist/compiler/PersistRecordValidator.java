@@ -77,7 +77,8 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
 
     private final HashMap<String, Entity> entities;
     private final HashMap<String, List<Field>> deferredRelationKeyEntities;
-    private boolean isEntityInMultipleSubModules = false;
+    private boolean isEntityInMultipleModules = false;
+    private String moduleNameOfFirstEntity = "";
 
     public PersistRecordValidator() {
         this.entities = new HashMap<>();
@@ -142,7 +143,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             if (entityAnnotation.isPresent()) {
                 String entityName = typeDefinitionNode.typeName().text().trim();
                 Entity entity = new Entity(entityName, moduleName, recordTypeSymbol.fieldDescriptors().keySet(),
-                        typeDefinitionNode.typeName().location());
+                        typeDefinitionNode.location());
 
                 validateRecordProperties(entity, ((RecordTypeDescriptorNode) typeDescriptorNode));
                 validateEntityAnnotation(entity, entityAnnotation.get());
@@ -157,6 +158,8 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 }
                 if (this.entities.size() > 0) {
                     validateEntityInMultipleSubModule(entity);
+                } else {
+                    moduleNameOfFirstEntity = moduleName;
                 }
                 entity.getDiagnostics().forEach((ctx::reportDiagnostic));
                 this.entities.put(entity.getEntityName(), entity);
@@ -178,7 +181,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
     }
 
     private void validateEntityInMultipleSubModule(Entity entity) {
-        if (this.isEntityInMultipleSubModules) {
+        if (this.isEntityInMultipleModules) {
             entity.addDiagnostic(entity.getLocation(), DiagnosticsCodes.PERSIST_119.getCode(),
                     DiagnosticsCodes.PERSIST_119.getMessage(), DiagnosticsCodes.PERSIST_119.getSeverity());
         } else if (entityInMultipleSubModules(entity)) {
@@ -192,9 +195,9 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
     }
 
     private boolean entityInMultipleSubModules(Entity entity) {
-        String entityLocation = this.entities.get(this.entities.keySet().iterator().next()).getModule();
+        String entityLocation = moduleNameOfFirstEntity;
         if (!entityLocation.equals(entity.getModule())) {
-            this.isEntityInMultipleSubModules = true;
+            this.isEntityInMultipleModules = true;
             return true;
         }
         return false;

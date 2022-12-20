@@ -471,11 +471,11 @@ public class CompilerPluginTest {
         testDiagnostic(
                 warningDiagnosticsList,
                 new String[]{
-                        "entities are defined in more than one sub module",
-                        "entities are defined in more than one sub module",
-                        "entities are defined in more than one sub module",
-                        "entities are defined in more than one sub module",
-                        "entities are defined in more than one sub module"
+                        "entities are defined in more than one module, move all entities to a single module",
+                        "entities are defined in more than one module, move all entities to a single module",
+                        "entities are defined in more than one module, move all entities to a single module",
+                        "entities are defined in more than one module, move all entities to a single module",
+                        "entities are defined in more than one module, move all entities to a single module"
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_119.getCode(),
