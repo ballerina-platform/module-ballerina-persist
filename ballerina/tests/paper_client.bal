@@ -35,7 +35,7 @@ client class PaperClient {
     };
     private string[] keyFields = ["subjectId", "paperDate"];
     private final map<JoinMetadata> joinMetadata = {
-        student: {entity: Student, fieldName: "students", refTable: "Student", refColumns: ["nic"], joinColumns: ["student_nic"], joinTable: "Student_Paper", joiningJoinColumns: ["subjectId", "paperDate"], joiningRefColumns: ["paper_subjectId", "paper_paperDate"], 'type: MANY}
+        students: {entity: Student, fieldName: "students", refTable: "Student", refColumns: ["nic"], joinColumns: ["student_nic"], joinTable: "Student_Paper", joiningJoinColumns: ["subjectId", "paperDate"], joiningRefColumns: ["paper_subjectId", "paper_paperDate"], 'type: MANY}
     };
 
     private SQLClient persistClient;
@@ -83,7 +83,7 @@ client class PaperClient {
     }
 
     remote function update(Paper 'object, PaperRelations[] updateAssociations = []) returns Error? {
-        if (<string[]>updateAssociations).indexOf(StudentEntity) != () && 'object.students is Student[] {
+        if (<string[]>updateAssociations).indexOf(students) != () && 'object.students is Student[] {
             StudentClient studentClient = check new StudentClient();
             foreach Student student in <Student[]>'object.students {
                 boolean exists = check studentClient->exists(student);
@@ -120,7 +120,7 @@ client class PaperClient {
 }
 
 public enum PaperRelations {
-    StudentEntity = "student"
+    students
 }
 
 public class PaperStream {

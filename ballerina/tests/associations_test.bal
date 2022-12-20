@@ -471,7 +471,7 @@ function manyToManyCreateTest1() returns error? {
     StudentClient studentClient = check new();
     _ = check studentClient->create(student);
 
-    Student studentR = check studentClient->readByKey("938582039V", [LectureEntity, PaperEntity]);
+    Student studentR = check studentClient->readByKey("938582039V", [lectures, papers]);
     test:assertEquals(studentR, student);
 }
 
@@ -506,7 +506,7 @@ function manyToManyCreateTest2() returns error? {
     LectureClient lectureClient = check new();
     _ = check lectureClient->create(lecture);
 
-    Lecture lectureR = check lectureClient->readByKey("L3", [StudentEntity]);
+    Lecture lectureR = check lectureClient->readByKey("L3", [students]);
     test:assertEquals(lectureR, lecture);
 }
 
@@ -516,7 +516,7 @@ function manyToManyCreateTest2() returns error? {
 }
 function manyToManyUpdateTest1() returns error? {
     LectureClient lectureClient = check new();
-    Lecture lecture = check lectureClient->readByKey("L3", [StudentEntity]);
+    Lecture lecture = check lectureClient->readByKey("L3", [students]);
 
     Student student1 = (<Student[]>lecture.students)[0];
     student1.firstName = "TomUpdated";
@@ -530,9 +530,9 @@ function manyToManyUpdateTest1() returns error? {
     };
 
     lecture.students = [student3, student1];
-    _ = check lectureClient->update(lecture, [StudentEntity]);
+    _ = check lectureClient->update(lecture, [students]);
 
-    Lecture lectureR = check lectureClient->readByKey("L3", [StudentEntity]);
+    Lecture lectureR = check lectureClient->readByKey("L3", [students]);
     test:assertEquals(lectureR, lecture);
 }
 
@@ -550,7 +550,7 @@ function manyToManyUpdateTest2() returns error? {
     };
     StudentClient studentClient = check new();
     _ = check studentClient->update(student);
-    Student studentR = check studentClient->readByKey("938582039V", [LectureEntity, PaperEntity]);
+    Student studentR = check studentClient->readByKey("938582039V", [lectures, papers]);
 
     Lecture lecture1 = {
         code: "L1",
@@ -603,12 +603,12 @@ function manyToManyUpdateTest2() returns error? {
 }
 function manyToManyUpdateTest3() returns error? {
     StudentClient studentClient = check new();
-    Student student = check studentClient->readByKey("938582039V", [LectureEntity]);
+    Student student = check studentClient->readByKey("938582039V", [lectures]);
     student.lectures[0].subject = "TestLecture1Updated";
     student.firstName = "TomUpdatedAgain";
-    _ = check studentClient->update(student, [LectureEntity]);
+    _ = check studentClient->update(student, [lectures]);
 
-    Student studentR = check studentClient->readByKey("938582039V", [LectureEntity, PaperEntity]);
+    Student studentR = check studentClient->readByKey("938582039V", [lectures, papers]);
 
     Lecture lecture1 = {
         code: "L1",

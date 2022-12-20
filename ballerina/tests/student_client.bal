@@ -39,8 +39,8 @@ client class StudentClient {
     };
     private string[] keyFields = ["nic"];
     private final map<JoinMetadata> joinMetadata = {
-        lecture: {entity: Lecture, fieldName: "lectures", refTable: "Lecture", refColumns: ["code"], joinColumns: ["lecture_code"], joinTable: "Student_Lecture", joiningJoinColumns: ["nic"], joiningRefColumns: ["student_nic"], 'type: MANY},
-        paper: {entity: Paper, fieldName: "papers", refTable: "Paper", refColumns: ["subjectId", "paperDate"], joinColumns: ["paper_subjectId", "paper_paperDate"], joinTable: "Student_Paper", joiningJoinColumns: ["nic"], joiningRefColumns: ["student_nic"], 'type: MANY}
+        lectures: {entity: Lecture, fieldName: "lectures", refTable: "Lecture", refColumns: ["code"], joinColumns: ["lecture_code"], joinTable: "Student_Lecture", joiningJoinColumns: ["nic"], joiningRefColumns: ["student_nic"], 'type: MANY},
+        papers: {entity: Paper, fieldName: "papers", refTable: "Paper", refColumns: ["subjectId", "paperDate"], joinColumns: ["paper_subjectId", "paper_paperDate"], joinTable: "Student_Paper", joiningJoinColumns: ["nic"], joiningRefColumns: ["student_nic"], 'type: MANY}
     };
 
     private SQLClient persistClient;
@@ -102,7 +102,7 @@ client class StudentClient {
     }
 
     remote function update(Student 'object, StudentRelations[] updateAssociations = []) returns Error? {
-        if (<string[]>updateAssociations).indexOf(LectureEntity) != () && 'object.lectures is Lecture[] {
+        if (<string[]>updateAssociations).indexOf(lectures) != () && 'object.lectures is Lecture[] {
             LectureClient lectureClient = check new LectureClient();
             foreach Lecture lecture in <Lecture[]>'object.lectures {
                 boolean exists = check lectureClient->exists(lecture);
@@ -114,7 +114,7 @@ client class StudentClient {
             }
         }
 
-         if (<string[]>updateAssociations).indexOf(PaperEntity) != () && 'object.papers is Paper[] {
+         if (<string[]>updateAssociations).indexOf(papers) != () && 'object.papers is Paper[] {
             PaperClient paperClient = check new PaperClient();
             foreach Paper paper in <Paper[]>'object.papers {
                 boolean exists = check paperClient->exists(paper);
@@ -151,8 +151,8 @@ client class StudentClient {
 }
 
 public enum StudentRelations {
-    LectureEntity = "lecture",
-    PaperEntity = "paper"
+    lectures,
+    papers
 }
 
 public class StudentStream {

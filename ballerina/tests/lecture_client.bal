@@ -36,7 +36,7 @@ client class LectureClient {
     };
     private string[] keyFields = ["code"];
     private final map<JoinMetadata> joinMetadata = {
-        student: {entity: Student, fieldName: "students", refTable: "Student", refColumns: ["nic"], joinColumns: ["student_nic"], joinTable: "Student_Lecture", joiningJoinColumns: ["code"], joiningRefColumns: ["lecture_code"], 'type: MANY}
+        students: {entity: Student, fieldName: "students", refTable: "Student", refColumns: ["nic"], joinColumns: ["student_nic"], joinTable: "Student_Lecture", joiningJoinColumns: ["code"], joiningRefColumns: ["lecture_code"], 'type: MANY}
     };
 
     private SQLClient persistClient;
@@ -84,7 +84,7 @@ client class LectureClient {
     }
 
     remote function update(Lecture 'object, LectureRelations[] updateAssociations = []) returns Error? {
-        if (<string[]>updateAssociations).indexOf(StudentEntity) != () && 'object.students is Student[] {
+        if (<string[]>updateAssociations).indexOf(students) != () && 'object.students is Student[] {
             StudentClient studentClient = check new StudentClient();
             foreach Student student in <Student[]>'object.students {
                 boolean exists = check studentClient->exists(student);
@@ -121,7 +121,7 @@ client class LectureClient {
 }
 
 public enum LectureRelations {
-    StudentEntity = "student"
+    students
 }
 
 public class LectureStream {
