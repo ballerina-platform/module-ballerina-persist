@@ -67,7 +67,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -77,8 +76,8 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
 
     private final HashMap<String, Entity> entities;
     private final HashMap<String, List<Field>> deferredRelationKeyEntities;
-    private boolean isEntityInMultipleModules = false;
-    private String moduleNameOfFirstEntity = "";
+    private boolean isEntitiesInMultipleModules = false;
+    private String initialModuleContainingEntity = "";
 
     public PersistRecordValidator() {
         this.entities = new HashMap<>();
@@ -156,11 +155,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                         validateRelations(field, entity, entity);
                     }
                 }
-                if (this.entities.size() > 0) {
-                    validateEntityInMultipleSubModule(entity);
-                } else {
-                    moduleNameOfFirstEntity = moduleName;
-                }
+                validateEntitiesInMultipleModule(entity, moduleName);
                 entity.getDiagnostics().forEach((ctx::reportDiagnostic));
                 this.entities.put(entity.getEntityName(), entity);
             } else {
@@ -180,27 +175,26 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         return Optional.empty();
     }
 
-    private void validateEntityInMultipleSubModule(Entity entity) {
-        if (this.isEntityInMultipleModules) {
-            entity.addDiagnostic(entity.getLocation(), DiagnosticsCodes.PERSIST_119.getCode(),
-                    DiagnosticsCodes.PERSIST_119.getMessage(), DiagnosticsCodes.PERSIST_119.getSeverity());
-        } else if (entityInMultipleSubModules(entity)) {
-            for (Map.Entry<String, Entity> entry : this.entities.entrySet()) {
-                entity.addDiagnostic(entry.getValue().getLocation(), DiagnosticsCodes.PERSIST_119.getCode(),
+    private void validateEntitiesInMultipleModule(Entity entity, String moduleName) {
+        if (!this.entities.isEmpty()) {
+            if (this.isEntitiesInMultipleModules) {
+                entity.addDiagnostic(entity.getLocation(), DiagnosticsCodes.PERSIST_119.getCode(),
                         DiagnosticsCodes.PERSIST_119.getMessage(), DiagnosticsCodes.PERSIST_119.getSeverity());
+            } else {
+                String entityLocation = initialModuleContainingEntity;
+                if (!entityLocation.equals(entity.getModule())) {
+                    this.isEntitiesInMultipleModules = true;
+                    for (Entity entry : this.entities.values()) {
+                        entity.addDiagnostic(entry.getLocation(), DiagnosticsCodes.PERSIST_119.getCode(),
+                                DiagnosticsCodes.PERSIST_119.getMessage(), DiagnosticsCodes.PERSIST_119.getSeverity());
+                    }
+                    entity.addDiagnostic(entity.getLocation(), DiagnosticsCodes.PERSIST_119.getCode(),
+                            DiagnosticsCodes.PERSIST_119.getMessage(), DiagnosticsCodes.PERSIST_119.getSeverity());
+                }
             }
-            entity.addDiagnostic(entity.getLocation(), DiagnosticsCodes.PERSIST_119.getCode(),
-                    DiagnosticsCodes.PERSIST_119.getMessage(), DiagnosticsCodes.PERSIST_119.getSeverity());
+        } else {
+            initialModuleContainingEntity = moduleName;
         }
-    }
-
-    private boolean entityInMultipleSubModules(Entity entity) {
-        String entityLocation = moduleNameOfFirstEntity;
-        if (!entityLocation.equals(entity.getModule())) {
-            this.isEntityInMultipleModules = true;
-            return true;
-        }
-        return false;
     }
 
     private void validateRecordProperties(Entity entity, RecordTypeDescriptorNode recordTypeDescriptorNode) {
