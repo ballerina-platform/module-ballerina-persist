@@ -68,6 +68,7 @@ public type User record {|
     readonly int id;
     string name;
     Profile profile?;
+    MultipleAssociations multipleAssociations?;
 |};
 
 @Entity {
@@ -78,6 +79,7 @@ public type Profile record {|
     string name;
     @Relation {keyColumns: ["userId"], reference: ["id"]}
     User user?;
+    MultipleAssociations multipleAssociations?;
 |};
 
 @Entity {
