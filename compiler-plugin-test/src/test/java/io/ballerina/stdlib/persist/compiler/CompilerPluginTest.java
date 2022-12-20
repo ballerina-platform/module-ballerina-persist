@@ -467,9 +467,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testEntityName1() {
-        PrintStream asd = System.out;
         List<Diagnostic> warningDiagnosticsList = getDiagnostic("package_21", 4, DiagnosticSeverity.WARNING);
-        asd.println(Arrays.toString(warningDiagnosticsList.toArray()));
         testDiagnostic(
                 warningDiagnosticsList,
                 new String[]{
