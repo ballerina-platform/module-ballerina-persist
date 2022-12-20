@@ -324,22 +324,6 @@ public class CompilerPluginTest {
     }
 
     @Test
-    public void testUnSupportedFeature() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_17", 1);
-        testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "unsupported features: many-to-many association is not supported yet"
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_114.getCode(),
-                        DiagnosticsCodes.PERSIST_116.getCode(),
-                        DiagnosticsCodes.PERSIST_114.getCode(),
-                        DiagnosticsCodes.PERSIST_116.getCode()
-                });
-    }
-
-    @Test
     public void testUnSupportedFeature1() {
         List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_22", 1);
         testDiagnostic(

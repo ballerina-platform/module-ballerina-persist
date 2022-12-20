@@ -58,7 +58,7 @@ client class DepartmentClient {
         }
     }
 
-    remote function update(record {} 'object) returns Error? {
+    remote function update(Department 'object) returns Error? {
         _ = check self.persistClient.runUpdateQuery('object);
     }
 

@@ -49,8 +49,6 @@ public enum DiagnosticsCodes {
             "with reference key count", ERROR),
     PERSIST_112("PERSIST_112", "mysql db only allow increment value by one in auto generated field",
             WARNING),
-    PERSIST_114("PERSIST_114", "unsupported features: many-to-many association is not supported yet",
-            ERROR),
     PERSIST_115("PERSIST_115", "invalid entity initialisation: the associated entity[{0}] " +
             "does not have the field with the relationship type", ERROR),
     PERSIST_116("PERSIST_116", "invalid entity initialisation: the relation annotation should " +

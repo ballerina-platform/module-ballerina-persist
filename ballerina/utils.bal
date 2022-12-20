@@ -48,6 +48,23 @@ isolated function isKnownRecordType(record {} r) returns boolean {
     return false;
 }
 
+isolated function arrayToParameterizedQuery(sql:Value[] arr, boolean replaceInsertions = true) returns sql:ParameterizedQuery {
+    sql:ParameterizedQuery query = ``; 
+    int count = 0;
+    foreach sql:Value element in arr {
+        if count > 0 {
+            query = sql:queryConcat(query, `, `);
+        }
+        if replaceInsertions {
+            query = sql:queryConcat(query, stringToParameterizedQuery(element.toString()));
+        } else {
+             query = sql:queryConcat(query, `${<sql:Value>element}`);
+        }
+        count = count + 1;
+    }
+    return query;
+}
+
 isolated function convertToArray(typedesc<record {}> elementType, record {}[] arr) returns elementType[] = @java:Method {
     'class: "io.ballerina.stdlib.persist.Utils"
 } external;

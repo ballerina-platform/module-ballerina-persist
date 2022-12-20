@@ -136,7 +136,7 @@ function oneToOneUpdateTest1() returns error? {
 
     profile.name = "TestUpdatedProfile";
     profile.user.name = "TestUpdatedUser";
-    _ = check profileClient->update(profile);
+    _ = check profileClient->update(profile, [UserEntity]);
 
     Profile profile2 = check profileClient->readByKey(5, [UserEntity]);
     Profile expectedProfile = {
@@ -170,7 +170,7 @@ function oneToOneUpdateTest2() returns error? {
         id: 4,
         name: "TestUpdatedUser2"
     };
-    _ = check profileClient->update(profile);
+    _ = check profileClient->update(profile, [UserEntity]);
 
     Profile profile2 = check profileClient->readByKey(6, [UserEntity]);
     Profile expectedProfile = {
@@ -414,11 +414,243 @@ function oneToManyUpdateTest4() returns error? {
 
     employee1.name = "TestEmployeeUpdated8";
     employee1.company.name = "TestCompanyUpdated5";
-    _ = check employeeClient->update(employee1);
+    _ = check employeeClient->update(employee1, [CompanyEntity]);
     Company company2 = check companyClient->readByKey(5, [EmployeeEntity]);
     test:assertEquals(company2, <Company>{
         id: 5,
         name: "TestCompanyUpdated5",
         employees: [{id: 8, name: "TestEmployeeUpdated8"}, {id: 9, name: "TestEmployee9"}]
     });
+}
+
+@test:Config {
+    groups: ["associations", "many-to-many"]
+}
+function manyToManyCreateTest1() returns error? {
+    Lecture lecture1 = {
+        code: "L1",
+        subject: "TestLecture1",
+        day: "monday",
+        time: {hour: 13, minute: 1, second: 0}
+    };
+
+    Lecture lecture2 = {
+        code: "L2",
+        subject: "TestLecture2",
+        day: "tuesday",
+        time: {hour: 13, minute: 2, second: 0}
+    };
+
+    Paper paper1 = {
+        subjectId: 1,
+        paperDate: {year: 2022, month: 12, day: 14},
+        title: "Maths"
+    };
+
+    Paper paper2 = {
+        subjectId: 1,
+        paperDate: {year: 2022, month: 11, day: 14},
+        title: "Maths2"
+    };
+
+    Paper paper3 = {
+        subjectId: 2,
+        paperDate: {year: 2022, month: 12, day: 15},
+        title: "English"
+    };
+
+    Student student = {
+        nic: "938582039V",
+        firstName: "Tom",
+        lastName: "Scott",
+        dob: {year: 1996, month: 12, day: 12},
+        contact: "0771952226",
+        lectures: [lecture1, lecture2],
+        papers: [paper2, paper1, paper3]
+    };
+    StudentClient studentClient = check new();
+    _ = check studentClient->create(student);
+
+    Student studentR = check studentClient->readByKey("938582039V", [lectures, papers]);
+    test:assertEquals(studentR, student);
+}
+
+@test:Config {
+    groups: ["associations", "many-to-many"]
+}
+function manyToManyCreateTest2() returns error? {
+    Student student = {
+        nic: "983749204V",
+        firstName: "Tom",
+        lastName: "Scott",
+        dob: {year: 1996, month: 12, day: 12},
+        contact: "0771952226"
+    };
+
+    Student student2 = {
+        nic: "982759294V",
+        firstName: "Tom2",
+        lastName: "Scott2",
+        dob: {year: 1996, month: 12, day: 12},
+        contact: "0771952222"
+    };
+
+    Lecture lecture = {
+        code: "L3",
+        subject: "TestLecture11",
+        day: "monday",
+        time: {hour: 13, minute: 1, second: 0},
+        students: [student2, student]
+    };
+
+    LectureClient lectureClient = check new();
+    _ = check lectureClient->create(lecture);
+
+    Lecture lectureR = check lectureClient->readByKey("L3", [students]);
+    test:assertEquals(lectureR, lecture);
+}
+
+@test:Config {
+    groups: ["associations", "many-to-many"],
+    dependsOn: [manyToManyCreateTest2]
+}
+function manyToManyUpdateTest1() returns error? {
+    LectureClient lectureClient = check new();
+    Lecture lecture = check lectureClient->readByKey("L3", [students]);
+
+    Student student1 = (<Student[]>lecture.students)[0];
+    student1.firstName = "TomUpdated";
+
+    Student student3 = {
+        nic: "973749278V",
+        firstName: "Tom3",
+        lastName: "Scott3",
+        dob: {year: 1996, month: 12, day: 12},
+        contact: "0771952222"
+    };
+
+    lecture.students = [student3, student1];
+    _ = check lectureClient->update(lecture, [students]);
+
+    Lecture lectureR = check lectureClient->readByKey("L3", [students]);
+    test:assertEquals(lectureR, lecture);
+}
+
+@test:Config {
+    groups: ["associations", "many-to-many"],
+    dependsOn: [manyToManyCreateTest1]
+}
+function manyToManyUpdateTest2() returns error? {
+    Student student = {
+        nic: "938582039V",
+        firstName: "TomUpdated",
+        lastName: "Scott",
+        dob: {year: 1996, month: 12, day: 12},
+        contact: "0771952226"
+    };
+    StudentClient studentClient = check new();
+    _ = check studentClient->update(student);
+    Student studentR = check studentClient->readByKey("938582039V", [lectures, papers]);
+
+    Lecture lecture1 = {
+        code: "L1",
+        subject: "TestLecture1",
+        day: "monday",
+        time: {hour: 13, minute: 1, second: 0}
+    };
+
+    Lecture lecture2 = {
+        code: "L2",
+        subject: "TestLecture2",
+        day: "tuesday",
+        time: {hour: 13, minute: 2, second: 0}
+    };
+
+    Paper paper1 = {
+        subjectId: 1,
+        paperDate: {year: 2022, month: 12, day: 14},
+        title: "Maths"
+    };
+
+    Paper paper2 = {
+        subjectId: 1,
+        paperDate: {year: 2022, month: 11, day: 14},
+        title: "Maths2"
+    };
+
+    Paper paper3 = {
+        subjectId: 2,
+        paperDate: {year: 2022, month: 12, day: 15},
+        title: "English"
+    };
+
+    Student expectedStudent = {
+        nic: "938582039V",
+        firstName: "TomUpdated",
+        lastName: "Scott",
+        dob: {year: 1996, month: 12, day: 12},
+        contact: "0771952226",
+        lectures: [lecture1, lecture2],
+        papers: [paper2, paper1, paper3]
+    };
+
+    test:assertEquals(studentR, expectedStudent);
+}
+
+@test:Config {
+    groups: ["associations", "many-to-many"],
+    dependsOn: [manyToManyUpdateTest2]
+}
+function manyToManyUpdateTest3() returns error? {
+    StudentClient studentClient = check new();
+    Student student = check studentClient->readByKey("938582039V", [lectures]);
+    student.lectures[0].subject = "TestLecture1Updated";
+    student.firstName = "TomUpdatedAgain";
+    _ = check studentClient->update(student, [lectures]);
+
+    Student studentR = check studentClient->readByKey("938582039V", [lectures, papers]);
+
+    Lecture lecture1 = {
+        code: "L1",
+        subject: "TestLecture1Updated",
+        day: "monday",
+        time: {hour: 13, minute: 1, second: 0}
+    };
+
+    Lecture lecture2 = {
+        code: "L2",
+        subject: "TestLecture2",
+        day: "tuesday",
+        time: {hour: 13, minute: 2, second: 0}
+    };
+
+    Paper paper1 = {
+        subjectId: 1,
+        paperDate: {year: 2022, month: 12, day: 14},
+        title: "Maths"
+    };
+
+    Paper paper2 = {
+        subjectId: 1,
+        paperDate: {year: 2022, month: 11, day: 14},
+        title: "Maths2"
+    };
+
+    Paper paper3 = {
+        subjectId: 2,
+        paperDate: {year: 2022, month: 12, day: 15},
+        title: "English"
+    };
+
+    Student expectedStudent = {
+        nic: "938582039V",
+        firstName: "TomUpdatedAgain",
+        lastName: "Scott",
+        dob: {year: 1996, month: 12, day: 12},
+        contact: "0771952226",
+        lectures: [lecture1, lecture2],
+        papers: [paper2, paper1, paper3]
+    };
+
+    test:assertEquals(studentR, expectedStudent);
 }

@@ -35,10 +35,12 @@ public type FieldMetadata record {|
 # + entityName - The name of the entity represented in the relation  
 # + refTable - The name of the SQL table, which contains the referenced column 
 # + refField - The name of the field in the `entityName` that is referenced
+# + refColumnName - The name of the referenced column in the SQL table
 public type RelationMetadata record {|
     string entityName;
     string refTable;
     string refField;
+    string refColumnName;
 |};
 
 # Represents the metadata associated with performing an SQL `JOIN` operation.
@@ -47,15 +49,21 @@ public type RelationMetadata record {|
 # + entity - The name of the entity that is being joined  
 # + fieldName - The name of the field in the `entity` that is being joined  
 # + refTable - The name of the SQL table to be joined  
-# + refFields - The names of the fields to be used in the JOIN `WHERE` operation  
-# + joinColumns - The names of the SQL table columns to be used in the JOIN `WHERE` operation    
+# + refColumns - The names of the referenced columns of the referenced table
+# + joinColumns - The names of the join columns
+# + joinTable - The name of the joining table used for a many-to-many relation
+# + joiningRefColumns - The names of the referenced columns in the joining table     
+# + joiningJoinColumns - The names of the join columns in the joining table     
 # + 'type - The type of the relation
 public type JoinMetadata record {|
     typedesc<record {}> entity;
     string fieldName;
     string refTable;
-    string[] refFields;
+    string[] refColumns;
     string[] joinColumns;
+    string joinTable?;
+    string[] joiningRefColumns?;
+    string[] joiningJoinColumns?;
     JoinType 'type = ONE;
 |};
 

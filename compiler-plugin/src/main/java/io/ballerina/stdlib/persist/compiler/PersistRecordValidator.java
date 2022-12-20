@@ -740,14 +740,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             return;
         }
 
-        // todo Remove once https://github.com/ballerina-platform/ballerina-standard-library/issues/3803
-        if (annotatedField.isArrayType() && referredField.isArrayType()) {
-            reportDiagnosticsEntity.addDiagnostic(annotatedField.getFieldLocation(),
-                    DiagnosticsCodes.PERSIST_114.getCode(), DiagnosticsCodes.PERSIST_114.getMessage(),
-                    DiagnosticsCodes.PERSIST_114.getSeverity());
-            return;
-        }
-
         // One to many annotations, with reference given in child
         if ((referredField.isArrayType() && !annotatedField.isArrayType()) ||
                 (!referredField.isArrayType() && annotatedField.isArrayType())) {

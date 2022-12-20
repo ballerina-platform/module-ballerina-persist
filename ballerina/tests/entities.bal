@@ -116,3 +116,71 @@ public type Employee record {|
     @Relation {keyColumns: ["companyId"], reference: ["id"]}
     Company company?;
 |};
+
+
+// Many-to-many relation
+@Entity {
+    key: ["nic"]
+}
+public type Student record {|
+    string nic;
+    string firstName;
+    string lastName;
+    time:Date dob;
+    string contact;
+
+    @Relation {
+        keyColumns: ["nic"],
+        reference: ["code"],
+        joiningTable: {
+            name: "Student_Lecture"
+        }
+    }
+    Lecture[] lectures?;
+
+    @Relation {
+        keyColumns: ["nic"], 
+        reference: ["subjectId", "paperDate"],
+        joiningTable: {
+            name: "Student_Paper"
+        }
+    }
+    Paper[] papers?;
+|};
+
+@Entity {
+    key: ["code"]
+}
+public type Lecture record {|
+    string code;
+    string subject;
+    string day;
+    time:TimeOfDay time;
+
+    @Relation {
+        keyColumns: ["code"], 
+        reference: ["nic"],
+        joiningTable: {
+            name: "Student_Lecture"
+        }
+    }
+    Student[] students?;
+|};
+
+@Entity {
+    key: ["subjectId", "paperDate"]
+}
+public type Paper record {|
+    int subjectId;
+    time:Date paperDate;
+    string title;
+    
+    @Relation {
+        keyColumns: ["nic"], 
+        reference: ["subjectId", "paperDate"], 
+        joiningTable: {
+            name: "Student_Paper"
+        }
+    }
+    Student[] students?;
+|};
