@@ -34,6 +34,17 @@ public class Constants {
 
     public static final String PERSIST_MODULE = "persist";
     public static final String TIME_MODULE = "time";
+    public static final String INCREMENT = "increment";
+    public static final String ONE = "1";
+    public static final String READ_FUNCTION = "read";
+    public static final String EXECUTE_FUNCTION = "execute";
+    public static final String BACKTICK = "`";
+    public static final String SPACE = " ";
+    public static final String OPEN_BRACES = "( ";
+    public static final String CLOSE_BRACES = ") ";
+    public static final String ASCENDING = "ascending";
+    public static final String BAL_ESCAPE_TOKEN = "'";
+    public static final String PERSIST_INHERITANCE_NODE = "*persist:AbstractPersistClient;";
 
     /**
      * Constants for annotation names.
@@ -71,17 +82,6 @@ public class Constants {
         public static final String ON_UPDATE = "onUpdate";
     }
 
-    public static final String INCREMENT = "increment";
-    public static final String ONE = "1";
-    public static final String READ_FUNCTION = "read";
-    public static final String EXECUTE_FUNCTION = "execute";
-    public static final String BACKTICK = "`";
-    public static final String SPACE = " ";
-    public static final String OPEN_BRACES = "( ";
-    public static final String CLOSE_BRACES = ") ";
-    public static final String ASCENDING = "ascending";
-    public static final String BAL_ESCAPE_TOKEN = "'";
-    public static final String PERSIST_INHERITANCE_NODE = "*persist:AbstractPersistClient;";
     /**
      * Constants related to Ballerina types.
      */
@@ -94,6 +94,7 @@ public class Constants {
         public static final String BOOLEAN = "boolean";
         public static final String DECIMAL = "decimal";
         public static final String FLOAT = "float";
+        public static final String BYTE = "byte";
     }
 
     /**

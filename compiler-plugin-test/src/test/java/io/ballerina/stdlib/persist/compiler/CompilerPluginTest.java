@@ -62,7 +62,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testEntityAnnotation1() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_01", 3);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_01", 3, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -80,7 +80,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testEntityAnnotation2() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_02", 4);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_02", 4, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -100,7 +100,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testEntityAnnotation3() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_35", 2);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_35", 2, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -115,7 +115,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testEntityAnnotation4() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_36", 3);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_36", 3, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -134,7 +134,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testPrimaryKeyMarkReadOnly() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_03", 3);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_03", 3, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -153,7 +153,7 @@ public class CompilerPluginTest {
     //todo: This should be a MySQL specific validation
     @Test(enabled = false)
     public void testMultipleAutoIncrementAnnotation() {
-       List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_04", 1);
+       List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_04", 1, DiagnosticSeverity.ERROR);
        testDiagnostic(
                errorDiagnosticsList,
                new String[]{
@@ -166,7 +166,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testAutoIncrementAnnotation1() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_05", 2);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_05", 2, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -182,7 +182,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testRelationAnnotationMismatchReference() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_06", 2);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_06", 2, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -198,7 +198,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testOptionalTypeField() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_07", 2);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_07", 2, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -214,7 +214,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testOptionalField() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_37", 1);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_37", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -227,7 +227,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testAutoIncrementField() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_10", 2);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_10", 2, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -243,7 +243,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testFieldInitialization() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_33", 1);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_33", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -256,7 +256,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testFieldInitialization1() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_34", 1);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_34", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -270,7 +270,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testInvalidInitialisation() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_14", 2);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_14", 2, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -287,7 +287,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testInvalidInitialisation1() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_15", 1);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_15", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -301,7 +301,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testInvalidInitialisation2() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_16", 1);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_16", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -316,7 +316,7 @@ public class CompilerPluginTest {
     // todo check on this after relation refactoring
     @Test(enabled = false)
     public void testInvalidInitialisation3() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_38", 2);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_38", 2, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -331,7 +331,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testUnSupportedFeature() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_17", 1);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_17", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -347,7 +347,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testUnSupportedFeature1() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_22", 1);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_22", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -360,7 +360,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testUnSupportedFeature2() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_23", 1);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_23", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -373,7 +373,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testUnSupportedFeature3() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_24", 1);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_24", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -386,7 +386,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testUnSupportedFeature4() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_25", 1);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_25", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -401,7 +401,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testInvalidAnnotation() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_18", 1);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_18", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -415,7 +415,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testInvalidAnnotation1() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_19", 1);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_19", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -429,7 +429,7 @@ public class CompilerPluginTest {
     // todo: Check on this after relation validations revamp
     @Test(enabled = false)
     public void testInvalidAnnotation2() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_08", 1);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_08", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -442,7 +442,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testInvalidAnnotation3() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_09", 1);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_09", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -455,7 +455,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testInvalidAnnotation4() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_32", 3);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_32", 3, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -473,16 +473,20 @@ public class CompilerPluginTest {
 
     @Test
     public void testEntityName1() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_21", 2);
+        List<Diagnostic> warningDiagnosticsList = getDiagnostic("package_21", 5, DiagnosticSeverity.WARNING);
         testDiagnostic(
-                errorDiagnosticsList,
+                warningDiagnosticsList,
                 new String[]{
-                        "duplicate entity names are not allowed: the specified name is already " +
-                                "used in another entity in ",
-                        "duplicate entity names are not allowed: the specified name is already " +
-                                "used in another entity in "
+                        "entities are defined in more than one module, move all entities to a single module",
+                        "entities are defined in more than one module, move all entities to a single module",
+                        "entities are defined in more than one module, move all entities to a single module",
+                        "entities are defined in more than one module, move all entities to a single module",
+                        "entities are defined in more than one module, move all entities to a single module"
                 },
                 new String[]{
+                        DiagnosticsCodes.PERSIST_119.getCode(),
+                        DiagnosticsCodes.PERSIST_119.getCode(),
+                        DiagnosticsCodes.PERSIST_119.getCode(),
                         DiagnosticsCodes.PERSIST_119.getCode(),
                         DiagnosticsCodes.PERSIST_119.getCode()
                 });
@@ -491,7 +495,7 @@ public class CompilerPluginTest {
     // todo -> check if valid diagnostics
     @Test(enabled = false)
     public void testGetReferenceWithCompositeKey() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_26", 1);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_26", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -506,7 +510,7 @@ public class CompilerPluginTest {
     // Unnecessary as currently we don't support entities w/o primary key
     @Test(enabled = false)
     public void testGetReferenceWithEmptyKey() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_27", 1);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_27", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -520,7 +524,7 @@ public class CompilerPluginTest {
     // Unnecessary as currently we don't support entities w/o primary key
     @Test(enabled = false)
     public void testGetReferenceWithEmptyKey1() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_28", 3);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_28", 3, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -537,7 +541,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testEntityClosedRecord() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_30", 1);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_30", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -550,7 +554,8 @@ public class CompilerPluginTest {
 
     @Test
     public void testEntityClosedRecord2() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_31", 2);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_31", 2,
+                DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -565,7 +570,7 @@ public class CompilerPluginTest {
 
     @Test
     public void testFieldInitialisation() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_12", 8);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_12", 8, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
@@ -591,10 +596,10 @@ public class CompilerPluginTest {
                 });
     }
 
-    private List<Diagnostic> getDiagnostic(String packageName, int count) {
+    private List<Diagnostic> getDiagnostic(String packageName, int count, DiagnosticSeverity diagnosticSeverity) {
         DiagnosticResult diagnosticResult = loadPackage(packageName).getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().filter
-                (r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).collect(Collectors.toList());
+                (r -> r.diagnosticInfo().severity().equals(diagnosticSeverity)).collect(Collectors.toList());
         Assert.assertEquals(errorDiagnosticsList.size(), count);
         return errorDiagnosticsList;
 

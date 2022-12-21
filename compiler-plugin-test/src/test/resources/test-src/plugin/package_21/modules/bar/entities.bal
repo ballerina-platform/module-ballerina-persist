@@ -19,8 +19,8 @@ import ballerina/persist;
 @persist:Entity {
     key: ["id"]
 }
-public type Profile record  {|
-    readonly int id;
-    byte[] profilePicture;
-    json name;
+public type Items1 record {|
+    @persist:AutoIncrement
+    readonly int id = 1;
+    int beneficiaryId;
 |};
