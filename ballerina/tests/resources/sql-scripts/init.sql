@@ -30,7 +30,7 @@ CREATE TABLE test.Departments (
     PRIMARY KEY (hospitalCode, departmentId)
 );
 
-CREATE TABLE test.Users (
+CREATE TABLE test.Owner (
     id INTEGER PRIMARY KEY,
     name VARCHAR(20)
 );
@@ -38,17 +38,17 @@ CREATE TABLE test.Users (
 CREATE TABLE test.Profiles (
     id INTEGER PRIMARY KEY,
     name VARCHAR(20),
-    userId INTEGER,
-    FOREIGN KEY (userId) REFERENCES test.Users(id)
+    ownerId INTEGER,
+    FOREIGN KEY (ownerId) REFERENCES test.Owner(id)
 );
 
 CREATE TABLE test.MultipleAssociations (
     id INTEGER PRIMARY KEY,
     name VARCHAR(40),
     profileId INTEGER,
-    userId INTEGER,
+    ownerId INTEGER,
     FOREIGN KEY (profileId) REFERENCES test.Profiles(id),
-    FOREIGN KEY (userId) REFERENCES test.Users(id)
+    FOREIGN KEY (ownerId) REFERENCES test.Owner(id)
 );
 
 CREATE TABLE test.Companies (

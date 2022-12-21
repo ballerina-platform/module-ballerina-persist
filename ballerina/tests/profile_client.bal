@@ -25,12 +25,12 @@ client class ProfileClient {
     private final map<FieldMetadata> fieldMetadata = {
         id: {columnName: "id", 'type: int},
         name: {columnName: "name", 'type: string},
-        "owner.id": {columnName: "userId", 'type: int, relation: {entityName: "owner", refTable: "Users", refField: "id"}},
-        "owner.name": {'type: int, relation: {entityName: "owner", refTable: "Users", refField: "name"}}
+        "owner.id": {columnName: "ownerId", 'type: int, relation: {entityName: "owner", refTable: "Owner", refField: "id"}},
+        "owner.name": {'type: int, relation: {entityName: "owner", refTable: "Owner", refField: "name"}}
     };
     private string[] keyFields = ["id"];
     private final map<JoinMetadata> joinMetadata = {
-        owner: {entity: Owner, fieldName: "owner", refTable: "Users", refFields: ["id"], joinColumns: ["userId"]}
+        owner: {entity: Owner, fieldName: "owner", refTable: "Owner", refFields: ["id"], joinColumns: ["ownerId"]}
     };
 
     private SQLClient persistClient;

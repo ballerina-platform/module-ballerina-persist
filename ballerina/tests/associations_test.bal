@@ -20,22 +20,22 @@ import ballerina/test;
     groups: ["associations"]
 }
 function oneToOneCreateTest1() returns error? {
-    Owner user = {
+    Owner owner = {
         id: 1,
         name: "TestOwner"
     };
     OwnerClient ownerClient = check new ();
-    _ = check ownerClient->create(user);
+    _ = check ownerClient->create(owner);
 
     Profile profile = {
         id: 1,
         name: "TestProfile2",
-        owner: user
+        owner: owner
     };
     ProfileClient profileClient = check new ();
     Profile profile2 = check profileClient->create(profile);
 
-    Profile profile3 = check profileClient->readByKey(1, [owner]);
+    Profile profile3 = check profileClient->readByKey(1, ["owner"]);
     test:assertEquals(profile, profile2);
     test:assertEquals(profile, profile3);
 }
@@ -44,15 +44,15 @@ function oneToOneCreateTest1() returns error? {
     groups: ["associations"]
 }
 function oneToOneCreateTest2() returns error? {
-    Owner user = {
+    Owner owner = {
         id: 3,
-        name: "TestUser"
+        name: "TestOwner"
     };
     OwnerClient ownerClient = check new ();
-    _ = check ownerClient->create(user);
-    Owner owner = check ownerClient->readByKey(3);
+    _ = check ownerClient->create(owner);
+    Owner owner2 = check ownerClient->readByKey(3);
 
-    test:assertEquals(user, owner);
+    test:assertEquals(owner, owner2);
 }
 
 @test:Config {
@@ -79,7 +79,7 @@ function oneToOneCreateTest4() returns error? {
         name: "TestProfile",
         owner: {
             id: 3,
-            name: "TestUser"
+            name: "TestOwner"
         }
     };
     ProfileClient profileClient = check new ();
@@ -98,7 +98,7 @@ function oneToOneReadTest1() returns error? {
         name: "TestProfile",
         owner: {
             id: 23,
-            name: "TestUser"
+            name: "TestOwner"
         }
     };
     ProfileClient profileClient = check new ();
@@ -108,10 +108,10 @@ function oneToOneReadTest1() returns error? {
     test:assertEquals(profile, profile2);
 
     OwnerClient ownerClient = check new ();
-    Owner user = check ownerClient->readByKey(23, ["profile"]);
-    test:assertEquals(user, {
+    Owner owner = check ownerClient->readByKey(23, ["profile"]);
+    test:assertEquals(owner, {
         id: 23,
-        name: "TestUser",
+        name: "TestOwner",
         profile: {
             id: 24,
             name: "TestProfile"
@@ -128,14 +128,14 @@ function oneToOneUpdateTest1() returns error? {
         name: "TestProfile",
         owner: {
             id: 4,
-            name: "TestUser"
+            name: "TestOwner"
         }
     };
     ProfileClient profileClient = check new ();
     _ = check profileClient->create(profile);
 
     profile.name = "TestUpdatedProfile";
-    profile.owner.name = "TestUpdatedUser";
+    profile.owner.name = "TestUpdatedOwner";
     _ = check profileClient->update(profile);
 
     Profile profile2 = check profileClient->readByKey(5, [owner]);
@@ -144,7 +144,7 @@ function oneToOneUpdateTest1() returns error? {
         name: "TestUpdatedProfile",
         owner: {
             id: 4,
-            name: "TestUpdatedUser"
+            name: "TestUpdatedOwner"
         }
     };
     test:assertEquals(profile2, expectedProfile);
@@ -159,7 +159,7 @@ function oneToOneUpdateTest2() returns error? {
         name: "TestProfile",
         owner: {
             id: 5,
-            name: "TestUser"
+            name: "TestOwner"
         }
     };
     ProfileClient profileClient = check new ();
@@ -193,7 +193,7 @@ function oneToOneUpdateTest3() returns error? {
         name: "TestProfile",
         owner: {
             id: 6,
-            name: "TestUser"
+            name: "TestOwner"
         }
     };
     ProfileClient profileClient = check new ();
@@ -221,7 +221,7 @@ function MultipleAssociationsTest() returns error? {
         },
         owner: {
             id: 31,
-            name: "TestUser"
+            name: "TestOwner"
         }
     };
 
@@ -248,7 +248,7 @@ function MultipleAssociationsTest() returns error? {
         name: "TestMultipleAssociation",
         owner: {
             id: 31,
-            name: "TestUser"
+            name: "TestOwner"
         }
     }, ma5);
 }

@@ -21,7 +21,7 @@ client class OwnerClient {
     *AbstractPersistClient;
 
     private final string entityName = "Owner";
-    private final sql:ParameterizedQuery tableName = `Users`;
+    private final sql:ParameterizedQuery tableName = `Owner`;
     private final map<FieldMetadata> fieldMetadata = {
         id: {columnName: "id", 'type: int},
         name: {columnName: "name", 'type: string},
@@ -30,7 +30,7 @@ client class OwnerClient {
     };
     private string[] keyFields = ["id"];
     private final map<JoinMetadata> joinMetadata = {
-        profile: {entity: Profile, fieldName: "profile", refTable: "Profiles", refFields: ["userId"], joinColumns: ["id"]}
+        profile: {entity: Profile, fieldName: "profile", refTable: "Profiles", refFields: ["ownerId"], joinColumns: ["id"]}
     };
 
     private SQLClient persistClient;
