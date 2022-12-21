@@ -65,7 +65,7 @@ modules = [
 [[package]]
 org = "ballerina"
 name = "sql"
-version = "1.7.0"
+version = "1.6.1"
 dependencies = [
 	{org = "ballerina", name = "io"},
 	{org = "ballerina", name = "jballerina.java"},
@@ -102,7 +102,7 @@ modules = [
 [[package]]
 org = "ballerinax"
 name = "mysql"
-version = "1.7.0"
+version = "1.6.1"
 scope = "testOnly"
 dependencies = [
 	{org = "ballerina", name = "crypto"},

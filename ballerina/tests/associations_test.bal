@@ -20,22 +20,22 @@ import ballerina/test;
     groups: ["associations"]
 }
 function oneToOneCreateTest1() returns error? {
-    User user = {
+    Owner user = {
         id: 1,
-        name: "TestUser2"
+        name: "TestOwner"
     };
-    UserClient userClient = check new ();
-    _ = check userClient->create(user);
+    OwnerClient ownerClient = check new ();
+    _ = check ownerClient->create(user);
 
     Profile profile = {
         id: 1,
         name: "TestProfile2",
-        user: user
+        owner: user
     };
     ProfileClient profileClient = check new ();
     Profile profile2 = check profileClient->create(profile);
 
-    Profile profile3 = check profileClient->readByKey(1, [UserEntity]);
+    Profile profile3 = check profileClient->readByKey(1, [owner]);
     test:assertEquals(profile, profile2);
     test:assertEquals(profile, profile3);
 }
@@ -44,15 +44,15 @@ function oneToOneCreateTest1() returns error? {
     groups: ["associations"]
 }
 function oneToOneCreateTest2() returns error? {
-    User user = {
+    Owner user = {
         id: 3,
         name: "TestUser"
     };
-    UserClient userClient = check new ();
-    _ = check userClient->create(user);
-    User user2 = check userClient->readByKey(3);
+    OwnerClient ownerClient = check new ();
+    _ = check ownerClient->create(user);
+    Owner owner = check ownerClient->readByKey(3);
 
-    test:assertEquals(user, user2);
+    test:assertEquals(user, owner);
 }
 
 @test:Config {
@@ -77,14 +77,14 @@ function oneToOneCreateTest4() returns error? {
     Profile profile = {
         id: 4,
         name: "TestProfile",
-        user: {
+        owner: {
             id: 3,
             name: "TestUser"
         }
     };
     ProfileClient profileClient = check new ();
     _ = check profileClient->create(profile);
-    Profile profile2 = check profileClient->readByKey(4, [UserEntity]);
+    Profile profile2 = check profileClient->readByKey(4, [owner]);
 
     test:assertEquals(profile, profile2);
 }
@@ -96,7 +96,7 @@ function oneToOneReadTest1() returns error? {
     Profile profile = {
         id: 24,
         name: "TestProfile",
-        user: {
+        owner: {
             id: 23,
             name: "TestUser"
         }
@@ -104,11 +104,11 @@ function oneToOneReadTest1() returns error? {
     ProfileClient profileClient = check new ();
     _ = check profileClient->create(profile);
 
-    Profile profile2 = check profileClient->readByKey(24, [UserEntity]);
+    Profile profile2 = check profileClient->readByKey(24, [owner]);
     test:assertEquals(profile, profile2);
 
-    UserClient userClient = check new ();
-    User user = check userClient->readByKey(23, [ProfileEntity]);
+    OwnerClient ownerClient = check new ();
+    Owner user = check ownerClient->readByKey(23, ["profile"]);
     test:assertEquals(user, {
         id: 23,
         name: "TestUser",
@@ -126,7 +126,7 @@ function oneToOneUpdateTest1() returns error? {
     Profile profile = {
         id: 5,
         name: "TestProfile",
-        user: {
+        owner: {
             id: 4,
             name: "TestUser"
         }
@@ -135,14 +135,14 @@ function oneToOneUpdateTest1() returns error? {
     _ = check profileClient->create(profile);
 
     profile.name = "TestUpdatedProfile";
-    profile.user.name = "TestUpdatedUser";
+    profile.owner.name = "TestUpdatedUser";
     _ = check profileClient->update(profile);
 
-    Profile profile2 = check profileClient->readByKey(5, [UserEntity]);
+    Profile profile2 = check profileClient->readByKey(5, [owner]);
     Profile expectedProfile = {
         id: 5,
         name: "TestUpdatedProfile",
-        user: {
+        owner: {
             id: 4,
             name: "TestUpdatedUser"
         }
@@ -157,7 +157,7 @@ function oneToOneUpdateTest2() returns error? {
     Profile profile = {
         id: 6,
         name: "TestProfile",
-        user: {
+        owner: {
             id: 5,
             name: "TestUser"
         }
@@ -166,19 +166,19 @@ function oneToOneUpdateTest2() returns error? {
     _ = check profileClient->create(profile);
 
     profile.name = "TestUpdatedProfile";
-    profile.user = {
+    profile.owner = {
         id: 4,
-        name: "TestUpdatedUser2"
+        name: "TestUpdatedOwner"
     };
     _ = check profileClient->update(profile);
 
-    Profile profile2 = check profileClient->readByKey(6, [UserEntity]);
+    Profile profile2 = check profileClient->readByKey(6, [owner]);
     Profile expectedProfile = {
         id: 6,
         name: "TestUpdatedProfile",
-        user: {
+        owner: {
             id: 4,
-            name: "TestUpdatedUser2"
+            name: "TestUpdatedOwner"
         }
     };
     test:assertEquals(profile2, expectedProfile);
@@ -191,7 +191,7 @@ function oneToOneUpdateTest3() returns error? {
     Profile profile = {
         id: 7,
         name: "TestProfile",
-        user: {
+        owner: {
             id: 6,
             name: "TestUser"
         }
@@ -200,9 +200,9 @@ function oneToOneUpdateTest3() returns error? {
     _ = check profileClient->create(profile);
 
     profile.name = "TestUpdatedProfile";
-    profile.user = {
+    profile.owner = {
         id: 7,
-        name: "TestUpdatedUser2"
+        name: "TestUpdatedOwner"
     };
     ForeignKeyConstraintViolationError|error? result = profileClient->update(profile);
     test:assertTrue(result is ForeignKeyConstraintViolationError);
@@ -219,7 +219,7 @@ function MultipleAssociationsTest() returns error? {
             id: 31,
             name: "Test Profile"
         },
-        user: {
+        owner: {
             id: 31,
             name: "TestUser"
         }
@@ -229,10 +229,10 @@ function MultipleAssociationsTest() returns error? {
     MultipleAssociations ma2 = check maClient->create(ma);
     test:assertEquals(ma, ma2);
 
-    MultipleAssociations ma3 = check maClient->readByKey(1, [ProfileEntity, UserEntity]);
+    MultipleAssociations ma3 = check maClient->readByKey(1, [profile, owner]);
     test:assertEquals(ma, ma3);
 
-    MultipleAssociations ma4 = check maClient->readByKey(1, [ProfileEntity]);
+    MultipleAssociations ma4 = check maClient->readByKey(1, [profile]);
     test:assertEquals({
         id: 1,
         name: "TestMultipleAssociation",
@@ -242,11 +242,11 @@ function MultipleAssociationsTest() returns error? {
         }
     }, ma4);
 
-    MultipleAssociations ma5 = check maClient->readByKey(1, [UserEntity]);
+    MultipleAssociations ma5 = check maClient->readByKey(1, [owner]);
     test:assertEquals({
         id: 1,
         name: "TestMultipleAssociation",
-        user: {
+        owner: {
             id: 31,
             name: "TestUser"
         }
@@ -272,7 +272,7 @@ function oneToManyCreateTest1() returns error? {
     EmployeeClient employeeClient = check new ();
     Employee employee2 = check employeeClient->create(employee);
 
-    Employee employee3 = check employeeClient->readByKey(1, [CompanyEntity]);
+    Employee employee3 = check employeeClient->readByKey(1, ["company"]);
     test:assertEquals(employee, employee2);
     test:assertEquals(employee, employee3);
 }
@@ -377,7 +377,7 @@ function oneToManyCreateTest4() returns error? {
     };
     _ = check employeeClient->create(employee2);
 
-    Employee employee = check employeeClient->readByKey(6, [CompanyEntity]);
+    Employee employee = check employeeClient->readByKey(6, ["company"]);
     test:assertEquals(employee, <Employee>{
         id: 6,
         name: "TestEmployee6",

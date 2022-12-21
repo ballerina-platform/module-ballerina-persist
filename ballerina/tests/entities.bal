@@ -64,7 +64,7 @@ public type Department record {|
 @Entity {
     key: ["id"]
 }
-public type User record {|
+public type Owner record {|
     readonly int id;
     string name;
     Profile profile?;
@@ -78,7 +78,7 @@ public type Profile record {|
     readonly int id;
     string name;
     @Relation {keyColumns: ["userId"], reference: ["id"]}
-    User user?;
+    Owner owner?;
     MultipleAssociations multipleAssociations?;
 |};
 
@@ -93,7 +93,7 @@ public type MultipleAssociations record {|
     Profile profile?;
 
     @Relation {keyColumns: ["userId"], reference: ["id"]}
-    User user?;
+    Owner owner?;
 |};
 
 // One-to-many relation

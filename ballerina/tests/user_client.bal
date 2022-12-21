@@ -17,10 +17,10 @@
 import ballerinax/mysql;
 import ballerina/sql;
 
-client class UserClient {
+client class OwnerClient {
     *AbstractPersistClient;
 
-    private final string entityName = "User";
+    private final string entityName = "Owner";
     private final sql:ParameterizedQuery tableName = `Users`;
     private final map<FieldMetadata> fieldMetadata = {
         id: {columnName: "id", 'type: int},
@@ -44,35 +44,35 @@ client class UserClient {
         self.persistClient = check new (dbClient, self.entityName, self.tableName, self.keyFields, self.fieldMetadata, self.joinMetadata);
     }
 
-    remote function create(User value) returns User|Error {
+    remote function create(Owner value) returns Owner|Error {
         _ = check self.persistClient.runInsertQuery(value);
         return value;
     }
 
-    remote function readByKey(int key, UserRelations[] include = []) returns User|Error {
-        return <User>check self.persistClient.runReadByKeyQuery(User, key, include);
+    remote function readByKey(int key, UserRelations[] include = []) returns Owner|Error {
+        return <Owner>check self.persistClient.runReadByKeyQuery(Owner, key, include);
     }
 
-    remote function read(UserRelations[] include = []) returns stream<User, Error?> {
-        stream<anydata, sql:Error?>|Error result = self.persistClient.runReadQuery(User, include);
+    remote function read(UserRelations[] include = []) returns stream<Owner, Error?> {
+        stream<anydata, sql:Error?>|Error result = self.persistClient.runReadQuery(Owner, include);
         if result is Error {
-            return new stream<User, Error?>(new UserStream((), result));
+            return new stream<Owner, Error?>(new UserStream((), result));
         } else {
-            return new stream<User, Error?>(new UserStream(result));
+            return new stream<Owner, Error?>(new UserStream(result));
         }
     }
 
-    remote function update(User 'object) returns Error? {
+    remote function update(Owner 'object) returns Error? {
         _ = check self.persistClient.runUpdateQuery('object);
     }
 
-    remote function delete(User 'object) returns Error? {
+    remote function delete(Owner 'object) returns Error? {
         _ = check self.persistClient.runDeleteQuery('object);
     }
 
-    remote function exists(User user) returns boolean|Error {
-        User|Error result = self->readByKey(user.id);
-        if result is User {
+    remote function exists(Owner user) returns boolean|Error {
+        Owner|Error result = self->readByKey(user.id);
+        if result is Owner {
             return true;
         } else if result is InvalidKeyError {
             return false;
@@ -88,7 +88,7 @@ client class UserClient {
 }
 
 public enum UserRelations {
-    ProfileEntity = "profile"
+    profile
 }
 
 public class UserStream {
@@ -100,7 +100,7 @@ public class UserStream {
         self.err = err;
     }
 
-    public isolated function next() returns record {|User value;|}|Error? {
+    public isolated function next() returns record {|Owner value;|}|Error? {
         if self.err is Error {
             return self.err;
         } else if self.anydataStream is stream<anydata, error?> {
@@ -111,7 +111,7 @@ public class UserStream {
             } else if (streamValue is sql:Error) {
                 return <Error>error(streamValue.message());
             } else {
-                record {|User value;|} nextRecord = {value: <User>streamValue.value};
+                record {|Owner value;|} nextRecord = {value: <Owner>streamValue.value};
                 return nextRecord;
             }
         } else {
