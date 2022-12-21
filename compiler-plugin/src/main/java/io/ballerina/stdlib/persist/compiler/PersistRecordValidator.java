@@ -77,6 +77,8 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
 
     private final HashMap<String, Entity> entities;
     private final HashMap<String, List<Field>> deferredRelationKeyEntities;
+    private boolean isEntitiesInMultipleModules = false;
+    private String initialModuleContainingEntity = "";
 
     public PersistRecordValidator() {
         this.entities = new HashMap<>();
@@ -140,15 +142,8 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             Optional<AnnotationNode> entityAnnotation = getEntityAnnotation(metadata.get().annotations());
             if (entityAnnotation.isPresent()) {
                 String entityName = typeDefinitionNode.typeName().text().trim();
-                Entity entity = new Entity(entityName, moduleName, recordTypeSymbol.fieldDescriptors().keySet());
-
-                // Remove after entities are validated to be in one module
-                // todo: Remove after https://github.com/ballerina-platform/ballerina-standard-library/issues/3810
-                if (isDuplicateEntity(entity, typeDefinitionNode)) {
-                    entity.getDiagnostics().forEach((ctx::reportDiagnostic));
-                    // Stop processing duplicated entities
-                    return;
-                }
+                Entity entity = new Entity(entityName, moduleName, recordTypeSymbol.fieldDescriptors().keySet(),
+                        typeDefinitionNode.location());
 
                 validateRecordProperties(entity, ((RecordTypeDescriptorNode) typeDescriptorNode));
                 validateEntityAnnotation(entity, entityAnnotation.get());
@@ -161,6 +156,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                         validateRelations(field, entity, entity);
                     }
                 }
+                validateEntitiesInMultipleModule(entity);
 
                 entity.getDiagnostics().forEach((ctx::reportDiagnostic));
                 this.entities.put(entity.getEntityName(), entity);
@@ -181,15 +177,27 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         return Optional.empty();
     }
 
-    private boolean isDuplicateEntity(Entity entity, TypeDefinitionNode typeDefinitionNode) {
-        if (this.entities.containsKey(entity.getEntityName())) {
-            String initialModule = this.entities.get(entity.getEntityName()).getModule();
-            entity.addDiagnostic(typeDefinitionNode.typeName().location(), DiagnosticsCodes.PERSIST_119.getCode(),
-                    MessageFormat.format(DiagnosticsCodes.PERSIST_119.getMessage(), initialModule),
-                    DiagnosticsCodes.PERSIST_119.getSeverity());
-            return true;
+    private void validateEntitiesInMultipleModule(Entity entity) {
+        if (this.entities.isEmpty()) {
+            this.initialModuleContainingEntity = entity.getModule();
+            return;
         }
-        return false;
+
+        if (this.isEntitiesInMultipleModules) {
+            entity.addDiagnostic(entity.getLocation(), DiagnosticsCodes.PERSIST_119.getCode(),
+                    DiagnosticsCodes.PERSIST_119.getMessage(), DiagnosticsCodes.PERSIST_119.getSeverity());
+            return;
+        }
+
+        if (!this.initialModuleContainingEntity.equals(entity.getModule())) {
+            this.isEntitiesInMultipleModules = true;
+            for (Entity validatedEntity : this.entities.values()) {
+                entity.addDiagnostic(validatedEntity.getLocation(), DiagnosticsCodes.PERSIST_119.getCode(),
+                        DiagnosticsCodes.PERSIST_119.getMessage(), DiagnosticsCodes.PERSIST_119.getSeverity());
+            }
+            entity.addDiagnostic(entity.getLocation(), DiagnosticsCodes.PERSIST_119.getCode(),
+                    DiagnosticsCodes.PERSIST_119.getMessage(), DiagnosticsCodes.PERSIST_119.getSeverity());
+        }
     }
 
     private void validateRecordProperties(Entity entity, RecordTypeDescriptorNode recordTypeDescriptorNode) {
