@@ -55,6 +55,12 @@ public class CompilerPluginTest {
     }
 
     @Test
+    public void testToInitialiseConstant() {
+        final Constants constants = new Constants();
+        Assert.assertNotNull(constants);
+    }
+
+    @Test
     public void testEntityAnnotation1() {
         List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_01", 3);
         testDiagnostic(

@@ -30,7 +30,7 @@ import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createEmptyM
  */
 public class Constants {
 
-    private Constants() {}
+    Constants() {}
 
     public static final String PERSIST_MODULE = "persist";
     public static final String TIME_MODULE = "time";
