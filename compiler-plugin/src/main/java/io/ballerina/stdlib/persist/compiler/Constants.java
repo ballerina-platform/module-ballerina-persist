@@ -50,7 +50,7 @@ public class Constants {
      * Constants for annotation names.
      */
     public static class Annotations {
-        private Annotations(){
+        Annotations() {
         }
 
         public static final String ENTITY = "Entity";
@@ -62,7 +62,7 @@ public class Constants {
      * Constant representing Entity annotation descriptor.
      */
     public static class EntityAnnotation {
-        private EntityAnnotation(){
+        EntityAnnotation() {
         }
 
         public static final String KEY = "key";
@@ -73,7 +73,7 @@ public class Constants {
      * Constant representing Relation annotation descriptor.
      */
     public static class RelationAnnotation {
-        private RelationAnnotation(){
+        RelationAnnotation(){
         }
 
         public static final String KEY_COLUMNS = "keyColumns";
@@ -87,7 +87,7 @@ public class Constants {
      */
     public static final class BallerinaTypes {
 
-        private BallerinaTypes() {}
+        BallerinaTypes() {}
 
         public static final String INT = "int";
         public static final String STRING = "string";
@@ -102,7 +102,7 @@ public class Constants {
      */
     public static final class BallerinaTimeTypes {
 
-        private BallerinaTimeTypes() {}
+        BallerinaTimeTypes() {}
 
         public static final String DATE = "Date";
         public static final String TIME_OF_DAY = "TimeOfDay";
@@ -115,7 +115,7 @@ public class Constants {
      */
     public static final class SQLKeyWords {
 
-        private SQLKeyWords() {}
+        SQLKeyWords() {}
 
         public static final String WHERE = "WHERE";
         public static final String LIMIT = "LIMIT";
