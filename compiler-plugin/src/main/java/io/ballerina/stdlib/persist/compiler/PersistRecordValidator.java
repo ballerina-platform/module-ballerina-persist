@@ -155,7 +155,8 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                         validateRelations(field, entity, entity);
                     }
                 }
-                validateEntitiesInMultipleModule(entity, moduleName);
+                validateEntitiesInMultipleModule(entity);
+
                 entity.getDiagnostics().forEach((ctx::reportDiagnostic));
                 this.entities.put(entity.getEntityName(), entity);
             } else {
@@ -175,25 +176,26 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         return Optional.empty();
     }
 
-    private void validateEntitiesInMultipleModule(Entity entity, String moduleName) {
-        if (!this.entities.isEmpty()) {
-            if (this.isEntitiesInMultipleModules) {
-                entity.addDiagnostic(entity.getLocation(), DiagnosticsCodes.PERSIST_119.getCode(),
+    private void validateEntitiesInMultipleModule(Entity entity) {
+        if (this.entities.isEmpty()) {
+            this.initialModuleContainingEntity = entity.getModule();
+            return;
+        }
+
+        if (this.isEntitiesInMultipleModules) {
+            entity.addDiagnostic(entity.getLocation(), DiagnosticsCodes.PERSIST_119.getCode(),
+                    DiagnosticsCodes.PERSIST_119.getMessage(), DiagnosticsCodes.PERSIST_119.getSeverity());
+            return;
+        }
+
+        if (!this.initialModuleContainingEntity.equals(entity.getModule())) {
+            this.isEntitiesInMultipleModules = true;
+            for (Entity validatedEntity : this.entities.values()) {
+                entity.addDiagnostic(validatedEntity.getLocation(), DiagnosticsCodes.PERSIST_119.getCode(),
                         DiagnosticsCodes.PERSIST_119.getMessage(), DiagnosticsCodes.PERSIST_119.getSeverity());
-            } else {
-                String entityLocation = initialModuleContainingEntity;
-                if (!entityLocation.equals(entity.getModule())) {
-                    this.isEntitiesInMultipleModules = true;
-                    for (Entity entry : this.entities.values()) {
-                        entity.addDiagnostic(entry.getLocation(), DiagnosticsCodes.PERSIST_119.getCode(),
-                                DiagnosticsCodes.PERSIST_119.getMessage(), DiagnosticsCodes.PERSIST_119.getSeverity());
-                    }
-                    entity.addDiagnostic(entity.getLocation(), DiagnosticsCodes.PERSIST_119.getCode(),
-                            DiagnosticsCodes.PERSIST_119.getMessage(), DiagnosticsCodes.PERSIST_119.getSeverity());
-                }
             }
-        } else {
-            initialModuleContainingEntity = moduleName;
+            entity.addDiagnostic(entity.getLocation(), DiagnosticsCodes.PERSIST_119.getCode(),
+                    DiagnosticsCodes.PERSIST_119.getMessage(), DiagnosticsCodes.PERSIST_119.getSeverity());
         }
     }
 
