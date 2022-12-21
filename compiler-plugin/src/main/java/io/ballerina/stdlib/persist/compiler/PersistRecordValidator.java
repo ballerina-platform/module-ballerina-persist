@@ -58,6 +58,7 @@ import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.stdlib.persist.compiler.Constants.Annotations;
 import io.ballerina.stdlib.persist.compiler.Constants.BallerinaTimeTypes;
+import io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes;
 import io.ballerina.stdlib.persist.compiler.Constants.EntityAnnotation;
 import io.ballerina.stdlib.persist.compiler.Constants.RelationAnnotation;
 import io.ballerina.stdlib.persist.compiler.models.Entity;
@@ -412,15 +413,21 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
 
             if (typeNode instanceof BuiltinSimpleNameReferenceNode) {
                 String type = ((BuiltinSimpleNameReferenceNode) typeNode).name().text();
-                if (!isValidSimpleType(type)) {
-                    entity.addDiagnostic(typeNode.location(), DiagnosticsCodes.PERSIST_121.getCode(),
-                            MessageFormat.format(DiagnosticsCodes.PERSIST_121.getMessage(), type),
-                            DiagnosticsCodes.PERSIST_121.getSeverity());
-                    continue;
-                } else {
+                if (isValidSimpleType(type)) {
                     if (validateNonRelationFieldProperties(field, entity, typeNode, isArrayType)) {
                         continue;
                     }
+                } else if (type.equals(BallerinaTypes.BYTE) && isArrayType) {
+                    if (field.isOptional()) {
+                        entity.addDiagnostic(typeNode.location(), DiagnosticsCodes.PERSIST_104.getCode(),
+                                MessageFormat.format(DiagnosticsCodes.PERSIST_104.getMessage(), field.getFieldName()),
+                                DiagnosticsCodes.PERSIST_104.getSeverity());
+                        continue;
+                    }
+                } else {
+                    entity.addDiagnostic(typeNode.location(), DiagnosticsCodes.PERSIST_121.getCode(),
+                            MessageFormat.format(DiagnosticsCodes.PERSIST_121.getMessage(), type),
+                            DiagnosticsCodes.PERSIST_121.getSeverity());
                 }
             } else if (typeNode instanceof QualifiedNameReferenceNode) {
                 // Support only time constructs
@@ -567,7 +574,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                             DiagnosticsCodes.PERSIST_105.getMessage(),
                             DiagnosticsCodes.PERSIST_105.getSeverity());
                 } else if (!((BuiltinSimpleNameReferenceNode) fieldType).name().text()
-                        .equals(Constants.BallerinaTypes.INT)) {
+                        .equals(BallerinaTypes.INT)) {
                     entity.addDiagnostic(fieldType.location(), DiagnosticsCodes.PERSIST_105.getCode(),
                             DiagnosticsCodes.PERSIST_105.getMessage(),
                             DiagnosticsCodes.PERSIST_105.getSeverity());
@@ -833,12 +840,11 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
 
     private boolean isValidSimpleType(String type) {
         switch (type) {
-            case Constants.BallerinaTypes.INT:
-            case Constants.BallerinaTypes.BOOLEAN:
-            case Constants.BallerinaTypes.DECIMAL:
-            case Constants.BallerinaTypes.FLOAT:
-            case Constants.BallerinaTypes.STRING:
-                //todo: Support byte[]
+            case BallerinaTypes.INT:
+            case BallerinaTypes.BOOLEAN:
+            case BallerinaTypes.DECIMAL:
+            case BallerinaTypes.FLOAT:
+            case BallerinaTypes.STRING:
                 return true;
             default:
                 return false;
