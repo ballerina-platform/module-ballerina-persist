@@ -25,12 +25,12 @@ client class ProfileClient {
     private final map<FieldMetadata> fieldMetadata = {
         id: {columnName: "id", 'type: int},
         name: {columnName: "name", 'type: string},
-        "user.id": {columnName: "userId", 'type: int, relation: {entityName: "user", refTable: "Users", refField: "id"}},
-        "user.name": {'type: int, relation: {entityName: "user", refTable: "Users", refField: "name"}}
+        "owner.id": {columnName: "ownerId", 'type: int, relation: {entityName: "owner", refTable: "Owner", refField: "id"}},
+        "owner.name": {'type: int, relation: {entityName: "owner", refTable: "Owner", refField: "name"}}
     };
     private string[] keyFields = ["id"];
     private final map<JoinMetadata> joinMetadata = {
-        user: {entity: User, fieldName: "user", refTable: "Users", refFields: ["id"], joinColumns: ["userId"]}
+        owner: {entity: Owner, fieldName: "owner", refTable: "Owner", refFields: ["id"], joinColumns: ["ownerId"]}
     };
 
     private SQLClient persistClient;
@@ -45,11 +45,11 @@ client class ProfileClient {
     }
 
     remote function create(Profile value) returns Profile|Error {
-        if value.user is User {
-            UserClient userClient = check new UserClient();
-            boolean exists = check userClient->exists(<User>value.user);
+        if value.owner is Owner {
+            OwnerClient ownerClient = check new OwnerClient();
+            boolean exists = check ownerClient->exists(<Owner>value.owner);
             if !exists {
-                value.user = check userClient->create(<User>value.user);
+                value.owner = check ownerClient->create(<Owner>value.owner);
             }
         }
 
@@ -73,10 +73,10 @@ client class ProfileClient {
     remote function update(Profile 'object) returns Error? {
         _ = check self.persistClient.runUpdateQuery('object);
 
-        if 'object["user"] is User {
-            User userEntity = <User>'object["user"];
-            UserClient userClient = check new UserClient();
-            check userClient->update(userEntity);
+        if 'object["owner"] is Owner {
+            Owner ownerEntity = <Owner>'object["owner"];
+            OwnerClient ownerClient = check new OwnerClient();
+            check ownerClient->update(ownerEntity);
         }
     }
 
@@ -102,7 +102,7 @@ client class ProfileClient {
 }
 
 public enum ProfileRelations {
-    UserEntity = "user"
+    owner
 }
 
 public class ProfileStream {

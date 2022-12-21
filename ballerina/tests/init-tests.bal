@@ -16,7 +16,7 @@ function truncate() returns error? {
     _ = check dbClient->execute(`TRUNCATE MedicalItems`);
     _ = check dbClient->execute(`TRUNCATE ComplexTypes`);
     _ = check dbClient->execute(`TRUNCATE Departments`);
-    _ = check dbClient->execute(`TRUNCATE Users`);
+    _ = check dbClient->execute(`TRUNCATE Owner`);
     _ = check dbClient->execute(`TRUNCATE Profiles`);
     _ = check dbClient->execute(`TRUNCATE MultipleAssociations`);
     _ = check dbClient->execute(`TRUNCATE Companies`);
