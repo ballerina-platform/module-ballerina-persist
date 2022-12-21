@@ -446,18 +446,15 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                     }
                 }
             } else if (typeNode instanceof SimpleNameReferenceNode) {
-                // Verify these are fields annotated with @Relation
-                if (field.getRelationAnnotation() != null) {
-                    if (this.entities.containsKey(field.getFieldName())) {
-                        field.setRelationAttachedToValidEntity(true);
-                    } else {
-                        // Have to check all entities present in this module
-                        String attachedEntity = ((SimpleNameReferenceNode) typeNode).name().text();
-                        validateAttachmentType(entity, field, attachedEntity, typeNode.location(),
-                                currentModule);
-                    }
+                field.setValidRelationAttachmentPoint(true);
+                if (this.entities.containsKey(field.getFieldName())) {
+                    field.setRelationAttachedToValidEntity(true);
+                } else {
+                    // Have to check all entities present in this module
+                    String attachedEntity = ((SimpleNameReferenceNode) typeNode).name().text();
+                    validateAttachmentType(entity, field, attachedEntity, typeNode.location(),
+                            currentModule);
                 }
-                // else { todo: Add relevant diagnostics for this case }
             } else if (typeNode instanceof UnionTypeDescriptorNode) {
                 // All other types are invalid.
                 entity.addDiagnostic(typeNode.location(), DiagnosticsCodes.PERSIST_101.getCode(),
@@ -524,15 +521,13 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         }
 
         if (!isValidRecord) {
-            entity.addDiagnostic(location, DiagnosticsCodes.PERSIST_115.getCode(),
-                    MessageFormat.format(DiagnosticsCodes.PERSIST_115.getMessage(), referencedRecordName),
-                    DiagnosticsCodes.PERSIST_115.getSeverity());
-            field.setRelationAttachedToValidEntity(false);
+            entity.addDiagnostic(location, DiagnosticsCodes.PERSIST_135.getCode(),
+                    MessageFormat.format(DiagnosticsCodes.PERSIST_135.getMessage(), referencedRecordName),
+                    DiagnosticsCodes.PERSIST_135.getSeverity());
         } else if (!isEntity) {
             entity.addDiagnostic(location, DiagnosticsCodes.PERSIST_132.getCode(),
                     MessageFormat.format(DiagnosticsCodes.PERSIST_132.getMessage(), referencedRecordName),
                     DiagnosticsCodes.PERSIST_132.getSeverity());
-            field.setRelationAttachedToValidEntity(false);
         } else {
             field.setRelationAttachedToValidEntity(true);
         }
@@ -621,84 +616,27 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
 
     private void validateRelationAnnotation(Entity entity) {
         for (Field validEntityField : entity.getValidEntityFields()) {
-            AnnotationNode relationAnnotation = validEntityField.getRelationAnnotation();
-            if (relationAnnotation == null) {
+            if (!validEntityField.isValidRelationAttachmentPoint()
+                    && validEntityField.getRelationAnnotation() != null) {
+                entity.addDiagnostic(validEntityField.getFieldLocation(), DiagnosticsCodes.PERSIST_117.getCode(),
+                        DiagnosticsCodes.PERSIST_117.getMessage(), DiagnosticsCodes.PERSIST_117.getSeverity());
                 continue;
             }
-            Node typeNode = getReferencedType(validEntityField);
-            String referredEntity;
-            if (!(typeNode instanceof SimpleNameReferenceNode)) {
-                validEntityField.setRelationAttachedToValidEntity(false);
-                entity.addDiagnostic(validEntityField.getRelationAnnotation().location(),
-                        DiagnosticsCodes.PERSIST_117.getCode(), DiagnosticsCodes.PERSIST_117.getMessage(),
-                        DiagnosticsCodes.PERSIST_117.getSeverity());
-                continue;
-            } else {
-                referredEntity = ((SimpleNameReferenceNode) typeNode).name().text();
-            }
-
             if (!validEntityField.isRelationAttachedToValidEntity()) {
                 // Relation annotation type is only validated if not attached properly
                 continue;
             }
-            if (relationAnnotation.annotValue().isEmpty()) {
-                continue;
-            }
-            SeparatedNodeList<MappingFieldNode> fields = relationAnnotation.annotValue().get().fields();
-            for (MappingFieldNode fieldNode : fields) {
-                SpecificFieldNode specificFieldNode = (SpecificFieldNode) fieldNode;
-                // If field is given as token( key: ) or string ("key": )
-                String fieldName = getAnnotationFieldName(specificFieldNode);
-                @SuppressWarnings("OptionalGetWithoutIsPresent")
-                ExpressionNode specificFieldValue = specificFieldNode.valueExpr().get();
-                switch (fieldName) {
-                    case RelationAnnotation.KEY_COLUMNS:
-                        if (specificFieldValue instanceof ListConstructorExpressionNode) {
-                            // todo: Validate for empty list
-                            ListConstructorExpressionNode listConstructorExpressionNode =
-                                    (ListConstructorExpressionNode) specificFieldValue;
-                            SeparatedNodeList<Node> expressions = listConstructorExpressionNode.expressions();
-                            validEntityField.setKeyColumnExpressions(expressions);
-                        } else {
-                            entity.addDiagnostic(specificFieldNode.location(), DiagnosticsCodes.PERSIST_127.getCode(),
-                                    MessageFormat.format(DiagnosticsCodes.PERSIST_127.getMessage(),
-                                            RelationAnnotation.KEY_COLUMNS),
-                                    DiagnosticsCodes.PERSIST_127.getSeverity());
-                        }
-                        break;
-                    case RelationAnnotation.REFERENCE:
-                        if (specificFieldValue instanceof ListConstructorExpressionNode) {
-                            // todo: Validate for empty list
-                            ListConstructorExpressionNode listConstructorExpressionNode =
-                                    (ListConstructorExpressionNode) specificFieldValue;
-                            SeparatedNodeList<Node> expressions = listConstructorExpressionNode.expressions();
-                            validEntityField.setReferenceExpressions(expressions);
-                        } else {
-                            entity.addDiagnostic(specificFieldNode.location(), DiagnosticsCodes.PERSIST_127.getCode(),
-                                    MessageFormat.format(DiagnosticsCodes.PERSIST_127.getMessage(),
-                                            RelationAnnotation.REFERENCE),
-                                    DiagnosticsCodes.PERSIST_127.getSeverity());
-                        }
-                        break;
-                    case RelationAnnotation.ON_DELETE:
-                    case RelationAnnotation.ON_UPDATE:
-                        if (!(specificFieldValue instanceof QualifiedNameReferenceNode) &&
-                                !(specificFieldValue instanceof BasicLiteralNode)) {
-                            entity.addDiagnostic(specificFieldNode.location(), DiagnosticsCodes.PERSIST_127.getCode(),
-                                    MessageFormat.format(DiagnosticsCodes.PERSIST_127.getMessage(), fieldName),
-                                    DiagnosticsCodes.PERSIST_127.getSeverity());
-                        }
-                        break;
-                    default:
-                        // Unreachable call, as relation annotation type descriptor is closed record.
-                        throw new RuntimeException("Unsupported field in @persist:Relation annotation " + fieldName);
-                }
-            }
 
             if (!validEntityField.isOptional()) {
-                entity.addDiagnostic(validEntityField.getRelationAnnotation().location(),
+                entity.addDiagnostic(validEntityField.getFieldLocation(),
                         DiagnosticsCodes.PERSIST_133.getCode(), DiagnosticsCodes.PERSIST_133.getMessage(),
                         DiagnosticsCodes.PERSIST_133.getSeverity());
+                continue;
+            }
+
+            AnnotationNode relationAnnotation = validEntityField.getRelationAnnotation();
+            if (relationAnnotation != null && relationAnnotation.annotValue().isPresent()) {
+                processRelationAnnotation(entity, validEntityField, relationAnnotation.annotValue().get());
             }
 
             SeparatedNodeList<Node> keyColumnExpressions = validEntityField.getKeyColumnExpressions();
@@ -712,6 +650,8 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                         DiagnosticsCodes.PERSIST_109.getSeverity());
             }
 
+            Node typeNode = getReferencedType(validEntityField);
+            String referredEntity = ((SimpleNameReferenceNode) typeNode).name().text();
             if (this.entities.containsKey(referredEntity)) {
                 // Related entity is already process and is available in entities list
                 validateRelations(validEntityField, this.entities.get(referredEntity), entity);
@@ -730,6 +670,64 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                     references.add(validEntityField);
                     this.deferredRelationKeyEntities.put(referredEntity, references);
                 }
+            }
+        }
+    }
+
+    private void processRelationAnnotation(Entity entity, Field validEntityField,
+                                           MappingConstructorExpressionNode relationAnnotation) {
+        SeparatedNodeList<MappingFieldNode> fields = relationAnnotation.fields();
+        for (MappingFieldNode fieldNode : fields) {
+            SpecificFieldNode specificFieldNode = (SpecificFieldNode) fieldNode;
+            // If field is given as token( key: ) or string ("key": )
+            String fieldName = getAnnotationFieldName(specificFieldNode);
+            @SuppressWarnings("OptionalGetWithoutIsPresent")
+            ExpressionNode specificFieldValue = specificFieldNode.valueExpr().get();
+            switch (fieldName) {
+                case RelationAnnotation.KEY_COLUMNS:
+                    if (specificFieldValue instanceof ListConstructorExpressionNode) {
+                        // todo: Validate for empty list
+                        ListConstructorExpressionNode listConstructorExpressionNode =
+                                (ListConstructorExpressionNode) specificFieldValue;
+                        SeparatedNodeList<Node> expressions = listConstructorExpressionNode.expressions();
+                        validEntityField.setKeyColumnExpressions(expressions);
+                    } else {
+                        entity.addDiagnostic(specificFieldNode.location(),
+                                DiagnosticsCodes.PERSIST_127.getCode(),
+                                MessageFormat.format(DiagnosticsCodes.PERSIST_127.getMessage(),
+                                        RelationAnnotation.KEY_COLUMNS),
+                                DiagnosticsCodes.PERSIST_127.getSeverity());
+                    }
+                    break;
+                case RelationAnnotation.REFERENCE:
+                    if (specificFieldValue instanceof ListConstructorExpressionNode) {
+                        // todo: Validate for empty list
+                        ListConstructorExpressionNode listConstructorExpressionNode =
+                                (ListConstructorExpressionNode) specificFieldValue;
+                        SeparatedNodeList<Node> expressions = listConstructorExpressionNode.expressions();
+                        validEntityField.setReferenceExpressions(expressions);
+                    } else {
+                        entity.addDiagnostic(specificFieldNode.location(),
+                                DiagnosticsCodes.PERSIST_127.getCode(),
+                                MessageFormat.format(DiagnosticsCodes.PERSIST_127.getMessage(),
+                                        RelationAnnotation.REFERENCE),
+                                DiagnosticsCodes.PERSIST_127.getSeverity());
+                    }
+                    break;
+                case RelationAnnotation.ON_DELETE:
+                case RelationAnnotation.ON_UPDATE:
+                    if (!(specificFieldValue instanceof QualifiedNameReferenceNode) &&
+                            !(specificFieldValue instanceof BasicLiteralNode)) {
+                        entity.addDiagnostic(specificFieldNode.location(),
+                                DiagnosticsCodes.PERSIST_127.getCode(),
+                                MessageFormat.format(DiagnosticsCodes.PERSIST_127.getMessage(), fieldName),
+                                DiagnosticsCodes.PERSIST_127.getSeverity());
+                    }
+                    break;
+                default:
+                    // Unreachable call, as relation annotation type descriptor is closed record.
+                    throw new RuntimeException("Unsupported field in @persist:Relation annotation " +
+                            fieldName);
             }
         }
     }
@@ -779,13 +777,18 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         }
 
         // one - one relation
-        if ((!referredField.isArrayType() && !annotatedField.isArrayType()) &&
-                (referredField.getRelationAnnotation() != null && annotatedField.getRelationAnnotation() != null)) {
-            reportDiagnosticsEntity.addDiagnostic(annotatedField.getRelationAnnotation().location(),
-                    DiagnosticsCodes.PERSIST_116.getCode(), DiagnosticsCodes.PERSIST_116.getMessage(),
-                    DiagnosticsCodes.PERSIST_116.getSeverity());
+        if (!referredField.isArrayType() && !annotatedField.isArrayType()) {
+            if (referredField.getRelationAnnotation() != null && annotatedField.getRelationAnnotation() != null) {
+                reportDiagnosticsEntity.addDiagnostic(annotatedField.getRelationAnnotation().location(),
+                        DiagnosticsCodes.PERSIST_116.getCode(), DiagnosticsCodes.PERSIST_116.getMessage(),
+                        DiagnosticsCodes.PERSIST_116.getSeverity());
+            }
+            if (referredField.getRelationAnnotation() == null && annotatedField.getRelationAnnotation() == null) {
+                reportDiagnosticsEntity.addDiagnostic(annotatedField.getRelationAnnotation().location(),
+                        DiagnosticsCodes.PERSIST_134.getCode(), DiagnosticsCodes.PERSIST_134.getMessage(),
+                        DiagnosticsCodes.PERSIST_134.getSeverity());
+            }
         }
-
     }
 
     private Node getReferencedType(Field field) {
