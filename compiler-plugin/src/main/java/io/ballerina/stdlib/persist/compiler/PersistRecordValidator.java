@@ -404,15 +404,21 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
 
             if (typeNode instanceof BuiltinSimpleNameReferenceNode) {
                 String type = ((BuiltinSimpleNameReferenceNode) typeNode).name().text();
-                if (!isValidSimpleType(type)) {
-                    entity.addDiagnostic(typeNode.location(), DiagnosticsCodes.PERSIST_121.getCode(),
-                            MessageFormat.format(DiagnosticsCodes.PERSIST_121.getMessage(), type),
-                            DiagnosticsCodes.PERSIST_121.getSeverity());
-                    continue;
-                } else {
+                if (isValidSimpleType(type)) {
                     if (validateNonRelationFieldProperties(field, entity, typeNode, isArrayType)) {
                         continue;
                     }
+                } else if (type.equals(Constants.BallerinaTypes.BYTE) && isArrayType) {
+                    if (field.isOptional()) {
+                        entity.addDiagnostic(typeNode.location(), DiagnosticsCodes.PERSIST_104.getCode(),
+                                MessageFormat.format(DiagnosticsCodes.PERSIST_104.getMessage(), field.getFieldName()),
+                                DiagnosticsCodes.PERSIST_104.getSeverity());
+                        continue;
+                    }
+                } else {
+                    entity.addDiagnostic(typeNode.location(), DiagnosticsCodes.PERSIST_121.getCode(),
+                            MessageFormat.format(DiagnosticsCodes.PERSIST_121.getMessage(), type),
+                            DiagnosticsCodes.PERSIST_121.getSeverity());
                 }
             } else if (typeNode instanceof QualifiedNameReferenceNode) {
                 // Support only time constructs
@@ -830,7 +836,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             case Constants.BallerinaTypes.DECIMAL:
             case Constants.BallerinaTypes.FLOAT:
             case Constants.BallerinaTypes.STRING:
-                //todo: Support byte[]
                 return true;
             default:
                 return false;

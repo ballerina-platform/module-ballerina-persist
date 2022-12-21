@@ -21,5 +21,6 @@ import ballerina/persist;
 }
 public type Profile record  {|
     readonly int id;
+    byte[] profilePicture;
     json name;
 |};
