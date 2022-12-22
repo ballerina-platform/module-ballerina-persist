@@ -38,12 +38,12 @@ import java.nio.file.Paths;
 import java.util.List;
 
 /**
- *
+ * Tests persist compiler plugin.
  */
 public class CompilerPluginTest {
 
     @Test
-    public void testEntityAnnota() {
+    public void testIncrementValue() {
         Path projectPath = Paths.get("src", "test", "resources", "test-src", "package_01").toAbsolutePath();
         BuildProject project = BuildProject.load(projectPath);
         BuildProject project1 = BuildProject.load(
