@@ -45,9 +45,9 @@ import java.util.List;
  */
 public class ExpressionBuilder {
     private final ExpressionNode expressionNode;
+    private final List<String> fieldNames = new ArrayList<>();
     private boolean isCaptureBindingPattern = false;
     private String bindingVariableName = "";
-    private final List<String> fieldNames = new ArrayList<>();
 
     public ExpressionBuilder(ExpressionNode expression, BindingPatternNode bindingPatternNode) {
         this.expressionNode = expression;

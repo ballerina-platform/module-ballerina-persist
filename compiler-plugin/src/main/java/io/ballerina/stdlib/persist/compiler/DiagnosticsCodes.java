@@ -57,8 +57,8 @@ public enum DiagnosticsCodes {
             "does not allow a relation annotation", ERROR),
     PERSIST_118("PERSIST_118", "invalid annotation attachment: the `one-to-many` relation annotation " +
             "can not be attached to the array entity record field", ERROR),
-    PERSIST_119("PERSIST_119", "duplicate entity names are not allowed: the specified name is already " +
-            "used in another entity in [{0}]", ERROR),
+    PERSIST_119("PERSIST_119", "entities are defined in more than one module, " +
+            "move all entities to a single module", WARNING),
     // todo Array of simple type is not supported.
     PERSIST_120("PERSIST_120", "unsupported features: array type is not supported",
             ERROR),

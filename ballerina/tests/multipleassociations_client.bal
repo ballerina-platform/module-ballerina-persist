@@ -27,13 +27,13 @@ client class MultipleAssociationsClient {
         name: {columnName: "name", 'type: string},
         "profile.id": {columnName: "profileId", 'type: int, relation: {entityName: "profile", refTable: "Profiles", refField: "id", refColumnName: "id"}},
         "profile.name": {'type: int, relation: {entityName: "profile", refTable: "Profiles", refField: "name", refColumnName: "name"}},
-        "user.id": {columnName: "userId", 'type: int, relation: {entityName: "user", refTable: "Users", refField: "id", refColumnName: "id"}},
-        "user.name": {'type: int, relation: {entityName: "user", refTable: "Users", refField: "name", refColumnName: "name"}}
+        "owner.id": {columnName: "ownerId", 'type: int, relation: {entityName: "owner", refTable: "Owner", refField: "id", refColumnName: "id"}},
+        "owner.name": {'type: int, relation: {entityName: "owner", refTable: "Owner", refField: "name", refColumnName: "name"}}
     };
     private string[] keyFields = ["id"];
     private final map<JoinMetadata> joinMetadata = {
         profile: {entity: Profile, fieldName: "profile", refTable: "Profiles", refColumns: ["id"], joinColumns: ["profileId"]},
-        user: {entity: User, fieldName: "user", refTable: "Users", refColumns: ["id"], joinColumns: ["userId"]}
+        owner: {entity: Owner, fieldName: "owner", refTable: "Owner", refColumns: ["id"], joinColumns: ["ownerId"]}
     };
 
     private SQLClient persistClient;
@@ -56,11 +56,11 @@ client class MultipleAssociationsClient {
             }
         }
 
-        if value.user is User {
-            UserClient userClient = check new UserClient();
-            boolean exists = check userClient->exists(<User>value.user);
+        if value.owner is Owner {
+            OwnerClient ownerClient = check new OwnerClient();
+            boolean exists = check ownerClient->exists(<Owner>value.owner);
             if !exists {
-                value.user = check userClient->create(<User>value.user);
+                value.owner = check ownerClient->create(<Owner>value.owner);
             }
         }
 
@@ -90,10 +90,10 @@ client class MultipleAssociationsClient {
             check profileClient->update(profileEntity);
         }
 
-        if (<string[]> updateAssociations).indexOf(UserEntity) != () && 'object["user"] is User {
-            User userEntity = <User>'object["user"];
-            UserClient userClient = check new UserClient();
-            check userClient->update(userEntity);
+        if (<string[]> updateAssociations).indexOf(UserEntity) != () && 'object["owner"] is Owner {
+            Owner ownerEntity = <Owner>'object["owner"];
+            OwnerClient ownerClient = check new OwnerClient();
+            check ownerClient->update(ownerEntity);
         }
     }
 
@@ -119,8 +119,8 @@ client class MultipleAssociationsClient {
 }
 
 public enum MultipleAssociationsRelations {
-    ProfileEntity = "profile",
-    UserEntity = "user"
+    profile,
+    owner
 }
 
 public class MultipleAssociationsStream {
