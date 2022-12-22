@@ -30,7 +30,7 @@ import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createEmptyM
  */
 public class Constants {
 
-    Constants() {}
+    private Constants() {}
 
     public static final String PERSIST_MODULE = "persist";
     public static final String TIME_MODULE = "time";
@@ -50,8 +50,7 @@ public class Constants {
      * Constants for annotation names.
      */
     public static class Annotations {
-        Annotations() {
-        }
+        private Annotations() {}
 
         public static final String ENTITY = "Entity";
         public static final String AUTO_INCREMENT = "AutoIncrement";
@@ -61,8 +60,9 @@ public class Constants {
     /**
      * Constant representing Entity annotation descriptor.
      */
-    public static class EntityAnnotation {
-        EntityAnnotation() {
+     static class EntityAnnotation {
+        private EntityAnnotation() {
+
         }
 
         public static final String KEY = "key";
@@ -72,9 +72,8 @@ public class Constants {
     /**
      * Constant representing Relation annotation descriptor.
      */
-    public static class RelationAnnotation {
-        RelationAnnotation(){
-        }
+    static class RelationAnnotation {
+        private RelationAnnotation() {}
 
         public static final String KEY_COLUMNS = "keyColumns";
         public static final String REFERENCE = "reference";
@@ -87,7 +86,7 @@ public class Constants {
      */
     public static final class BallerinaTypes {
 
-        BallerinaTypes() {}
+        private BallerinaTypes() {}
 
         public static final String INT = "int";
         public static final String STRING = "string";
@@ -102,7 +101,7 @@ public class Constants {
      */
     public static final class BallerinaTimeTypes {
 
-        BallerinaTimeTypes() {}
+        private BallerinaTimeTypes() {}
 
         public static final String DATE = "Date";
         public static final String TIME_OF_DAY = "TimeOfDay";
@@ -115,7 +114,7 @@ public class Constants {
      */
     public static final class SQLKeyWords {
 
-        SQLKeyWords() {}
+        private SQLKeyWords() {}
 
         public static final String WHERE = "WHERE";
         public static final String LIMIT = "LIMIT";

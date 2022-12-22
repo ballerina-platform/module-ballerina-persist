@@ -55,24 +55,6 @@ public class CompilerPluginTest {
     }
 
     @Test
-    public void testToInitialiseConstant() {
-        final Constants constants = new Constants();
-        Assert.assertNotNull(constants);
-        final Constants.Annotations annotations = new Constants.Annotations();
-        Assert.assertNotNull(annotations);
-        final Constants.EntityAnnotation entityAnnotation = new Constants.EntityAnnotation();
-        Assert.assertNotNull(entityAnnotation);
-        final Constants.RelationAnnotation relationAnnotation = new Constants.RelationAnnotation();
-        Assert.assertNotNull(relationAnnotation);
-        final Constants.BallerinaTypes ballerinaTypes = new Constants.BallerinaTypes();
-        Assert.assertNotNull(ballerinaTypes);
-        final Constants.BallerinaTimeTypes ballerinaTimeTypes = new Constants.BallerinaTimeTypes();
-        Assert.assertNotNull(ballerinaTimeTypes);
-        final Constants.SQLKeyWords sqlKeyWords = new Constants.SQLKeyWords();
-        Assert.assertNotNull(sqlKeyWords);
-    }
-
-    @Test
     public void testEntityAnnotation1() {
         List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_01", 3, DiagnosticSeverity.ERROR);
         testDiagnostic(
