@@ -39,6 +39,7 @@ public class Field {
     private boolean isReadOnly = false;
     private Node type;
     private NodeLocation typeLocation;
+    private boolean isValidRelationAttachmentPoint = false;
     private boolean isRelationAttachedToValidEntity = false;
     private boolean isOptional = false;
     private boolean isArrayType = false;
@@ -86,6 +87,14 @@ public class Field {
 
     public AnnotationNode getRelationAnnotation() {
         return this.relationAnnotation;
+    }
+
+    public boolean isValidRelationAttachmentPoint() {
+        return isValidRelationAttachmentPoint;
+    }
+
+    public void setValidRelationAttachmentPoint(boolean validRelationAttachmentPoint) {
+        isValidRelationAttachmentPoint = validRelationAttachmentPoint;
     }
 
     public boolean isRelationAttachedToValidEntity() {
