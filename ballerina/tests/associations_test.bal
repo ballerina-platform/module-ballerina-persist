@@ -136,7 +136,7 @@ function oneToOneUpdateTest1() returns error? {
 
     profile.name = "TestUpdatedProfile";
     profile.owner.name = "TestUpdatedOwner";
-    _ = check profileClient->update(profile, [UserEntity]);
+    _ = check profileClient->update(profile, [owner]);
 
     Profile profile2 = check profileClient->readByKey(5, [owner]);
     Profile expectedProfile = {
@@ -170,7 +170,7 @@ function oneToOneUpdateTest2() returns error? {
         id: 4,
         name: "TestUpdatedOwner"
     };
-    _ = check profileClient->update(profile, [UserEntity]);
+    _ = check profileClient->update(profile, [owner]);
 
     Profile profile2 = check profileClient->readByKey(6, [owner]);
     Profile expectedProfile = {
@@ -304,7 +304,7 @@ function oneToManyCreateTest2() returns error? {
     };
     _ = check employeeClient->create(employee2);
 
-    Company company2 = check companyClient->readByKey(2, [EmployeeEntity]);
+    Company company2 = check companyClient->readByKey(2, [employee]);
     test:assertEquals(company2, <Company>{
         id: 2,
         name: "TestCompany2",
@@ -339,7 +339,7 @@ function oneToManyCreateTest3() returns error? {
     };
     _ = check employeeClient->create(employee2);
 
-    check from Company company2 in companyClient->read([EmployeeEntity])
+    check from Company company2 in companyClient->read([employee])
         where company2.id == 3
         do {
             test:assertEquals(company2, <Company>{
@@ -414,8 +414,8 @@ function oneToManyUpdateTest4() returns error? {
 
     employee1.name = "TestEmployeeUpdated8";
     employee1.company.name = "TestCompanyUpdated5";
-    _ = check employeeClient->update(employee1, [CompanyEntity]);
-    Company company2 = check companyClient->readByKey(5, [EmployeeEntity]);
+    _ = check employeeClient->update(employee1, ["company"]);
+    Company company2 = check companyClient->readByKey(5, [employee]);
     test:assertEquals(company2, <Company>{
         id: 5,
         name: "TestCompanyUpdated5",
