@@ -132,18 +132,14 @@ public type Student record {|
     @Relation {
         keyColumns: ["nic"],
         reference: ["code"],
-        joiningTable: {
-            name: "Student_Lecture"
-        }
+        joiningTable: "Student_Lecture"
     }
     Lecture[] lectures?;
 
     @Relation {
         keyColumns: ["nic"], 
         reference: ["subjectId", "paperDate"],
-        joiningTable: {
-            name: "Student_Paper"
-        }
+        joiningTable: "Student_Paper"
     }
     Paper[] papers?;
 |};
@@ -160,9 +156,7 @@ public type Lecture record {|
     @Relation {
         keyColumns: ["code"], 
         reference: ["nic"],
-        joiningTable: {
-            name: "Student_Lecture"
-        }
+        joiningTable: "Student_Lecture"
     }
     Student[] students?;
 |};
@@ -178,9 +172,7 @@ public type Paper record {|
     @Relation {
         keyColumns: ["nic"], 
         reference: ["subjectId", "paperDate"], 
-        joiningTable: {
-            name: "Student_Paper"
-        }
+        joiningTable: "Student_Paper"
     }
     Student[] students?;
 |};

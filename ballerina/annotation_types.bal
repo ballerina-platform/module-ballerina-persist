@@ -51,14 +51,7 @@ public type RelationConfig record {|
     string[] reference?;
     ReferenceAction onDelete?;
     ReferenceAction onUpdate?;
-    JoiningTable joiningTable?;
-|};
-
-# Defines the joining table to be used to maintain many-to-many relations.
-#
-# + name - The names of the joining table
-public type JoiningTable record {|
-    string name;
+    string joiningTable?;
 |};
 
 # Defines the actions that can be taken when deleting or updating the values of the parent entity.
