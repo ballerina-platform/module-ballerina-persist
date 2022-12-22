@@ -315,7 +315,7 @@ public class CompilerPluginTest {
                 errorDiagnosticsList,
                 new String[]{
                         "associated entity does not contain any keys: the 'key' should have a valid value",
-                        "invalid entity initialisation: the associated entity[RecordTest1] is not an entity"
+                        "invalid entity initialisation: the associated record[RecordTest1] is not an entity"
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_123.getCode(),
