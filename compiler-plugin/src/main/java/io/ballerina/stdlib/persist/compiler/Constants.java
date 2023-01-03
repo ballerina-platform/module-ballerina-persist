@@ -60,7 +60,7 @@ public class Constants {
     /**
      * Constant representing Entity annotation descriptor.
      */
-     static class EntityAnnotation {
+    public static class EntityAnnotation {
         private EntityAnnotation() {}
 
         public static final String KEY = "key";
@@ -70,7 +70,7 @@ public class Constants {
     /**
      * Constant representing Relation annotation descriptor.
      */
-    static class RelationAnnotation {
+    public static class RelationAnnotation {
         private RelationAnnotation() {}
 
         public static final String KEY_COLUMNS = "keyColumns";
