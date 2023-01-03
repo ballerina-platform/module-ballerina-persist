@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/sql;
-import ballerina/regex;
 
 # The client used by the generated persist clients to abstract and 
 # execute SQL queries that are required to perform CRUD operations.
@@ -329,13 +328,13 @@ public client class SQLClient {
                 columnCount = columnCount + 1;
             } else if include.indexOf(fieldMetadata.relation.entityName) != () {
                 if !key.includes("[]") {
-                    string fieldName = regex:split(key, "\\.")[0];
+                    string entityName = fieldMetadata.relation.entityName;
                     if columnCount > 0 {
                         params = sql:queryConcat(params, `, `);
                     }
                     params = sql:queryConcat(params, stringToParameterizedQuery(
                         fieldMetadata.relation.entityName + "." + fieldMetadata.relation.refField +
-                        " AS `" + fieldName + "." + fieldMetadata.relation.refField + "`"
+                        " AS `" + entityName + "." + fieldMetadata.relation.refField + "`"
                     ));
                     columnCount = columnCount + 1;
                 }
