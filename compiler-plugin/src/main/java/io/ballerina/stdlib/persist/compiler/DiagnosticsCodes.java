@@ -83,10 +83,13 @@ public enum DiagnosticsCodes {
             "initialized by using the rest field type definition", ERROR),
     PERSIST_131("PERSIST_131", "duplicate key/s exist: ''{0}'' does not allow the multiple same field/s",
             ERROR),
-    PERSIST_132("PERSIST_132", "invalid entity initialisation: the associated entity[{0}] is not " +
+    PERSIST_132("PERSIST_132", "invalid entity initialisation: the associated record[{0}] is not " +
             "an entity", ERROR),
     PERSIST_133("PERSIST_133", "field attached with ''Relation'' annotation must be optional", ERROR),
-
+    PERSIST_134("PERSIST_134", "invalid entity initialisation: the relation annotation must " +
+            " be added to the relationship owner for one-to-one associations", ERROR),
+    PERSIST_135("PERSIST_135", "invalid initialisation: an entity field only supports another entity type",
+            ERROR),
     // todo: Add expression type in the diagnostic message
     PERSIST_201("PERSIST_201",
             "persist client read() function doesn't support this query expression", ERROR),
