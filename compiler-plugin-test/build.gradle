@@ -45,20 +45,6 @@ tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
-sourceCompatibility = JavaVersion.VERSION_11
-
-gradle.projectsEvaluated {
-    // include src from all dependent projects (implementation dependency) in JaCoCo test report
-    jacocoTestReport {
-        // get all projects we have a (implementation) dependency on
-        def projs = configurations.implementation.getAllDependencies().withType(ProjectDependency).collect{it.getDependencyProject()}
-        projs.each {
-            additionalSourceDirs files(it.sourceSets.main.java.srcDirs)
-            additionalClassDirs files(it.sourceSets.main.output)
-        }
-    }
-}
-
 test {
     systemProperty "ballerina.offline.flag", "true"
     useTestNG() {
@@ -81,6 +67,11 @@ test {
 
 jacocoTestReport {
     dependsOn test
+    def projs = configurations.implementation.getAllDependencies().withType(ProjectDependency).collect{it.getDependencyProject()}
+    projs.each {
+        additionalSourceDirs files(it.sourceSets.main.allSource.srcDirs)
+        additionalClassDirs files(it.sourceSets.main.output)
+    }
     reports {
         xml.enabled true
     }

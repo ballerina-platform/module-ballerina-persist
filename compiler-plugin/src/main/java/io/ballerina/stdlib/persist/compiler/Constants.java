@@ -61,9 +61,7 @@ public class Constants {
      * Constant representing Entity annotation descriptor.
      */
      static class EntityAnnotation {
-        private EntityAnnotation() {
-
-        }
+        private EntityAnnotation() {}
 
         public static final String KEY = "key";
         public static final String UNIQUE_CONSTRAINTS = "uniqueConstraints";

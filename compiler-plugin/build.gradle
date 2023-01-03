@@ -19,11 +19,6 @@ plugins {
     id 'java'
     id 'checkstyle'
     id 'com.github.spotbugs'
-    id 'jacoco'
-}
-
-jacoco {
-    toolVersion = "0.8.8"
 }
 
 description = 'Ballerina - Persist Compiler Plugin'
@@ -50,36 +45,6 @@ checkstyle {
 }
 
 checkstyleMain.dependsOn(":checkstyle:downloadCheckstyleRuleFiles")
-
-test {
-    useTestNG() {
-        suites 'src/test/resources/testng.xml'
-    }
-    systemProperties = [
-            "ballerina.home" : "${project.rootDir}/target/ballerina-runtime/",
-            "ballerina.offline.flag": "true"
-    ]
-    testLogging.showStandardStreams = true
-    testLogging {
-        events "PASSED", "FAILED", "SKIPPED"
-        afterSuite { desc, result ->
-            if (!desc.parent) { // will match the outermost suite
-                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
-                def startItem = '|  ', endItem = '  |'
-                def repeatLength = startItem.length() + output.length() + endItem.length()
-                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
-            }
-        }
-    }
-    finalizedBy jacocoTestReport
-}
-
-jacocoTestReport {
-    dependsOn test
-    reports {
-        xml.enabled true
-    }
-}
 
 spotbugsMain {
     effort "max"
