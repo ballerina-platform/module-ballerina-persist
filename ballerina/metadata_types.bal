@@ -60,15 +60,11 @@ public type FieldMetadata SimpleFieldMetadata|ReferentialFieldMetadata|EntityFie
 # Only used by the generated persist clients and `persist:SQLClient`.
 #
 # + entityName - The name of the entity represented in the relation  
-# + refTable - The name of the SQL table, which contains the referenced column 
-# + refField - The name of the field in the `entityName` that is referenced
-# + refColumnName - The name of the referenced column in the SQL table
+# + refField - The name of the referenced column in the SQL table
 
 public type RelationMetadata record {|
     string entityName;
-    string refTable;
     string refField;
-    string refColumnName;
 |};
 
 # Represents the metadata associated with performing an SQL `JOIN` operation.

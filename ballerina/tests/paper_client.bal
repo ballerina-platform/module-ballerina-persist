@@ -27,11 +27,11 @@ client class PaperClient {
         subjectId: {columnName: "subjectId", 'type: int},
         paperDate: {columnName: "paperDate", 'type: time:Date},
         title: {columnName: "title", 'type: string},
-        "students[].nic": {'type: int, relation: {entityName: "student", refTable: "Student", refField: "nic", refColumnName: "nic"}},
-        "students[].firstName": {'type: string, relation: {entityName: "student", refTable: "Student", refField: "firstName", refColumnName: "firstName"}},
-        "students[].lastName": {'type: string, relation: {entityName: "student", refTable: "Student", refField: "lastName", refColumnName: "lastName"}},
-        "students[].dob": {'type: time:Date, relation: {entityName: "student", refTable: "Student", refField: "dob", refColumnName: "dob"}},
-        "students[].contact": {'type: string, relation: {entityName: "student", refTable: "Student", refField: "contact", refColumnName: "contact"}}
+        "students[].nic": {'type: int, relation: {entityName: "student", refField: "nic"}},
+        "students[].firstName": {'type: string, relation: {entityName: "student", refField: "firstName"}},
+        "students[].lastName": {'type: string, relation: {entityName: "student", refField: "lastName"}},
+        "students[].dob": {'type: time:Date, relation: {entityName: "student", refField: "dob"}},
+        "students[].contact": {'type: string, relation: {entityName: "student", refField: "contact"}}
     };
     private string[] keyFields = ["subjectId", "paperDate"];
     private final map<JoinMetadata> joinMetadata = {

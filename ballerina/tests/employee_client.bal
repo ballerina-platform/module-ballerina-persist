@@ -25,14 +25,14 @@ client class EmployeeClient {
     private final map<FieldMetadata> fieldMetadata = {
         id: {columnName: "id", 'type: int},
         name: {columnName: "name", 'type: string},
-        "company.id": {columnName: "companyId", 'type: int, relation: {entityName: "company", refTable: "Companies", refField: "id", refColumnName: "id"}},
-        "company.name": {'type: string, relation: {entityName: "company", refTable: "Companies", refField: "name", refColumnName: "name"}}
+        "company.id": {columnName: "companyId", 'type: int, relation: {entityName: "company", refField: "id"}},
+        "company.name": {'type: string, relation: {entityName: "company", refField: "name"}}
     };
     private string[] keyFields = ["id"];
     private final map<JoinMetadata> joinMetadata = {
         company: {entity: Company, fieldName: "company", refTable: "Companies", refColumns: ["id"], joinColumns: ["companyId"], 'type: ONE_TO_MANY}
     };
-
+ 
     private SQLClient persistClient;
 
     public function init() returns Error? {

@@ -29,13 +29,13 @@ client class StudentClient {
         lastName: {columnName: "lastName", 'type: string},
         dob: {columnName: "dob", 'type: time:Date},
         contact: {columnName: "contact", 'type: string},
-        "lectures[].code": {'type: int, relation: {entityName: "lecture", refTable: "Lecture", refField: "code", refColumnName: "code"}},
-        "lectures[].subject": {'type: string, relation: {entityName: "lecture", refTable: "Lecture", refField: "subject", refColumnName: "subject"}},
-        "lectures[].day": {'type: string, relation: {entityName: "lecture", refTable: "Lecture", refField: "day", refColumnName: "day"}},
-        "lectures[].time": {'type: string, relation: {entityName: "lecture", refTable: "Lecture", refField: "time", refColumnName: "time"}},
-        "papers[].subjectId": {'type: int, relation: {entityName: "paper", refTable: "Paper", refField: "subjectId", refColumnName: "subjectId"}},
-        "papers[].paperDate": {'type: time:Date, relation: {entityName: "paper", refTable: "Paper", refField: "paperDate", refColumnName: "paperDate"}},
-        "papers[].title": {'type: string, relation: {entityName: "paper", refTable: "Paper", refField: "title", refColumnName: "title"}}
+        "lectures[].code": {'type: int, relation: {entityName: "lecture", refField: "code"}},
+        "lectures[].subject": {'type: string, relation: {entityName: "lecture", refField: "subject"}},
+        "lectures[].day": {'type: string, relation: {entityName: "lecture", refField: "day"}},
+        "lectures[].time": {'type: string, relation: {entityName: "lecture", refField: "time"}},
+        "papers[].subjectId": {'type: int, relation: {entityName: "paper", refField: "subjectId"}},
+        "papers[].paperDate": {'type: time:Date, relation: {entityName: "paper", refField: "paperDate"}},
+        "papers[].title": {'type: string, relation: {entityName: "paper", refField: "title"}}
     };
     private string[] keyFields = ["nic"];
     private final map<JoinMetadata> joinMetadata = {

@@ -25,10 +25,10 @@ client class MultipleAssociationsClient {
     private final map<FieldMetadata> fieldMetadata = {
         id: {columnName: "id", 'type: int},
         name: {columnName: "name", 'type: string},
-        "profile.id": {columnName: "profileId", 'type: int, relation: {entityName: "profile", refTable: "Profiles", refField: "id", refColumnName: "id"}},
-        "profile.name": {'type: int, relation: {entityName: "profile", refTable: "Profiles", refField: "name", refColumnName: "name"}},
-        "owner.id": {columnName: "ownerId", 'type: int, relation: {entityName: "owner", refTable: "Owner", refField: "id", refColumnName: "id"}},
-        "owner.name": {'type: int, relation: {entityName: "owner", refTable: "Owner", refField: "name", refColumnName: "name"}}
+        "profile.id": {columnName: "profileId", 'type: int, relation: {entityName: "profile", refField: "id"}},
+        "profile.name": {'type: int, relation: {entityName: "profile", refField: "name"}},
+        "owner.id": {columnName: "ownerId", 'type: int, relation: {entityName: "owner", refField: "id"}},
+        "owner.name": {'type: int, relation: {entityName: "owner", refField: "name"}}
     };
     private string[] keyFields = ["id"];
     private final map<JoinMetadata> joinMetadata = {

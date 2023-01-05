@@ -25,8 +25,8 @@ client class CompanyClient {
     private final map<FieldMetadata> fieldMetadata = {
         id: {columnName: "id", 'type: int},
         name: {columnName: "name", 'type: string},
-        "employees[].id": {'type: int, relation: {entityName: "employee", refTable: "Employees", refField: "id", refColumnName: "id"}},
-        "employees[].name": {'type: string, relation: {entityName: "employee", refTable: "Employees", refField: "name", refColumnName: "name"}}
+        "employees[].id": {'type: int, relation: {entityName: "employee", refField: "id"}},
+        "employees[].name": {'type: string, relation: {entityName: "employee", refField: "name"}}
     };
     private string[] keyFields = ["id"];
     private final map<JoinMetadata> joinMetadata = {

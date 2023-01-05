@@ -25,8 +25,8 @@ client class OwnerClient {
     private final map<FieldMetadata> fieldMetadata = {
         id: {columnName: "id", 'type: int},
         name: {columnName: "name", 'type: string},
-        "profile.id": {'type: int, relation: {entityName: "profile", refTable: "Profiles", refField: "id", refColumnName: "id"}},
-        "profile.name": {'type: string, relation: {entityName: "profile", refTable: "Profiles", refField: "name", refColumnName: "name"}}
+        "profile.id": {'type: int, relation: {entityName: "profile", refField: "id"}},
+        "profile.name": {'type: string, relation: {entityName: "profile", refField: "name"}}
     };
     private string[] keyFields = ["id"];
     private final map<JoinMetadata> joinMetadata = {

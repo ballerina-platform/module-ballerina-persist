@@ -117,7 +117,7 @@ public client class SQLClient {
     public isolated function runReadQuery(typedesc<record {}> rowType, string[] include = [])
     returns stream<record {}, sql:Error?>|Error {
         sql:ParameterizedQuery query = sql:queryConcat(
-            `SELECT `, self.getSelectColumnNames(include), ` FROM `, self.tableName, stringToParameterizedQuery(" " + self.entityName)
+            `SELECT `, self.getSelectColumnNames(include), ` FROM `, self.tableName, ` `, stringToParameterizedQuery(self.entityName)
         );
 
         string[] joinKeys = self.joinMetadata.keys();
@@ -330,13 +330,12 @@ public client class SQLClient {
                 columnCount = columnCount + 1;
             } else if include.indexOf(fieldMetadata.relation.entityName) != () {
                 if !key.includes("[]") {
-                    string entityName = fieldMetadata.relation.entityName;
                     if columnCount > 0 {
                         params = sql:queryConcat(params, `, `);
                     }
                     params = sql:queryConcat(params, stringToParameterizedQuery(
-                        fieldMetadata.relation.entityName + "." + fieldMetadata.relation.refField +
-                        " AS `" + entityName + "." + fieldMetadata.relation.refField + "`"
+                        fieldMetadata.relation.entityName + "." + fieldMetadata.relation.refField + 
+                        " AS `" + fieldMetadata.relation.entityName + "." + fieldMetadata.relation.refField + "`"
                     ));
                     columnCount = columnCount + 1;
                 }
@@ -364,9 +363,8 @@ public client class SQLClient {
                 params = sql:queryConcat(params, `, `);
             }
 
-            string fieldName = fieldMetadata.relation.refField;
-            string columnName = fieldMetadata.relation.refColumnName;
-            params = sql:queryConcat(params, stringToParameterizedQuery(columnName + " AS " + fieldName));
+            string columnName = fieldMetadata.relation.refField;
+            params = sql:queryConcat(params, stringToParameterizedQuery(columnName));
             columnCount = columnCount + 1;
         }
         return params;
@@ -519,13 +517,12 @@ public client class SQLClient {
                             }
 
                             // TODO: remove check since column name and field name is the same
-                            if refKey.includes(fieldName + "[]") && fieldMetadata.relation.refColumnName == refColumn {
+                            if refKey == string `${fieldName}[].${refColumn}` {
                                 values.push(<sql:Value>row[fieldMetadata.relation.refField]); // values.push(student.lectures[i].code)
                             }
                         }
                     }
                     joinTableValues.push(values);
-                    //[["s1", "l1"], ["s2", "l2"]
                 }
 
                 sql:ParameterizedQuery[] sqlQueries =
