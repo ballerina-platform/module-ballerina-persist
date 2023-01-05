@@ -181,7 +181,7 @@ public class StudentStream {
                 return <Error>error(streamValue.message());
             } else {
                 record {|Student value;|} nextRecord = {value: <Student>streamValue.value};
-                // TODO: improve performance by minimizing #queries executed
+                // TODO: Future improvement - performance improvement by minimizing #queries executed
                 check (<SQLClient>self.persistClient).getManyRelations(nextRecord.value, <StudentRelations[]>self.include);
                 return nextRecord;
             }

@@ -202,7 +202,6 @@ public client class SQLClient {
 
             if include.indexOf(joinKey) != () && (joinMetadata.'type == MANY_TO_ONE || joinMetadata.'type == MANY_TO_MANY) {
                 if joinMetadata.'type == MANY_TO_ONE {
-                    // 1-m relation
                     map<string> whereFilter = {};
                     foreach int i in 0 ..< joinMetadata.refColumns.length() {
                         whereFilter[joinMetadata.refColumns[i]] = 'object[check self.getFieldFromColumn(joinMetadata.joinColumns[i])].toBalString();
@@ -214,17 +213,15 @@ public client class SQLClient {
                         ` WHERE`, check self.getWhereClauses(whereFilter, true)
                     );
                 } else {
-                    // m-n relation
                     string joinTable = <string>joinMetadata.joinTable;
-                    string[] joiningRefColumns = <string[]>joinMetadata.joiningRefColumns; // student_nic
-                    string[] joiningJoinColumns = <string[]>joinMetadata.joiningJoinColumns; // nic
+                    string[] joiningRefColumns = <string[]>joinMetadata.joiningRefColumns;
+                    string[] joiningJoinColumns = <string[]>joinMetadata.joiningJoinColumns;
 
-                    sql:ParameterizedQuery whereFields = arrayToParameterizedQuery(joinMetadata.refColumns); // code
-                    sql:ParameterizedQuery joinSelectColumns = arrayToParameterizedQuery(joinMetadata.joinColumns); // lecture_code
+                    sql:ParameterizedQuery whereFields = arrayToParameterizedQuery(joinMetadata.refColumns);
+                    sql:ParameterizedQuery joinSelectColumns = arrayToParameterizedQuery(joinMetadata.joinColumns);
 
                     map<string> innerWhereFilter = {};
                     foreach int i in 0 ..< joiningRefColumns.length() {
-                        // {student_nic: xxx}
                         innerWhereFilter[joiningRefColumns[i]] = 'object[check self.getFieldFromColumn(joiningJoinColumns[i])].toString();
                     }
 
@@ -236,7 +233,6 @@ public client class SQLClient {
                             ` FROM `, stringToParameterizedQuery(joinTable),
                             ` WHERE`, check self.getWhereClauses(innerWhereFilter, true),
                         `)`
-                        // SELECT * FROM Lectures WHERE (code) IN (SELECT lecture_code FROM Student_Lecture WHERE student_nic = xxx)
                     );
                 }
 
@@ -416,7 +412,6 @@ public client class SQLClient {
                 continue;
             }
 
-            // If the column is associated with a relation, check whether that association should be updated
             if fieldMetadata is ReferentialFieldMetadata && updateAssociations.indexOf(key) != () {
                 continue;
             }
@@ -485,20 +480,18 @@ public client class SQLClient {
             JoinMetadata joinMetadata = self.joinMetadata.get(key);
             string fieldName = joinMetadata.fieldName;
 
-            // Check whether the relation is m-n and whether the field is populated
-            if joinMetadata.joinTable is string && 'object[fieldName] is record {}[] {
+            if joinMetadata.'type is MANY_TO_MANY && 'object[fieldName] is record {}[] {
                 string joinTable = <string>joinMetadata.joinTable;
-                string[] joiningJoinColumns = <string[]>joinMetadata.joiningJoinColumns; // nic
-                string[] joiningRefColumns = <string[]>joinMetadata.joiningRefColumns;  // student_nic
-                string[] joinColumns = <string[]>joinMetadata.joinColumns; // lecture_code
-                string[] refColumns = <string[]>joinMetadata.refColumns; // code
+                string[] joiningJoinColumns = <string[]>joinMetadata.joiningJoinColumns;
+                string[] joiningRefColumns = <string[]>joinMetadata.joiningRefColumns;
+                string[] joinColumns = <string[]>joinMetadata.joinColumns;
+                string[] refColumns = <string[]>joinMetadata.refColumns;
 
-                record {}[] toBeInserted = <record {}[]>'object[fieldName]; // student.lectures[]
-                string[] insertColumns = [...joiningRefColumns, ...joinColumns]; // [student_nic, lecture_code]
-                sql:Value[] lhsColumnsValues = []; // values corresponding to `joiningRefColumns` (student_nic)
-                sql:Value[][] joinTableValues = []; // values to be inserted to the joining table [student_nic, lecture_code][]
+                record {}[] toBeInserted = <record {}[]>'object[fieldName];
+                string[] insertColumns = [...joiningRefColumns, ...joinColumns];
+                sql:Value[] lhsColumnsValues = [];
+                sql:Value[][] joinTableValues = [];
 
-                // Populate lhsColumnValues
                 foreach string joiningJoinColumn in joiningJoinColumns {
                     foreach string joinKey in self.fieldMetadata.keys() {
                         FieldMetadata fieldMetadata = self.fieldMetadata.get(joinKey);
@@ -508,7 +501,6 @@ public client class SQLClient {
                     }
                 }
 
-                // Populate joinTableValues
                 foreach record {} row in toBeInserted {
                     sql:Value[] values = [...lhsColumnsValues];
                     foreach string refColumn in refColumns {
@@ -518,9 +510,8 @@ public client class SQLClient {
                                 continue;
                             }
 
-                            // TODO: remove check since column name and field name is the same
                             if refKey == string `${fieldName}[].${refColumn}` {
-                                values.push(<sql:Value>row[fieldMetadata.relation.refField]); // values.push(student.lectures[i].code)
+                                values.push(<sql:Value>row[fieldMetadata.relation.refField]);
                             }
                         }
                     }
@@ -534,7 +525,6 @@ public client class SQLClient {
                         ` (`, arrayToParameterizedQuery(insertColumns), `) `,
                         `VALUES (`, arrayToParameterizedQuery(row, false), `)`
                     );
-                    // INSERT INTO Student_Lectrues (student_nic, lecture_code) VALUES ("2384", "sdf")
 
                 sql:ExecutionResult[]|sql:Error result = self.dbClient->batchExecute(sqlQueries);
 
@@ -552,7 +542,7 @@ public client class SQLClient {
             }
 
             JoinMetadata joinMetadata = self.joinMetadata.get(key);
-            if joinMetadata.joinTable is string {
+            if joinMetadata.'type is MANY_TO_MANY {
 
                 string joinTable = <string>joinMetadata.joinTable;
                 string[] joiningJoinColumns = <string[]>joinMetadata.joiningJoinColumns;
