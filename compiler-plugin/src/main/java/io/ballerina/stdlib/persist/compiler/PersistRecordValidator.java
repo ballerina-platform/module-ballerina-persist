@@ -775,7 +775,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                         DiagnosticsCodes.PERSIST_116.getSeverity());
             }
             if (referredField.getRelationAnnotation() == null && annotatedField.getRelationAnnotation() == null) {
-                reportDiagnosticsEntity.addDiagnostic(annotatedField.getRelationAnnotation().location(),
+                reportDiagnosticsEntity.addDiagnostic(annotatedField.getFieldLocation(),
                         DiagnosticsCodes.PERSIST_134.getCode(), DiagnosticsCodes.PERSIST_134.getMessage(),
                         DiagnosticsCodes.PERSIST_134.getSeverity());
             }

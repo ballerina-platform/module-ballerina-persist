@@ -20,6 +20,11 @@ plugins {
     id 'java'
     id 'checkstyle'
     id 'com.github.spotbugs'
+    id 'jacoco'
+}
+
+jacoco {
+    toolVersion = "0.8.6"
 }
 
 description = 'Ballerina - Persist Compiler Plugin Test'
@@ -40,8 +45,6 @@ tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
-sourceCompatibility = JavaVersion.VERSION_11
-
 test {
     systemProperty "ballerina.offline.flag", "true"
     useTestNG() {
@@ -58,6 +61,19 @@ test {
                 println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
             }
         }
+    }
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    dependsOn test
+    def projs = configurations.implementation.getAllDependencies().withType(ProjectDependency).collect{it.getDependencyProject()}
+    projs.each {
+        additionalSourceDirs files(it.sourceSets.main.allSource.srcDirs)
+        additionalClassDirs files(it.sourceSets.main.output)
+    }
+    reports {
+        xml.enabled true
     }
 }
 

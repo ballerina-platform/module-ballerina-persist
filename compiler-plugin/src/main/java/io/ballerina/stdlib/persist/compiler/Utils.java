@@ -40,6 +40,8 @@ import static io.ballerina.stdlib.persist.compiler.Constants.READ_FUNCTION;
  */
 public class Utils {
 
+    private Utils() {}
+
     protected static String eliminateDoubleQuotes(String text) {
         return text.substring(1, text.length() - 1);
     }
