@@ -77,7 +77,7 @@ public type Owner record {|
 public type Profile record {|
     readonly int id;
     string name;
-    @Relation {keyColumns: ["userId"], reference: ["id"]}
+    @Relation {fields: ["ownerId"], referencedFields: ["id"]}
     Owner owner?;
     MultipleAssociations multipleAssociations?;
 |};
@@ -89,10 +89,10 @@ public type MultipleAssociations record {|
     readonly int id;
     string name;
 
-    @Relation {keyColumns: ["profileId"], reference: ["id"]}
+    @Relation {fields: ["profileId"], referencedFields: ["id"]}
     Profile profile?;
 
-    @Relation {keyColumns: ["userId"], reference: ["id"]}
+    @Relation {fields: ["userId"], referencedFields: ["id"]}
     Owner owner?;
 |};
 
@@ -113,7 +113,7 @@ public type Employee record {|
     readonly int id;
     string name;
 
-    @Relation {keyColumns: ["companyId"], reference: ["id"]}
+    @Relation {fields: ["companyId"], referencedFields: ["id"]}
     Company company?;
 |};
 
@@ -130,16 +130,12 @@ public type Student record {|
     string contact;
 
     @Relation {
-        keyColumns: ["nic"],
-        reference: ["code"],
-        joiningTable: "Student_Lecture"
+        name: "joinStudentLecture"
     }
     Lecture[] lectures?;
 
     @Relation {
-        keyColumns: ["nic"], 
-        reference: ["subjectId", "paperDate"],
-        joiningTable: "Student_Paper"
+        name: "joinStudentPaper"
     }
     Paper[] papers?;
 |};
@@ -154,9 +150,7 @@ public type Lecture record {|
     time:TimeOfDay time;
 
     @Relation {
-        keyColumns: ["code"], 
-        reference: ["nic"],
-        joiningTable: "Student_Lecture"
+        name: "joinStudentLecture"
     }
     Student[] students?;
 |};
@@ -170,9 +164,7 @@ public type Paper record {|
     string title;
     
     @Relation {
-        keyColumns: ["nic"], 
-        reference: ["subjectId", "paperDate"], 
-        joiningTable: "Student_Paper"
+        name: "joinStudentPaper"
     }
     Student[] students?;
 |};

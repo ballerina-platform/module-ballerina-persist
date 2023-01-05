@@ -23,9 +23,9 @@ function truncate() returns error? {
     _ = check dbClient->execute(`TRUNCATE Employees`);
     _ = check dbClient->execute(`TRUNCATE Student`);
     _ = check dbClient->execute(`TRUNCATE Lecture`);
-    _ = check dbClient->execute(`TRUNCATE Student_Lecture`);
+    _ = check dbClient->execute(`TRUNCATE joinStudentLecture`);
     _ = check dbClient->execute(`TRUNCATE Paper`);
-    _ = check dbClient->execute(`TRUNCATE Student_Paper`);
+    _ = check dbClient->execute(`TRUNCATE joinStudentPaper`);
     _ = check dbClient->execute(`SET FOREIGN_KEY_CHECKS = 1`);
     check dbClient.close();
 }

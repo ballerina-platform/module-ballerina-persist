@@ -35,7 +35,7 @@ client class PaperClient {
     };
     private string[] keyFields = ["subjectId", "paperDate"];
     private final map<JoinMetadata> joinMetadata = {
-        students: {entity: Student, fieldName: "students", refTable: "Student", refColumns: ["nic"], joinColumns: ["student_nic"], joinTable: "Student_Paper", joiningJoinColumns: ["subjectId", "paperDate"], joiningRefColumns: ["paper_subjectId", "paper_paperDate"], 'type: MANY_TO_MANY}
+        students: {entity: Student, fieldName: "students", refTable: "Student", refColumns: ["nic"], joinColumns: ["student_nic"], joinTable: "joinStudentPaper", joiningJoinColumns: ["subjectId", "paperDate"], joiningRefColumns: ["paper_subjectId", "paper_paperDate"], 'type: MANY_TO_MANY}
     };
 
     private SQLClient persistClient;

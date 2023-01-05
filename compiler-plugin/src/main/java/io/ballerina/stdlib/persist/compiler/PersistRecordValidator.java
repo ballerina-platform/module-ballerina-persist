@@ -698,7 +698,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                                 DiagnosticsCodes.PERSIST_127.getSeverity());
                     }
                     break;
-                case RelationAnnotation.REFERENCE:
+                case RelationAnnotation.REFERENCED_FIELDS:
                     if (specificFieldValue instanceof ListConstructorExpressionNode) {
                         // todo: Validate for empty list
                         ListConstructorExpressionNode listConstructorExpressionNode =
@@ -709,7 +709,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                         entity.addDiagnostic(specificFieldNode.location(),
                                 DiagnosticsCodes.PERSIST_127.getCode(),
                                 MessageFormat.format(DiagnosticsCodes.PERSIST_127.getMessage(),
-                                        RelationAnnotation.REFERENCE),
+                                        RelationAnnotation.REFERENCED_FIELDS),
                                 DiagnosticsCodes.PERSIST_127.getSeverity());
                     }
                     break;

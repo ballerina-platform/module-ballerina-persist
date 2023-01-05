@@ -557,8 +557,8 @@ public class CompilerPluginTest {
                         "invalid initialization: auto increment is only allowed for primary key field",
                         "'startValue ' field only allows inline initialisation",
                         "'increment' field only allows inline initialisation",
-                        "'keyColumns' field only allows inline initialisation",
-                        "'reference' field only allows inline initialisation",
+                        "'fields' field only allows inline initialisation",
+                        "'referencedFields' field only allows inline initialisation",
                         "invalid entity initialisation: the associated entity[Post] does not have the field " +
                                 "with the relationship type",
                 },

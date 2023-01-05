@@ -36,7 +36,7 @@ client class LectureClient {
     };
     private string[] keyFields = ["code"];
     private final map<JoinMetadata> joinMetadata = {
-        students: {entity: Student, fieldName: "students", refTable: "Student", refColumns: ["nic"], joinColumns: ["student_nic"], joinTable: "Student_Lecture", joiningJoinColumns: ["code"], joiningRefColumns: ["lecture_code"], 'type: MANY_TO_MANY}
+        students: {entity: Student, fieldName: "students", refTable: "Student", refColumns: ["nic"], joinColumns: ["student_nic"], joinTable: "joinStudentLecture", joiningJoinColumns: ["code"], joiningRefColumns: ["lecture_code"], 'type: MANY_TO_MANY}
     };
 
     private SQLClient persistClient;

@@ -74,8 +74,8 @@ public class Constants {
         private RelationAnnotation(){
         }
 
-        public static final String KEY_COLUMNS = "keyColumns";
-        public static final String REFERENCE = "reference";
+        public static final String KEY_COLUMNS = "fields";
+        public static final String REFERENCED_FIELDS = "referencedFields";
         public static final String ON_DELETE = "onDelete";
         public static final String ON_UPDATE = "onUpdate";
     }

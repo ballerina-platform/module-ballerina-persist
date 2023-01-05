@@ -39,20 +39,21 @@ public type AutoIncrementConfig record {|
 # The annotation used to indicate an auto-increment field.
 public annotation AutoIncrementConfig AutoIncrement on record field;
 
-# Defines the configuration to represent the association between two entities.
+# Defines a relationship between two entities.
 #
-# + keyColumns - The names of the foreign key columns of the SQL table used in the association
-# + reference - The names of the fields of the other entity, which are referenced by the `keyColumns`
-# + onDelete - The action to be taken when the referenced value in the parent entity is deleted
-# + onUpdate - The action to be taken when the referenced value in the parent entity is updated
-# + joiningTable - The details of the joining table to be used in a many-to-many relation
+# + name - specify the name of the relationship 
+# + fields - a list of fields of the current record 
+# + referencedFields - a list of fields of the referenced record 
+# + onDelete - enforced referential action on delete 
+# + onUpdate - enforced referential action on delete
 public type RelationConfig record {|
-    string[] keyColumns?;
-    string[] reference?;
-    ReferenceAction onDelete?;
-    ReferenceAction onUpdate?;
-    string joiningTable?;
+   string name?;
+   string[] fields?;
+   string[] referencedFields?;
+   ReferenceAction onDelete?;
+   ReferenceAction onUpdate?;
 |};
+
 
 # Defines the actions that can be taken when deleting or updating the values of the parent entity.
 public enum ReferenceAction {

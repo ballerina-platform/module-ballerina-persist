@@ -78,7 +78,7 @@ CREATE TABLE test.Lecture (
     day VARCHAR(10)
 );
 
-CREATE TABLE test.Student_Lecture (
+CREATE TABLE test.joinStudentLecture (
     student_nic VARCHAR(15),
     lecture_code VARCHAR(5),
     PRIMARY KEY(student_nic, lecture_code)
@@ -91,7 +91,7 @@ CREATE TABLE test.Paper (
     PRIMARY KEY(subjectId, paperDate)
 );
 
-CREATE TABLE test.Student_Paper (
+CREATE TABLE test.joinStudentPaper (
     student_nic VARCHAR(15),
     paper_subjectId INTEGER,
     paper_paperDate date,

@@ -20,7 +20,7 @@ import ballerina/persist;
 public type User record  {|
  readonly int id;
  string name;
- @persist:Relation {keyColumns: ["postId"], reference: ["id"]}
+ @persist:Relation {fields: ["postId"], referencedFields: ["id"]}
  Post[] posts?;
 |};
 

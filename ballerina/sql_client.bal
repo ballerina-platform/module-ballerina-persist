@@ -144,8 +144,10 @@ public client class SQLClient {
         if self.joinMetadata.length() != 0 {
             return <UnsupportedOperationError>error("Advanced queries are not supported for entities with relations.");
         }
-        sql:ParameterizedQuery query = sql:queryConcat(`SELECT `, self.getSelectColumnNames(include), ` FROM `,
-        self.tableName, ` AS `, stringToParameterizedQuery(self.entityName), filterClause);
+        sql:ParameterizedQuery query = sql:queryConcat(
+            `SELECT `, self.getSelectColumnNames(include),
+            ` FROM `, self.tableName, ` AS `, stringToParameterizedQuery(self.entityName), 
+            filterClause);
         return self.dbClient->query(query, rowType);
     }
 
