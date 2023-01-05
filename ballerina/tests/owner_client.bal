@@ -30,7 +30,7 @@ client class OwnerClient {
     };
     private string[] keyFields = ["id"];
     private final map<JoinMetadata> joinMetadata = {
-        profile: {entity: Profile, fieldName: "profile", refTable: "Profiles", refColumns: ["ownerId"], joinColumns: ["id"]}
+        profile: {entity: Profile, fieldName: "profile", refTable: "Profiles", refColumns: ["ownerId"], joinColumns: ["id"], 'type: ONE_TO_ONE}
     };
 
     private SQLClient persistClient;

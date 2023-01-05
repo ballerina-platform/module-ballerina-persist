@@ -39,8 +39,8 @@ client class StudentClient {
     };
     private string[] keyFields = ["nic"];
     private final map<JoinMetadata> joinMetadata = {
-        lectures: {entity: Lecture, fieldName: "lectures", refTable: "Lecture", refColumns: ["code"], joinColumns: ["lecture_code"], joinTable: "Student_Lecture", joiningJoinColumns: ["nic"], joiningRefColumns: ["student_nic"], 'type: MANY},
-        papers: {entity: Paper, fieldName: "papers", refTable: "Paper", refColumns: ["subjectId", "paperDate"], joinColumns: ["paper_subjectId", "paper_paperDate"], joinTable: "Student_Paper", joiningJoinColumns: ["nic"], joiningRefColumns: ["student_nic"], 'type: MANY}
+        lectures: {entity: Lecture, fieldName: "lectures", refTable: "Lecture", refColumns: ["code"], joinColumns: ["lecture_code"], joinTable: "Student_Lecture", joiningJoinColumns: ["nic"], joiningRefColumns: ["student_nic"], 'type: MANY_TO_MANY},
+        papers: {entity: Paper, fieldName: "papers", refTable: "Paper", refColumns: ["subjectId", "paperDate"], joinColumns: ["paper_subjectId", "paper_paperDate"], joinTable: "Student_Paper", joiningJoinColumns: ["nic"], joiningRefColumns: ["student_nic"], 'type: MANY_TO_MANY}
     };
 
     private SQLClient persistClient;
@@ -55,6 +55,7 @@ client class StudentClient {
     }
 
     remote function create(Student value) returns Student|Error {
+        //TODO: Future improvement - perform batch insertion
         if value.lectures is Lecture[] {
             LectureClient lectureClient = check new LectureClient();
             Lecture[] insertedEntities = [];
@@ -180,6 +181,7 @@ public class StudentStream {
                 return <Error>error(streamValue.message());
             } else {
                 record {|Student value;|} nextRecord = {value: <Student>streamValue.value};
+                // TODO: improve performance by minimizing #queries executed
                 check (<SQLClient>self.persistClient).getManyRelations(nextRecord.value, <StudentRelations[]>self.include);
                 return nextRecord;
             }

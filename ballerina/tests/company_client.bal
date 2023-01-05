@@ -30,7 +30,7 @@ client class CompanyClient {
     };
     private string[] keyFields = ["id"];
     private final map<JoinMetadata> joinMetadata = {
-        employee: {entity: Employee, fieldName: "employees", refTable: "Employees", refColumns: ["companyId"], joinColumns: ["id"], 'type: MANY}
+        employee: {entity: Employee, fieldName: "employees", refTable: "Employees", refColumns: ["companyId"], joinColumns: ["id"], 'type: MANY_TO_ONE}
     };
 
     private SQLClient persistClient;

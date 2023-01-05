@@ -32,8 +32,8 @@ client class MultipleAssociationsClient {
     };
     private string[] keyFields = ["id"];
     private final map<JoinMetadata> joinMetadata = {
-        profile: {entity: Profile, fieldName: "profile", refTable: "Profiles", refColumns: ["id"], joinColumns: ["profileId"]},
-        owner: {entity: Owner, fieldName: "owner", refTable: "Owner", refColumns: ["id"], joinColumns: ["ownerId"]}
+        profile: {entity: Profile, fieldName: "profile", refTable: "Profiles", refColumns: ["id"], joinColumns: ["profileId"], 'type: ONE_TO_ONE},
+        owner: {entity: Owner, fieldName: "owner", refTable: "Owner", refColumns: ["id"], joinColumns: ["ownerId"], 'type: ONE_TO_ONE}
     };
 
     private SQLClient persistClient;

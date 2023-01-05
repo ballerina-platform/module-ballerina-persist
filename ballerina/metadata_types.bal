@@ -92,15 +92,19 @@ public type JoinMetadata record {|
     string joinTable?;
     string[] joiningRefColumns?;
     string[] joiningJoinColumns?;
-    JoinType 'type = ONE;
+    JoinType 'type;
 |};
 
 # Represents the type of the relation used in a `JOIN` operation.
 # Only used by the generated persist clients and `persist:SQLClient`.
 #
-# + ONE - The one side of a one-to-one or one-to-many relation
-# + MANY - The many side of a one-to-many or many-to-many relation
+# + ONE_TO_ONE - The association type is a one-to-one association
+# + ONE_TO_MANY - The entity is in the 'one' side of a one-to-many association
+# + MANY_TO_ONE - The entity is in the 'many' side of a one-to-many association
+# + MANY_TO_MANY - The association type is a many-to-many association
 public enum JoinType {
-    ONE,
-    MANY
+    ONE_TO_ONE,
+    ONE_TO_MANY,
+    MANY_TO_ONE,
+    MANY_TO_MANY
 }
