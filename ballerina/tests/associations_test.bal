@@ -386,9 +386,9 @@ function oneToManyCreateTest4() returns error? {
 }
 
 @test:Config {
-    groups: ["associations", "one-to-manyx"]
+    groups: ["associations", "one-to-many"]
 }
-function oneToManyUpdateTest4() returns error? {
+function oneToManyCreateTest5() returns error? {
     Company company = {
         id: 5,
         name: "TestCompany5"
@@ -412,14 +412,52 @@ function oneToManyUpdateTest4() returns error? {
     };
     _ = check employeeClient->create(employee2);
 
-    employee1.name = "TestEmployeeUpdated8";
-    employee1.company.name = "TestCompanyUpdated5";
+    check from Company company2 in companyClient->read()
+        where company2.id == 5
+        do {
+            test:assertEquals(company2, <Company>{
+                id: 5,
+                name: "TestCompany5"
+            });
+        };
+}
+
+
+@test:Config {
+    groups: ["associations", "one-to-many"]
+}
+function oneToManyUpdateTest4() returns error? {
+    Company company = {
+        id: 6,
+        name: "TestCompany6"
+    };
+    CompanyClient companyClient = check new ();
+    _ = check companyClient->create(company);
+
+    EmployeeClient employeeClient = check new ();
+
+    Employee employee1 = {
+        id: 10,
+        name: "TestEmployee10",
+        company: company
+    };
+    _ = check employeeClient->create(employee1);
+
+    Employee employee2 = {
+        id: 11,
+        name: "TestEmployee11",
+        company: company
+    };
+    _ = check employeeClient->create(employee2);
+
+    employee1.name = "TestEmployeeUpdat10";
+    employee1.company.name = "TestCompanyUpdated6";
     _ = check employeeClient->update(employee1, ["company"]);
-    Company company2 = check companyClient->readByKey(5, [employee]);
+    Company company2 = check companyClient->readByKey(6, [employee]);
     test:assertEquals(company2, <Company>{
-        id: 5,
-        name: "TestCompanyUpdated5",
-        employees: [{id: 8, name: "TestEmployeeUpdated8"}, {id: 9, name: "TestEmployee9"}]
+        id: 6,
+        name: "TestCompanyUpdated6",
+        employees: [{id: 10, name: "TestEmployeeUpdat10"}, {id: 11, name: "TestEmployee11"}]
     });
 }
 
@@ -508,6 +546,89 @@ function manyToManyCreateTest2() returns error? {
 
     Lecture lectureR = check lectureClient->readByKey("L3", [students]);
     test:assertEquals(lectureR, lecture);
+}
+
+@test:Config {
+    groups: ["associations", "many-to-many"]
+}
+function manyToManyCreateTest3() returns error? {
+    Student student = {
+        nic: "983749204V",
+        firstName: "Tom",
+        lastName: "Scott",
+        dob: {year: 1996, month: 12, day: 12},
+        contact: "0771952226"
+    };
+
+    Student student2 = {
+        nic: "982759294V",
+        firstName: "Tom2",
+        lastName: "Scott2",
+        dob: {year: 1996, month: 12, day: 12},
+        contact: "0771952222"
+    };
+
+    Lecture lecture = {
+        code: "L4",
+        subject: "TestLecture14",
+        day: "monday",
+        time: {hour: 13, minute: 1, second: 0},
+        students: [student2, student]
+    };
+
+    LectureClient lectureClient = check new();
+    _ = check lectureClient->create(lecture);
+
+    Lecture lectureR = check lectureClient->readByKey("L4");
+    test:assertEquals(lectureR, <Lecture>{
+        code: "L4",
+        subject: "TestLecture14",
+        day: "monday",
+        time: {hour: 13, minute: 1, second: 0}
+    });
+}
+
+@test:Config {
+    groups: ["associations", "many-to-many"]
+}
+function manyToManyCreateTest4() returns error? {
+    Student student = {
+        nic: "983749204D",
+        firstName: "Tom",
+        lastName: "Scott",
+        dob: {year: 1996, month: 12, day: 12},
+        contact: "0771952226"
+    };
+
+    Student student2 = {
+        nic: "982759294V",
+        firstName: "Tom2",
+        lastName: "Scott2",
+        dob: {year: 1996, month: 12, day: 12},
+        contact: "0771952222"
+    };
+
+    Lecture lecture = {
+        code: "L5",
+        subject: "TestLecture15",
+        day: "tuesday",
+        time: {hour: 14, minute: 12, second: 0},
+        students: [student2, student]
+    };
+
+    LectureClient lectureClient = check new();
+    _ = check lectureClient->create(lecture);
+
+    check from Lecture lecture2 in lectureClient->read()
+        where lecture2.code == "L5"
+        do {
+            test:assertEquals(lecture2, <Lecture>{
+                code: "L5",
+                subject: "TestLecture15",
+                day: "tuesday",
+                time: {hour: 14, minute: 12, second: 0}
+            });
+        };
 }
 
 @test:Config {
