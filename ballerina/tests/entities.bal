@@ -20,7 +20,10 @@ import ballerina/time;
     id: ["needId"]
 }
 public type MedicalNeed record {|
-    @AutoIncrement
+    @AutoIncrement {
+        startValue: 1,
+        increment: 1
+    }
     readonly int needId = -1;
 
     int itemId;
