@@ -55,8 +55,8 @@ public type ComplexType record {|
     id: ["hospitalCode", "departmentId"]
 }
 public type Department record {|
-    string hospitalCode;
-    int departmentId;
+    readonly string hospitalCode;
+    readonly int departmentId;
     string name;
 |};
 
@@ -123,7 +123,7 @@ public type Employee record {|
     id: ["nic"]
 }
 public type Student record {|
-    string nic;
+    readonly string nic;
     string firstName;
     string lastName;
     time:Date dob;
@@ -144,7 +144,7 @@ public type Student record {|
     id: ["code"]
 }
 public type Lecture record {|
-    string code;
+    readonly string code;
     string subject;
     string day;
     time:TimeOfDay time;
@@ -159,7 +159,7 @@ public type Lecture record {|
     id: ["subjectId", "paperDate"]
 }
 public type Paper record {|
-    int subjectId;
+    readonly int subjectId;
     time:Date paperDate;
     string title;
     
