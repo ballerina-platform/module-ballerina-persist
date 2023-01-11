@@ -17,12 +17,12 @@
 import ballerina/persist;
 
 @persist:Entity {
-    key: []
+    id: []
 }
 type Int int;
 
 @persist:Entity {
-    key: []
+    id: []
 }
 public enum JoinType {
     ONE,
@@ -30,4 +30,4 @@ public enum JoinType {
 }
 
 any a = 5;
-int intType = <@persist:Entity {key: ["id"]} int>a;
+int intType = <@persist:Entity {id: ["id"]} int>a;

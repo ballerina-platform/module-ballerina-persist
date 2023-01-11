@@ -17,7 +17,7 @@
 import ballerina/persist;
 
 @persist:Entity {
-    key: ["id"]
+    id: ["id"]
 }
 public type User record  {|
  readonly int id;
@@ -27,7 +27,7 @@ public type User record  {|
 |};
 
 @persist:Entity {
-    key: ["id"]
+    id: ["id"]
 }
 public type Post record  {|
  readonly int id;

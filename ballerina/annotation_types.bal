@@ -16,11 +16,11 @@
 
 # Defines the attributes of an entity.
 #
-# + key - A single field or multiple fields that are used as the key to identify each instance of the entity
-# + uniqueConstraints - The set of single or multiple fields that uniquely identify each instance of the entity
+# + id - A single field or multiple fields that are used as the key to identify each instance of the entity
+# + unique - The set of single or multiple fields that uniquely identify each instance of the entity
 public type EntityConfig record {|
-    string[] key;
-    string[][] uniqueConstraints?;
+    string[] id;
+    string[][] unique?;
 |};
 
 # The annotation used to indicate a record-type as an `Entity`.

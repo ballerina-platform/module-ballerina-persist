@@ -17,14 +17,14 @@
 import ballerina/persist;
 
 @persist:Entity {
-    key: ["id"]
+    id: ["id"]
 }
 public type RecordTest record {|
     readonly int id;
 |};
 
 @persist:Entity {
-    key: ["id1"]
+    id: ["id1"]
 }
 public type RecordTest2 record {|
     *RecordTest;

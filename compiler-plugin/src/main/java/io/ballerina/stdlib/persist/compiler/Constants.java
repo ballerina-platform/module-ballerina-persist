@@ -63,8 +63,8 @@ public class Constants {
     public static class EntityAnnotation {
         private EntityAnnotation() {}
 
-        public static final String KEY = "key";
-        public static final String UNIQUE_CONSTRAINTS = "uniqueConstraints";
+        public static final String ID = "id";
+        public static final String UNIQUE_CONSTRAINTS = "unique";
     }
 
     /**

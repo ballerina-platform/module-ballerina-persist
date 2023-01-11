@@ -60,8 +60,8 @@ public class CompilerPluginTest {
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
-                        "invalid key: the given key is not in the record definition",
-                        "invalid key: the given key is not in the record definition",
+                        "invalid id: the given id is not in the record definition",
+                        "invalid id: the given id is not in the record definition",
                         "invalid entity initialisation: the associated entity[Item] does not have the " +
                                 "field with the relationship type"
                 },
@@ -78,9 +78,9 @@ public class CompilerPluginTest {
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
-                        "invalid key: the given key is not in the record definition",
-                        "invalid key: the given key is not in the record definition",
-                        "invalid initialization: auto increment is only allowed for primary key field",
+                        "invalid id: the given id is not in the record definition",
+                        "invalid id: the given id is not in the record definition",
+                        "invalid initialization: auto increment is only allowed for an id field",
                         "invalid entity initialisation: the associated entity[Item] does not have the field " +
                                 "with the relationship type"
                 },
@@ -98,8 +98,8 @@ public class CompilerPluginTest {
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
-                        "duplicate key/s exist: 'key' does not allow the multiple same field/s",
-                        "duplicate key/s exist: 'uniqueConstraints' does not allow the multiple same field/s"
+                        "'id' does not allow duplicate value/s",
+                        "'unique' does not allow duplicate value/s"
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_131.getCode(),
@@ -113,11 +113,9 @@ public class CompilerPluginTest {
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
-                        "associated entity does not contain any keys: the 'key' should have a valid value",
-                        "associated entity does not contain any keys: the 'uniqueConstraints' " +
-                                "should have a valid value",
-                        "associated entity does not contain any keys: the 'uniqueConstraints' " +
-                                "should have a valid value",
+                        "'id' cannot be an empty array",
+                        "'unique' cannot be an empty array",
+                        "'unique' cannot be an empty array",
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_123.getCode(),
@@ -225,7 +223,7 @@ public class CompilerPluginTest {
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
-                        "invalid initialization: auto increment is only allowed for primary key field",
+                        "invalid initialization: auto increment is only allowed for an id field",
                         "invalid entity initialisation: the associated entity[Item] does not have the field with " +
                                 "the relationship type"
                 },

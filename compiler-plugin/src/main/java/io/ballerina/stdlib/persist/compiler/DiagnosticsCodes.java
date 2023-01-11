@@ -31,7 +31,7 @@ public enum DiagnosticsCodes {
     PERSIST_101("PERSIST_101",
             "invalid field type: the persist client does not support the union type", ERROR),
     PERSIST_102("PERSIST_102",
-            "invalid key: the given key is not in the record definition", ERROR),
+            "invalid id: the given id is not in the record definition", ERROR),
     PERSIST_103("PERSIST_103",
             "invalid value: the value only supports positive integer", ERROR),
     PERSIST_104("PERSIST_104",
@@ -44,7 +44,7 @@ public enum DiagnosticsCodes {
     PERSIST_107("PERSIST_107", "duplicate annotation: the entity does not allow " +
             "multiple field with auto increment annotation", ERROR),
     PERSIST_108("PERSIST_108", "invalid initialization: auto increment is only allowed for " +
-            "primary key field", ERROR),
+            "an id field", ERROR),
     PERSIST_109("PERSIST_109", "mismatch reference: the given key count is mismatched " +
             "with reference key count", ERROR),
     PERSIST_112("PERSIST_112", "mysql db only allow increment value by one in auto generated field",
@@ -68,8 +68,7 @@ public enum DiagnosticsCodes {
     PERSIST_122("PERSIST_122", "associated entity contains composite primary keys: " +
             "inferring the relation reference from composite keys is not supported yet. please add the " +
             "references for relation", ERROR),
-    PERSIST_123("PERSIST_123", "associated entity does not contain any keys: the ''{0}'' " +
-            "should have a valid value", ERROR),
+    PERSIST_123("PERSIST_123", "''{0}'' cannot be an empty array", ERROR),
     PERSIST_124("PERSIST_124", "the entity ''{0}'' should be a closed record", ERROR),
     PERSIST_125("PERSIST_125", "relation annotation can only be attached to an entity record", ERROR),
     PERSIST_126("PERSIST_126", "auto increment annotation can only be attached to an entity record",
@@ -81,8 +80,7 @@ public enum DiagnosticsCodes {
             "allow an inherited field", ERROR),
     PERSIST_130("PERSIST_130", "invalid field initialization: ''persist:Entity'' fields can not be " +
             "initialized by using the rest field type definition", ERROR),
-    PERSIST_131("PERSIST_131", "duplicate key/s exist: ''{0}'' does not allow the multiple same field/s",
-            ERROR),
+    PERSIST_131("PERSIST_131", "''{0}'' does not allow duplicate value/s", ERROR),
     PERSIST_132("PERSIST_132", "invalid entity initialisation: the associated record[{0}] is not " +
             "an entity", ERROR),
     PERSIST_133("PERSIST_133", "field attached with ''Relation'' annotation must be optional", ERROR),

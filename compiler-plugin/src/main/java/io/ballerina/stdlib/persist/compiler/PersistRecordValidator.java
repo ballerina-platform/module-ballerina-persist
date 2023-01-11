@@ -228,7 +228,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 @SuppressWarnings("OptionalGetWithoutIsPresent")
                 ExpressionNode specificFieldValue = specificFieldNode.valueExpr().get();
                 switch (fieldName) {
-                    case EntityAnnotation.KEY:
+                    case EntityAnnotation.ID:
                         validateEntityKeyField(entity, specificFieldValue);
                         break;
                     case EntityAnnotation.UNIQUE_CONSTRAINTS:
@@ -263,7 +263,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             if (expressions.isEmpty()) {
                 entity.addDiagnostic(listConstructorExpressionNode.location(),
                         DiagnosticsCodes.PERSIST_123.getCode(),
-                        MessageFormat.format(DiagnosticsCodes.PERSIST_123.getMessage(), EntityAnnotation.KEY),
+                        MessageFormat.format(DiagnosticsCodes.PERSIST_123.getMessage(), EntityAnnotation.ID),
                         DiagnosticsCodes.PERSIST_123.getSeverity());
                 return;
             }
@@ -275,7 +275,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                     if (key.isEmpty()) {
                         entity.addDiagnostic(expression.location(),
                                 DiagnosticsCodes.PERSIST_123.getCode(),
-                                MessageFormat.format(DiagnosticsCodes.PERSIST_123.getMessage(), EntityAnnotation.KEY),
+                                MessageFormat.format(DiagnosticsCodes.PERSIST_123.getMessage(), EntityAnnotation.ID),
                                 DiagnosticsCodes.PERSIST_123.getSeverity());
                         continue;
                     }
@@ -285,18 +285,18 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                         entity.addDiagnostic(expression.location(),
                                 DiagnosticsCodes.PERSIST_131.getCode(),
                                 MessageFormat.format(DiagnosticsCodes.PERSIST_131.getMessage(),
-                                        EntityAnnotation.KEY), DiagnosticsCodes.PERSIST_131.getSeverity());
+                                        EntityAnnotation.ID), DiagnosticsCodes.PERSIST_131.getSeverity());
                     }
                 } else {
                     entity.addDiagnostic(expression.location(), DiagnosticsCodes.PERSIST_127.getCode(),
-                            MessageFormat.format(DiagnosticsCodes.PERSIST_127.getMessage(), EntityAnnotation.KEY),
+                            MessageFormat.format(DiagnosticsCodes.PERSIST_127.getMessage(), EntityAnnotation.ID),
                             DiagnosticsCodes.PERSIST_127.getSeverity());
                 }
             }
             entity.getPrimaryKeys().forEach((key, location) -> validateConstraintFieldNames(entity, key, location));
         } else {
             entity.addDiagnostic(specificFieldValue.location(), DiagnosticsCodes.PERSIST_127.getCode(),
-                    MessageFormat.format(DiagnosticsCodes.PERSIST_127.getMessage(), EntityAnnotation.KEY),
+                    MessageFormat.format(DiagnosticsCodes.PERSIST_127.getMessage(), EntityAnnotation.ID),
                     DiagnosticsCodes.PERSIST_127.getSeverity());
         }
     }

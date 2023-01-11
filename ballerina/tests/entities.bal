@@ -17,7 +17,7 @@
 import ballerina/time;
 
 @Entity {
-    key: ["needId"]
+    id: ["needId"]
 }
 public type MedicalNeed record {|
     @AutoIncrement
@@ -31,7 +31,7 @@ public type MedicalNeed record {|
 |};
 
 @Entity {
-    key: ["itemId"]
+    id: ["itemId"]
 }
 public type MedicalItem record {|
     readonly int itemId;
@@ -41,7 +41,7 @@ public type MedicalItem record {|
 |};
 
 @Entity {
-    key: ["complexTypeId"]
+    id: ["complexTypeId"]
 }
 public type ComplexType record {|
     @AutoIncrement
@@ -52,7 +52,7 @@ public type ComplexType record {|
 |};
 
 @Entity {
-    key: ["hospitalCode", "departmentId"]
+    id: ["hospitalCode", "departmentId"]
 }
 public type Department record {|
     string hospitalCode;
@@ -62,7 +62,7 @@ public type Department record {|
 
 // One-to-one relation
 @Entity {
-    key: ["id"]
+    id: ["id"]
 }
 public type Owner record {|
     readonly int id;
@@ -72,7 +72,7 @@ public type Owner record {|
 |};
 
 @Entity {
-    key: ["id"]
+    id: ["id"]
 }
 public type Profile record {|
     readonly int id;
@@ -83,7 +83,7 @@ public type Profile record {|
 |};
 
 @Entity {
-    key: ["id"]
+    id: ["id"]
 }
 public type MultipleAssociations record {|
     readonly int id;
@@ -98,7 +98,7 @@ public type MultipleAssociations record {|
 
 // One-to-many relation
 @Entity {
-    key: ["id"]
+    id: ["id"]
 }
 public type Company record {|
     readonly int id;
@@ -107,7 +107,7 @@ public type Company record {|
 |};
 
 @Entity {
-    key: ["id"]
+    id: ["id"]
 }
 public type Employee record {|
     readonly int id;
@@ -120,7 +120,7 @@ public type Employee record {|
 
 // Many-to-many relation
 @Entity {
-    key: ["nic"]
+    id: ["nic"]
 }
 public type Student record {|
     string nic;
@@ -141,7 +141,7 @@ public type Student record {|
 |};
 
 @Entity {
-    key: ["code"]
+    id: ["code"]
 }
 public type Lecture record {|
     string code;
@@ -156,7 +156,7 @@ public type Lecture record {|
 |};
 
 @Entity {
-    key: ["subjectId", "paperDate"]
+    id: ["subjectId", "paperDate"]
 }
 public type Paper record {|
     int subjectId;
