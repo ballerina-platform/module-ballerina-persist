@@ -685,6 +685,9 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             @SuppressWarnings("OptionalGetWithoutIsPresent")
             ExpressionNode specificFieldValue = specificFieldNode.valueExpr().get();
             switch (fieldName) {
+                case RelationAnnotation.NAME:
+                    // No validations
+                    break;
                 case RelationAnnotation.KEY_COLUMNS:
                     if (specificFieldValue instanceof ListConstructorExpressionNode) {
                         // todo: Validate for empty list
