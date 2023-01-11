@@ -141,20 +141,6 @@ public class CompilerPluginTest {
                 });
     }
 
-    //todo: This should be a MySQL specific validation
-    @Test(enabled = false)
-    public void testMultipleAutoIncrementAnnotation() {
-       List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_04", 1, DiagnosticSeverity.ERROR);
-       testDiagnostic(
-               errorDiagnosticsList,
-               new String[]{
-                       "duplicate annotation: the entity does not allow multiple field with auto increment annotation"
-               },
-               new String[]{
-                       DiagnosticsCodes.PERSIST_107.getCode()
-               });
-    }
-
     @Test
     public void testAutoIncrementAnnotation1() {
         List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_05", 2, DiagnosticSeverity.ERROR);
@@ -464,53 +450,6 @@ public class CompilerPluginTest {
                         DiagnosticsCodes.PERSIST_119.getCode(),
                         DiagnosticsCodes.PERSIST_119.getCode(),
                         DiagnosticsCodes.PERSIST_119.getCode()
-                });
-    }
-
-    // todo -> check if valid diagnostics
-    @Test(enabled = false)
-    public void testGetReferenceWithCompositeKey() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_26", 1, DiagnosticSeverity.ERROR);
-        testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "associated entity contains composite primary keys: inferring the relation reference " +
-                                "from composite keys is not supported yet. "
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_122.getCode()
-                });
-    }
-
-    // Unnecessary as currently we don't support entities w/o primary key
-    @Test(enabled = false)
-    public void testGetReferenceWithEmptyKey() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_27", 1, DiagnosticSeverity.ERROR);
-        testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "associated entity does not contain any keys: the 'key' should have a valid value"
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_123.getCode()
-                });
-    }
-
-    // Unnecessary as currently we don't support entities w/o primary key
-    @Test(enabled = false)
-    public void testGetReferenceWithEmptyKey1() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_28", 3, DiagnosticSeverity.ERROR);
-        testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "associated entity does not contain any keys: the 'key' should have a valid value",
-                        "associated entity does not contain any keys: the 'key' should have a valid value",
-                        "associated entity does not contain any keys: the 'key' should have a valid value"
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_123.getCode(),
-                        DiagnosticsCodes.PERSIST_123.getCode(),
-                        DiagnosticsCodes.PERSIST_123.getCode()
                 });
     }
 
