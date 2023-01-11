@@ -290,18 +290,15 @@ public class CompilerPluginTest {
                 });
     }
 
-    // todo check on this after relation refactoring
-    @Test(enabled = false)
+    @Test
     public void testInvalidInitialisation3() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_38", 2, DiagnosticSeverity.ERROR);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_38", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
-                        "associated entity does not contain any keys: the 'key' should have a valid value",
                         "invalid entity initialisation: the associated record[RecordTest1] is not an entity"
                 },
                 new String[]{
-                        DiagnosticsCodes.PERSIST_123.getCode(),
                         DiagnosticsCodes.PERSIST_132.getCode()
                 });
     }
@@ -387,8 +384,7 @@ public class CompilerPluginTest {
                 });
     }
 
-    // todo: Check on this after relation validations revamp
-    @Test(enabled = false)
+    @Test
     public void testInvalidAnnotation2() {
         List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_08", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
