@@ -324,22 +324,6 @@ public class CompilerPluginTest {
     }
 
     @Test
-    public void testUnSupportedFeature() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_17", 1, DiagnosticSeverity.ERROR);
-        testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "unsupported features: many-to-many association is not supported yet"
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_114.getCode(),
-                        DiagnosticsCodes.PERSIST_116.getCode(),
-                        DiagnosticsCodes.PERSIST_114.getCode(),
-                        DiagnosticsCodes.PERSIST_116.getCode()
-                });
-    }
-
-    @Test
     public void testUnSupportedFeature1() {
         List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_22", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
@@ -573,8 +557,8 @@ public class CompilerPluginTest {
                         "invalid initialization: auto increment is only allowed for primary key field",
                         "'startValue ' field only allows inline initialisation",
                         "'increment' field only allows inline initialisation",
-                        "'keyColumns' field only allows inline initialisation",
-                        "'reference' field only allows inline initialisation",
+                        "'fields' field only allows inline initialisation",
+                        "'referencedFields' field only allows inline initialisation",
                         "invalid entity initialisation: the associated entity[Post] does not have the field " +
                                 "with the relationship type",
                 },

@@ -25,12 +25,12 @@ client class OwnerClient {
     private final map<FieldMetadata> fieldMetadata = {
         id: {columnName: "id", 'type: int},
         name: {columnName: "name", 'type: string},
-        "profile.id": {'type: int, relation: {entityName: "profile", refTable: "Profiles", refField: "id"}},
-        "profile.name": {'type: string, relation: {entityName: "profile", refTable: "Profiles", refField: "name"}}
+        "profile.id": {'type: int, relation: {entityName: "profile", refField: "id"}},
+        "profile.name": {'type: string, relation: {entityName: "profile", refField: "name"}}
     };
     private string[] keyFields = ["id"];
     private final map<JoinMetadata> joinMetadata = {
-        profile: {entity: Profile, fieldName: "profile", refTable: "Profiles", refFields: ["ownerId"], joinColumns: ["id"]}
+        profile: {entity: Profile, fieldName: "profile", refTable: "Profiles", refColumns: ["ownerId"], joinColumns: ["id"], 'type: ONE_TO_ONE}
     };
 
     private SQLClient persistClient;
@@ -62,8 +62,8 @@ client class OwnerClient {
         }
     }
 
-    remote function update(Owner 'object) returns Error? {
-        _ = check self.persistClient.runUpdateQuery('object);
+    remote function update(Owner 'object, UserRelations[] updateAssociations = []) returns Error? {
+        _ = check self.persistClient.runUpdateQuery('object, updateAssociations);
     }
 
     remote function delete(Owner 'object) returns Error? {
