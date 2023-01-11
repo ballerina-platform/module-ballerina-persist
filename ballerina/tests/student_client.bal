@@ -182,7 +182,9 @@ public class StudentStream {
             } else {
                 record {|Student value;|} nextRecord = {value: <Student>streamValue.value};
                 // TODO: Future improvement - performance improvement by minimizing #queries executed
-                check (<SQLClient>self.persistClient).getManyRelations(nextRecord.value, <StudentRelations[]>self.include);
+                if self.include is StudentRelations[] {
+                    check (<SQLClient>self.persistClient).getManyRelations(nextRecord.value, <StudentRelations[]>self.include);
+                }
                 return nextRecord;
             }
         } else {
