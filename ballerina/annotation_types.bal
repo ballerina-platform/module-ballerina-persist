@@ -24,7 +24,7 @@ public type EntityConfig record {|
 |};
 
 # The annotation used to indicate a record-type as an `Entity`.
-public annotation EntityConfig Entity on type;
+public const annotation EntityConfig Entity on source type;
 
 # Defines the auto-increment field configuration.
 #
@@ -37,7 +37,7 @@ public type AutoIncrementConfig record {|
 |};
 
 # The annotation used to indicate an auto-increment field.
-public annotation AutoIncrementConfig AutoIncrement on record field;
+public const annotation AutoIncrementConfig AutoIncrement on source record field;
 
 # Defines a relationship between two entities.
 #
@@ -66,4 +66,4 @@ public enum ReferenceAction {
 
 # The annotation is used to indicate the associations of an entity. In one-to-one and one-to-many associations, this is
 # to be used only in the parent entity (the 'one' side of the association).
-public annotation RelationConfig Relation on record field;
+public const annotation RelationConfig Relation on source record field;

@@ -546,34 +546,6 @@ public class CompilerPluginTest {
                 });
     }
 
-    @Test
-    public void testFieldInitialisation() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_12", 8, DiagnosticSeverity.ERROR);
-        testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "'key' field only allows inline initialisation",
-                        "'uniqueConstraints' field only allows inline initialisation",
-                        "invalid initialization: auto increment is only allowed for primary key field",
-                        "'startValue ' field only allows inline initialisation",
-                        "'increment' field only allows inline initialisation",
-                        "'fields' field only allows inline initialisation",
-                        "'referencedFields' field only allows inline initialisation",
-                        "invalid entity initialisation: the associated entity[Post] does not have the field " +
-                                "with the relationship type",
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_127.getCode(),
-                        DiagnosticsCodes.PERSIST_127.getCode(),
-                        DiagnosticsCodes.PERSIST_108.getCode(),
-                        DiagnosticsCodes.PERSIST_127.getCode(),
-                        DiagnosticsCodes.PERSIST_127.getCode(),
-                        DiagnosticsCodes.PERSIST_127.getCode(),
-                        DiagnosticsCodes.PERSIST_127.getCode(),
-                        DiagnosticsCodes.PERSIST_115.getCode()
-                });
-    }
-
     private List<Diagnostic> getDiagnostic(String packageName, int count, DiagnosticSeverity diagnosticSeverity) {
         DiagnosticResult diagnosticResult = loadPackage(packageName).getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().filter
