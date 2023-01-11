@@ -616,10 +616,11 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
 
     private void validateRelationAnnotation(Entity entity) {
         for (Field validEntityField : entity.getValidEntityFields()) {
-            if (!validEntityField.isValidRelationAttachmentPoint()
-                    && validEntityField.getRelationAnnotation() != null) {
-                entity.addDiagnostic(validEntityField.getFieldLocation(), DiagnosticsCodes.PERSIST_117.getCode(),
-                        DiagnosticsCodes.PERSIST_117.getMessage(), DiagnosticsCodes.PERSIST_117.getSeverity());
+            if (!validEntityField.isValidRelationAttachmentPoint()) {
+                if (validEntityField.getRelationAnnotation() != null) {
+                    entity.addDiagnostic(validEntityField.getFieldLocation(), DiagnosticsCodes.PERSIST_117.getCode(),
+                            DiagnosticsCodes.PERSIST_117.getMessage(), DiagnosticsCodes.PERSIST_117.getSeverity());
+                }
                 continue;
             }
             if (!validEntityField.isRelationAttachedToValidEntity()) {
