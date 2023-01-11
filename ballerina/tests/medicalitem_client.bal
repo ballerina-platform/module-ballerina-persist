@@ -33,7 +33,7 @@ public client class MedicalItemClient {
     private SQLClient persistClient;
 
     public function init() returns Error? {
-        mysql:Client|sql:Error dbClient = new (host = host, user = user, password = password, database = database, port = port);
+        mysql:Client|sql:Error dbClient = new (host = host, user = user, password = password, database = database, port = port, options = connectionOptions);
         if dbClient is sql:Error {
             return <Error>error(dbClient.message());
         }

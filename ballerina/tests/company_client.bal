@@ -36,7 +36,7 @@ client class CompanyClient {
     private SQLClient persistClient;
 
     public function init() returns Error? {
-        mysql:Client|sql:Error dbClient = new (host = host, user = user, password = password, database = database, port = port);
+        mysql:Client|sql:Error dbClient = new (host = host, user = user, password = password, database = database, port = port, options = connectionOptions);
         if dbClient is sql:Error {
             return <Error>error(dbClient.message());
         }
@@ -116,7 +116,9 @@ public class CompanyStream {
                 return <Error>error(streamValue.message());
             } else {
                 record {|Company value;|} nextRecord = {value: <Company>streamValue.value};
-                check (<SQLClient>self.persistClient).getManyRelations(nextRecord.value, <CompanyRelations[]>self.include);
+                if self.include is CompanyRelations[] {
+                    check (<SQLClient>self.persistClient).getManyRelations(nextRecord.value, <CompanyRelations[]>self.include);
+                }
                 return nextRecord;
             }
         } else {
