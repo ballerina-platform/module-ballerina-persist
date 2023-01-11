@@ -25,15 +25,15 @@ client class MultipleAssociationsClient {
     private final map<FieldMetadata> fieldMetadata = {
         id: {columnName: "id", 'type: int},
         name: {columnName: "name", 'type: string},
-        "profile.id": {columnName: "profileId", 'type: int, relation: {entityName: "profile", refTable: "Profiles", refField: "id"}},
-        "profile.name": {'type: int, relation: {entityName: "profile", refTable: "Profiles", refField: "name"}},
-        "owner.id": {columnName: "ownerId", 'type: int, relation: {entityName: "owner", refTable: "Owner", refField: "id"}},
-        "owner.name": {'type: int, relation: {entityName: "owner", refTable: "Owner", refField: "name"}}
+        "profile.id": {columnName: "profileId", 'type: int, relation: {entityName: "profile", refField: "id"}},
+        "profile.name": {'type: int, relation: {entityName: "profile", refField: "name"}},
+        "owner.id": {columnName: "ownerId", 'type: int, relation: {entityName: "owner", refField: "id"}},
+        "owner.name": {'type: int, relation: {entityName: "owner", refField: "name"}}
     };
     private string[] keyFields = ["id"];
     private final map<JoinMetadata> joinMetadata = {
-        profile: {entity: Profile, fieldName: "profile", refTable: "Profiles", refFields: ["id"], joinColumns: ["profileId"]},
-        owner: {entity: Owner, fieldName: "owner", refTable: "Owner", refFields: ["id"], joinColumns: ["ownerId"]}
+        profile: {entity: Profile, fieldName: "profile", refTable: "Profiles", refColumns: ["id"], joinColumns: ["profileId"], 'type: ONE_TO_ONE},
+        owner: {entity: Owner, fieldName: "owner", refTable: "Owner", refColumns: ["id"], joinColumns: ["ownerId"], 'type: ONE_TO_ONE}
     };
 
     private SQLClient persistClient;
@@ -81,16 +81,16 @@ client class MultipleAssociationsClient {
         }
     }
 
-    remote function update(MultipleAssociations 'object) returns Error? {
+    remote function update(MultipleAssociations 'object, MultipleAssociationsRelations[] updateAssociations = []) returns Error? {
         _ = check self.persistClient.runUpdateQuery('object);
 
-        if 'object["profile"] is Profile {
+        if (<string[]> updateAssociations).indexOf(profile) != () && 'object["profile"] is Profile {
             Profile profileEntity = <Profile>'object["profile"];
             ProfileClient profileClient = check new ProfileClient();
             check profileClient->update(profileEntity);
         }
 
-        if 'object["owner"] is Owner {
+        if (<string[]> updateAssociations).indexOf(owner) != () && 'object["owner"] is Owner {
             Owner ownerEntity = <Owner>'object["owner"];
             OwnerClient ownerClient = check new OwnerClient();
             check ownerClient->update(ownerEntity);

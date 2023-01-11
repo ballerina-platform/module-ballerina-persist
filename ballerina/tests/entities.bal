@@ -77,7 +77,7 @@ public type Owner record {|
 public type Profile record {|
     readonly int id;
     string name;
-    @Relation {keyColumns: ["userId"], reference: ["id"]}
+    @Relation {fields: ["ownerId"], referencedFields: ["id"]}
     Owner owner?;
     MultipleAssociations multipleAssociations?;
 |};
@@ -89,10 +89,10 @@ public type MultipleAssociations record {|
     readonly int id;
     string name;
 
-    @Relation {keyColumns: ["profileId"], reference: ["id"]}
+    @Relation {fields: ["profileId"], referencedFields: ["id"]}
     Profile profile?;
 
-    @Relation {keyColumns: ["userId"], reference: ["id"]}
+    @Relation {fields: ["userId"], referencedFields: ["id"]}
     Owner owner?;
 |};
 
@@ -113,6 +113,58 @@ public type Employee record {|
     readonly int id;
     string name;
 
-    @Relation {keyColumns: ["companyId"], reference: ["id"]}
+    @Relation {fields: ["companyId"], referencedFields: ["id"]}
     Company company?;
+|};
+
+
+// Many-to-many relation
+@Entity {
+    key: ["nic"]
+}
+public type Student record {|
+    string nic;
+    string firstName;
+    string lastName;
+    time:Date dob;
+    string contact;
+
+    @Relation {
+        name: "joinStudentLecture"
+    }
+    Lecture[] lectures?;
+
+    @Relation {
+        name: "joinStudentPaper"
+    }
+    Paper[] papers?;
+|};
+
+@Entity {
+    key: ["code"]
+}
+public type Lecture record {|
+    string code;
+    string subject;
+    string day;
+    time:TimeOfDay time;
+
+    @Relation {
+        name: "joinStudentLecture"
+    }
+    Student[] students?;
+|};
+
+@Entity {
+    key: ["subjectId", "paperDate"]
+}
+public type Paper record {|
+    int subjectId;
+    time:Date paperDate;
+    string title;
+    
+    @Relation {
+        name: "joinStudentPaper"
+    }
+    Student[] students?;
 |};

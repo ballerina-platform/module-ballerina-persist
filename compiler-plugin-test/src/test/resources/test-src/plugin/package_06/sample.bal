@@ -29,7 +29,7 @@ public type MedicalNeed record {|
     time:Civil period;
     string urgency;
     int quantity;
-    @persist:Relation {keyColumns: ["userId", "itemId"], reference: ["id"]}
+    @persist:Relation {fields: ["userId", "itemId"], referencedFields: ["id"]}
     Item item?;
 |};
 

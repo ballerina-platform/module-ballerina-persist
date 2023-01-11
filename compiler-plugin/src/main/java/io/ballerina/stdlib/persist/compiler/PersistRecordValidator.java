@@ -698,7 +698,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                                 DiagnosticsCodes.PERSIST_127.getSeverity());
                     }
                     break;
-                case RelationAnnotation.REFERENCE:
+                case RelationAnnotation.REFERENCED_FIELDS:
                     if (specificFieldValue instanceof ListConstructorExpressionNode) {
                         // todo: Validate for empty list
                         ListConstructorExpressionNode listConstructorExpressionNode =
@@ -709,7 +709,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                         entity.addDiagnostic(specificFieldNode.location(),
                                 DiagnosticsCodes.PERSIST_127.getCode(),
                                 MessageFormat.format(DiagnosticsCodes.PERSIST_127.getMessage(),
-                                        RelationAnnotation.REFERENCE),
+                                        RelationAnnotation.REFERENCED_FIELDS),
                                 DiagnosticsCodes.PERSIST_127.getSeverity());
                     }
                     break;
@@ -749,14 +749,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                     DiagnosticsCodes.PERSIST_115.getCode(),
                     MessageFormat.format(DiagnosticsCodes.PERSIST_115.getMessage(), referredEntity.getEntityName()),
                     DiagnosticsCodes.PERSIST_115.getSeverity());
-            return;
-        }
-
-        // todo Remove once https://github.com/ballerina-platform/ballerina-standard-library/issues/3803
-        if (annotatedField.isArrayType() && referredField.isArrayType()) {
-            reportDiagnosticsEntity.addDiagnostic(annotatedField.getFieldLocation(),
-                    DiagnosticsCodes.PERSIST_114.getCode(), DiagnosticsCodes.PERSIST_114.getMessage(),
-                    DiagnosticsCodes.PERSIST_114.getSeverity());
             return;
         }
 

@@ -28,7 +28,7 @@ public type MedicalNeed record {|
     time:Civil period;
     string urgency;
     int quantity;
-    @persist:Relation {reference: ["id"], onDelete: persist:CASCADE}
+    @persist:Relation {fields: ["id"], onDelete: persist:CASCADE}
     Item[] item?;
 |};
 
@@ -37,7 +37,7 @@ public type Item record {|
     @persist:AutoIncrement
     readonly int id = 3;
     string name;
-    @persist:Relation {keyColumns: ["itemId1"], onDelete: persist:CASCADE}
+    @persist:Relation {fields: ["itemId1"], onDelete: persist:CASCADE}
     Item1[] item1?;
 |};
 

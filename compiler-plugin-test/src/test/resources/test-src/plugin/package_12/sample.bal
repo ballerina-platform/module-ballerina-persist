@@ -30,7 +30,7 @@ public type User record  {|
     @persist:AutoIncrement{startValue :value, increment: value }
     readonly int id;
     string name;
-    @persist:Relation {keyColumns: keyColumns, reference: reference}
+    @persist:Relation {fields: keyColumns, referencedFields: reference}
     Post posts?;
 |};
 

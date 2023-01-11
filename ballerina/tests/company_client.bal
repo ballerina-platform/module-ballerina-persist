@@ -25,12 +25,12 @@ client class CompanyClient {
     private final map<FieldMetadata> fieldMetadata = {
         id: {columnName: "id", 'type: int},
         name: {columnName: "name", 'type: string},
-        "employees[].id": {'type: int, relation: {entityName: "employee", refTable: "Employees", refField: "id"}},
-        "employees[].name": {'type: string, relation: {entityName: "employee", refTable: "Employees", refField: "name"}}
+        "employees[].id": {'type: int, relation: {entityName: "employee", refField: "id"}},
+        "employees[].name": {'type: string, relation: {entityName: "employee", refField: "name"}}
     };
     private string[] keyFields = ["id"];
     private final map<JoinMetadata> joinMetadata = {
-        employee: {entity: Employee, fieldName: "employees", refTable: "Employees", refFields: ["companyId"], joinColumns: ["id"], 'type: MANY}
+        employee: {entity: Employee, fieldName: "employees", refTable: "Employees", refColumns: ["companyId"], joinColumns: ["id"], 'type: MANY_TO_ONE}
     };
 
     private SQLClient persistClient;
@@ -62,8 +62,8 @@ client class CompanyClient {
         }
     }
 
-    remote function update(Company 'object) returns Error? {
-        _ = check self.persistClient.runUpdateQuery('object);
+    remote function update(Company 'object, CompanyRelations[] updateAssociations = []) returns Error? {
+        _ = check self.persistClient.runUpdateQuery('object, updateAssociations);
     }
 
     remote function delete(Company 'object) returns Error? {
@@ -88,7 +88,7 @@ client class CompanyClient {
 }
 
 public enum CompanyRelations {
-    EmployeeEntity = "employee"
+    employee
 }
 
 public class CompanyStream {
