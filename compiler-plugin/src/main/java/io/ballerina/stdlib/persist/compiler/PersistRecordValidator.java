@@ -398,7 +398,6 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                 continue;
             }
             field.setType(typeNode);
-            field.setTypeLocation(typeNode.location());
 
             boolean isArrayType = false;
             if (typeNode instanceof OptionalTypeDescriptorNode) {
