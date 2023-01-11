@@ -38,8 +38,7 @@ public enum DiagnosticsCodes {
             "invalid field initialization: ''{0}'' does not support optional filed initialization", ERROR),
     PERSIST_105("PERSIST_105",
             "invalid type: the field type should be in integer", ERROR),
-    PERSIST_106("PERSIST_106",
-            "invalid initialization: the field is not specified as read-only", ERROR),
+    PERSIST_106("PERSIST_106", "''{0}'' field ''{1}'' is not specified as read-only", ERROR),
     // todo : Move to dataprovider validations
     PERSIST_107("PERSIST_107", "duplicate annotation: the entity does not allow " +
             "multiple field with auto increment annotation", ERROR),

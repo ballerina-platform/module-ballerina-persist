@@ -146,8 +146,8 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                         typeDefinitionNode.location());
 
                 validateRecordProperties(entity, ((RecordTypeDescriptorNode) typeDescriptorNode));
-                validateEntityAnnotation(entity, entityAnnotation.get());
                 validateEntityFields(entity, ((RecordTypeDescriptorNode) typeDescriptorNode).fields(), currentModule);
+                validateEntityAnnotation(entity, entityAnnotation.get());
                 validateAutoIncrementAnnotation(entity);
                 validateRelationAnnotation(entity);
                 if (this.deferredRelationKeyEntities.containsKey(entityName)) {
@@ -293,7 +293,7 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
                             DiagnosticsCodes.PERSIST_127.getSeverity());
                 }
             }
-            entity.getPrimaryKeys().forEach((key, location) -> validateConstraintFieldNames(entity, key, location));
+            entity.getPrimaryKeys().forEach((key, location) -> validateIdFieldNames(entity, key, location));
         } else {
             entity.addDiagnostic(specificFieldValue.location(), DiagnosticsCodes.PERSIST_127.getCode(),
                     MessageFormat.format(DiagnosticsCodes.PERSIST_127.getMessage(), EntityAnnotation.ID),
@@ -560,8 +560,9 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             if (!entity.getPrimaryKeys().isEmpty() &&
                     entity.getPrimaryKeys().containsKey(validEntityField.getFieldName())) {
                 if (!validEntityField.isReadOnly()) {
-                    entity.addDiagnostic(validEntityField.getTypeLocation(), DiagnosticsCodes.PERSIST_106.getCode(),
-                            DiagnosticsCodes.PERSIST_106.getMessage(), DiagnosticsCodes.PERSIST_106.getSeverity());
+                    entity.addDiagnostic(validEntityField.getFieldLocation(), DiagnosticsCodes.PERSIST_106.getCode(),
+                            MessageFormat.format(DiagnosticsCodes.PERSIST_106.getMessage(), "AutoIncrement",
+                                    validEntityField.getFieldName()), DiagnosticsCodes.PERSIST_106.getSeverity());
                 }
                 Node fieldType = validEntityField.getType();
                 if (!(fieldType instanceof BuiltinSimpleNameReferenceNode)) {
@@ -822,6 +823,24 @@ public class PersistRecordValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             } else if (Utils.isPersistAnnotation(annotation, Annotations.RELATION)) {
                 Utils.reportDiagnostic(ctx, annotation.location(), DiagnosticsCodes.PERSIST_125.getCode(),
                         DiagnosticsCodes.PERSIST_125.getMessage(), DiagnosticsCodes.PERSIST_125.getSeverity());
+            }
+        }
+    }
+
+    private void validateIdFieldNames(Entity entity, String value, NodeLocation location) {
+        if (!entity.getEntityFieldNames().contains(value)) {
+            entity.addDiagnostic(location, DiagnosticsCodes.PERSIST_102.getCode(),
+                    DiagnosticsCodes.PERSIST_102.getMessage(), DiagnosticsCodes.PERSIST_102.getSeverity());
+            return;
+        }
+        for (Field validEntityField : entity.getValidEntityFields()) {
+            if (validEntityField.getFieldName().equals(value)) {
+                if (!validEntityField.isReadOnly()) {
+                    entity.addDiagnostic(validEntityField.getFieldLocation(), DiagnosticsCodes.PERSIST_106.getCode(),
+                            MessageFormat.format(DiagnosticsCodes.PERSIST_106.getMessage(), "Id",
+                                    validEntityField.getFieldName()), DiagnosticsCodes.PERSIST_106.getSeverity());
+                }
+                break;
             }
         }
     }

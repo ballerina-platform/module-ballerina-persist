@@ -130,15 +130,14 @@ public class CompilerPluginTest {
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
-                        "invalid initialization: the field is not specified as read-only",
-                        "invalid initialization: the field is not specified as read-only",
-                        "invalid entity initialisation: the associated entity[Item] does not have the field " +
-                                "with the relationship type"
+                        "'Id' field 'itemId' is not specified as read-only",
+                        "'Id' field 'needId' is not specified as read-only",
+                        "'AutoIncrement' field 'needId' is not specified as read-only"
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_106.getCode(),
                         DiagnosticsCodes.PERSIST_106.getCode(),
-                        DiagnosticsCodes.PERSIST_115.getCode()
+                        DiagnosticsCodes.PERSIST_106.getCode()
                 });
     }
 

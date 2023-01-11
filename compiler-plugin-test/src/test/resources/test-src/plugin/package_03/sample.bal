@@ -29,13 +29,4 @@ public type MedicalNeed record {|
     time:Civil period;
     string urgency;
     int quantity;
-    @persist:Relation {fields: ["itemId"], referencedFields: ["id"]}
-    Item item?;
-|};
-
-@persist:Entity {id: ["id"]}
-public type Item record {|
-    @persist:AutoIncrement
-    int id = -1;
-    string name;
 |};
