@@ -18,7 +18,7 @@ import ballerina/persist;
 import ballerina/time;
 
 @persist:Entity {
-    key: ["id"]
+    id: ["id"]
 }
 public type Profile record  {|
     readonly int id;

@@ -17,8 +17,8 @@
 import ballerina/persist;
 
 @persist:Entity {
-    key: ["id", "id"],
-    uniqueConstraints : [["id", "id"]]
+    id: ["id", "id"],
+    unique : [["id", "id"]]
 }
 public type RecordTest record {|
     readonly int id;
