@@ -22,12 +22,14 @@ import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -40,26 +42,56 @@ import java.util.stream.Collectors;
 public class CompilerPluginTest {
 
     private static ProjectEnvironmentBuilder getEnvironmentBuilder() {
-        Path distributionPath = Paths.get("../", "target", "ballerina-runtime")
-                .toAbsolutePath();
+        Path distributionPath = Paths.get("../", "target", "ballerina-runtime").toAbsolutePath();
         Environment environment = EnvironmentBuilder.getBuilder().setBallerinaHome(distributionPath).build();
         return ProjectEnvironmentBuilder.getBuilder(environment);
     }
 
-    private Package loadPackage(String path) {
-        Path projectDirPath = Paths.get("src", "test", "resources", "test-src", "plugin").
-                toAbsolutePath().resolve(path);
-        BuildProject project = BuildProject.load(getEnvironmentBuilder(), projectDirPath);
+    private Package loadPersistModelFile(String name) {
+        Path projectDirPath = Paths.get("src", "test", "resources", "test-src", "project_2", "persist").
+                toAbsolutePath().resolve(name);
+        SingleFileProject project = SingleFileProject.load(getEnvironmentBuilder(), projectDirPath);
         return project.currentPackage();
     }
 
-    private List<Diagnostic> getDiagnostic(String packageName, int count, DiagnosticSeverity diagnosticSeverity) {
-        DiagnosticResult diagnosticResult = loadPackage(packageName).getCompilation().diagnosticResult();
+    @Test
+    public void identifyModelFileFailure1() {
+        Path projectDirPath = Paths.get("src", "test", "resources", "test-src", "persist").
+                toAbsolutePath().resolve("rainier1.bal");
+        SingleFileProject project = SingleFileProject.load(getEnvironmentBuilder(), projectDirPath);
+        DiagnosticResult diagnosticResult = project.currentPackage().getCompilation().diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0);
+    }
+
+    @Test
+    public void identifyModelFileFailure2() {
+        Path projectDirPath = Paths.get("src", "test", "resources", "test-src", "project_1", "resources").
+                toAbsolutePath().resolve("rainier1.bal");
+        SingleFileProject project = SingleFileProject.load(getEnvironmentBuilder(), projectDirPath);
+        DiagnosticResult diagnosticResult = project.currentPackage().getCompilation().diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0);
+    }
+
+    @Test
+    public void skipValidationsForBalProjectFiles() {
+        Path projectDirPath = Paths.get("src", "test", "resources", "test-src", "project_1").
+                toAbsolutePath();
+        BuildProject project2 = BuildProject.load(getEnvironmentBuilder(), projectDirPath);
+        DiagnosticResult diagnosticResult = project2.currentPackage().getCompilation().diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0);
+    }
+
+    @Test
+    public void identifyModelFileSuccess() {
+        getDiagnostic("rainier1.bal", 0, DiagnosticSeverity.ERROR);
+    }
+
+    private List<Diagnostic> getDiagnostic(String modelFileName, int count, DiagnosticSeverity diagnosticSeverity) {
+        DiagnosticResult diagnosticResult = loadPersistModelFile(modelFileName).getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().filter
                 (r -> r.diagnosticInfo().severity().equals(diagnosticSeverity)).collect(Collectors.toList());
         Assert.assertEquals(errorDiagnosticsList.size(), count);
         return errorDiagnosticsList;
-
     }
 
     private void testDiagnostic(List<Diagnostic> errorDiagnosticsList, String[] msg, String[] code) {
