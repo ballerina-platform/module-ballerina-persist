@@ -14,6 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+public type Metadata record {|
+    map<FieldMetadata> fieldMetadata;
+    string[] keyFields;
+|};
+
 # Represents the metadata associated with a field of an entity.
 # Only used by the generated persist clients and `persist:SQLClient`.
 #
