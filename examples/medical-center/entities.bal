@@ -15,13 +15,8 @@
 // under the License.
 
 import ballerina/time;
-import ballerina/persist;
 
-@persist:Entity {
-    id: ["needId"]
-}
 public type MedicalNeed record {|
-    @persist:AutoIncrement
     readonly int needId = -1;
 
     int itemId;
@@ -31,9 +26,6 @@ public type MedicalNeed record {|
     int quantity;
 |};
 
-@persist:Entity {
-    id: ["itemId"]
-}
 public type MedicalItem record {|
     readonly int itemId;
     string name;
