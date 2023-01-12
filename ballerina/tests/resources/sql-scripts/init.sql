@@ -97,3 +97,11 @@ CREATE TABLE test.joinStudentPaper (
     paper_paperDate date,
     PRIMARY KEY(student_nic, paper_subjectId, paper_paperDate)
 );
+
+CREATE TABLE test.Building (
+    buildingCode VARCHAR(36),
+    city VARCHAR(50),
+    state VARCHAR(50),
+    country VARCHAR(50),
+    postalCode VARCHAR(50)
+);
