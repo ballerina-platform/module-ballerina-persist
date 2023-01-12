@@ -14,7 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/sql;
+
 public type Metadata record {|
+    string entityName;
+    sql:ParameterizedQuery tableName;
     map<FieldMetadata> fieldMetadata;
     string[] keyFields;
 |};

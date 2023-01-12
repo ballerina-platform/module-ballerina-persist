@@ -44,7 +44,7 @@ type Employee record {|
     string firstName;
     string lastName;
     time:Date birthDate;
-    Gender gender;
+    string gender;
     time:Date hireDate;
 
     Department department;

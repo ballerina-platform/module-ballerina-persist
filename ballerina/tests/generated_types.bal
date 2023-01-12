@@ -10,7 +10,7 @@ public enum Gender {
 // Generated model types
 // TODO: Make all these model types readonly
 //  I didn't make them readonly because of the following issue TODO: Add issue link
-public type Building readonly & record {|
+public type Building record {|
     readonly string buildingCode;
     string city;
     string state;
@@ -35,7 +35,7 @@ public type Employee record {|
     string firstName;
     string lastName;
     time:Date birthDate;
-    Gender gender;
+    string gender;
     time:Date hireDate;
 
     string deptNo;
@@ -80,7 +80,7 @@ public type EmployeeUpdate record {|
     string firstName?;
     string lastName?;
     time:Date birthDate?;
-    Gender gender?;
+    string gender?;
     time:Date hireDate?;
 
     string deptNo?; 

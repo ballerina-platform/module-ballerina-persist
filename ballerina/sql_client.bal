@@ -77,7 +77,7 @@ public client class SQLClient {
     # + key - The value of the key (to be used as the `WHERE` clauses)
     # + include - The relations to be retrieved (SQL `JOINs` to be performed)
     # + return - A record in the `rowType` type or a `persist:Error` if the operation fails
-    public isolated function runReadByKeyQuery(anydata key, string[] include = []) returns record {}|Error {
+    public isolated function runReadByKeyQuery(typedesc<record {}> rowType, anydata key, string[] include = []) returns record {}|Error {
         sql:ParameterizedQuery query = sql:queryConcat(
             `SELECT `, self.getSelectColumnNames(include), ` FROM `, self.tableName, ` AS `, stringToParameterizedQuery(self.entityName)
         );
@@ -91,7 +91,7 @@ public client class SQLClient {
         }
 
         query = sql:queryConcat(query, ` WHERE `, check self.getGetKeyWhereClauses(key));
-        record {}|sql:Error result = self.dbClient->queryRow(query);
+        record {}|sql:Error result = self.dbClient->queryRow(query, rowType);
 
         if result is sql:NoRowsError {
             return <InvalidKeyError>error(
@@ -112,7 +112,7 @@ public client class SQLClient {
     #
     # + include - The relations to be retrieved (SQL `JOINs` to be performed)
     # + return - A stream of records in the `rowType` type or a `persist:Error` if the operation fails
-    public isolated function runReadQuery(string[] include = [])
+    public isolated function runReadQuery(typedesc<record {}> rowType, string[] include = [])
     returns stream<record {}, sql:Error?>|Error {
         sql:ParameterizedQuery query = sql:queryConcat(
             `SELECT `, self.getSelectColumnNames(include), ` FROM `, self.tableName, ` `, stringToParameterizedQuery(self.entityName)
@@ -127,7 +127,7 @@ public client class SQLClient {
             }
         }
 
-        stream<record {}, sql:Error?> resultStream = self.dbClient->query(query);
+        stream<record {}, sql:Error?> resultStream = self.dbClient->query(query, rowType);
         return resultStream;
     }
 
