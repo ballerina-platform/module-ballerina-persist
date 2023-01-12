@@ -17,10 +17,13 @@
 import ballerina/time;
 
 @Entity {
-    key: ["needId"]
+    id: ["needId"]
 }
 public type MedicalNeed record {|
-    @AutoIncrement
+    @AutoIncrement {
+        startValue: 1,
+        increment: 1
+    }
     readonly int needId = -1;
 
     int itemId;
@@ -31,7 +34,7 @@ public type MedicalNeed record {|
 |};
 
 @Entity {
-    key: ["itemId"]
+    id: ["itemId"]
 }
 public type MedicalItem record {|
     readonly int itemId;
@@ -41,7 +44,7 @@ public type MedicalItem record {|
 |};
 
 @Entity {
-    key: ["complexTypeId"]
+    id: ["complexTypeId"]
 }
 public type ComplexType record {|
     @AutoIncrement
@@ -52,17 +55,17 @@ public type ComplexType record {|
 |};
 
 @Entity {
-    key: ["hospitalCode", "departmentId"]
+    id: ["hospitalCode", "departmentId"]
 }
 public type Department record {|
-    string hospitalCode;
-    int departmentId;
+    readonly string hospitalCode;
+    readonly int departmentId;
     string name;
 |};
 
 // One-to-one relation
 @Entity {
-    key: ["id"]
+    id: ["id"]
 }
 public type Owner record {|
     readonly int id;
@@ -72,7 +75,7 @@ public type Owner record {|
 |};
 
 @Entity {
-    key: ["id"]
+    id: ["id"]
 }
 public type Profile record {|
     readonly int id;
@@ -83,7 +86,7 @@ public type Profile record {|
 |};
 
 @Entity {
-    key: ["id"]
+    id: ["id"]
 }
 public type MultipleAssociations record {|
     readonly int id;
@@ -98,7 +101,7 @@ public type MultipleAssociations record {|
 
 // One-to-many relation
 @Entity {
-    key: ["id"]
+    id: ["id"]
 }
 public type Company record {|
     readonly int id;
@@ -107,7 +110,7 @@ public type Company record {|
 |};
 
 @Entity {
-    key: ["id"]
+    id: ["id"]
 }
 public type Employee record {|
     readonly int id;
@@ -120,10 +123,10 @@ public type Employee record {|
 
 // Many-to-many relation
 @Entity {
-    key: ["nic"]
+    id: ["nic"]
 }
 public type Student record {|
-    string nic;
+    readonly string nic;
     string firstName;
     string lastName;
     time:Date dob;
@@ -141,10 +144,10 @@ public type Student record {|
 |};
 
 @Entity {
-    key: ["code"]
+    id: ["code"]
 }
 public type Lecture record {|
-    string code;
+    readonly string code;
     string subject;
     string day;
     time:TimeOfDay time;
@@ -156,10 +159,10 @@ public type Lecture record {|
 |};
 
 @Entity {
-    key: ["subjectId", "paperDate"]
+    id: ["subjectId", "paperDate"]
 }
 public type Paper record {|
-    int subjectId;
+    readonly int subjectId;
     time:Date paperDate;
     string title;
     

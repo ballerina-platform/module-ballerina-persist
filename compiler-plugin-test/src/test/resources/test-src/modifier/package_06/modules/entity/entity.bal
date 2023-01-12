@@ -17,7 +17,7 @@
 import ballerina/persist;
 
 @persist:Entity {
-    key: ["needId"]
+    id: ["needId"]
 }
 public type MedicalNeed record {|
     readonly int needId = 1;

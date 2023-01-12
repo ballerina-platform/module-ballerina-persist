@@ -63,8 +63,8 @@ public class Constants {
     public static class EntityAnnotation {
         private EntityAnnotation() {}
 
-        public static final String KEY = "key";
-        public static final String UNIQUE_CONSTRAINTS = "uniqueConstraints";
+        public static final String ID = "id";
+        public static final String UNIQUE_CONSTRAINTS = "unique";
     }
 
     /**
@@ -73,6 +73,7 @@ public class Constants {
     public static class RelationAnnotation {
         private RelationAnnotation() {}
 
+        public static final String NAME = "name";
         public static final String KEY_COLUMNS = "fields";
         public static final String REFERENCED_FIELDS = "referencedFields";
         public static final String ON_DELETE = "onDelete";

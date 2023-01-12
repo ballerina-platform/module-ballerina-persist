@@ -18,8 +18,8 @@ import ballerina/time;
 import ballerina/persist;
 
 @persist:Entity {
-    key: ["needId"],
-    uniqueConstraints: [["beneficiaryId", "urgency"]]
+    id: ["needId"],
+    unique: [["beneficiaryId", "urgency"]]
 }
 public type MedicalNeed record {|
     @persist:AutoIncrement
@@ -31,8 +31,8 @@ public type MedicalNeed record {|
 |};
 
 @persist:Entity {
-    key: ["needId"],
-    uniqueConstraints: [["beneficiaryId", "urgency"]]
+    id: ["needId"],
+    unique: [["beneficiaryId", "urgency"]]
 }
 public type MedicalNeed1 record {|
     @persist:AutoIncrement

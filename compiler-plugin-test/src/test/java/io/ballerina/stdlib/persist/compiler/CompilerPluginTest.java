@@ -60,8 +60,8 @@ public class CompilerPluginTest {
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
-                        "invalid key: the given key is not in the record definition",
-                        "invalid key: the given key is not in the record definition",
+                        "invalid id: the given id is not in the record definition",
+                        "invalid id: the given id is not in the record definition",
                         "invalid entity initialisation: the associated entity[Item] does not have the " +
                                 "field with the relationship type"
                 },
@@ -78,9 +78,9 @@ public class CompilerPluginTest {
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
-                        "invalid key: the given key is not in the record definition",
-                        "invalid key: the given key is not in the record definition",
-                        "invalid initialization: auto increment is only allowed for primary key field",
+                        "invalid id: the given id is not in the record definition",
+                        "invalid id: the given id is not in the record definition",
+                        "invalid initialization: auto increment is only allowed for an id field",
                         "invalid entity initialisation: the associated entity[Item] does not have the field " +
                                 "with the relationship type"
                 },
@@ -98,8 +98,8 @@ public class CompilerPluginTest {
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
-                        "duplicate key/s exist: 'key' does not allow the multiple same field/s",
-                        "duplicate key/s exist: 'uniqueConstraints' does not allow the multiple same field/s"
+                        "'id' does not allow duplicate value/s",
+                        "'unique' does not allow duplicate value/s"
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_131.getCode(),
@@ -113,11 +113,9 @@ public class CompilerPluginTest {
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
-                        "associated entity does not contain any keys: the 'key' should have a valid value",
-                        "associated entity does not contain any keys: the 'uniqueConstraints' " +
-                                "should have a valid value",
-                        "associated entity does not contain any keys: the 'uniqueConstraints' " +
-                                "should have a valid value",
+                        "'id' cannot be an empty array",
+                        "'unique' cannot be an empty array",
+                        "'unique' cannot be an empty array",
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_123.getCode(),
@@ -132,30 +130,15 @@ public class CompilerPluginTest {
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
-                        "invalid initialization: the field is not specified as read-only",
-                        "invalid initialization: the field is not specified as read-only",
-                        "invalid entity initialisation: the associated entity[Item] does not have the field " +
-                                "with the relationship type"
+                        "'Id' field 'itemId' is not specified as read-only",
+                        "'Id' field 'needId' is not specified as read-only",
+                        "'AutoIncrement' field 'needId' is not specified as read-only"
                 },
                 new String[]{
                         DiagnosticsCodes.PERSIST_106.getCode(),
                         DiagnosticsCodes.PERSIST_106.getCode(),
-                        DiagnosticsCodes.PERSIST_115.getCode()
+                        DiagnosticsCodes.PERSIST_106.getCode()
                 });
-    }
-
-    //todo: This should be a MySQL specific validation
-    @Test(enabled = false)
-    public void testMultipleAutoIncrementAnnotation() {
-       List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_04", 1, DiagnosticSeverity.ERROR);
-       testDiagnostic(
-               errorDiagnosticsList,
-               new String[]{
-                       "duplicate annotation: the entity does not allow multiple field with auto increment annotation"
-               },
-               new String[]{
-                       DiagnosticsCodes.PERSIST_107.getCode()
-               });
     }
 
     @Test
@@ -225,7 +208,7 @@ public class CompilerPluginTest {
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
-                        "invalid initialization: auto increment is only allowed for primary key field",
+                        "invalid initialization: auto increment is only allowed for an id field",
                         "invalid entity initialisation: the associated entity[Item] does not have the field with " +
                                 "the relationship type"
                 },
@@ -307,18 +290,15 @@ public class CompilerPluginTest {
                 });
     }
 
-    // todo check on this after relation refactoring
-    @Test(enabled = false)
+    @Test
     public void testInvalidInitialisation3() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_38", 2, DiagnosticSeverity.ERROR);
+        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_38", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 errorDiagnosticsList,
                 new String[]{
-                        "associated entity does not contain any keys: the 'key' should have a valid value",
                         "invalid entity initialisation: the associated record[RecordTest1] is not an entity"
                 },
                 new String[]{
-                        DiagnosticsCodes.PERSIST_123.getCode(),
                         DiagnosticsCodes.PERSIST_132.getCode()
                 });
     }
@@ -404,8 +384,7 @@ public class CompilerPluginTest {
                 });
     }
 
-    // todo: Check on this after relation validations revamp
-    @Test(enabled = false)
+    @Test
     public void testInvalidAnnotation2() {
         List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_08", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
@@ -470,53 +449,6 @@ public class CompilerPluginTest {
                 });
     }
 
-    // todo -> check if valid diagnostics
-    @Test(enabled = false)
-    public void testGetReferenceWithCompositeKey() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_26", 1, DiagnosticSeverity.ERROR);
-        testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "associated entity contains composite primary keys: inferring the relation reference " +
-                                "from composite keys is not supported yet. "
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_122.getCode()
-                });
-    }
-
-    // Unnecessary as currently we don't support entities w/o primary key
-    @Test(enabled = false)
-    public void testGetReferenceWithEmptyKey() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_27", 1, DiagnosticSeverity.ERROR);
-        testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "associated entity does not contain any keys: the 'key' should have a valid value"
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_123.getCode()
-                });
-    }
-
-    // Unnecessary as currently we don't support entities w/o primary key
-    @Test(enabled = false)
-    public void testGetReferenceWithEmptyKey1() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_28", 3, DiagnosticSeverity.ERROR);
-        testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "associated entity does not contain any keys: the 'key' should have a valid value",
-                        "associated entity does not contain any keys: the 'key' should have a valid value",
-                        "associated entity does not contain any keys: the 'key' should have a valid value"
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_123.getCode(),
-                        DiagnosticsCodes.PERSIST_123.getCode(),
-                        DiagnosticsCodes.PERSIST_123.getCode()
-                });
-    }
-
     @Test
     public void testEntityClosedRecord() {
         List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_30", 1, DiagnosticSeverity.ERROR);
@@ -543,34 +475,6 @@ public class CompilerPluginTest {
                 new String[]{
                         DiagnosticsCodes.PERSIST_124.getCode(),
                         DiagnosticsCodes.PERSIST_121.getCode()
-                });
-    }
-
-    @Test
-    public void testFieldInitialisation() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_12", 8, DiagnosticSeverity.ERROR);
-        testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "'key' field only allows inline initialisation",
-                        "'uniqueConstraints' field only allows inline initialisation",
-                        "invalid initialization: auto increment is only allowed for primary key field",
-                        "'startValue ' field only allows inline initialisation",
-                        "'increment' field only allows inline initialisation",
-                        "'fields' field only allows inline initialisation",
-                        "'referencedFields' field only allows inline initialisation",
-                        "invalid entity initialisation: the associated entity[Post] does not have the field " +
-                                "with the relationship type",
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_127.getCode(),
-                        DiagnosticsCodes.PERSIST_127.getCode(),
-                        DiagnosticsCodes.PERSIST_108.getCode(),
-                        DiagnosticsCodes.PERSIST_127.getCode(),
-                        DiagnosticsCodes.PERSIST_127.getCode(),
-                        DiagnosticsCodes.PERSIST_127.getCode(),
-                        DiagnosticsCodes.PERSIST_127.getCode(),
-                        DiagnosticsCodes.PERSIST_115.getCode()
                 });
     }
 
