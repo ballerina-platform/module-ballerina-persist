@@ -17,7 +17,7 @@
 import ballerina/persist;
 
 @persist:Entity {
-    key: ["id"]
+    id: ["id"]
 }
 public type Items record {|
     @persist:AutoIncrement
@@ -25,7 +25,7 @@ public type Items record {|
 |};
 
 @persist:Entity {
-    key: ["id"]
+    id: ["id"]
 }
 public type Items1 record {|
     @persist:AutoIncrement

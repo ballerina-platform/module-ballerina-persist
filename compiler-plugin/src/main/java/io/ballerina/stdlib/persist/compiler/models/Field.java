@@ -38,7 +38,6 @@ public class Field {
 
     private boolean isReadOnly = false;
     private Node type;
-    private NodeLocation typeLocation;
     private boolean isValidRelationAttachmentPoint = false;
     private boolean isRelationAttachedToValidEntity = false;
     private boolean isOptional = false;
@@ -71,14 +70,6 @@ public class Field {
 
     public void setType(Node type) {
         this.type = type;
-    }
-
-    public NodeLocation getTypeLocation() {
-        return this.typeLocation;
-    }
-
-    public void setTypeLocation(NodeLocation typeLocation) {
-        this.typeLocation = typeLocation;
     }
 
     public AnnotationNode getAutoIncrement() {

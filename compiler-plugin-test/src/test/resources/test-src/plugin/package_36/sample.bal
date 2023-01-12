@@ -17,16 +17,16 @@
 import ballerina/persist;
 
 @persist:Entity {
-    key: [],
-    uniqueConstraints : [[]]
+    id: [],
+    unique : [[]]
 }
 public type RecordTest record {|
     readonly int id;
 |};
 
 @persist:Entity {
-    key: ["id"],
-    uniqueConstraints : []
+    id: ["id"],
+    unique : []
 }
 public type RecordTest1 record {|
     readonly int id;
