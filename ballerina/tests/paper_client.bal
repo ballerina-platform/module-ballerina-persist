@@ -148,7 +148,9 @@ public class PaperStream {
                 return <Error>error(streamValue.message());
             } else {
                 record {|Paper value;|} nextRecord = {value: <Paper>streamValue.value};
-                check (<SQLClient>self.persistClient).getManyRelations(nextRecord.value, <PaperRelations[]>self.include);
+                if self.include is PaperRelations[] {
+                    check (<SQLClient>self.persistClient).getManyRelations(nextRecord.value, <PaperRelations[]>self.include);
+                }
                 return nextRecord;
             }
         } else {

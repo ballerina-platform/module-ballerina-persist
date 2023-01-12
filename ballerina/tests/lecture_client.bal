@@ -149,7 +149,9 @@ public class LectureStream {
                 return <Error>error(streamValue.message());
             } else {
                 record {|Lecture value;|} nextRecord = {value: <Lecture>streamValue.value};
-                check (<SQLClient>self.persistClient).getManyRelations(nextRecord.value, <LectureRelations[]>self.include);
+                if self.include is LectureRelations[] {
+                    check (<SQLClient>self.persistClient).getManyRelations(nextRecord.value, <LectureRelations[]>self.include);
+                }
                 return nextRecord;
             }
         } else {
