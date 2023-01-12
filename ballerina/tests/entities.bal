@@ -16,14 +16,7 @@
 
 import ballerina/time;
 
-@Entity {
-    id: ["needId"]
-}
 public type MedicalNeed record {|
-    @AutoIncrement {
-        startValue: 1,
-        increment: 1
-    }
     readonly int needId = -1;
 
     int itemId;
@@ -33,9 +26,6 @@ public type MedicalNeed record {|
     int quantity;
 |};
 
-@Entity {
-    id: ["itemId"]
-}
 public type MedicalItem record {|
     readonly int itemId;
     string name;
@@ -43,20 +33,13 @@ public type MedicalItem record {|
     string unit;
 |};
 
-@Entity {
-    id: ["complexTypeId"]
-}
 public type ComplexType record {|
-    @AutoIncrement
     readonly int complexTypeId = -1;
     time:Civil civilType;
     time:TimeOfDay timeOfDayType;
     time:Date dateType;
 |};
 
-@Entity {
-    id: ["hospitalCode", "departmentId"]
-}
 public type Department record {|
     readonly string hospitalCode;
     readonly int departmentId;
@@ -64,9 +47,6 @@ public type Department record {|
 |};
 
 // One-to-one relation
-@Entity {
-    id: ["id"]
-}
 public type Owner record {|
     readonly int id;
     string name;
@@ -74,57 +54,38 @@ public type Owner record {|
     MultipleAssociations multipleAssociations?;
 |};
 
-@Entity {
-    id: ["id"]
-}
 public type Profile record {|
     readonly int id;
     string name;
-    @Relation {fields: ["ownerId"], referencedFields: ["id"]}
     Owner owner?;
     MultipleAssociations multipleAssociations?;
 |};
 
-@Entity {
-    id: ["id"]
-}
 public type MultipleAssociations record {|
     readonly int id;
     string name;
 
-    @Relation {fields: ["profileId"], referencedFields: ["id"]}
     Profile profile?;
 
-    @Relation {fields: ["userId"], referencedFields: ["id"]}
     Owner owner?;
 |};
 
 // One-to-many relation
-@Entity {
-    id: ["id"]
-}
 public type Company record {|
     readonly int id;
     string name;
     Employee[] employees?;
 |};
 
-@Entity {
-    id: ["id"]
-}
 public type Employee record {|
     readonly int id;
     string name;
 
-    @Relation {fields: ["companyId"], referencedFields: ["id"]}
     Company company?;
 |};
 
 
 // Many-to-many relation
-@Entity {
-    id: ["nic"]
-}
 public type Student record {|
     readonly string nic;
     string firstName;
@@ -132,42 +93,24 @@ public type Student record {|
     time:Date dob;
     string contact;
 
-    @Relation {
-        name: "joinStudentLecture"
-    }
     Lecture[] lectures?;
 
-    @Relation {
-        name: "joinStudentPaper"
-    }
     Paper[] papers?;
 |};
 
-@Entity {
-    id: ["code"]
-}
 public type Lecture record {|
     readonly string code;
     string subject;
     string day;
     time:TimeOfDay time;
 
-    @Relation {
-        name: "joinStudentLecture"
-    }
     Student[] students?;
 |};
 
-@Entity {
-    id: ["subjectId", "paperDate"]
-}
 public type Paper record {|
     readonly int subjectId;
     time:Date paperDate;
     string title;
     
-    @Relation {
-        name: "joinStudentPaper"
-    }
     Student[] students?;
 |};
