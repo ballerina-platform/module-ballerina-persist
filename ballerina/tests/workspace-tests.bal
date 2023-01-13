@@ -53,8 +53,8 @@ Workspace updatedWorkspace1 = {
 function workspaceCreateTest() returns error? {
     RainierClient rainierClient = check new ();
     
-    Workspace workspace = check rainierClient->/workspaces.post(workspace1);    
-    test:assertEquals(workspace, workspace1);
+    string[] workspaceIds = check rainierClient->/workspaces.post([workspace1]);    
+    test:assertEquals(workspaceIds, [workspace1.workspaceId]);
 
     Workspace workspaceRetrieved = check rainierClient->/workspaces/[workspace1.workspaceId].get();
     test:assertEquals(workspaceRetrieved, workspace1);
@@ -63,10 +63,27 @@ function workspaceCreateTest() returns error? {
 @test:Config {
     groups: ["workspace"]
 }
+function workspaceCreateTest2() returns error? {
+    RainierClient rainierClient = check new ();
+    
+    string[] workspaceIds = check rainierClient->/workspaces.post([workspace2, workspace3]);
+
+    test:assertEquals(workspaceIds, [workspace2.workspaceId, workspace3.workspaceId]);
+
+    Workspace workspaceRetrieved = check rainierClient->/workspaces/[workspace2.workspaceId].get();
+    test:assertEquals(workspaceRetrieved, workspace2);
+
+    workspaceRetrieved = check rainierClient->/workspaces/[workspace3.workspaceId].get();
+    test:assertEquals(workspaceRetrieved, workspace3);
+}
+
+@test:Config {
+    groups: ["workspace"]
+}
 function workspaceCreateTestNegative() returns error? {
     RainierClient rainierClient = check new ();
     
-    Workspace|error workspace = rainierClient->/workspaces.post(invalidWorkspace);   
+    string[]|error workspace = rainierClient->/workspaces.post([invalidWorkspace]);   
     if workspace is Error {
         test:assertTrue(workspace.message().includes("Data truncation: Data too long for column 'workspaceId' at row 1."));
     } else {
@@ -101,13 +118,10 @@ function workspaceReadOneTestNegative() returns error? {
 
 @test:Config {
     groups: ["workspace"],
-    dependsOn: [workspaceCreateTest]
+    dependsOn: [workspaceCreateTest, workspaceCreateTest2]
 }
 function workspaceReadManyTest() returns error? {
     RainierClient rainierClient = check new ();
-
-    _ = check rainierClient->/workspaces.post(workspace2);
-    _ = check rainierClient->/workspaces.post(workspace3);
 
     stream<Workspace, error?> workspaceStream = rainierClient->/workspaces.get();
     Workspace[] workspaces = check from Workspace workspace in workspaceStream 

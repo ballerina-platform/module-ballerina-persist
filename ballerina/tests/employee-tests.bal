@@ -78,8 +78,8 @@ Employee updatedEmployee1 = {
 function employeeCreateTest() returns error? {
     RainierClient rainierClient = check new ();
     
-    Employee employee = check rainierClient->/employees.post(employee1);    
-    test:assertEquals(employee, employee1);
+    string[] empNos = check rainierClient->/employees.post([employee1]);    
+    test:assertEquals(empNos, [employee1.empNo]);
 
     Employee employeeRetrieved = check rainierClient->/employees/[employee1.empNo].get();
     test:assertEquals(employeeRetrieved, employee1);
@@ -88,10 +88,28 @@ function employeeCreateTest() returns error? {
 @test:Config {
     groups: ["employee"]
 }
+function employeeCreateTest2() returns error? {
+    RainierClient rainierClient = check new ();
+    
+    string[] empNos = check rainierClient->/employees.post([employee2, employee3]);
+
+    test:assertEquals(empNos, [employee2.empNo, employee3.empNo]);
+
+    Employee employeeRetrieved = check rainierClient->/employees/[employee2.empNo].get();
+    test:assertEquals(employeeRetrieved, employee2);
+
+    employeeRetrieved = check rainierClient->/employees/[employee3.empNo].get();
+    test:assertEquals(employeeRetrieved, employee3);
+}
+
+
+@test:Config {
+    groups: ["employee"]
+}
 function employeeCreateTestNegative() returns error? {
     RainierClient rainierClient = check new ();
     
-    Employee|error employee = rainierClient->/employees.post(invalidEmployee);   
+    string[]|error employee = rainierClient->/employees.post([invalidEmployee]);   
     if employee is Error {
         test:assertTrue(employee.message().includes("Data truncation: Data too long for column 'empNo' at row 1."));
     } else {
@@ -126,13 +144,10 @@ function employeeReadOneTestNegative() returns error? {
 
 @test:Config {
     groups: ["employee"],
-    dependsOn: [employeeCreateTest]
+    dependsOn: [employeeCreateTest, employeeCreateTest2]
 }
 function employeeReadManyTest() returns error? {
     RainierClient rainierClient = check new ();
-
-    _ = check rainierClient->/employees.post(employee2);
-    _ = check rainierClient->/employees.post(employee3);
 
     stream<Employee, error?> employeeStream = rainierClient->/employees.get();
     Employee[] employees = check from Employee employee in employeeStream 

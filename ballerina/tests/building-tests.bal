@@ -63,8 +63,8 @@ Building updatedBuilding1 = {
 function basicCreateTest() returns error? {
     RainierClient rainierClient = check new ();
     
-    Building building = check rainierClient->/buildings.post(building1);    
-    test:assertEquals(building, building1);
+    string[] buildingCodes = check rainierClient->/buildings.post([building1]);    
+    test:assertEquals(buildingCodes, [building1.buildingCode]);
 
     Building buildingRetrieved = check rainierClient->/buildings/[building1.buildingCode].get();
     test:assertEquals(buildingRetrieved, building1);
@@ -73,10 +73,27 @@ function basicCreateTest() returns error? {
 @test:Config {
     groups: ["basic"]
 }
+function basicCreateTest2() returns error? {
+    RainierClient rainierClient = check new ();
+    
+    string[] buildingCodes = check rainierClient->/buildings.post([building2, building3]);
+
+    test:assertEquals(buildingCodes, [building2.buildingCode, building3.buildingCode]);
+
+    Building buildingRetrieved = check rainierClient->/buildings/[building2.buildingCode].get();
+    test:assertEquals(buildingRetrieved, building2);
+
+    buildingRetrieved = check rainierClient->/buildings/[building3.buildingCode].get();
+    test:assertEquals(buildingRetrieved, building3);
+}
+
+@test:Config {
+    groups: ["basic"]
+}
 function basicCreateTestNegative() returns error? {
     RainierClient rainierClient = check new ();
     
-    Building|error building = rainierClient->/buildings.post(invalidBuilding);   
+    string[]|error building = rainierClient->/buildings.post([invalidBuilding]);   
     if building is Error {
         test:assertTrue(building.message().includes("Data truncation: Data too long for column 'buildingCode' at row 1."));
     } else {
@@ -111,13 +128,10 @@ function basicReadOneTestNegative() returns error? {
 
 @test:Config {
     groups: ["basic"],
-    dependsOn: [basicCreateTest]
+    dependsOn: [basicCreateTest, basicCreateTest2]
 }
 function basicReadManyTest() returns error? {
     RainierClient rainierClient = check new ();
-
-    _ = check rainierClient->/buildings.post(building2);
-    _ = check rainierClient->/buildings.post(building3);
 
     stream<Building, error?> buildingStream = rainierClient->/buildings.get();
     Building[] buildings = check from Building building in buildingStream 

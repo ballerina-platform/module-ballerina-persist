@@ -85,9 +85,10 @@ client class RainierClient {
         return (check self.persistClients.get("building").runReadByKeyQuery(Building, buildingCode)).cloneWithType(Building);
     };
 
-    isolated resource function post buildings(BuildingInsert data) returns Building|error {
-        _ = check self.persistClients.get("building").runInsertQuery(data);
-        return data;
+    isolated resource function post buildings(BuildingInsert[] data) returns string[]|error {
+        _ = check self.persistClients.get("building").runBatchInsertQuery(data);
+        return from BuildingInsert inserted in data
+               select inserted.buildingCode;
     };
 
     isolated resource function put buildings/[string buildingCode](BuildingUpdate data) returns Building|error {
@@ -114,9 +115,10 @@ client class RainierClient {
         return (check self.persistClients.get("workspace").runReadByKeyQuery(Workspace, workspaceId)).cloneWithType(Workspace);
     };
 
-    isolated resource function post workspaces(WorkspaceInsert data) returns Workspace|error {
-        _ = check self.persistClients.get("workspace").runInsertQuery(data);
-        return data;
+    isolated resource function post workspaces(WorkspaceInsert[] data) returns string[]|error {
+        _ = check self.persistClients.get("workspace").runBatchInsertQuery(data);
+        return from WorkspaceInsert inserted in data
+               select inserted.workspaceId;
     };
 
     isolated resource function put workspaces/[string workspaceId](WorkspaceUpdate data) returns Workspace|error {
@@ -143,9 +145,10 @@ client class RainierClient {
         return (check self.persistClients.get("department").runReadByKeyQuery(Department, deptNo)).cloneWithType(Department);
     };
 
-    isolated resource function post departments(DepartmentInsert data) returns Department|error {
-        _ = check self.persistClients.get("department").runInsertQuery(data);
-        return data;
+    isolated resource function post departments(DepartmentInsert[] data) returns string[]|error {
+        _ = check self.persistClients.get("department").runBatchInsertQuery(data);
+        return from DepartmentInsert inserted in data
+               select inserted.deptNo;
     };
 
     isolated resource function put departments/[string deptNo](DepartmentUpdate data) returns Department|error {
@@ -172,9 +175,10 @@ client class RainierClient {
         return (check self.persistClients.get("employee").runReadByKeyQuery(Employee, empNo)).cloneWithType(Employee);
     };
 
-    isolated resource function post employees(EmployeeInsert data) returns Employee|error {
-        _ = check self.persistClients.get("employee").runInsertQuery(data);
-        return data;
+    isolated resource function post employees(EmployeeInsert[] data) returns string[]|error {
+        _ = check self.persistClients.get("employee").runBatchInsertQuery(data);
+        return from EmployeeInsert inserted in data
+               select inserted.empNo;
     };
 
     isolated resource function put employees/[string empNo](EmployeeUpdate data) returns Employee|error {

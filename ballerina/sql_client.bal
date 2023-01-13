@@ -51,8 +51,8 @@ public client class SQLClient {
     #
     # + 'object - The record to be inserted into the table
     # + return - An `sql:ExecutionResult` containing the metadata of the query execution
-    # or a `persist:Error` if the operation fails
-    public isolated function runInsertQuery(record {} 'object) returns record{}|sql:ExecutionResult|Error {
+    #            or a `persist:Error` if the operation fails
+    public isolated function runInsertQuery(record {} 'object) returns sql:ExecutionResult|Error {
         sql:ParameterizedQuery query = sql:queryConcat(
             `INSERT INTO `, self.tableName, ` (`,
             self.getInsertColumnNames(), ` ) `,
@@ -72,8 +72,38 @@ public client class SQLClient {
         return result;
     }
 
+    # Performs a batch SQL `INSERT` operation to insert records into a table.
+    #
+    # + objects - The records to be inserted into the table
+    # + return - An `sql:ExecutionResult[]` containing the metadata of the query execution
+    #            or a `persist:Error` if the operation fails
+    public isolated function runBatchInsertQuery(record {}[] objects) returns sql:ExecutionResult[]|Error {
+        sql:ParameterizedQuery[] insertQueries = 
+            from record {} 'object in objects
+            select sql:queryConcat(`INSERT INTO `, self.tableName, ` (`, self.getInsertColumnNames(), ` ) `, `VALUES `, self.getInsertQueryParams('object));
+        
+        sql:ExecutionResult[]|sql:Error result = self.dbClient->batchExecute(insertQueries);
+
+        if result is sql:Error {
+            return <Error>error(result.message());
+        }
+
+        // TODO: optimize using batch queries
+        do {
+            _ = check from record {} 'object in objects
+                do {
+                    check self.populateJoinTables('object);
+                };
+        } on fail error e {
+            return <Error>error(e.message());
+        }
+        
+        return result;
+    }
+
     # Performs an SQL `SELECT` operation to read a single record from the database.
     #
+    # + rowType - The record-type to be retrieved (the record type of the entity)    
     # + key - The value of the key (to be used as the `WHERE` clauses)
     # + include - The relations to be retrieved (SQL `JOINs` to be performed)
     # + return - A record in the `rowType` type or a `persist:Error` if the operation fails
@@ -110,6 +140,7 @@ public client class SQLClient {
 
     # Performs an SQL `SELECT` operation to read multiple records from the database.
     #
+    # + rowType - The record-type to be retrieved (the record type of the entity)    
     # + include - The relations to be retrieved (SQL `JOINs` to be performed)
     # + return - A stream of records in the `rowType` type or a `persist:Error` if the operation fails
     public isolated function runReadQuery(typedesc<record {}> rowType, string[] include = [])

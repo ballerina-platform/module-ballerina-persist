@@ -47,8 +47,8 @@ Department updatedDepartment1 = {
 function departmentCreateTest() returns error? {
     RainierClient rainierClient = check new ();
     
-    Department department = check rainierClient->/departments.post(department1);    
-    test:assertEquals(department, department1);
+    string[] deptNos = check rainierClient->/departments.post([department1]);    
+    test:assertEquals(deptNos, [department1.deptNo]);
 
     Department departmentRetrieved = check rainierClient->/departments/[department1.deptNo].get();
     test:assertEquals(departmentRetrieved, department1);
@@ -57,10 +57,27 @@ function departmentCreateTest() returns error? {
 @test:Config {
     groups: ["department"]
 }
+function departmentCreateTest2() returns error? {
+    RainierClient rainierClient = check new ();
+    
+    string[] deptNos = check rainierClient->/departments.post([department2, department3]);
+
+    test:assertEquals(deptNos, [department2.deptNo, department3.deptNo]);
+
+    Department departmentRetrieved = check rainierClient->/departments/[department2.deptNo].get();
+    test:assertEquals(departmentRetrieved, department2);
+
+    departmentRetrieved = check rainierClient->/departments/[department3.deptNo].get();
+    test:assertEquals(departmentRetrieved, department3);
+}
+
+@test:Config {
+    groups: ["department"]
+}
 function departmentCreateTestNegative() returns error? {
     RainierClient rainierClient = check new ();
     
-    Department|error department = rainierClient->/departments.post(invalidDepartment);   
+    string[]|error department = rainierClient->/departments.post([invalidDepartment]);   
     if department is Error {
         test:assertTrue(department.message().includes("Data truncation: Data too long for column 'deptNo' at row 1."));
     } else {
@@ -95,13 +112,10 @@ function departmentReadOneTestNegative() returns error? {
 
 @test:Config {
     groups: ["department"],
-    dependsOn: [departmentCreateTest]
+    dependsOn: [departmentCreateTest, departmentCreateTest2]
 }
 function departmentReadManyTest() returns error? {
     RainierClient rainierClient = check new ();
-
-    _ = check rainierClient->/departments.post(department2);
-    _ = check rainierClient->/departments.post(department3);
 
     stream<Department, error?> departmentStream = rainierClient->/departments.get();
     Department[] departments = check from Department department in departmentStream 
