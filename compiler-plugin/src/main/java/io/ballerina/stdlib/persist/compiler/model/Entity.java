@@ -88,7 +88,7 @@ public class Entity {
         return this.diagnosticList;
     }
 
-    public void addDiagnostic(String code, String message, DiagnosticSeverity severity, NodeLocation location) {
+    public void reportDiagnostic(String code, String message, DiagnosticSeverity severity, NodeLocation location) {
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(code, message, severity);
         this.diagnosticList.add(DiagnosticFactory.createDiagnostic(diagnosticInfo, location));
     }
