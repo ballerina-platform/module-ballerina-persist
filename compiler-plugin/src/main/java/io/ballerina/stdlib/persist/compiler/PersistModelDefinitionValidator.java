@@ -38,6 +38,10 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         if (!isPersistModelDefinitionDocument(ctx)) {
             return;
         }
+
+        if (Utils.hasCompilationErrors(ctx)) {
+            return;
+        }
     }
 
     private boolean isPersistModelDefinitionDocument(SyntaxNodeAnalysisContext ctx) {
