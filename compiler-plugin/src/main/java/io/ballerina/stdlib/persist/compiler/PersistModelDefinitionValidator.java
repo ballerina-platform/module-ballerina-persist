@@ -18,14 +18,19 @@
 
 package io.ballerina.stdlib.persist.compiler;
 
+import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.OptionalTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
@@ -39,16 +44,30 @@ import io.ballerina.tools.diagnostics.DiagnosticInfo;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTimeTypes.CIVIL;
+import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTimeTypes.DATE;
+import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTimeTypes.TIME_OF_DAY;
+import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTimeTypes.UTC;
+import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.BOOLEAN;
+import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.BYTE;
+import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.DECIMAL;
+import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.FLOAT;
+import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.INT;
+import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.STRING;
 import static io.ballerina.stdlib.persist.compiler.Constants.PERSIST_DIRECTORY;
+import static io.ballerina.stdlib.persist.compiler.Constants.TIME_MODULE;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_101;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_102;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_110;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_111;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_112;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_113;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_114;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_115;
 
 /**
  * Persist model definition validator.
@@ -132,6 +151,93 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                 entity.addDiagnostic(PERSIST_113.getCode(), PERSIST_113.getMessage(), PERSIST_113.getSeverity(),
                         recordFieldNode.location());
             }
+
+            Node typeNode = recordFieldNode.typeName();
+            Node processedTypeNode = typeNode;
+            String typeNamePostfix = "";
+            boolean isArrayType = false;
+            if (processedTypeNode instanceof OptionalTypeDescriptorNode) {
+                processedTypeNode = ((OptionalTypeDescriptorNode) processedTypeNode).typeDescriptor();
+                typeNamePostfix = SyntaxKind.QUESTION_MARK_TOKEN.stringValue();
+            }
+            if (processedTypeNode instanceof ArrayTypeDescriptorNode) {
+                isArrayType = true;
+                ArrayTypeDescriptorNode arrayTypeDescriptorNode = ((ArrayTypeDescriptorNode) processedTypeNode);
+                processedTypeNode = arrayTypeDescriptorNode.memberTypeDesc();
+                typeNamePostfix = SyntaxKind.OPEN_BRACKET_TOKEN.stringValue() +
+                        SyntaxKind.CLOSE_BRACKET_TOKEN.stringValue() + typeNamePostfix;
+            }
+
+            if (processedTypeNode instanceof BuiltinSimpleNameReferenceNode) {
+                String type = ((BuiltinSimpleNameReferenceNode) processedTypeNode).name().text();
+                if (isValidSimpleType(type)) {
+                    if (isArrayType) {
+                        entity.addDiagnostic(PERSIST_115.getCode(), PERSIST_115.getMessage(), PERSIST_115.getSeverity(),
+                                processedTypeNode.location());
+                    }
+                } else if (!(type.equals(BYTE) && isArrayType)) {
+                    entity.addDiagnostic(PERSIST_114.getCode(), MessageFormat.format(PERSIST_114.getMessage(),
+                                    type + typeNamePostfix), PERSIST_114.getSeverity(),
+                                typeNode.location());
+                    }
+            } else if (processedTypeNode instanceof QualifiedNameReferenceNode) {
+                // Support only time constructs
+                QualifiedNameReferenceNode qualifiedName = (QualifiedNameReferenceNode) processedTypeNode;
+                String modulePrefix = qualifiedName.modulePrefix().text();
+                String identifier = qualifiedName.identifier().text();
+                if (isValidImportedType(modulePrefix, identifier)) {
+                    if (isArrayType) {
+                        entity.addDiagnostic(PERSIST_115.getCode(), PERSIST_115.getMessage(), PERSIST_115.getSeverity(),
+                                typeNode.location());
+                    }
+                } else {
+                    entity.addDiagnostic(PERSIST_114.getCode(), MessageFormat.format(PERSIST_114.getMessage(),
+                                    modulePrefix + ":" + identifier + typeNamePostfix), PERSIST_114.getSeverity(),
+                            typeNode.location());
+                }
+            } else if (processedTypeNode instanceof SimpleNameReferenceNode) {
+                String typeName = ((SimpleNameReferenceNode) processedTypeNode).name().text().trim();
+                if (this.enums.contains(typeName)) {
+                    if (isArrayType) {
+                        entity.addDiagnostic(PERSIST_115.getCode(), PERSIST_115.getMessage(), PERSIST_115.getSeverity(),
+                                processedTypeNode.location());
+                    }
+                }
+                // todo: Validate relations
+            } else {
+                //todo: Improve type name in message
+                entity.addDiagnostic(PERSIST_114.getCode(), MessageFormat.format(PERSIST_114.getMessage(),
+                                processedTypeNode.kind().stringValue() + typeNamePostfix), PERSIST_114.getSeverity(),
+                        typeNode.location());
+            }
+        }
+    }
+
+    private boolean isValidSimpleType(String type) {
+        switch (type) {
+            case INT:
+            case BOOLEAN:
+            case DECIMAL:
+            case FLOAT:
+            case STRING:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private boolean isValidImportedType(String modulePrefix, String identifier) {
+        if (!modulePrefix.equals(TIME_MODULE)) {
+            return false;
+        }
+        switch (identifier) {
+            case DATE:
+            case TIME_OF_DAY:
+            case UTC:
+            case CIVIL:
+                return true;
+            default:
+                return false;
         }
     }
 

@@ -42,6 +42,8 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_110;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_111;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_112;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_113;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_114;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_115;
 
 /**
  * Tests persist compiler plugin.
@@ -138,6 +140,32 @@ public class CompilerPluginTest {
                         "(12:4,12:17)",
                         "(13:4,13:26)",
                         "(22:4,22:11)"
+                }
+        );
+    }
+
+    @Test
+    public void validateEntityFieldType() {
+        List<Diagnostic> diagnostics = getDiagnostic("rainier4.bal", 4, DiagnosticSeverity.ERROR);
+        testDiagnostic(
+                diagnostics,
+                new String[]{
+                        "an entity field of array type is not supported",
+                        "an entity field of 'json' type is not supported",
+                        "an entity field of 'json[]' type is not supported",
+                        "an entity field of array type is not supported"
+                },
+                new String[]{
+                        PERSIST_115.getCode(),
+                        PERSIST_114.getCode(),
+                        PERSIST_114.getCode(),
+                        PERSIST_115.getCode()
+                },
+                new String[]{
+                        "(12:4,12:11)",
+                        "(14:4,14:8)",
+                        "(15:4,15:10)",
+                        "(18:4,18:16)"
                 }
         );
     }

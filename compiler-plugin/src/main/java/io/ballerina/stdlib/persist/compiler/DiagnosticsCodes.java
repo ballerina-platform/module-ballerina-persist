@@ -32,7 +32,9 @@ public enum DiagnosticsCodes {
     PERSIST_110("PERSIST_110", "an entity does not support rest descriptor field", ERROR),
     PERSIST_111("PERSIST_111", "an entity does not support defaultable field", ERROR),
     PERSIST_112("PERSIST_112", "an entity does not support inherited field", ERROR),
-    PERSIST_113("PERSIST_113", "an entity does not support optional field", ERROR);
+    PERSIST_113("PERSIST_113", "an entity does not support optional field", ERROR),
+    PERSIST_114("PERSIST_114", "an entity field of ''{0}'' type is not supported", ERROR),
+    PERSIST_115("PERSIST_115", "an entity field of array type is not supported", ERROR);
 
     private final String code;
     private final String message;
