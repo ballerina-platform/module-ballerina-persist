@@ -21,13 +21,15 @@ package io.ballerina.stdlib.persist.compiler;
 import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
-import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
+import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.stdlib.persist.compiler.model.Entity;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 
@@ -38,13 +40,15 @@ import java.util.List;
 
 import static io.ballerina.stdlib.persist.compiler.Constants.PERSIST_DIRECTORY;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_101;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_102;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_103;
 
 /**
  * Persist model definition validator.
  */
 public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeAnalysisContext> {
     private final List<String> enums = new ArrayList<>();
-    private final List<String> entities = new ArrayList<>();
+    private final List<Entity> entities = new ArrayList<>();
 
     @Override
     public void perform(SyntaxNodeAnalysisContext ctx) {
@@ -64,16 +68,36 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             }
             if (member instanceof TypeDefinitionNode) {
                 TypeDefinitionNode typeDefinitionNode = (TypeDefinitionNode) member;
-                Node typeDescriptorNode = typeDefinitionNode.typeDescriptor();
+                TypeDescriptorNode typeDescriptorNode = (TypeDescriptorNode) typeDefinitionNode.typeDescriptor();
                 if (typeDescriptorNode instanceof RecordTypeDescriptorNode) {
-                    this.entities.add(typeDefinitionNode.typeName().text().trim());
+                    String entityName = typeDefinitionNode.typeName().text().trim();
+                    this.entities.add(new Entity(entityName, ((RecordTypeDescriptorNode) typeDescriptorNode)));
                     continue;
                 }
             }
             ctx.reportDiagnostic(DiagnosticFactory.createDiagnostic(
                     new DiagnosticInfo(PERSIST_101.getCode(), PERSIST_101.getMessage(), PERSIST_101.getSeverity()),
-                    member.location()
-            ));
+                    member.location()));
+        }
+
+        for (Entity entity : this.entities) {
+            validateEntityRecordProperties(entity);
+
+            entity.getDiagnostics().forEach((ctx::reportDiagnostic));
+        }
+    }
+
+    private void validateEntityRecordProperties(Entity entity) {
+        // Check whether the entity is a closed record
+        RecordTypeDescriptorNode recordTypeDescriptorNode = entity.getTypeDescriptorNode();
+        if (recordTypeDescriptorNode.bodyStartDelimiter().kind() != SyntaxKind.OPEN_BRACE_PIPE_TOKEN) {
+            entity.addDiagnostic(PERSIST_102.getCode(), PERSIST_102.getMessage(), PERSIST_102.getSeverity(),
+                    recordTypeDescriptorNode.location());
+        }
+        // Check whether the entity has rest field initialization
+        if (recordTypeDescriptorNode.recordRestDescriptor().isPresent()) {
+            entity.addDiagnostic(PERSIST_103.getCode(), PERSIST_103.getMessage(), PERSIST_103.getSeverity(),
+                    recordTypeDescriptorNode.recordRestDescriptor().get().location());
         }
     }
 

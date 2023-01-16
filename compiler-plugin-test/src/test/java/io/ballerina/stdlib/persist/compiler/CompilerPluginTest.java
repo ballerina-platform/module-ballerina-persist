@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_101;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_102;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_103;
 
 /**
  * Tests persist compiler plugin.
@@ -89,9 +91,29 @@ public class CompilerPluginTest {
         testDiagnostic(
                 diagnostics,
                 new String[]{"persist model definition only supports enum and record declarations"},
-                new String[]{PERSIST_101.getCode()}
+                new String[]{PERSIST_101.getCode()},
+                new String[]{"(2:0,3:1)"}
         );
+    }
 
+    @Test
+    public void validateEntityRecordProperties() {
+        List<Diagnostic> diagnostics = getDiagnostic("rainier2.bal", 2, DiagnosticSeverity.ERROR);
+        testDiagnostic(
+                diagnostics,
+                new String[]{
+                        "an entity should be a closed record",
+                        "an entity does not support rest descriptor fields"
+                },
+                new String[]{
+                        PERSIST_102.getCode(),
+                        PERSIST_103.getCode()
+                },
+                new String[]{
+                        "(11:25,17:1)",
+                        "(25:4,25:11)"
+                }
+        );
     }
 
     private List<Diagnostic> getDiagnostic(String modelFileName, int count, DiagnosticSeverity diagnosticSeverity) {
@@ -102,11 +124,15 @@ public class CompilerPluginTest {
         return errorDiagnosticsList;
     }
 
-    private void testDiagnostic(List<Diagnostic> errorDiagnosticsList, String[] msg, String[] code) {
+    private void testDiagnostic(List<Diagnostic> errorDiagnosticsList, String[] messages, String[] codes,
+                                String[] locations) {
         for (int index = 0; index < errorDiagnosticsList.size(); index++) {
-            DiagnosticInfo error = errorDiagnosticsList.get(index).diagnosticInfo();
-            Assert.assertEquals(error.code(), code[index]);
-            Assert.assertTrue(error.messageFormat().startsWith(msg[index]));
+            Diagnostic diagnostic = errorDiagnosticsList.get(index);
+            String location = diagnostic.location().lineRange().toString();
+            Assert.assertEquals(location, locations[index]);
+            DiagnosticInfo diagnosticInfo = diagnostic.diagnosticInfo();
+            Assert.assertEquals(diagnosticInfo.code(), codes[index]);
+            Assert.assertTrue(diagnosticInfo.messageFormat().startsWith(messages[index]));
         }
     }
 }

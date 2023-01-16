@@ -22,9 +22,9 @@ package io.ballerina.stdlib.persist.compiler;
  * Constants class.
  */
 public final class Constants {
+    public static final String PERSIST_DIRECTORY = "persist";
+
     private Constants() {
     }
-
-    public static final String PERSIST_DIRECTORY = "persist";
 
 }
