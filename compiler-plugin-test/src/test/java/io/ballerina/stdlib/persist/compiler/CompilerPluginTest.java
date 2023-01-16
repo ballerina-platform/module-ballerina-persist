@@ -70,7 +70,7 @@ public class CompilerPluginTest {
     @Test
     public void identifyModelFileFailure1() {
         Path projectDirPath = Paths.get("src", "test", "resources", "test-src", "persist").
-                toAbsolutePath().resolve("rainier1.bal");
+                toAbsolutePath().resolve("single-bal.bal");
         SingleFileProject project = SingleFileProject.load(getEnvironmentBuilder(), projectDirPath);
         DiagnosticResult diagnosticResult = project.currentPackage().getCompilation().diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0);
@@ -79,7 +79,7 @@ public class CompilerPluginTest {
     @Test
     public void identifyModelFileFailure2() {
         Path projectDirPath = Paths.get("src", "test", "resources", "test-src", "project_1", "resources").
-                toAbsolutePath().resolve("rainier1.bal");
+                toAbsolutePath().resolve("single-bal.bal");
         SingleFileProject project = SingleFileProject.load(getEnvironmentBuilder(), projectDirPath);
         DiagnosticResult diagnosticResult = project.currentPackage().getCompilation().diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0);
@@ -96,7 +96,7 @@ public class CompilerPluginTest {
 
     @Test
     public void identifyModelFileSuccess() {
-        List<Diagnostic> diagnostics = getDiagnostic("rainier1.bal", 1, DiagnosticSeverity.ERROR);
+        List<Diagnostic> diagnostics = getDiagnostic("valid-persist-model-path.bal", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 diagnostics,
                 new String[]{"persist model definition only supports enum and record declarations"},
@@ -107,7 +107,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateEntityRecordProperties() {
-        List<Diagnostic> diagnostics = getDiagnostic("rainier2.bal", 1, DiagnosticSeverity.ERROR);
+        List<Diagnostic> diagnostics = getDiagnostic("record-properties.bal", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -124,7 +124,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateEntityFieldProperties() {
-        List<Diagnostic> diagnostics = getDiagnostic("rainier3.bal", 4, DiagnosticSeverity.ERROR);
+        List<Diagnostic> diagnostics = getDiagnostic("field-properties.bal", 4, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -150,7 +150,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateEntityFieldType() {
-        List<Diagnostic> diagnostics = getDiagnostic("rainier4.bal", 4, DiagnosticSeverity.ERROR);
+        List<Diagnostic> diagnostics = getDiagnostic("field-types.bal", 4, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -176,7 +176,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateReadonlyFieldCount() {
-        List<Diagnostic> diagnostics = getDiagnostic("rainier5.bal", 1, DiagnosticSeverity.ERROR);
+        List<Diagnostic> diagnostics = getDiagnostic("readonly-field.bal", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -193,7 +193,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateSelfReferencedEntity() {
-        List<Diagnostic> diagnostics = getDiagnostic("rainier6.bal", 1, DiagnosticSeverity.ERROR);
+        List<Diagnostic> diagnostics = getDiagnostic("self-referenced-entity.bal", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -210,7 +210,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateManyToManyRelationship() {
-        List<Diagnostic> diagnostics = getDiagnostic("rainier7.bal", 1, DiagnosticSeverity.ERROR);
+        List<Diagnostic> diagnostics = getDiagnostic("many-to-many.bal", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -227,7 +227,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateMandatoryRelationField() {
-        List<Diagnostic> diagnostics = getDiagnostic("rainier8.bal", 2, DiagnosticSeverity.ERROR);
+        List<Diagnostic> diagnostics = getDiagnostic("mandatory-relation-field.bal", 2, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 diagnostics,
                 new String[]{
