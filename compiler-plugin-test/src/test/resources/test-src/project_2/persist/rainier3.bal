@@ -11,7 +11,7 @@ public type MedicalNeed record {|
 
 public type MedicalNeed2 record {|
     *MedicalNeed;
-    string periodString2?;
+    readonly string periodString2?;
 |};
 
 public type MedicalNeed3 record {|

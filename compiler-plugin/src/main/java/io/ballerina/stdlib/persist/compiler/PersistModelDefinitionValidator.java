@@ -62,6 +62,7 @@ import static io.ballerina.stdlib.persist.compiler.Constants.PERSIST_DIRECTORY;
 import static io.ballerina.stdlib.persist.compiler.Constants.TIME_MODULE;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_101;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_102;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_103;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_110;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_111;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_112;
@@ -97,7 +98,8 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                 TypeDescriptorNode typeDescriptorNode = (TypeDescriptorNode) typeDefinitionNode.typeDescriptor();
                 if (typeDescriptorNode instanceof RecordTypeDescriptorNode) {
                     String entityName = typeDefinitionNode.typeName().text().trim();
-                    this.entities.add(new Entity(entityName, ((RecordTypeDescriptorNode) typeDescriptorNode)));
+                    this.entities.add(new Entity(entityName, typeDefinitionNode.typeName().location(),
+                            ((RecordTypeDescriptorNode) typeDescriptorNode)));
                     continue;
                 }
             }
@@ -109,6 +111,7 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         for (Entity entity : this.entities) {
             validateEntityRecordProperties(entity);
             validateEntityFields(entity);
+            validateIdentifierFieldCount(entity);
             entity.getDiagnostics().forEach((ctx::reportDiagnostic));
         }
     }
@@ -135,7 +138,13 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             RecordFieldNode recordFieldNode;
             if (fieldNode instanceof RecordFieldNode) {
                 recordFieldNode = (RecordFieldNode) fieldNode;
+                if (recordFieldNode.readonlyKeyword().isPresent()) {
+                    entity.incrementReadonlyFieldCount();
+                }
             } else if (fieldNode instanceof RecordFieldWithDefaultValueNode) {
+                if (((RecordFieldWithDefaultValueNode) fieldNode).readonlyKeyword().isPresent()) {
+                    entity.incrementReadonlyFieldCount();
+                }
                 entity.addDiagnostic(PERSIST_111.getCode(), PERSIST_111.getMessage(), PERSIST_111.getSeverity(),
                         fieldNode.location());
                 continue;
@@ -238,6 +247,13 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                 return true;
             default:
                 return false;
+        }
+    }
+
+    private void validateIdentifierFieldCount(Entity entity) {
+        if (entity.getReadonlyFieldCount() == 0) {
+            entity.addDiagnostic(PERSIST_103.getCode(), MessageFormat.format(PERSIST_103.getMessage(),
+                            entity.getEntityName()), PERSIST_103.getSeverity(), entity.getEntityNameLocation());
         }
     }
 

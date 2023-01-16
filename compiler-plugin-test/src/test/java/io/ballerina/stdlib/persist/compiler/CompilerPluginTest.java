@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_101;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_102;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_103;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_110;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_111;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_112;
@@ -138,7 +139,7 @@ public class CompilerPluginTest {
                 new String[]{
                         "(4:4,4:28)",
                         "(12:4,12:17)",
-                        "(13:4,13:26)",
+                        "(13:4,13:35)",
                         "(22:4,22:11)"
                 }
         );
@@ -166,6 +167,23 @@ public class CompilerPluginTest {
                         "(14:4,14:8)",
                         "(15:4,15:10)",
                         "(18:4,18:16)"
+                }
+        );
+    }
+
+    @Test
+    public void validateReadonlyFieldCount() {
+        List<Diagnostic> diagnostics = getDiagnostic("rainier5.bal", 1, DiagnosticSeverity.ERROR);
+        testDiagnostic(
+                diagnostics,
+                new String[]{
+                        "entity 'MedicalNeed' must have an identifier readonly field"
+                },
+                new String[]{
+                        PERSIST_103.getCode()
+                },
+                new String[]{
+                        "(3:12,3:23)"
                 }
         );
     }

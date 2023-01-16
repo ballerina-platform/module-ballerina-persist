@@ -33,11 +33,14 @@ import java.util.List;
  */
 public class Entity {
     private final String entityName;
+    private final NodeLocation entityNameLocation;
+    private int readonlyFieldCount = 0;
     private final RecordTypeDescriptorNode typeDescriptorNode;
     private final List<Diagnostic> diagnosticList = new ArrayList<>();
 
-    public Entity(String entityName, RecordTypeDescriptorNode typeDescriptorNode) {
+    public Entity(String entityName, NodeLocation entityNameLocation, RecordTypeDescriptorNode typeDescriptorNode) {
         this.entityName = entityName;
+        this.entityNameLocation = entityNameLocation;
         this.typeDescriptorNode = typeDescriptorNode;
     }
 
@@ -45,8 +48,20 @@ public class Entity {
         return entityName;
     }
 
+    public NodeLocation getEntityNameLocation() {
+        return entityNameLocation;
+    }
+
     public RecordTypeDescriptorNode getTypeDescriptorNode() {
         return typeDescriptorNode;
+    }
+
+    public int getReadonlyFieldCount() {
+        return readonlyFieldCount;
+    }
+
+    public void incrementReadonlyFieldCount() {
+        this.readonlyFieldCount++;
     }
 
     public List<Diagnostic> getDiagnostics() {

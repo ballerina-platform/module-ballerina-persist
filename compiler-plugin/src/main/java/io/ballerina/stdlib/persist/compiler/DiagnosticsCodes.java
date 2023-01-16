@@ -28,6 +28,7 @@ import static io.ballerina.tools.diagnostics.DiagnosticSeverity.ERROR;
 public enum DiagnosticsCodes {
     PERSIST_101("PERSIST_101", "persist model definition only supports enum and record declarations", ERROR),
     PERSIST_102("PERSIST_102", "an entity should be a closed record", ERROR),
+    PERSIST_103("PERSIST_103", "entity ''{0}'' must have an identifier readonly field", ERROR),
 
     PERSIST_110("PERSIST_110", "an entity does not support rest descriptor field", ERROR),
     PERSIST_111("PERSIST_111", "an entity does not support defaultable field", ERROR),
