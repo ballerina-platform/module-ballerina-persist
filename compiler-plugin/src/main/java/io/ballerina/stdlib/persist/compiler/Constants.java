@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,17 +18,13 @@
 
 package io.ballerina.stdlib.persist.compiler;
 
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.projects.plugins.CodeAnalysisContext;
-import io.ballerina.projects.plugins.CodeAnalyzer;
-
 /**
- * Persist Code Analyzer.
+ * Constants class.
  */
-public class PersistCodeAnalyzer extends CodeAnalyzer {
-
-    @Override
-    public void init(CodeAnalysisContext ctx) {
-        ctx.addSyntaxNodeAnalysisTask(new PersistModelDefinitionValidator(), SyntaxKind.MODULE_PART);
+public final class Constants {
+    private Constants() {
     }
+
+    public static final String PERSIST_DIRECTORY = "persist";
+
 }
