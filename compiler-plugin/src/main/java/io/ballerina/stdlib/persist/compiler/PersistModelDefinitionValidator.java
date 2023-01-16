@@ -18,20 +18,33 @@
 
 package io.ballerina.stdlib.persist.compiler;
 
+import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.tools.diagnostics.DiagnosticFactory;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 import static io.ballerina.stdlib.persist.compiler.Constants.PERSIST_DIRECTORY;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_101;
 
 /**
  * Persist model definition validator.
  */
 public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeAnalysisContext> {
+    private final List<String> enums = new ArrayList<>();
+    private final List<String> entities = new ArrayList<>();
 
     @Override
     public void perform(SyntaxNodeAnalysisContext ctx) {
@@ -41,6 +54,26 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
 
         if (Utils.hasCompilationErrors(ctx)) {
             return;
+        }
+
+        ModulePartNode rootNode = (ModulePartNode) ctx.node();
+        for (ModuleMemberDeclarationNode member : rootNode.members()) {
+            if (member instanceof EnumDeclarationNode) {
+                this.enums.add(((EnumDeclarationNode) member).identifier().text().trim());
+                continue;
+            }
+            if (member instanceof TypeDefinitionNode) {
+                TypeDefinitionNode typeDefinitionNode = (TypeDefinitionNode) member;
+                Node typeDescriptorNode = typeDefinitionNode.typeDescriptor();
+                if (typeDescriptorNode instanceof RecordTypeDescriptorNode) {
+                    this.entities.add(typeDefinitionNode.typeName().text().trim());
+                    continue;
+                }
+            }
+            ctx.reportDiagnostic(DiagnosticFactory.createDiagnostic(
+                    new DiagnosticInfo(PERSIST_101.getCode(), PERSIST_101.getMessage(), PERSIST_101.getSeverity()),
+                    member.location()
+            ));
         }
     }
 

@@ -36,6 +36,8 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_101;
+
 /**
  * Tests persist compiler plugin.
  */
@@ -83,7 +85,13 @@ public class CompilerPluginTest {
 
     @Test
     public void identifyModelFileSuccess() {
-        getDiagnostic("rainier1.bal", 0, DiagnosticSeverity.ERROR);
+        List<Diagnostic> diagnostics = getDiagnostic("rainier1.bal", 1, DiagnosticSeverity.ERROR);
+        testDiagnostic(
+                diagnostics,
+                new String[]{"persist model definition only supports enum and record declarations"},
+                new String[]{PERSIST_101.getCode()}
+        );
+
     }
 
     private List<Diagnostic> getDiagnostic(String modelFileName, int count, DiagnosticSeverity diagnosticSeverity) {
