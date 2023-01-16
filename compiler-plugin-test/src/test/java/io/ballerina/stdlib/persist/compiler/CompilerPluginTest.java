@@ -38,7 +38,10 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_101;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_102;
-import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_103;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_110;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_111;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_112;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_113;
 
 /**
  * Tests persist compiler plugin.
@@ -98,20 +101,43 @@ public class CompilerPluginTest {
 
     @Test
     public void validateEntityRecordProperties() {
-        List<Diagnostic> diagnostics = getDiagnostic("rainier2.bal", 2, DiagnosticSeverity.ERROR);
+        List<Diagnostic> diagnostics = getDiagnostic("rainier2.bal", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 diagnostics,
                 new String[]{
-                        "an entity should be a closed record",
-                        "an entity does not support rest descriptor fields"
+                        "an entity should be a closed record"
                 },
                 new String[]{
-                        PERSIST_102.getCode(),
-                        PERSIST_103.getCode()
+                        PERSIST_102.getCode()
                 },
                 new String[]{
-                        "(11:25,17:1)",
-                        "(25:4,25:11)"
+                        "(11:25,17:1)"
+                }
+        );
+    }
+
+    @Test
+    public void validateEntityFieldProperties() {
+        List<Diagnostic> diagnostics = getDiagnostic("rainier3.bal", 4, DiagnosticSeverity.ERROR);
+        testDiagnostic(
+                diagnostics,
+                new String[]{
+                        "an entity does not support defaultable field",
+                        "an entity does not support inherited field",
+                        "an entity does not support optional field",
+                        "an entity does not support rest descriptor field"
+                },
+                new String[]{
+                        PERSIST_111.getCode(),
+                        PERSIST_112.getCode(),
+                        PERSIST_113.getCode(),
+                        PERSIST_110.getCode()
+                },
+                new String[]{
+                        "(4:4,4:28)",
+                        "(12:4,12:17)",
+                        "(13:4,13:26)",
+                        "(22:4,22:11)"
                 }
         );
     }

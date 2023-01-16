@@ -21,6 +21,10 @@ package io.ballerina.stdlib.persist.compiler;
 import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.RecordFieldNode;
+import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
@@ -41,7 +45,10 @@ import java.util.List;
 import static io.ballerina.stdlib.persist.compiler.Constants.PERSIST_DIRECTORY;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_101;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_102;
-import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_103;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_110;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_111;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_112;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_113;
 
 /**
  * Persist model definition validator.
@@ -82,7 +89,7 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
 
         for (Entity entity : this.entities) {
             validateEntityRecordProperties(entity);
-
+            validateEntityFields(entity);
             entity.getDiagnostics().forEach((ctx::reportDiagnostic));
         }
     }
@@ -94,10 +101,37 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             entity.addDiagnostic(PERSIST_102.getCode(), PERSIST_102.getMessage(), PERSIST_102.getSeverity(),
                     recordTypeDescriptorNode.location());
         }
+    }
+
+    private void validateEntityFields(Entity entity) {
         // Check whether the entity has rest field initialization
-        if (recordTypeDescriptorNode.recordRestDescriptor().isPresent()) {
-            entity.addDiagnostic(PERSIST_103.getCode(), PERSIST_103.getMessage(), PERSIST_103.getSeverity(),
-                    recordTypeDescriptorNode.recordRestDescriptor().get().location());
+        RecordTypeDescriptorNode typeDescriptorNode = entity.getTypeDescriptorNode();
+        if (typeDescriptorNode.recordRestDescriptor().isPresent()) {
+            entity.addDiagnostic(PERSIST_110.getCode(), PERSIST_110.getMessage(), PERSIST_110.getSeverity(),
+                    typeDescriptorNode.recordRestDescriptor().get().location());
+        }
+
+        NodeList<Node> fields = typeDescriptorNode.fields();
+        for (Node fieldNode : fields) {
+            RecordFieldNode recordFieldNode;
+            if (fieldNode instanceof RecordFieldNode) {
+                recordFieldNode = (RecordFieldNode) fieldNode;
+            } else if (fieldNode instanceof RecordFieldWithDefaultValueNode) {
+                entity.addDiagnostic(PERSIST_111.getCode(), PERSIST_111.getMessage(), PERSIST_111.getSeverity(),
+                        fieldNode.location());
+                continue;
+            } else {
+                // Inherited Field
+                entity.addDiagnostic(PERSIST_112.getCode(), PERSIST_112.getMessage(), PERSIST_112.getSeverity(),
+                        fieldNode.location());
+                continue;
+            }
+
+            // Check if optional field
+            if (recordFieldNode.questionMarkToken().isPresent()) {
+                entity.addDiagnostic(PERSIST_113.getCode(), PERSIST_113.getMessage(), PERSIST_113.getSeverity(),
+                        recordFieldNode.location());
+            }
         }
     }
 
