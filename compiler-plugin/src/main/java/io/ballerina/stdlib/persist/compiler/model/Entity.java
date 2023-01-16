@@ -36,6 +36,10 @@ public class Entity {
     private final NodeLocation entityNameLocation;
     private int readonlyFieldCount = 0;
     private final RecordTypeDescriptorNode typeDescriptorNode;
+
+    private boolean containsRelations = false;
+    private final List<RelationField> relationFields = new ArrayList<>();
+
     private final List<Diagnostic> diagnosticList = new ArrayList<>();
 
     public Entity(String entityName, NodeLocation entityNameLocation, RecordTypeDescriptorNode typeDescriptorNode) {
@@ -62,6 +66,22 @@ public class Entity {
 
     public void incrementReadonlyFieldCount() {
         this.readonlyFieldCount++;
+    }
+
+    public boolean isContainsRelations() {
+        return containsRelations;
+    }
+
+    public void setContainsRelations(boolean containsRelations) {
+        this.containsRelations = containsRelations;
+    }
+
+    public List<RelationField> getRelationFields() {
+        return relationFields;
+    }
+
+    public void addRelationField(RelationField relationField) {
+        this.relationFields.add(relationField);
     }
 
     public List<Diagnostic> getDiagnostics() {

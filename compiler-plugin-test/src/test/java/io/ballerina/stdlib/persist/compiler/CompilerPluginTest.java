@@ -45,6 +45,9 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_112;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_113;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_114;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_115;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_121;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_122;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_129;
 
 /**
  * Tests persist compiler plugin.
@@ -184,6 +187,60 @@ public class CompilerPluginTest {
                 },
                 new String[]{
                         "(3:12,3:23)"
+                }
+        );
+    }
+
+    @Test
+    public void validateSelfReferencedEntity() {
+        List<Diagnostic> diagnostics = getDiagnostic("rainier6.bal", 1, DiagnosticSeverity.ERROR);
+        testDiagnostic(
+                diagnostics,
+                new String[]{
+                        "an entity cannot reference itself in association"
+                },
+                new String[]{
+                        PERSIST_121.getCode()
+                },
+                new String[]{
+                        "(8:4,8:26)"
+                }
+        );
+    }
+
+    @Test
+    public void validateManyToManyRelationship() {
+        List<Diagnostic> diagnostics = getDiagnostic("rainier7.bal", 1, DiagnosticSeverity.ERROR);
+        testDiagnostic(
+                diagnostics,
+                new String[]{
+                        "n:m association is not supported yet"
+                },
+                new String[]{
+                        PERSIST_129.getCode()
+                },
+                new String[]{
+                        "(14:4,14:24)"
+                }
+        );
+    }
+
+    @Test
+    public void validateMandatoryRelationField() {
+        List<Diagnostic> diagnostics = getDiagnostic("rainier8.bal", 2, DiagnosticSeverity.ERROR);
+        testDiagnostic(
+                diagnostics,
+                new String[]{
+                        "the associated entity 'Workspace' does not have the field with the relationship type",
+                        "the associated entity 'Building1' does not have the field with the relationship type"
+                },
+                new String[]{
+                        PERSIST_122.getCode(),
+                        PERSIST_122.getCode()
+                },
+                new String[]{
+                        "(8:4,8:27)",
+                        "(27:4,27:23)"
                 }
         );
     }

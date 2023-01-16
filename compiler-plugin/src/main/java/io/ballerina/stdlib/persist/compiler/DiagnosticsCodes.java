@@ -35,7 +35,12 @@ public enum DiagnosticsCodes {
     PERSIST_112("PERSIST_112", "an entity does not support inherited field", ERROR),
     PERSIST_113("PERSIST_113", "an entity does not support optional field", ERROR),
     PERSIST_114("PERSIST_114", "an entity field of ''{0}'' type is not supported", ERROR),
-    PERSIST_115("PERSIST_115", "an entity field of array type is not supported", ERROR);
+    PERSIST_115("PERSIST_115", "an entity field of array type is not supported", ERROR),
+
+    PERSIST_121("PERSIST_121", "an entity cannot reference itself in association", ERROR),
+    PERSIST_122("PERSIST_122",
+            "the associated entity ''{0}'' does not have the field with the relationship type", ERROR),
+    PERSIST_129("PERSIST_129", "n:m association is not supported yet", ERROR);
 
     private final String code;
     private final String message;
