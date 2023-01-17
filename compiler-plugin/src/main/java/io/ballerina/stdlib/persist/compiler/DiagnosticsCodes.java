@@ -41,6 +41,7 @@ public enum DiagnosticsCodes {
     PERSIST_122("PERSIST_122",
             "the associated entity ''{0}'' does not have the field with the relationship type", ERROR),
     PERSIST_123("PERSIST_123", "entity does not support duplicated relations to an associated entity", ERROR),
+    PERSIST_124("PERSIST_124", "entity should not contain foreign key field for relation ''{0}''", ERROR),
     PERSIST_129("PERSIST_129", "n:m association is not supported yet", ERROR);
 
     private final String code;

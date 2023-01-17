@@ -48,6 +48,7 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_115;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_121;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_122;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_123;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_124;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_129;
 
 /**
@@ -262,6 +263,32 @@ public class CompilerPluginTest {
                 new String[]{
                         "(9:4,9:28)",
                         "(31:4,31:24)"
+                }
+        );
+    }
+
+    @Test
+    public void validatePresenceOfForeignKeyField() {
+        List<Diagnostic> diagnostics = getDiagnostic("foreign-key-present.bal", 4, DiagnosticSeverity.ERROR);
+        testDiagnostic(
+                diagnostics,
+                new String[]{
+                        "entity should not contain foreign key field for relation 'Building'",
+                        "entity should not contain foreign key field for relation 'Building2'",
+                        "entity should not contain foreign key field for relation 'Workspace3'",
+                        "entity should not contain foreign key field for relation 'Building4'"
+                },
+                new String[]{
+                        PERSIST_124.getCode(),
+                        PERSIST_124.getCode(),
+                        PERSIST_124.getCode(),
+                        PERSIST_124.getCode()
+                },
+                new String[]{
+                        "(15:4,15:32)",
+                        "(22:4,22:33)",
+                        "(42:4,42:33)",
+                        "(56:4,56:33)"
                 }
         );
     }

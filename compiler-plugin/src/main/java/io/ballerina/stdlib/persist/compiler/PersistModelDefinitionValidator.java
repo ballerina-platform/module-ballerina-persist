@@ -25,6 +25,7 @@ import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.NodeLocation;
 import io.ballerina.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
@@ -49,6 +50,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTimeTypes.CIVIL;
@@ -75,6 +77,7 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_115;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_121;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_122;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_123;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_124;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_129;
 
 /**
@@ -129,7 +132,7 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             if (this.deferredRelationKeyEntities.containsKey(entityName)) {
                 List<RelationField> annotatedFields = this.deferredRelationKeyEntities.get(entityName);
                 for (RelationField field : annotatedFields) {
-                    validateRelation(field, entity, entity);
+                    validateRelation(field, this.entities.get(field.getContainingEntity()), entity, entity);
                 }
             }
 
@@ -162,10 +165,13 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                 recordFieldNode = (RecordFieldNode) fieldNode;
                 if (recordFieldNode.readonlyKeyword().isPresent()) {
                     entity.incrementReadonlyFieldCount();
+                    entity.addIdentifierField(recordFieldNode.fieldName().text().trim());
                 }
             } else if (fieldNode instanceof RecordFieldWithDefaultValueNode) {
-                if (((RecordFieldWithDefaultValueNode) fieldNode).readonlyKeyword().isPresent()) {
+                RecordFieldWithDefaultValueNode defaultableNode = (RecordFieldWithDefaultValueNode) fieldNode;
+                if (defaultableNode.readonlyKeyword().isPresent()) {
                     entity.incrementReadonlyFieldCount();
+                    entity.addIdentifierField(defaultableNode.fieldName().text().trim());
                 }
                 entity.reportDiagnostic(PERSIST_111.getCode(), PERSIST_111.getMessage(), PERSIST_111.getSeverity(),
                         fieldNode.location());
@@ -209,8 +215,9 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                 } else if (!(type.equals(BYTE) && isArrayType)) {
                     entity.reportDiagnostic(PERSIST_114.getCode(), MessageFormat.format(PERSIST_114.getMessage(),
                                     type + typeNamePostfix), PERSIST_114.getSeverity(),
-                                typeNode.location());
-                    }
+                            typeNode.location());
+                }
+                entity.addNonRelationField(recordFieldNode.fieldName().text().trim(), recordFieldNode.location());
             } else if (processedTypeNode instanceof QualifiedNameReferenceNode) {
                 // Support only time constructs
                 QualifiedNameReferenceNode qualifiedName = (QualifiedNameReferenceNode) processedTypeNode;
@@ -226,6 +233,7 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                                     modulePrefix + ":" + identifier + typeNamePostfix), PERSIST_114.getSeverity(),
                             typeNode.location());
                 }
+                entity.addNonRelationField(recordFieldNode.fieldName().text().trim(), recordFieldNode.location());
             } else if (processedTypeNode instanceof SimpleNameReferenceNode) {
                 String typeName = ((SimpleNameReferenceNode) processedTypeNode).name().text().trim();
                 if (this.enums.contains(typeName)) {
@@ -233,6 +241,7 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                         entity.reportDiagnostic(PERSIST_115.getCode(), PERSIST_115.getMessage(),
                                 PERSIST_115.getSeverity(), processedTypeNode.location());
                     }
+                    entity.addNonRelationField(recordFieldNode.fieldName().text().trim(), recordFieldNode.location());
                 } else {
                     entity.setContainsRelations(true);
                     entity.addRelationField(new RelationField(typeName, isArrayType, recordFieldNode.location(),
@@ -278,7 +287,7 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
     private void validateIdentifierFieldCount(Entity entity) {
         if (entity.getReadonlyFieldCount() == 0) {
             entity.reportDiagnostic(PERSIST_103.getCode(), MessageFormat.format(PERSIST_103.getMessage(),
-                            entity.getEntityName()), PERSIST_103.getSeverity(), entity.getEntityNameLocation());
+                    entity.getEntityName()), PERSIST_103.getSeverity(), entity.getEntityNameLocation());
         }
     }
 
@@ -307,7 +316,7 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             validRelationTypes.add(relationField.getType());
 
             if (this.entities.containsKey(referredEntity)) {
-                validateRelation(relationField, this.entities.get(referredEntity), entity);
+                validateRelation(relationField, entity, this.entities.get(referredEntity), entity);
                 if (this.deferredRelationKeyEntities.containsKey(entity.getEntityName())) {
                     List<RelationField> referredFields = this.deferredRelationKeyEntities.get(entity.getEntityName());
                     referredFields.removeIf(field -> field.getContainingEntity().equals(referredEntity));
@@ -327,7 +336,7 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         }
     }
 
-    private void validateRelation(RelationField processingField, Entity referredEntity,
+    private void validateRelation(RelationField processingField, Entity processingEntity, Entity referredEntity,
                                   Entity reportDiagnosticsEntity) {
 
         RelationField referredField = null;
@@ -345,12 +354,47 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             return;
         }
 
+        // 1:1 relations
+        if (!processingField.isArrayType() && !referredField.isArrayType()) {
+            // Processing second entity
+            if (processingEntity.getEntityName().equals(reportDiagnosticsEntity.getEntityName())) {
+                validatePresenceOfForeignKey(referredEntity, processingEntity, reportDiagnosticsEntity);
+            } else {
+                validatePresenceOfForeignKey(processingEntity, referredEntity, reportDiagnosticsEntity);
+            }
+            return;
+        }
+
+        // n:m relations
         if (processingField.isArrayType() && referredField.isArrayType()) {
             reportDiagnosticsEntity.reportDiagnostic(PERSIST_129.getCode(),
                     MessageFormat.format(PERSIST_129.getMessage(), referredEntity.getEntityName()),
                     PERSIST_129.getSeverity(), processingField.getLocation());
+            return;
+        }
+
+        // 1:n relations
+        if (!processingField.isArrayType()) {
+            validatePresenceOfForeignKey(processingEntity, referredEntity, reportDiagnosticsEntity);
+        } else {
+            validatePresenceOfForeignKey(referredEntity, processingEntity, reportDiagnosticsEntity);
         }
     }
+
+    private void validatePresenceOfForeignKey(Entity parentEntity, Entity childEntity,
+                                              Entity reportDiagnosticsEntity) {
+        for (String identifierField : childEntity.getIdentifierFields()) {
+            String foreignKey = childEntity.getEntityName().toLowerCase(Locale.ENGLISH) +
+                    identifierField.substring(0, 1).toUpperCase(Locale.ENGLISH) + identifierField.substring(1);
+            NodeLocation foreignKeyFieldLocation = parentEntity.getNonRelationFields().get(foreignKey);
+            if (foreignKeyFieldLocation != null) {
+                reportDiagnosticsEntity.reportDiagnostic(PERSIST_124.getCode(),
+                        MessageFormat.format(PERSIST_124.getMessage(), childEntity.getEntityName()),
+                        PERSIST_124.getSeverity(), foreignKeyFieldLocation);
+            }
+        }
+    }
+
 
     private boolean isPersistModelDefinitionDocument(SyntaxNodeAnalysisContext ctx) {
         try {
