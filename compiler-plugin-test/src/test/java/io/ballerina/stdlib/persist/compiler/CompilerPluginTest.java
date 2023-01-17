@@ -22,6 +22,7 @@ import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -35,463 +36,232 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_101;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_102;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_103;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_110;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_111;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_112;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_113;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_114;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_115;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_121;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_122;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_129;
+
 /**
  * Tests persist compiler plugin.
  */
 public class CompilerPluginTest {
 
     private static ProjectEnvironmentBuilder getEnvironmentBuilder() {
-        Path distributionPath = Paths.get("../", "target", "ballerina-runtime")
-                .toAbsolutePath();
+        Path distributionPath = Paths.get("../", "target", "ballerina-runtime").toAbsolutePath();
         Environment environment = EnvironmentBuilder.getBuilder().setBallerinaHome(distributionPath).build();
         return ProjectEnvironmentBuilder.getBuilder(environment);
     }
 
-    private Package loadPackage(String path) {
-        Path projectDirPath = Paths.get("src", "test", "resources", "test-src", "plugin").
-                toAbsolutePath().resolve(path);
-        BuildProject project = BuildProject.load(getEnvironmentBuilder(), projectDirPath);
+    private Package loadPersistModelFile(String name) {
+        Path projectDirPath = Paths.get("src", "test", "resources", "test-src", "project_2", "persist").
+                toAbsolutePath().resolve(name);
+        SingleFileProject project = SingleFileProject.load(getEnvironmentBuilder(), projectDirPath);
         return project.currentPackage();
     }
 
     @Test
-    public void testEntityAnnotation1() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_01", 3, DiagnosticSeverity.ERROR);
-        testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "invalid id: the given id is not in the record definition",
-                        "invalid id: the given id is not in the record definition",
-                        "invalid entity initialisation: the associated entity[Item] does not have the " +
-                                "field with the relationship type"
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_102.getCode(),
-                        DiagnosticsCodes.PERSIST_102.getCode(),
-                        DiagnosticsCodes.PERSIST_115.getCode(),
-                });
+    public void identifyModelFileFailure1() {
+        Path projectDirPath = Paths.get("src", "test", "resources", "test-src", "persist").
+                toAbsolutePath().resolve("single-bal.bal");
+        SingleFileProject project = SingleFileProject.load(getEnvironmentBuilder(), projectDirPath);
+        DiagnosticResult diagnosticResult = project.currentPackage().getCompilation().diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0);
     }
 
     @Test
-    public void testEntityAnnotation2() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_02", 4, DiagnosticSeverity.ERROR);
-        testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "invalid id: the given id is not in the record definition",
-                        "invalid id: the given id is not in the record definition",
-                        "invalid initialization: auto increment is only allowed for an id field",
-                        "invalid entity initialisation: the associated entity[Item] does not have the field " +
-                                "with the relationship type"
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_102.getCode(),
-                        DiagnosticsCodes.PERSIST_102.getCode(),
-                        DiagnosticsCodes.PERSIST_108.getCode(),
-                        DiagnosticsCodes.PERSIST_115.getCode()
-                });
+    public void identifyModelFileFailure2() {
+        Path projectDirPath = Paths.get("src", "test", "resources", "test-src", "project_1", "resources").
+                toAbsolutePath().resolve("single-bal.bal");
+        SingleFileProject project = SingleFileProject.load(getEnvironmentBuilder(), projectDirPath);
+        DiagnosticResult diagnosticResult = project.currentPackage().getCompilation().diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0);
     }
 
     @Test
-    public void testEntityAnnotation3() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_35", 2, DiagnosticSeverity.ERROR);
-        testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "'id' does not allow duplicate value/s",
-                        "'unique' does not allow duplicate value/s"
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_131.getCode(),
-                        DiagnosticsCodes.PERSIST_131.getCode()
-                });
+    public void skipValidationsForBalProjectFiles() {
+        Path projectDirPath = Paths.get("src", "test", "resources", "test-src", "project_1").
+                toAbsolutePath();
+        BuildProject project2 = BuildProject.load(getEnvironmentBuilder(), projectDirPath);
+        DiagnosticResult diagnosticResult = project2.currentPackage().getCompilation().diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0);
     }
 
     @Test
-    public void testEntityAnnotation4() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_36", 3, DiagnosticSeverity.ERROR);
+    public void identifyModelFileSuccess() {
+        List<Diagnostic> diagnostics = getDiagnostic("valid-persist-model-path.bal", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "'id' cannot be an empty array",
-                        "'unique' cannot be an empty array",
-                        "'unique' cannot be an empty array",
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_123.getCode(),
-                        DiagnosticsCodes.PERSIST_123.getCode(),
-                        DiagnosticsCodes.PERSIST_123.getCode()
-                });
+                diagnostics,
+                new String[]{"persist model definition only supports enum and record declarations"},
+                new String[]{PERSIST_101.getCode()},
+                new String[]{"(2:0,3:1)"}
+        );
     }
 
     @Test
-    public void testPrimaryKeyMarkReadOnly() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_03", 3, DiagnosticSeverity.ERROR);
+    public void validateEntityRecordProperties() {
+        List<Diagnostic> diagnostics = getDiagnostic("record-properties.bal", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
-                errorDiagnosticsList,
+                diagnostics,
                 new String[]{
-                        "'Id' field 'itemId' is not specified as read-only",
-                        "'Id' field 'needId' is not specified as read-only",
-                        "'AutoIncrement' field 'needId' is not specified as read-only"
+                        "an entity should be a closed record"
                 },
                 new String[]{
-                        DiagnosticsCodes.PERSIST_106.getCode(),
-                        DiagnosticsCodes.PERSIST_106.getCode(),
-                        DiagnosticsCodes.PERSIST_106.getCode()
-                });
+                        PERSIST_102.getCode()
+                },
+                new String[]{
+                        "(11:25,17:1)"
+                }
+        );
     }
 
     @Test
-    public void testAutoIncrementAnnotation1() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_05", 2, DiagnosticSeverity.ERROR);
+    public void validateEntityFieldProperties() {
+        List<Diagnostic> diagnostics = getDiagnostic("field-properties.bal", 4, DiagnosticSeverity.ERROR);
         testDiagnostic(
-                errorDiagnosticsList,
+                diagnostics,
                 new String[]{
-                        "invalid value: the value only supports positive integer",
-                        "invalid entity initialisation: the associated entity[Item] does not have the field " +
-                                "with the relationship type"
+                        "an entity does not support defaultable field",
+                        "an entity does not support inherited field",
+                        "an entity does not support optional field",
+                        "an entity does not support rest descriptor field"
                 },
                 new String[]{
-                        DiagnosticsCodes.PERSIST_103.getCode(),
-                        DiagnosticsCodes.PERSIST_115.getCode()
-                });
+                        PERSIST_111.getCode(),
+                        PERSIST_112.getCode(),
+                        PERSIST_113.getCode(),
+                        PERSIST_110.getCode()
+                },
+                new String[]{
+                        "(4:4,4:28)",
+                        "(12:4,12:17)",
+                        "(13:4,13:35)",
+                        "(22:4,22:11)"
+                }
+        );
     }
 
     @Test
-    public void testRelationAnnotationMismatchReference() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_06", 2, DiagnosticSeverity.ERROR);
+    public void validateEntityFieldType() {
+        List<Diagnostic> diagnostics = getDiagnostic("field-types.bal", 4, DiagnosticSeverity.ERROR);
         testDiagnostic(
-                errorDiagnosticsList,
+                diagnostics,
                 new String[]{
-                        "mismatch reference: the given key count is mismatched with reference key count",
-                        "invalid entity initialisation: the associated entity[Item] does not have the field " +
-                                "with the relationship type"
+                        "an entity field of array type is not supported",
+                        "an entity field of 'json' type is not supported",
+                        "an entity field of 'json[]' type is not supported",
+                        "an entity field of array type is not supported"
                 },
                 new String[]{
-                        DiagnosticsCodes.PERSIST_109.getCode(),
-                        DiagnosticsCodes.PERSIST_115.getCode()
-                });
+                        PERSIST_115.getCode(),
+                        PERSIST_114.getCode(),
+                        PERSIST_114.getCode(),
+                        PERSIST_115.getCode()
+                },
+                new String[]{
+                        "(12:4,12:11)",
+                        "(14:4,14:8)",
+                        "(15:4,15:10)",
+                        "(18:4,18:16)"
+                }
+        );
     }
 
     @Test
-    public void testOptionalTypeField() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_07", 2, DiagnosticSeverity.ERROR);
+    public void validateReadonlyFieldCount() {
+        List<Diagnostic> diagnostics = getDiagnostic("readonly-field.bal", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
-                errorDiagnosticsList,
+                diagnostics,
                 new String[]{
-                        "invalid field type: the persist client does not support the union type",
-                        "invalid entity initialisation: the associated entity[Item] does not have the field " +
-                                "with the relationship type"
+                        "entity 'MedicalNeed' must have an identifier readonly field"
                 },
                 new String[]{
-                        DiagnosticsCodes.PERSIST_101.getCode(),
-                        DiagnosticsCodes.PERSIST_115.getCode()
-                });
+                        PERSIST_103.getCode()
+                },
+                new String[]{
+                        "(3:12,3:23)"
+                }
+        );
     }
 
     @Test
-    public void testOptionalField() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_37", 1, DiagnosticSeverity.ERROR);
+    public void validateSelfReferencedEntity() {
+        List<Diagnostic> diagnostics = getDiagnostic("self-referenced-entity.bal", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
-                errorDiagnosticsList,
+                diagnostics,
                 new String[]{
-                        "invalid field initialization: 'id' does not support optional filed initialization"
+                        "an entity cannot reference itself in association"
                 },
                 new String[]{
-                        DiagnosticsCodes.PERSIST_104.getCode()
-                });
+                        PERSIST_121.getCode()
+                },
+                new String[]{
+                        "(8:4,8:26)"
+                }
+        );
     }
 
     @Test
-    public void testAutoIncrementField() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_10", 2, DiagnosticSeverity.ERROR);
+    public void validateManyToManyRelationship() {
+        List<Diagnostic> diagnostics = getDiagnostic("many-to-many.bal", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
-                errorDiagnosticsList,
+                diagnostics,
                 new String[]{
-                        "invalid initialization: auto increment is only allowed for an id field",
-                        "invalid entity initialisation: the associated entity[Item] does not have the field with " +
-                                "the relationship type"
+                        "n:m association is not supported yet"
                 },
                 new String[]{
-                        DiagnosticsCodes.PERSIST_108.getCode(),
-                        DiagnosticsCodes.PERSIST_115.getCode()
-                });
+                        PERSIST_129.getCode()
+                },
+                new String[]{
+                        "(14:4,14:24)"
+                }
+        );
     }
 
     @Test
-    public void testFieldInitialization() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_33", 1, DiagnosticSeverity.ERROR);
+    public void validateMandatoryRelationField() {
+        List<Diagnostic> diagnostics = getDiagnostic("mandatory-relation-field.bal", 2, DiagnosticSeverity.ERROR);
         testDiagnostic(
-                errorDiagnosticsList,
+                diagnostics,
                 new String[]{
-                        "invalid field initialization: ''persist:Entity'' does not allow an inherited field"
+                        "the associated entity 'Workspace' does not have the field with the relationship type",
+                        "the associated entity 'Building1' does not have the field with the relationship type"
                 },
                 new String[]{
-                        DiagnosticsCodes.PERSIST_129.getCode()
-                });
-    }
-
-    @Test
-    public void testFieldInitialization1() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_34", 1, DiagnosticSeverity.ERROR);
-        testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "invalid field initialization: ''persist:Entity'' fields can not be initialized by " +
-                                "using the rest field type definition"
+                        PERSIST_122.getCode(),
+                        PERSIST_122.getCode()
                 },
                 new String[]{
-                        DiagnosticsCodes.PERSIST_130.getCode()
-                });
+                        "(8:4,8:27)",
+                        "(27:4,27:23)"
+                }
+        );
     }
 
-    @Test
-    public void testInvalidInitialisation() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_14", 2, DiagnosticSeverity.ERROR);
-        testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "invalid entity initialisation: the associated entity[Item] does not have the " +
-                                "field with the relationship type",
-                        "invalid entity initialisation: the associated entity[Item1] does not have the field " +
-                                "with the relationship type"
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_115.getCode(),
-                        DiagnosticsCodes.PERSIST_115.getCode()
-                });
-    }
-
-    @Test
-    public void testInvalidInitialisation1() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_15", 1, DiagnosticSeverity.ERROR);
-        testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "invalid annotation attachment: the `one-to-many` relation annotation can not be attached " +
-                                "to the array entity record field"
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_118.getCode()
-                });
-    }
-
-    @Test
-    public void testInvalidInitialisation2() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_16", 1, DiagnosticSeverity.ERROR);
-        testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "invalid entity initialisation: the relation annotation should only be added to the " +
-                                "relationship owner for one-to-one associations"
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_116.getCode()
-                });
-    }
-
-    @Test
-    public void testInvalidInitialisation3() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_38", 1, DiagnosticSeverity.ERROR);
-        testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "invalid entity initialisation: the associated record[RecordTest1] is not an entity"
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_132.getCode()
-                });
-    }
-
-    @Test
-    public void testUnSupportedFeature1() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_22", 1, DiagnosticSeverity.ERROR);
-        testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "unsupported features: array type is not supported"
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_120.getCode()
-                });
-    }
-
-    @Test
-    public void testUnSupportedFeature2() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_23", 1, DiagnosticSeverity.ERROR);
-        testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "unsupported features: array type is not supported"
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_120.getCode()
-                });
-    }
-
-    @Test
-    public void testUnSupportedFeature3() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_24", 1, DiagnosticSeverity.ERROR);
-        testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "unsupported features: json type is not supported"
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_121.getCode()
-                });
-    }
-
-    @Test
-    public void testUnSupportedFeature4() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_25", 1, DiagnosticSeverity.ERROR);
-        testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "unsupported features: json type is not supported",
-                        "unsupported features: json type is not supported"
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_121.getCode(),
-                        DiagnosticsCodes.PERSIST_121.getCode()
-                });
-    }
-
-    @Test
-    public void testInvalidAnnotation() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_18", 1, DiagnosticSeverity.ERROR);
-        testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "invalid annotation attachment: the `one-to-many` relation annotation can not be " +
-                                "attached to the array entity record field"
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_118.getCode()
-                });
-    }
-
-    @Test
-    public void testInvalidAnnotation1() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_19", 1, DiagnosticSeverity.ERROR);
-        testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "invalid annotation attachment: this non-entity type field does not allow a relation annotation"
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_117.getCode()
-                });
-    }
-
-    @Test
-    public void testInvalidAnnotation2() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_08", 1, DiagnosticSeverity.ERROR);
-        testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "relation annotation can only be attached to an entity record"
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_125.getCode()
-                });
-    }
-
-    @Test
-    public void testInvalidAnnotation3() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_09", 1, DiagnosticSeverity.ERROR);
-        testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "auto increment annotation can only be attached to an entity record"
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_126.getCode()
-                });
-    }
-
-    @Test
-    public void testInvalidAnnotation4() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_32", 3, DiagnosticSeverity.ERROR);
-        testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "invalid attachment: ''persist:Entity'' annotation is only allowed on record type description",
-                        "invalid attachment: ''persist:Entity'' annotation is only allowed on record type description",
-                        "invalid attachment: ''persist:Entity'' annotation is only allowed on record type description"
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_128.getCode(),
-                        DiagnosticsCodes.PERSIST_128.getCode(),
-                        DiagnosticsCodes.PERSIST_128.getCode()
-                });
-
-    }
-
-    @Test
-    public void testEntityName1() {
-        List<Diagnostic> warningDiagnosticsList = getDiagnostic("package_21", 5, DiagnosticSeverity.WARNING);
-        testDiagnostic(
-                warningDiagnosticsList,
-                new String[]{
-                        "entities are defined in more than one module, move all entities to a single module",
-                        "entities are defined in more than one module, move all entities to a single module",
-                        "entities are defined in more than one module, move all entities to a single module",
-                        "entities are defined in more than one module, move all entities to a single module",
-                        "entities are defined in more than one module, move all entities to a single module"
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_119.getCode(),
-                        DiagnosticsCodes.PERSIST_119.getCode(),
-                        DiagnosticsCodes.PERSIST_119.getCode(),
-                        DiagnosticsCodes.PERSIST_119.getCode(),
-                        DiagnosticsCodes.PERSIST_119.getCode()
-                });
-    }
-
-    @Test
-    public void testEntityClosedRecord() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_30", 1, DiagnosticSeverity.ERROR);
-        testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "the entity 'MedicalNeed' should be a closed record"
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_124.getCode()
-                });
-    }
-
-    @Test
-    public void testEntityClosedRecord2() {
-        List<Diagnostic> errorDiagnosticsList = getDiagnostic("package_31", 2,
-                DiagnosticSeverity.ERROR);
-        testDiagnostic(
-                errorDiagnosticsList,
-                new String[]{
-                        "the entity 'MedicalNeed2' should be a closed record",
-                        "unsupported features: in-line record type is not supported"
-                },
-                new String[]{
-                        DiagnosticsCodes.PERSIST_124.getCode(),
-                        DiagnosticsCodes.PERSIST_121.getCode()
-                });
-    }
-
-    private List<Diagnostic> getDiagnostic(String packageName, int count, DiagnosticSeverity diagnosticSeverity) {
-        DiagnosticResult diagnosticResult = loadPackage(packageName).getCompilation().diagnosticResult();
+    private List<Diagnostic> getDiagnostic(String modelFileName, int count, DiagnosticSeverity diagnosticSeverity) {
+        DiagnosticResult diagnosticResult = loadPersistModelFile(modelFileName).getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().filter
                 (r -> r.diagnosticInfo().severity().equals(diagnosticSeverity)).collect(Collectors.toList());
         Assert.assertEquals(errorDiagnosticsList.size(), count);
         return errorDiagnosticsList;
-
     }
 
-    private void testDiagnostic(List<Diagnostic> errorDiagnosticsList, String[] msg, String[] code) {
+    private void testDiagnostic(List<Diagnostic> errorDiagnosticsList, String[] messages, String[] codes,
+                                String[] locations) {
         for (int index = 0; index < errorDiagnosticsList.size(); index++) {
-            DiagnosticInfo error = errorDiagnosticsList.get(index).diagnosticInfo();
-            Assert.assertEquals(error.code(), code[index]);
-            Assert.assertTrue(error.messageFormat().startsWith(msg[index]));
+            Diagnostic diagnostic = errorDiagnosticsList.get(index);
+            String location = diagnostic.location().lineRange().toString();
+            Assert.assertEquals(location, locations[index]);
+            DiagnosticInfo diagnosticInfo = diagnostic.diagnosticInfo();
+            Assert.assertEquals(diagnosticInfo.code(), codes[index]);
+            Assert.assertTrue(diagnosticInfo.messageFormat().startsWith(messages[index]));
         }
     }
 }

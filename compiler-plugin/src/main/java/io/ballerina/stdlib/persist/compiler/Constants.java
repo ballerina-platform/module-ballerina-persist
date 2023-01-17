@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,66 +18,14 @@
 
 package io.ballerina.stdlib.persist.compiler;
 
-import io.ballerina.compiler.syntax.tree.LiteralValueToken;
-import io.ballerina.compiler.syntax.tree.NodeFactory;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.Token;
-
-import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createEmptyMinutiaeList;
-
 /**
- * Constants for Persist compiler plugin.
+ * Constants class.
  */
-public class Constants {
-
-    private Constants() {}
-
-    public static final String PERSIST_MODULE = "persist";
+public final class Constants {
+    public static final String PERSIST_DIRECTORY = "persist";
     public static final String TIME_MODULE = "time";
-    public static final String INCREMENT = "increment";
-    public static final String ONE = "1";
-    public static final String READ_FUNCTION = "read";
-    public static final String EXECUTE_FUNCTION = "execute";
-    public static final String BACKTICK = "`";
-    public static final String SPACE = " ";
-    public static final String OPEN_BRACES = "( ";
-    public static final String CLOSE_BRACES = ") ";
-    public static final String ASCENDING = "ascending";
-    public static final String BAL_ESCAPE_TOKEN = "'";
-    public static final String PERSIST_INHERITANCE_NODE = "*persist:AbstractPersistClient;";
 
-    /**
-     * Constants for annotation names.
-     */
-    public static class Annotations {
-        private Annotations() {}
-
-        public static final String ENTITY = "Entity";
-        public static final String AUTO_INCREMENT = "AutoIncrement";
-        public static final String RELATION = "Relation";
-    }
-
-    /**
-     * Constant representing Entity annotation descriptor.
-     */
-    public static class EntityAnnotation {
-        private EntityAnnotation() {}
-
-        public static final String ID = "id";
-        public static final String UNIQUE_CONSTRAINTS = "unique";
-    }
-
-    /**
-     * Constant representing Relation annotation descriptor.
-     */
-    public static class RelationAnnotation {
-        private RelationAnnotation() {}
-
-        public static final String NAME = "name";
-        public static final String KEY_COLUMNS = "fields";
-        public static final String REFERENCED_FIELDS = "referencedFields";
-        public static final String ON_DELETE = "onDelete";
-        public static final String ON_UPDATE = "onUpdate";
+    private Constants() {
     }
 
     /**
@@ -106,38 +54,6 @@ public class Constants {
         public static final String TIME_OF_DAY = "TimeOfDay";
         public static final String UTC = "Utc";
         public static final String CIVIL = "Civil";
-    }
-
-    /**
-     * SQL keywords used to construct the query.
-     */
-    public static final class SQLKeyWords {
-
-        private SQLKeyWords() {}
-
-        public static final String WHERE = "WHERE";
-        public static final String LIMIT = "LIMIT";
-        public static final String ORDERBY = "ORDER BY";
-        public static final String ORDER_BY_ASCENDING = "ASC";
-        public static final String ORDER_BY_DECENDING = "DESC";
-        public static final String NOT_EQUAL_TOKEN = "<>";
-        public static final String AND = "AND";
-        public static final String OR = "OR";
-    }
-
-    /**
-     * Constant nodes used in code modification.
-     */
-    public static final class TokenNodes {
-
-        private TokenNodes() {}
-
-        public static final Token INTERPOLATION_START_TOKEN = NodeFactory.createLiteralValueToken(
-                SyntaxKind.INTERPOLATION_START_TOKEN, "${", createEmptyMinutiaeList(), createEmptyMinutiaeList());
-        public static final Token INTERPOLATION_END_TOKEN = NodeFactory.createLiteralValueToken(
-                SyntaxKind.CLOSE_BRACE_TOKEN, "}", createEmptyMinutiaeList(), createEmptyMinutiaeList());
-        public static final LiteralValueToken BACKTICK_TOKEN = NodeFactory.createLiteralValueToken(
-                SyntaxKind.BACKTICK_TOKEN, BACKTICK, createEmptyMinutiaeList(), createEmptyMinutiaeList());
     }
 
 }

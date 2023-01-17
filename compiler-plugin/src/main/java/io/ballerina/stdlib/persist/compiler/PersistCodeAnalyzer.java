@@ -18,6 +18,7 @@
 
 package io.ballerina.stdlib.persist.compiler;
 
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.plugins.CodeAnalysisContext;
 import io.ballerina.projects.plugins.CodeAnalyzer;
 
@@ -27,8 +28,7 @@ import io.ballerina.projects.plugins.CodeAnalyzer;
 public class PersistCodeAnalyzer extends CodeAnalyzer {
 
     @Override
-    public void init(CodeAnalysisContext codeAnalysisContext) {
-//        codeAnalysisContext.addSyntaxNodeAnalysisTask(new PersistRecordValidator(),
-//                List.of(SyntaxKind.TYPE_DEFINITION, SyntaxKind.ENUM_DECLARATION, SyntaxKind.TYPE_CAST_EXPRESSION));
+    public void init(CodeAnalysisContext ctx) {
+        ctx.addSyntaxNodeAnalysisTask(new PersistModelDefinitionValidator(), SyntaxKind.MODULE_PART);
     }
 }
