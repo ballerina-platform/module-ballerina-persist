@@ -86,7 +86,8 @@ function employeeCreateTest() returns error? {
 }
 
 @test:Config {
-    groups: ["employee"]
+    groups: ["employee"],
+    dependsOn: [workspaceDeleteTestNegative, departmentDeleteTestNegative]
 }
 function employeeCreateTest2() returns error? {
     RainierClient rainierClient = check new ();
