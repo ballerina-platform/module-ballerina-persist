@@ -1,15 +1,3 @@
-ignore:
-  - "compiler-plugin/src/main/java/io/ballerina/stdlib/persist/compiler/NotSupportedExpressionException.java"
-  - "compiler-plugin/src/main/java/io/ballerina/stdlib/persist/compiler/PersistClientIdentifierTask.java"
-  - "compiler-plugin/src/main/java/io/ballerina/stdlib/persist/compiler/PersistClientVariableIdentifierTask.java"
-  - "compiler-plugin/src/main/java/io/ballerina/stdlib/persist/compiler/PersistCodeAnalyzer.java"
-  - "compiler-plugin/src/main/java/io/ballerina/stdlib/persist/compiler/PersistCodeModifier.java"
-  - "compiler-plugin/src/main/java/io/ballerina/stdlib/persist/compiler/PersistQueryRemoteMethodValidator.java"
-  - "compiler-plugin/src/main/java/io/ballerina/stdlib/persist/compiler/PersistQueryValidator.java"
-  - "compiler-plugin/src/main/java/io/ballerina/stdlib/persist/compiler/QueryCodeModifierTask.java"
-  - "compiler-plugin/src/main/java/io/ballerina/stdlib/persist/compiler/models/Variable.java"
-  - "compiler-plugin/src/main/java/io/ballerina/stdlib/persist/compiler/expression/*"
-
 coverage:
   precision: 2
   round: down

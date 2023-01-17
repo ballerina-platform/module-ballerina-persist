@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,86 +21,28 @@ package io.ballerina.stdlib.persist.compiler;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import static io.ballerina.tools.diagnostics.DiagnosticSeverity.ERROR;
-import static io.ballerina.tools.diagnostics.DiagnosticSeverity.WARNING;
 
 /**
- * Enum class to hold persis module diagnostic codes.
+ * Persist related diagnostic codes.
  */
 public enum DiagnosticsCodes {
+    PERSIST_101("PERSIST_101", "persist model definition only supports enum and record declarations", ERROR),
+    PERSIST_102("PERSIST_102", "an entity should be a closed record", ERROR),
+    PERSIST_103("PERSIST_103", "entity ''{0}'' must have an identifier readonly field", ERROR),
 
-    PERSIST_101("PERSIST_101",
-            "invalid field type: the persist client does not support the union type", ERROR),
-    PERSIST_102("PERSIST_102",
-            "invalid id: the given id is not in the record definition", ERROR),
-    PERSIST_103("PERSIST_103",
-            "invalid value: the value only supports positive integer", ERROR),
-    PERSIST_104("PERSIST_104",
-            "invalid field initialization: ''{0}'' does not support optional filed initialization", ERROR),
-    PERSIST_105("PERSIST_105",
-            "invalid type: the field type should be in integer", ERROR),
-    PERSIST_106("PERSIST_106", "''{0}'' field ''{1}'' is not specified as read-only", ERROR),
-    // todo : Move to dataprovider validations
-    PERSIST_107("PERSIST_107", "duplicate annotation: the entity does not allow " +
-            "multiple field with auto increment annotation", ERROR),
-    PERSIST_108("PERSIST_108", "invalid initialization: auto increment is only allowed for " +
-            "an id field", ERROR),
-    PERSIST_109("PERSIST_109", "mismatch reference: the given key count is mismatched " +
-            "with reference key count", ERROR),
-    PERSIST_112("PERSIST_112", "mysql db only allow increment value by one in auto generated field",
-            WARNING),
-    PERSIST_115("PERSIST_115", "invalid entity initialisation: the associated entity[{0}] " +
-            "does not have the field with the relationship type", ERROR),
-    PERSIST_116("PERSIST_116", "invalid entity initialisation: the relation annotation should " +
-            "only be added to the relationship owner for one-to-one associations", ERROR),
-    PERSIST_117("PERSIST_117", "invalid annotation attachment: this non-entity type field " +
-            "does not allow a relation annotation", ERROR),
-    PERSIST_118("PERSIST_118", "invalid annotation attachment: the `one-to-many` relation annotation " +
-            "can not be attached to the array entity record field", ERROR),
-    PERSIST_119("PERSIST_119", "entities are defined in more than one module, " +
-            "move all entities to a single module", WARNING),
-    // todo Array of simple type is not supported.
-    PERSIST_120("PERSIST_120", "unsupported features: array type is not supported",
-            ERROR),
-    PERSIST_121("PERSIST_121", "unsupported features: {0} type is not supported",
-            ERROR),
-    //todo: Check validity
-    PERSIST_122("PERSIST_122", "associated entity contains composite primary keys: " +
-            "inferring the relation reference from composite keys is not supported yet. please add the " +
-            "references for relation", ERROR),
-    PERSIST_123("PERSIST_123", "''{0}'' cannot be an empty array", ERROR),
-    PERSIST_124("PERSIST_124", "the entity ''{0}'' should be a closed record", ERROR),
-    PERSIST_125("PERSIST_125", "relation annotation can only be attached to an entity record", ERROR),
-    PERSIST_126("PERSIST_126", "auto increment annotation can only be attached to an entity record",
-            ERROR),
-    PERSIST_127("PERSIST_127", "''{0}'' field only allows inline initialisation", ERROR),
-    PERSIST_128("PERSIST_128", "invalid attachment: ''persist:Entity'' annotation is only allowed " +
-            "on record type description", ERROR),
-    PERSIST_129("PERSIST_129", "invalid field initialization: ''persist:Entity'' does not " +
-            "allow an inherited field", ERROR),
-    PERSIST_130("PERSIST_130", "invalid field initialization: ''persist:Entity'' fields can not be " +
-            "initialized by using the rest field type definition", ERROR),
-    PERSIST_131("PERSIST_131", "''{0}'' does not allow duplicate value/s", ERROR),
-    PERSIST_132("PERSIST_132", "invalid entity initialisation: the associated record[{0}] is not " +
-            "an entity", ERROR),
-    PERSIST_133("PERSIST_133", "field attached with ''Relation'' annotation must be optional", ERROR),
-    PERSIST_134("PERSIST_134", "invalid entity initialisation: the relation annotation must " +
-            " be added to the relationship owner for one-to-one associations", ERROR),
-    PERSIST_135("PERSIST_135", "invalid initialisation: an entity field only supports another entity type",
-            ERROR),
-    // todo: Add expression type in the diagnostic message
-    PERSIST_201("PERSIST_201",
-            "persist client read() function doesn't support this query expression", ERROR),
-    PERSIST_202("PERSIST_202",
-            "persist client read() function limit expression doesn't support variable references, " +
-                    "it should be an integer value", ERROR),
-    PERSIST_203("PERSIST_203",
-            "persist client read() function order by key should be ''variables'' in the ''from clause''",
-            ERROR),
+    PERSIST_110("PERSIST_110", "an entity does not support rest descriptor field", ERROR),
+    PERSIST_111("PERSIST_111", "an entity does not support defaultable field", ERROR),
+    PERSIST_112("PERSIST_112", "an entity does not support inherited field", ERROR),
+    PERSIST_113("PERSIST_113", "an entity does not support optional field", ERROR),
+    PERSIST_114("PERSIST_114", "an entity field of ''{0}'' type is not supported", ERROR),
+    PERSIST_115("PERSIST_115", "an entity field of array type is not supported", ERROR),
 
-    PERSIST_210("PERSIST_210",
-            "persist client execute() function is an internal function and external invocation is not allowed", ERROR),
-    PERSIST_211("PERSIST_211", "this persist client read() function invocation is not optimised, " +
-            "use the function within the query syntax to run optimised fetch", WARNING);
+    PERSIST_121("PERSIST_121", "an entity cannot reference itself in association", ERROR),
+    PERSIST_122("PERSIST_122",
+            "the associated entity ''{0}'' does not have the field with the relationship type", ERROR),
+    PERSIST_123("PERSIST_123", "entity does not support duplicated relations to an associated entity", ERROR),
+    PERSIST_124("PERSIST_124", "entity should not contain foreign key field for relation ''{0}''", ERROR),
+    PERSIST_129("PERSIST_129", "n:m association is not supported yet", ERROR);
 
     private final String code;
     private final String message;
