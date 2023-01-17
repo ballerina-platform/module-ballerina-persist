@@ -74,6 +74,7 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_114;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_115;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_121;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_122;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_123;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_129;
 
 /**
@@ -286,6 +287,7 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             return;
         }
 
+        List<String> validRelationTypes = new ArrayList<>();
         for (RelationField relationField : entity.getRelationFields()) {
             String referredEntity = relationField.getType();
 
@@ -294,6 +296,15 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                         PERSIST_121.getSeverity(), relationField.getLocation());
                 break;
             }
+
+            // Duplicated Relations
+            if (validRelationTypes.contains(relationField.getType())) {
+                entity.reportDiagnostic(PERSIST_123.getCode(), PERSIST_123.getMessage(),
+                        PERSIST_123.getSeverity(), relationField.getLocation());
+                break;
+            }
+
+            validRelationTypes.add(relationField.getType());
 
             if (this.entities.containsKey(referredEntity)) {
                 validateRelation(relationField, this.entities.get(referredEntity), entity);
