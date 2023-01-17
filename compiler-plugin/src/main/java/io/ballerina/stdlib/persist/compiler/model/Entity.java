@@ -37,14 +37,12 @@ public class Entity {
     private final String entityName;
     private final NodeLocation entityNameLocation;
     private final RecordTypeDescriptorNode typeDescriptorNode;
-
-    private int readonlyFieldCount = 0;
     private final List<String> identifierFields = new ArrayList<>();
     private final Map<String, NodeLocation> nonRelationFields = new HashMap<>();
-    private boolean containsRelations = false;
     private final List<RelationField> relationFields = new ArrayList<>();
-
     private final List<Diagnostic> diagnosticList = new ArrayList<>();
+    private int readonlyFieldCount = 0;
+    private boolean containsRelations = false;
 
     public Entity(String entityName, NodeLocation entityNameLocation, RecordTypeDescriptorNode typeDescriptorNode) {
         this.entityName = entityName;
