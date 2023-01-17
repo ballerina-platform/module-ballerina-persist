@@ -26,7 +26,9 @@ import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Model class to hold entity properties.
@@ -34,13 +36,13 @@ import java.util.List;
 public class Entity {
     private final String entityName;
     private final NodeLocation entityNameLocation;
-    private int readonlyFieldCount = 0;
     private final RecordTypeDescriptorNode typeDescriptorNode;
-
-    private boolean containsRelations = false;
+    private final List<String> identifierFields = new ArrayList<>();
+    private final Map<String, NodeLocation> nonRelationFields = new HashMap<>();
     private final List<RelationField> relationFields = new ArrayList<>();
-
     private final List<Diagnostic> diagnosticList = new ArrayList<>();
+    private int readonlyFieldCount = 0;
+    private boolean containsRelations = false;
 
     public Entity(String entityName, NodeLocation entityNameLocation, RecordTypeDescriptorNode typeDescriptorNode) {
         this.entityName = entityName;
@@ -66,6 +68,22 @@ public class Entity {
 
     public void incrementReadonlyFieldCount() {
         this.readonlyFieldCount++;
+    }
+
+    public List<String> getIdentifierFields() {
+        return identifierFields;
+    }
+
+    public void addIdentifierField(String fieldName) {
+        this.identifierFields.add(fieldName);
+    }
+
+    public Map<String, NodeLocation> getNonRelationFields() {
+        return nonRelationFields;
+    }
+
+    public void addNonRelationField(String fieldName, NodeLocation location) {
+        this.nonRelationFields.put(fieldName, location);
     }
 
     public boolean isContainsRelations() {
