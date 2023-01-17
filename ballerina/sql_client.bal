@@ -77,7 +77,7 @@ public client class SQLClient {
     # + objects - The records to be inserted into the table
     # + return - An `sql:ExecutionResult[]` containing the metadata of the query execution
     #            or a `persist:Error` if the operation fails
-    public isolated function runBatchInsertQuery(record {}[] objects) returns sql:ExecutionResult[]|Error {
+    public isolated function runBatchInsertQuery(record {}[] objects) returns sql:ExecutionResult[]|error {
         sql:ParameterizedQuery[] insertQueries = 
             from record {} 'object in objects
             select sql:queryConcat(`INSERT INTO `, self.tableName, ` (`, self.getInsertColumnNames(), ` ) `, `VALUES `, self.getInsertQueryParams('object));
@@ -89,14 +89,15 @@ public client class SQLClient {
         }
 
         // TODO: optimize using batch queries
-        do {
-            _ = check from record {} 'object in objects
-                do {
-                    check self.populateJoinTables('object);
-                };
-        } on fail error e {
-            return <Error>error(e.message());
-        }
+        // Disabled until support for many-to-many relations is added
+        // do {
+        //     _ = check from record {} 'object in objects
+        //         do {
+        //             check self.populateJoinTables('object);
+        //         };
+        // } on fail error e {
+        //     return <Error>error(e.message());
+        // }
         
         return result;
     }
