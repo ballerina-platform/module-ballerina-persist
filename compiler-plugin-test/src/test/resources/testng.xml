@@ -21,9 +21,7 @@
 <suite name="BallerinaPersistCompilerPluginTests">
     <test name="UnitTests">
         <classes>
-<!--            <class name="io.ballerina.stdlib.persist.compiler.CompilerPluginTest"/>-->
-<!--             Remove advance filter queries support for phase 1 -->
-<!--             <class name="io.ballerina.stdlib.persist.compiler.CodeModifierTest"/>-->
+            <class name="io.ballerina.stdlib.persist.compiler.CompilerPluginTest"/>
         </classes>
     </test>
 </suite>

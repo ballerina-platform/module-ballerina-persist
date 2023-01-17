@@ -1,6 +1,3 @@
-ignore:
-  - "compiler-plugin/src/main/java/io/ballerina/stdlib/persist/compiler"
-
 coverage:
   precision: 2
   round: down
