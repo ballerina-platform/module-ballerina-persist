@@ -33,14 +33,15 @@ public final class Constants {
      */
     public static final class BallerinaTypes {
 
-        private BallerinaTypes() {}
-
         public static final String INT = "int";
         public static final String STRING = "string";
         public static final String BOOLEAN = "boolean";
         public static final String DECIMAL = "decimal";
         public static final String FLOAT = "float";
         public static final String BYTE = "byte";
+
+        private BallerinaTypes() {
+        }
     }
 
     /**
@@ -48,12 +49,13 @@ public final class Constants {
      */
     public static final class BallerinaTimeTypes {
 
-        private BallerinaTimeTypes() {}
-
         public static final String DATE = "Date";
         public static final String TIME_OF_DAY = "TimeOfDay";
         public static final String UTC = "Utc";
         public static final String CIVIL = "Civil";
+
+        private BallerinaTimeTypes() {
+        }
     }
 
 }
