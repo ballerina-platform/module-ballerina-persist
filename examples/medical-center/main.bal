@@ -74,7 +74,7 @@ public function main() returns error? {
         where itemx.'type == "type2"
         do {
             MedicalItemUpdate updatex = {unit: "kg"};
-            // TODO: remove comment
+            // TODO: remove comment after issue is resolved (https://github.com/ballerina-platform/ballerina-standard-library/issues/3951)
             //_ = check mcClient->/medicalItems/[itemx.itemId].put(updatex);
         };
 
@@ -87,7 +87,7 @@ public function main() returns error? {
     _ = check from MedicalItem itemx in mcClient->/medicalItems.get()
         where itemx.'type == "type2"
         do {
-            // TODO: remove comment
+            // TODO: remove comment after issue is resolved (https://github.com/ballerina-platform/ballerina-standard-library/issues/3951)
             //_ = check mcClient->/medicalItems/[itemx.itemId].delete();
         };
 
