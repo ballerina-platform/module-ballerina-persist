@@ -1,0 +1,17 @@
+import ballerina/time;
+
+type MedicalItem record {|
+    readonly int itemId;
+    string name;
+    string 'type;
+    string unit;
+|};
+
+type MedicalNeed record {|
+    readonly int needId;
+    int itemId;
+    int beneficiaryId;
+    time:Civil period;
+    string urgency;
+    int quantity;
+|};

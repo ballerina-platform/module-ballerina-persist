@@ -280,16 +280,6 @@ public client class SQLClient {
         }
     }
 
-    # Closes the underlying `sql:Client`.
-    #
-    # + return - `()` if the client is closed successfully or a `persist:Error` if the operation fails
-    public isolated function close() returns Error? {
-        sql:Error? e = self.dbClient.close();
-        if e is sql:Error {
-            return <Error>error(e.message());
-        }
-    }
-
     private isolated function getKey(anydata|record {} 'object) returns record {} {
         record {} keyRecord = {};
         

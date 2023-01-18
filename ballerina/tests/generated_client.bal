@@ -191,6 +191,10 @@ client class RainierClient {
         _ = check self.persistClients.get("employee").runDeleteQuery(empNo);
         return 'object;
     };
+
+    public function close() {
+        
+    }
 }
 
 public class BuildingStream {
