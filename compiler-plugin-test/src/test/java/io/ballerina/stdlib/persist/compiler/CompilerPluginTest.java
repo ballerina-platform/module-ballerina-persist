@@ -156,10 +156,10 @@ public class CompilerPluginTest {
         testDiagnostic(
                 diagnostics,
                 new String[]{
-                        "array of 'boolean'-typed field is not supported in an entity",
-                        "'json'-typed field is not supported in an entity",
-                        "'json[]'-typed field is not supported in an entity",
-                        "'union'-typed field is not supported in an entity"
+                        "array of boolean-typed field is not supported in an entity",
+                        "json-typed field is not supported in an entity",
+                        "json[]-typed field is not supported in an entity",
+                        "union-typed field is not supported in an entity"
                 },
                 new String[]{
                         PERSIST_206.getCode(),
@@ -233,8 +233,8 @@ public class CompilerPluginTest {
         testDiagnostic(
                 diagnostics,
                 new String[]{
-                        "the associated entity 'Workspace' does not have the associated 'Building'-typed field",
-                        "the associated entity 'Building1' does not have the associated 'Workspace2'-typed field"
+                        "the associated entity 'Workspace' does not have the associated Building-typed field",
+                        "the associated entity 'Building1' does not have the associated Workspace2-typed field"
                 },
                 new String[]{
                         PERSIST_302.getCode(),
@@ -300,7 +300,7 @@ public class CompilerPluginTest {
                 diagnostics,
                 new String[]{
                         "persist model definition only supports record definitions",
-                        "'Integer[]'-typed field is not supported in an entity"
+                        "Integer[]-typed field is not supported in an entity"
                 },
                 new String[]{
                         PERSIST_101.getCode(),
