@@ -156,10 +156,10 @@ public class CompilerPluginTest {
         testDiagnostic(
                 diagnostics,
                 new String[]{
-                        "an entity field of array type is not supported",
-                        "an entity field of 'json' type is not supported",
-                        "an entity field of 'json[]' type is not supported",
-                        "an entity field of array type is not supported"
+                        "array of 'boolean'-typed field is not supported in an entity",
+                        "'json'-typed field is not supported in an entity",
+                        "'json[]'-typed field is not supported in an entity",
+                        "array of 'time:Civil'-typed field is not supported in an entity"
                 },
                 new String[]{
                         PERSIST_206.getCode(),
@@ -182,7 +182,7 @@ public class CompilerPluginTest {
         testDiagnostic(
                 diagnostics,
                 new String[]{
-                        "entity 'MedicalNeed' must have an identifier readonly field"
+                        "entity 'MedicalNeed' must have at least one identifier readonly field"
                 },
                 new String[]{
                         PERSIST_103.getCode()
@@ -233,8 +233,8 @@ public class CompilerPluginTest {
         testDiagnostic(
                 diagnostics,
                 new String[]{
-                        "the associated entity 'Workspace' does not have the field with the relationship type",
-                        "the associated entity 'Building1' does not have the field with the relationship type"
+                        "the associated entity 'Workspace' does not have the associated 'Building'-typed field",
+                        "the associated entity 'Building1' does not have the associated 'Workspace2'-typed field"
                 },
                 new String[]{
                         PERSIST_302.getCode(),
@@ -273,10 +273,10 @@ public class CompilerPluginTest {
         testDiagnostic(
                 diagnostics,
                 new String[]{
-                        "entity should not contain foreign key field for relation 'Building'",
-                        "entity should not contain foreign key field for relation 'Building2'",
-                        "entity should not contain foreign key field for relation 'Workspace3'",
-                        "entity should not contain foreign key field for relation 'Building4'"
+                        "entity should not contain foreign key field 'buildingBuildingCode' for relation 'Building'",
+                        "entity should not contain foreign key field 'building2BuildingCode' for relation 'Building2'",
+                        "entity should not contain foreign key field 'workspace3WorkspaceId' for relation 'Workspace3'",
+                        "entity should not contain foreign key field 'building4BuildingCode' for relation 'Building4'"
                 },
                 new String[]{
                         PERSIST_304.getCode(),

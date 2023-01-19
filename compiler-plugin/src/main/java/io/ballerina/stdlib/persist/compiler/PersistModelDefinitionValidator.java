@@ -195,21 +195,21 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             boolean isArrayType = false;
             if (processedTypeNode instanceof OptionalTypeDescriptorNode) {
                 processedTypeNode = ((OptionalTypeDescriptorNode) processedTypeNode).typeDescriptor();
-                typeNamePostfix = SyntaxKind.QUESTION_MARK_TOKEN.stringValue();
             }
             if (processedTypeNode instanceof ArrayTypeDescriptorNode) {
                 isArrayType = true;
                 ArrayTypeDescriptorNode arrayTypeDescriptorNode = ((ArrayTypeDescriptorNode) processedTypeNode);
                 processedTypeNode = arrayTypeDescriptorNode.memberTypeDesc();
                 typeNamePostfix = SyntaxKind.OPEN_BRACKET_TOKEN.stringValue() +
-                        SyntaxKind.CLOSE_BRACKET_TOKEN.stringValue() + typeNamePostfix;
+                        SyntaxKind.CLOSE_BRACKET_TOKEN.stringValue();
             }
 
             if (processedTypeNode instanceof BuiltinSimpleNameReferenceNode) {
                 String type = ((BuiltinSimpleNameReferenceNode) processedTypeNode).name().text();
                 if (isValidSimpleType(type)) {
                     if (isArrayType) {
-                        entity.reportDiagnostic(PERSIST_206.getCode(), PERSIST_206.getMessage(),
+                        entity.reportDiagnostic(PERSIST_206.getCode(),
+                                MessageFormat.format(PERSIST_206.getMessage(), type),
                                 PERSIST_206.getSeverity(), processedTypeNode.location());
                     }
                 } else if (!(type.equals(BYTE) && isArrayType)) {
@@ -225,7 +225,8 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                 String identifier = qualifiedName.identifier().text();
                 if (isValidImportedType(modulePrefix, identifier)) {
                     if (isArrayType) {
-                        entity.reportDiagnostic(PERSIST_206.getCode(), PERSIST_206.getMessage(),
+                        entity.reportDiagnostic(PERSIST_206.getCode(),
+                                MessageFormat.format(PERSIST_206.getMessage(), modulePrefix + ":" + identifier),
                                 PERSIST_206.getSeverity(), typeNode.location());
                     }
                 } else {
@@ -238,7 +239,8 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                 String typeName = ((SimpleNameReferenceNode) processedTypeNode).name().text().trim();
                 if (this.enums.contains(typeName)) {
                     if (isArrayType) {
-                        entity.reportDiagnostic(PERSIST_206.getCode(), PERSIST_206.getMessage(),
+                        entity.reportDiagnostic(PERSIST_206.getCode(),
+                                MessageFormat.format(PERSIST_206.getMessage(), typeName),
                                 PERSIST_206.getSeverity(), processedTypeNode.location());
                     }
                     entity.addNonRelationField(recordFieldNode.fieldName().text().trim(), recordFieldNode.location());
@@ -349,8 +351,8 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
 
         if (referredField == null) {
             reportDiagnosticsEntity.reportDiagnostic(PERSIST_302.getCode(),
-                    MessageFormat.format(PERSIST_302.getMessage(), referredEntity.getEntityName()),
-                    PERSIST_302.getSeverity(), processingField.getLocation());
+                    MessageFormat.format(PERSIST_302.getMessage(), referredEntity.getEntityName(),
+                    processingField.getContainingEntity()), PERSIST_302.getSeverity(), processingField.getLocation());
             return;
         }
 
@@ -389,7 +391,7 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             NodeLocation foreignKeyFieldLocation = parentEntity.getNonRelationFields().get(foreignKey);
             if (foreignKeyFieldLocation != null) {
                 reportDiagnosticsEntity.reportDiagnostic(PERSIST_304.getCode(),
-                        MessageFormat.format(PERSIST_304.getMessage(), childEntity.getEntityName()),
+                        MessageFormat.format(PERSIST_304.getMessage(), foreignKey, childEntity.getEntityName()),
                         PERSIST_304.getSeverity(), foreignKeyFieldLocation);
             }
         }
