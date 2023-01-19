@@ -82,7 +82,7 @@ public final class Utils {
             case FUTURE_TYPE_DESC:
                 typeName = "future";
                 break;
-            case RECORD_REST_TYPE:
+            case RECORD_TYPE_DESC:
                 typeName = "in-line record";
                 break;
             case OBJECT_TYPE_DESC:
