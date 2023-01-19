@@ -159,19 +159,19 @@ public class CompilerPluginTest {
                         "array of 'boolean'-typed field is not supported in an entity",
                         "'json'-typed field is not supported in an entity",
                         "'json[]'-typed field is not supported in an entity",
-                        "array of 'time:Civil'-typed field is not supported in an entity"
+                        "'union'-typed field is not supported in an entity"
                 },
                 new String[]{
                         PERSIST_206.getCode(),
                         PERSIST_205.getCode(),
                         PERSIST_205.getCode(),
-                        PERSIST_206.getCode()
+                        PERSIST_205.getCode()
                 },
                 new String[]{
                         "(12:4,12:11)",
                         "(14:4,14:8)",
                         "(15:4,15:10)",
-                        "(18:4,18:16)"
+                        "(18:4,18:21)"
                 }
         );
     }

@@ -243,9 +243,8 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                             typeNode.location());
                 }
             } else {
-                //todo: Improve type name in message
                 entity.reportDiagnostic(PERSIST_205.getCode(), MessageFormat.format(PERSIST_205.getMessage(),
-                                processedTypeNode.kind().stringValue() + typeNamePostfix), PERSIST_205.getSeverity(),
+                                Utils.getTypeName(processedTypeNode)), PERSIST_205.getSeverity(),
                         typeNode.location());
             }
         }
