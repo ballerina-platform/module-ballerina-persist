@@ -214,7 +214,26 @@ function employeeUpdateTestNegative2() returns error? {
 
 @test:Config {
     groups: ["employee"],
-    dependsOn: [employeeUpdateTest, employeeUpdateTestNegative2]
+    dependsOn: [employeeReadOneTest, employeeReadManyTest]
+}
+function employeeUpdateTestNegative3() returns error? {
+    RainierClient rainierClient = check new ();
+
+    Employee|error employee = rainierClient->/employees/[employee1.empNo].put({
+        workspaceId: "invalid-workspaceId"
+    });
+
+    if employee is ForeignKeyConstraintViolationError {
+        test:assertTrue(employee.message().includes("Cannot add or update a child row: a foreign key constraint fails (`test`.`Employee`, " +
+            "CONSTRAINT `Employee_ibfk_2` FOREIGN KEY (`workspaceId`) REFERENCES `Workspace` (`workspaceId`))."));
+    } else {
+        test:assertFail("ForeignKeyConstraintViolationError expected.");
+    }
+}
+
+@test:Config {
+    groups: ["employee"],
+    dependsOn: [employeeUpdateTest, employeeUpdateTestNegative2, employeeUpdateTestNegative3]
 }
 function employeeDeleteTest() returns error? {
     RainierClient rainierClient = check new ();

@@ -18,7 +18,6 @@ public type Building record {|
 public type Workspace record {|
     readonly string workspaceId;
     string workspaceType;
-
     string buildingCode;
 |};
 

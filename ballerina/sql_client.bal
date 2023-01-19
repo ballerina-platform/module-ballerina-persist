@@ -222,7 +222,7 @@ public client class SQLClient {
             if ignoreFieldCheck {
                 query = sql:queryConcat(query, stringToParameterizedQuery(keys[i]), ` = ${<sql:Value>filter[keys[i]]}`);
             } else {
-                query = sql:queryConcat(query, stringToParameterizedQuery(self.entityName + "."), check self.getFieldParamQuery(keys[i]), ` = ${<sql:Value>filter[keys[i]]}`);
+                query = sql:queryConcat(query, stringToParameterizedQuery(self.entityName + "."), self.getFieldParamQuery(keys[i]), ` = ${<sql:Value>filter[keys[i]]}`);
             }
         }
         return query;
@@ -236,29 +236,21 @@ public client class SQLClient {
                 continue;
             }
 
-            sql:ParameterizedQuery|InvalidInsertionError|FieldDoesNotExistError fieldName = self.getFieldParamQuery(key);
+            sql:ParameterizedQuery|InvalidInsertionError fieldName = self.getFieldParamQuery(key);
             if fieldName is sql:ParameterizedQuery {
                 if count > 0 {
                     query = sql:queryConcat(query, `, `);
                 }
                 query = sql:queryConcat(query, fieldName, ` = ${<sql:Value>'object[key]}`);
                 count = count + 1;
-            } else if fieldName is FieldDoesNotExistError {
-                return fieldName;
             }
         }
         return query;
     }
 
-    private isolated function getFieldParamQuery(string fieldName) returns sql:ParameterizedQuery|FieldDoesNotExistError|InvalidInsertionError {
-        FieldMetadata? fieldMetadata = self.fieldMetadata[fieldName];
-        if fieldMetadata is () {
-            return <FieldDoesNotExistError>error(
-                string `Field '${fieldName}' does not exist in entity '${self.entityName}'.`);
-        } 
-        else {
-            return stringToParameterizedQuery(fieldMetadata.columnName);
-        }
+    private isolated function getFieldParamQuery(string fieldName) returns sql:ParameterizedQuery {
+        FieldMetadata fieldMetadata = self.fieldMetadata.get(fieldName);
+        return stringToParameterizedQuery(fieldMetadata.columnName);
     }
 
 }
