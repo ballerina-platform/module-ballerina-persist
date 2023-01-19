@@ -84,6 +84,7 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_305;
  */
 public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeAnalysisContext> {
     private final Map<String, Entity> entities = new HashMap<>();
+    private final List<String> entityNames = new ArrayList<>();
     private final Map<String, List<RelationField>> deferredRelationKeyEntities = new HashMap<>();
 
     @Override
@@ -104,6 +105,7 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                 TypeDescriptorNode typeDescriptorNode = (TypeDescriptorNode) typeDefinitionNode.typeDescriptor();
                 if (typeDescriptorNode instanceof RecordTypeDescriptorNode) {
                     foundEntities.add(typeDefinitionNode);
+                    this.entityNames.add(typeDefinitionNode.typeName().text().trim());
                     continue;
                 }
             }
@@ -231,9 +233,15 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                 entity.addNonRelationField(recordFieldNode.fieldName().text().trim(), recordFieldNode.location());
             } else if (processedTypeNode instanceof SimpleNameReferenceNode) {
                 String typeName = ((SimpleNameReferenceNode) processedTypeNode).name().text().trim();
-                entity.setContainsRelations(true);
-                entity.addRelationField(new RelationField(typeName, isArrayType, recordFieldNode.location(),
-                        entity.getEntityName()));
+                if (this.entityNames.contains(typeName)) {
+                    entity.setContainsRelations(true);
+                    entity.addRelationField(new RelationField(typeName, isArrayType, recordFieldNode.location(),
+                            entity.getEntityName()));
+                } else {
+                    entity.reportDiagnostic(PERSIST_205.getCode(), MessageFormat.format(PERSIST_205.getMessage(),
+                                    typeName + typeNamePostfix), PERSIST_205.getSeverity(),
+                            typeNode.location());
+                }
             } else {
                 //todo: Improve type name in message
                 entity.reportDiagnostic(PERSIST_205.getCode(), MessageFormat.format(PERSIST_205.getMessage(),

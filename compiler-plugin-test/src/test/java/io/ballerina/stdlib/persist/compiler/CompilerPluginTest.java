@@ -293,6 +293,26 @@ public class CompilerPluginTest {
         );
     }
 
+    @Test
+    public void validateInvalidRelations() {
+        List<Diagnostic> diagnostics = getDiagnostic("invalid-relation.bal", 2, DiagnosticSeverity.ERROR);
+        testDiagnostic(
+                diagnostics,
+                new String[]{
+                        "persist model definition only supports record definitions",
+                        "'Integer[]'-typed field is not supported in an entity"
+                },
+                new String[]{
+                        PERSIST_101.getCode(),
+                        PERSIST_205.getCode()
+                },
+                new String[]{
+                        "(2:0,2:17)",
+                        "(10:4,10:13)"
+                }
+        );
+    }
+
     private List<Diagnostic> getDiagnostic(String modelFileName, int count, DiagnosticSeverity diagnosticSeverity) {
         DiagnosticResult diagnosticResult = loadPersistModelFile(modelFileName).getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().filter
