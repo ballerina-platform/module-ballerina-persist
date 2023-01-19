@@ -64,7 +64,7 @@ Employee updatedEmployee1 = {
     empNo: "employee-1",
     firstName: "Tom",
     lastName: "Jones",
-    birthDate: {year: 1992, month: 11, day:13},
+    birthDate: {year: 1994, month: 11, day:13},
     gender: M,
     hireDate: {year: 2022, month: 8, day: 1},
     deptNo: "department-3",
@@ -166,7 +166,8 @@ function employeeUpdateTest() returns error? {
 
     Employee employee = check rainierClient->/employees/[employee1.empNo].put({
         lastName: "Jones",
-        deptNo: "department-3"   
+        deptNo: "department-3",
+        birthDate: {year: 1994, month: 11, day:13}
     });
 
     test:assertEquals(employee, updatedEmployee1);
