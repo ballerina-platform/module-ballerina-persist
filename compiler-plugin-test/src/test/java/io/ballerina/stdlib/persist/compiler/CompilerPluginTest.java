@@ -101,7 +101,7 @@ public class CompilerPluginTest {
         List<Diagnostic> diagnostics = getDiagnostic("valid-persist-model-path.bal", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
                 diagnostics,
-                new String[]{"persist model definition only supports enum and record declarations"},
+                new String[]{"persist model definition only supports record definitions"},
                 new String[]{PERSIST_101.getCode()},
                 new String[]{"(2:0,3:1)"}
         );

@@ -20,7 +20,6 @@ package io.ballerina.stdlib.persist.compiler;
 
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
-import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -84,7 +83,6 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_305;
  * Persist model definition validator.
  */
 public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeAnalysisContext> {
-    private final List<String> enums = new ArrayList<>();
     private final Map<String, Entity> entities = new HashMap<>();
     private final Map<String, List<RelationField>> deferredRelationKeyEntities = new HashMap<>();
 
@@ -101,10 +99,6 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         ModulePartNode rootNode = (ModulePartNode) ctx.node();
         List<TypeDefinitionNode> foundEntities = new ArrayList<>();
         for (ModuleMemberDeclarationNode member : rootNode.members()) {
-            if (member instanceof EnumDeclarationNode) {
-                this.enums.add(((EnumDeclarationNode) member).identifier().text().trim());
-                continue;
-            }
             if (member instanceof TypeDefinitionNode) {
                 TypeDefinitionNode typeDefinitionNode = (TypeDefinitionNode) member;
                 TypeDescriptorNode typeDescriptorNode = (TypeDescriptorNode) typeDefinitionNode.typeDescriptor();
@@ -237,18 +231,9 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                 entity.addNonRelationField(recordFieldNode.fieldName().text().trim(), recordFieldNode.location());
             } else if (processedTypeNode instanceof SimpleNameReferenceNode) {
                 String typeName = ((SimpleNameReferenceNode) processedTypeNode).name().text().trim();
-                if (this.enums.contains(typeName)) {
-                    if (isArrayType) {
-                        entity.reportDiagnostic(PERSIST_206.getCode(),
-                                MessageFormat.format(PERSIST_206.getMessage(), typeName),
-                                PERSIST_206.getSeverity(), processedTypeNode.location());
-                    }
-                    entity.addNonRelationField(recordFieldNode.fieldName().text().trim(), recordFieldNode.location());
-                } else {
-                    entity.setContainsRelations(true);
-                    entity.addRelationField(new RelationField(typeName, isArrayType, recordFieldNode.location(),
-                            entity.getEntityName()));
-                }
+                entity.setContainsRelations(true);
+                entity.addRelationField(new RelationField(typeName, isArrayType, recordFieldNode.location(),
+                        entity.getEntityName()));
             } else {
                 //todo: Improve type name in message
                 entity.reportDiagnostic(PERSIST_205.getCode(), MessageFormat.format(PERSIST_205.getMessage(),
@@ -352,7 +337,8 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         if (referredField == null) {
             reportDiagnosticsEntity.reportDiagnostic(PERSIST_302.getCode(),
                     MessageFormat.format(PERSIST_302.getMessage(), referredEntity.getEntityName(),
-                    processingField.getContainingEntity()), PERSIST_302.getSeverity(), processingField.getLocation());
+                            processingField.getContainingEntity()), PERSIST_302.getSeverity(),
+                    processingField.getLocation());
             return;
         }
 

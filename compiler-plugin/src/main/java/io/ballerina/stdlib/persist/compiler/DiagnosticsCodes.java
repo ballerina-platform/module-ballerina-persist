@@ -26,7 +26,7 @@ import static io.ballerina.tools.diagnostics.DiagnosticSeverity.ERROR;
  * Persist related diagnostic codes.
  */
 public enum DiagnosticsCodes {
-    PERSIST_101("PERSIST_101", "persist model definition only supports enum and record declarations", ERROR),
+    PERSIST_101("PERSIST_101", "persist model definition only supports record definitions", ERROR),
     PERSIST_102("PERSIST_102", "an entity should be a closed record", ERROR),
     PERSIST_103("PERSIST_103", "entity ''{0}'' must have at least one identifier readonly field", ERROR),
 
