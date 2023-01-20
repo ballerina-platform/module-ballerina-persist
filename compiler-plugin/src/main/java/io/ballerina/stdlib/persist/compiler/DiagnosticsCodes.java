@@ -26,23 +26,23 @@ import static io.ballerina.tools.diagnostics.DiagnosticSeverity.ERROR;
  * Persist related diagnostic codes.
  */
 public enum DiagnosticsCodes {
-    PERSIST_101("PERSIST_101", "persist model definition only supports enum and record declarations", ERROR),
+    PERSIST_101("PERSIST_101", "persist model definition only supports record definitions", ERROR),
     PERSIST_102("PERSIST_102", "an entity should be a closed record", ERROR),
-    PERSIST_103("PERSIST_103", "entity ''{0}'' must have an identifier readonly field", ERROR),
+    PERSIST_103("PERSIST_103", "entity ''{0}'' must have at least one identifier readonly field", ERROR),
 
-    PERSIST_110("PERSIST_110", "an entity does not support rest descriptor field", ERROR),
-    PERSIST_111("PERSIST_111", "an entity does not support defaultable field", ERROR),
-    PERSIST_112("PERSIST_112", "an entity does not support inherited field", ERROR),
-    PERSIST_113("PERSIST_113", "an entity does not support optional field", ERROR),
-    PERSIST_114("PERSIST_114", "an entity field of ''{0}'' type is not supported", ERROR),
-    PERSIST_115("PERSIST_115", "an entity field of array type is not supported", ERROR),
+    PERSIST_201("PERSIST_201", "an entity does not support rest descriptor field", ERROR),
+    PERSIST_202("PERSIST_202", "an entity does not support defaultable field", ERROR),
+    PERSIST_203("PERSIST_203", "an entity does not support inherited field", ERROR),
+    PERSIST_204("PERSIST_204", "an entity does not support optional field", ERROR),
+    PERSIST_205("PERSIST_205", "{0}-typed field is not supported in an entity", ERROR),
+    PERSIST_206("PERSIST_206", "array of {0}-typed field is not supported in an entity", ERROR),
 
-    PERSIST_121("PERSIST_121", "an entity cannot reference itself in association", ERROR),
-    PERSIST_122("PERSIST_122",
-            "the associated entity ''{0}'' does not have the field with the relationship type", ERROR),
-    PERSIST_123("PERSIST_123", "entity does not support duplicated relations to an associated entity", ERROR),
-    PERSIST_124("PERSIST_124", "entity should not contain foreign key field for relation ''{0}''", ERROR),
-    PERSIST_129("PERSIST_129", "n:m association is not supported yet", ERROR);
+    PERSIST_301("PERSIST_301", "an entity cannot reference itself in association", ERROR),
+    PERSIST_302("PERSIST_302",
+            "the associated entity ''{0}'' does not have the associated {1}-typed field", ERROR),
+    PERSIST_303("PERSIST_303", "entity does not support duplicated relations to an associated entity", ERROR),
+    PERSIST_304("PERSIST_304", "entity should not contain foreign key field ''{0}'' for relation ''{1}''", ERROR),
+    PERSIST_305("PERSIST_305", "n:m association is not supported yet", ERROR);
 
     private final String code;
     private final String message;
