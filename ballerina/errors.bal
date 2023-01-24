@@ -17,9 +17,6 @@
 # Defines the generic error type for the `persist` module.
 public type Error distinct error;
 
-# Represents an error that occurs when an attempt is made to manipulate a field, which does not exist in an entity.
-public type FieldDoesNotExistError distinct Error;
-
 # Represents an error that occurs when an attempt is made to insert a value into a record, which cannot be directly
 # inserted into.
 public type InvalidInsertionError distinct Error;
