@@ -52,6 +52,7 @@ function departmentCreateTest() returns error? {
 
     Department departmentRetrieved = check rainierClient->/departments/[department1.deptNo].get();
     test:assertEquals(departmentRetrieved, department1);
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -69,6 +70,7 @@ function departmentCreateTest2() returns error? {
 
     departmentRetrieved = check rainierClient->/departments/[department3.deptNo].get();
     test:assertEquals(departmentRetrieved, department3);
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -83,6 +85,7 @@ function departmentCreateTestNegative() returns error? {
     } else {
         test:assertFail("Error expected.");
     }
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -94,6 +97,7 @@ function departmentReadOneTest() returns error? {
 
     Department departmentRetrieved = check rainierClient->/departments/[department1.deptNo].get();
     test:assertEquals(departmentRetrieved, department1);
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -108,7 +112,9 @@ function departmentReadOneTestNegative() returns error? {
         test:assertEquals(departmentRetrieved.message(), "A record does not exist for 'Department' for key \"invalid-department-id\".");
     } else {
         test:assertFail("InvalidKeyError expected.");
-    }}
+    }
+    check rainierClient.close();
+}
 
 @test:Config {
     groups: ["department"],
@@ -122,6 +128,7 @@ function departmentReadManyTest() returns error? {
         select department;
 
     test:assertEquals(departments, [department1, department2, department3]);
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -139,6 +146,7 @@ function departmentUpdateTest() returns error? {
 
     Department departmentRetrieved = check rainierClient->/departments/[department1.deptNo].get();
     test:assertEquals(departmentRetrieved, updatedDepartment1);
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -157,6 +165,7 @@ function departmentUpdateTestNegative1() returns error? {
     } else {
         test:assertFail("InvalidKeyError expected.");
     }
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -175,6 +184,7 @@ function departmentUpdateTestNegative2() returns error? {
     } else {
         test:assertFail("InvalidKeyError expected.");
     }
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -192,6 +202,7 @@ function departmentDeleteTest() returns error? {
         select department2;
 
     test:assertEquals(departments, [department2, department3]);
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -208,4 +219,5 @@ function departmentDeleteTestNegative() returns error? {
     } else {
         test:assertFail("InvalidKeyError expected.");
     }
+    check rainierClient.close();
 }

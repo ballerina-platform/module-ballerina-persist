@@ -1,4 +1,5 @@
 import ballerina/time;
+import ballerina/persist as _;
 
 type MedicalItem record {|
     readonly int itemId;

@@ -2,12 +2,19 @@ import ballerinax/mysql;
 import ballerina/sql;
 import ballerina/time;
 
+const BUILDING = "building";
+const WORKSPACE = "workspace";
+const DEPARTMENT = "department";
+const EMPLOYEE = "employee";
+
 client class RainierClient {
 
     private final mysql:Client dbClient;
 
-    private final map<Metadata> metadata = {
-        building: {
+    private final record {|
+        Metadata...;
+    |} metadata = {
+        "building": {
             entityName: "Building",
             tableName: `Building`,
             fieldMetadata: {
@@ -19,17 +26,17 @@ client class RainierClient {
             },
             keyFields: ["buildingCode"]
         },
-        workspace: {
+        "workspace": {
             entityName: "Workspace",
             tableName: `Workspace`,
             fieldMetadata: {
                 workspaceId: {columnName: "workspaceId", 'type: string},
                 workspaceType: {columnName: "workspaceType", 'type: string},
-                buildingCode: {columnName: "buildingCode", 'type: string}
+                buildingBuildingCode: {columnName: "buildingBuildingCode", 'type: string}
             },
             keyFields: ["workspaceId"]
         },
-        department: {
+        "department": {
             entityName: "Department",
             tableName: `Department`,
             fieldMetadata: {
@@ -38,7 +45,7 @@ client class RainierClient {
             },
             keyFields: ["deptNo"]
         },
-        employee: {
+        "employee": {
             entityName: "Employee",
             tableName: `Employee`,
             fieldMetadata: {
@@ -48,13 +55,13 @@ client class RainierClient {
                 birthDate: {columnName: "birthDate", 'type: time:Date},
                 gender: {columnName: "gender", 'type: string},
                 hireDate: {columnName: "hireDate", 'type: time:Date},
-                deptNo: {columnName: "deptNo", 'type: string},
-                workspaceId: {columnName: "workspaceId", 'type: string}
+                departmentDeptNo: {columnName: "departmentDeptNo", 'type: string},
+                workspaceWorkspaceId: {columnName: "workspaceWorkspaceId", 'type: string}
             },
             keyFields: ["empNo"]
         }
     };
-    
+
     private final map<SQLClient> persistClients;
     
     public function init() returns Error? {
@@ -62,10 +69,10 @@ client class RainierClient {
             self.dbClient = check new (host = host, user = user, password = password, database = database, port = port);
 
             self.persistClients = {
-                building: check new (self.dbClient, self.metadata.get("building").entityName, self.metadata.get("building").tableName, self.metadata.get("building").keyFields, self.metadata.get("building").fieldMetadata),
-                workspace: check new (self.dbClient, self.metadata.get("workspace").entityName, self.metadata.get("workspace").tableName, self.metadata.get("workspace").keyFields, self.metadata.get("workspace").fieldMetadata),
-                department: check new (self.dbClient, self.metadata.get("department").entityName, self.metadata.get("department").tableName, self.metadata.get("department").keyFields, self.metadata.get("department").fieldMetadata),
-                employee: check new (self.dbClient, self.metadata.get("employee").entityName, self.metadata.get("employee").tableName, self.metadata.get("employee").keyFields, self.metadata.get("employee").fieldMetadata)
+                building: check new (self.dbClient, self.metadata.get(BUILDING)),
+                workspace: check new (self.dbClient, self.metadata.get(WORKSPACE)),
+                department: check new (self.dbClient, self.metadata.get(DEPARTMENT)),
+                employee: check new (self.dbClient, self.metadata.get(EMPLOYEE))
             };
         } on fail error e {
             return <Error>error(e.message());
@@ -73,7 +80,7 @@ client class RainierClient {
     }
 
     isolated resource function get buildings() returns stream<Building, error?> {
-        stream<anydata, sql:Error?>|Error result = self.persistClients.get("building").runReadQuery(Building);
+        stream<record{}, sql:Error?>|Error result = self.persistClients.get(BUILDING).runReadQuery(Building);
         if result is Error {
             return new stream<Building, Error?>(new BuildingStream((), result));
         } else {
@@ -82,28 +89,28 @@ client class RainierClient {
     };
 
     isolated resource function get buildings/[string buildingCode]() returns Building|error {
-        return (check self.persistClients.get("building").runReadByKeyQuery(Building, buildingCode)).cloneWithType(Building);
+        return (check self.persistClients.get(BUILDING).runReadByKeyQuery(Building, buildingCode)).cloneWithType(Building);
     };
 
     isolated resource function post buildings(BuildingInsert[] data) returns string[]|error {
-        _ = check self.persistClients.get("building").runBatchInsertQuery(data);
+        _ = check self.persistClients.get(BUILDING).runBatchInsertQuery(data);
         return from BuildingInsert inserted in data
                select inserted.buildingCode;
     };
 
     isolated resource function put buildings/[string buildingCode](BuildingUpdate data) returns Building|error {
-        _ = check self.persistClients.get("building").runUpdateQuery(buildingCode, data);
+        _ = check self.persistClients.get(BUILDING).runUpdateQuery(buildingCode, data);
         return self->/buildings/[buildingCode].get();
     };
 
     isolated resource function delete buildings/[string buildingCode]() returns Building|error {
         Building 'object = check self->/buildings/[buildingCode].get();
-        _ = check self.persistClients.get("building").runDeleteQuery(buildingCode);
+        _ = check self.persistClients.get(BUILDING).runDeleteQuery(buildingCode);
         return 'object;
     };
 
     isolated resource function get workspaces() returns stream<Workspace, error?> {
-        stream<anydata, sql:Error?>|Error result = self.persistClients.get("workspace").runReadQuery(Workspace);
+        stream<record{}, sql:Error?>|Error result = self.persistClients.get(WORKSPACE).runReadQuery(Workspace);
         if result is Error {
             return new stream<Workspace, Error?>(new WorkspaceStream((), result));
         } else {
@@ -112,28 +119,28 @@ client class RainierClient {
     };
 
     isolated resource function get workspaces/[string workspaceId]() returns Workspace|error {
-        return (check self.persistClients.get("workspace").runReadByKeyQuery(Workspace, workspaceId)).cloneWithType(Workspace);
+        return (check self.persistClients.get(WORKSPACE).runReadByKeyQuery(Workspace, workspaceId)).cloneWithType(Workspace);
     };
 
     isolated resource function post workspaces(WorkspaceInsert[] data) returns string[]|error {
-        _ = check self.persistClients.get("workspace").runBatchInsertQuery(data);
+        _ = check self.persistClients.get(WORKSPACE).runBatchInsertQuery(data);
         return from WorkspaceInsert inserted in data
                select inserted.workspaceId;
     };
 
     isolated resource function put workspaces/[string workspaceId](WorkspaceUpdate data) returns Workspace|error {
-        _ = check self.persistClients.get("workspace").runUpdateQuery(workspaceId, data);
+        _ = check self.persistClients.get(WORKSPACE).runUpdateQuery(workspaceId, data);
         return self->/workspaces/[workspaceId].get();
     };
 
     isolated resource function delete workspaces/[string workspaceId]() returns Workspace|error {
         Workspace 'object = check self->/workspaces/[workspaceId].get();
-        _ = check self.persistClients.get("workspace").runDeleteQuery(workspaceId);
+        _ = check self.persistClients.get(WORKSPACE).runDeleteQuery(workspaceId);
         return 'object;
     };
 
     isolated resource function get departments() returns stream<Department, error?> {
-        stream<anydata, sql:Error?>|Error result = self.persistClients.get("department").runReadQuery(Department);
+        stream<record{}, sql:Error?>|Error result = self.persistClients.get(DEPARTMENT).runReadQuery(Department);
         if result is Error {
             return new stream<Department, Error?>(new DepartmentStream((), result));
         } else {
@@ -142,28 +149,28 @@ client class RainierClient {
     };
 
     isolated resource function get departments/[string deptNo]() returns Department|error {
-        return (check self.persistClients.get("department").runReadByKeyQuery(Department, deptNo)).cloneWithType(Department);
+        return (check self.persistClients.get(DEPARTMENT).runReadByKeyQuery(Department, deptNo)).cloneWithType(Department);
     };
 
     isolated resource function post departments(DepartmentInsert[] data) returns string[]|error {
-        _ = check self.persistClients.get("department").runBatchInsertQuery(data);
+        _ = check self.persistClients.get(DEPARTMENT).runBatchInsertQuery(data);
         return from DepartmentInsert inserted in data
                select inserted.deptNo;
     };
 
     isolated resource function put departments/[string deptNo](DepartmentUpdate data) returns Department|error {
-        _ = check self.persistClients.get("department").runUpdateQuery(deptNo, data);
+        _ = check self.persistClients.get(DEPARTMENT).runUpdateQuery(deptNo, data);
         return self->/departments/[deptNo].get();
     };
 
     isolated resource function delete departments/[string deptNo]() returns Department|error {
         Department 'object = check self->/departments/[deptNo].get();
-        _ = check self.persistClients.get("department").runDeleteQuery(deptNo);
+        _ = check self.persistClients.get(DEPARTMENT).runDeleteQuery(deptNo);
         return 'object;
     };
 
     isolated resource function get employees() returns stream<Employee, error?> {
-        stream<anydata, sql:Error?>|Error result = self.persistClients.get("employee").runReadQuery(Employee);
+        stream<record{}, sql:Error?>|Error result = self.persistClients.get(EMPLOYEE).runReadQuery(Employee);
         if result is Error {
             return new stream<Employee, Error?>(new EmployeeStream((), result));
         } else {
@@ -172,28 +179,28 @@ client class RainierClient {
     };
 
     isolated resource function get employees/[string empNo]() returns Employee|error {
-        return (check self.persistClients.get("employee").runReadByKeyQuery(Employee, empNo)).cloneWithType(Employee);
+        return (check self.persistClients.get(EMPLOYEE).runReadByKeyQuery(Employee, empNo)).cloneWithType(Employee);
     };
 
     isolated resource function post employees(EmployeeInsert[] data) returns string[]|error {
-        _ = check self.persistClients.get("employee").runBatchInsertQuery(data);
+        _ = check self.persistClients.get(EMPLOYEE).runBatchInsertQuery(data);
         return from EmployeeInsert inserted in data
                select inserted.empNo;
     };
 
     isolated resource function put employees/[string empNo](EmployeeUpdate data) returns Employee|error {
-        _ = check self.persistClients.get("employee").runUpdateQuery(empNo, data);
+        _ = check self.persistClients.get(EMPLOYEE).runUpdateQuery(empNo, data);
         return self->/employees/[empNo].get();
     };
 
     isolated resource function delete employees/[string empNo]() returns Employee|error {
         Employee 'object = check self->/employees/[empNo].get();
-        _ = check self.persistClients.get("employee").runDeleteQuery(empNo);
+        _ = check self.persistClients.get(EMPLOYEE).runDeleteQuery(empNo);
         return 'object;
     };
 
-    public function close() {
-        
+    public function close() returns error? {
+        _ = check self.dbClient.close();
     }
 }
 
@@ -231,13 +238,7 @@ public class BuildingStream {
     }
 
     public isolated function close() returns Error? {
-        if self.anydataStream is stream<anydata, sql:Error?> {
-            var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
-            sql:Error? e = anydataStream.close();
-            if e is sql:Error {
-                return <Error>error(e.message());
-            }
-        }
+        check closeEntityStream(self.anydataStream);
     }
 }
 
@@ -275,13 +276,7 @@ public class WorkspaceStream {
     }
 
     public isolated function close() returns Error? {
-        if self.anydataStream is stream<anydata, sql:Error?> {
-            var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
-            sql:Error? e = anydataStream.close();
-            if e is sql:Error {
-                return <Error>error(e.message());
-            }
-        }
+        check closeEntityStream(self.anydataStream);
     }
 }
 
@@ -319,13 +314,7 @@ public class DepartmentStream {
     }
 
     public isolated function close() returns Error? {
-        if self.anydataStream is stream<anydata, sql:Error?> {
-            var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
-            sql:Error? e = anydataStream.close();
-            if e is sql:Error {
-                return <Error>error(e.message());
-            }
-        }
+        check closeEntityStream(self.anydataStream);
     }
 }
 
@@ -363,12 +352,6 @@ public class EmployeeStream {
     }
 
     public isolated function close() returns Error? {
-        if self.anydataStream is stream<anydata, sql:Error?> {
-            var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
-            sql:Error? e = anydataStream.close();
-            if e is sql:Error {
-                return <Error>error(e.message());
-            }
-        }
+        check closeEntityStream(self.anydataStream);
     }
 }

@@ -21,3 +21,12 @@ isolated function stringToParameterizedQuery(string queryStr) returns sql:Parame
     query.strings = [queryStr];
     return query;
 }
+
+isolated function closeEntityStream(stream<anydata, sql:Error?>? anydataStream) returns Error? {
+    if anydataStream is stream<anydata, sql:Error?> {
+        sql:Error? e = anydataStream.close();
+        if e is sql:Error {
+            return <Error>error(e.message());
+        }
+    }
+}

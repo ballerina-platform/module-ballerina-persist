@@ -19,31 +19,31 @@ import ballerina/test;
 Workspace workspace1 = {
     workspaceId: "workspace-1",
     workspaceType: "small",
-    buildingCode: "building-2"
+    buildingBuildingCode: "building-2"
 };
 
 Workspace invalidWorkspace = {
     workspaceId: "invalid-workspace-extra-characters-to-force-failure",
     workspaceType: "small",
-    buildingCode: "building-2"
+    buildingBuildingCode: "building-2"
 };
 
 Workspace workspace2 = {
     workspaceId: "workspace-2",
     workspaceType: "medium",
-    buildingCode: "building-2"
+    buildingBuildingCode: "building-2"
 };
 
 Workspace workspace3 = {
     workspaceId: "workspace-3",
     workspaceType: "small",
-    buildingCode: "building-2"
+    buildingBuildingCode: "building-2"
 };
 
 Workspace updatedWorkspace1 = {
     workspaceId: "workspace-1",
     workspaceType: "large",
-    buildingCode: "building-2"
+    buildingBuildingCode: "building-2"
 };
 
 @test:Config {
@@ -75,6 +75,7 @@ function workspaceCreateTest2() returns error? {
 
     workspaceRetrieved = check rainierClient->/workspaces/[workspace3.workspaceId].get();
     test:assertEquals(workspaceRetrieved, workspace3);
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -89,6 +90,7 @@ function workspaceCreateTestNegative() returns error? {
     } else {
         test:assertFail("Error expected.");
     }
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -100,6 +102,7 @@ function workspaceReadOneTest() returns error? {
 
     Workspace workspaceRetrieved = check rainierClient->/workspaces/[workspace1.workspaceId].get();
     test:assertEquals(workspaceRetrieved, workspace1);
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -114,7 +117,9 @@ function workspaceReadOneTestNegative() returns error? {
         test:assertEquals(workspaceRetrieved.message(), "A record does not exist for 'Workspace' for key \"invalid-workspace-id\".");
     } else {
         test:assertFail("InvalidKeyError expected.");
-    }}
+    }
+    check rainierClient.close();
+}
 
 @test:Config {
     groups: ["workspace"],
@@ -128,6 +133,7 @@ function workspaceReadManyTest() returns error? {
         select workspace;
 
     test:assertEquals(workspaces, [workspace1, workspace2, workspace3]);
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -145,6 +151,7 @@ function workspaceUpdateTest() returns error? {
 
     Workspace workspaceRetrieved = check rainierClient->/workspaces/[workspace1.workspaceId].get();
     test:assertEquals(workspaceRetrieved, updatedWorkspace1);
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -163,6 +170,7 @@ function workspaceUpdateTestNegative1() returns error? {
     } else {
         test:assertFail("InvalidKeyError expected.");
     }
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -181,6 +189,7 @@ function workspaceUpdateTestNegative2() returns error? {
     } else {
         test:assertFail("InvalidKeyError expected.");
     }
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -198,6 +207,7 @@ function workspaceDeleteTest() returns error? {
         select workspace2;
 
     test:assertEquals(workspaces, [workspace2, workspace3]);
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -214,4 +224,5 @@ function workspaceDeleteTestNegative() returns error? {
     } else {
         test:assertFail("InvalidKeyError expected.");
     }
+    check rainierClient.close();
 }

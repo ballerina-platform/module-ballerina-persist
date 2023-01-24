@@ -21,10 +21,10 @@ Employee employee1 = {
     firstName: "Tom",
     lastName: "Scott",
     birthDate: {year: 1992, month: 11, day:13},
-    gender: M,
+    gender: "M",
     hireDate: {year: 2022, month: 8, day: 1},
-    deptNo: "department-2",
-    workspaceId: "workspace-2"
+    departmentDeptNo: "department-2",
+    workspaceWorkspaceId: "workspace-2"
 };
 
 Employee invalidEmployee = {
@@ -32,10 +32,10 @@ Employee invalidEmployee = {
     firstName: "Tom",
     lastName: "Scott",
     birthDate: {year: 1992, month: 11, day:13},
-    gender: M,
+    gender: "M",
     hireDate: {year: 2022, month: 8, day: 1},
-    deptNo: "department-2",
-    workspaceId: "workspace-2"
+    departmentDeptNo: "department-2",
+    workspaceWorkspaceId: "workspace-2"
 };
 
 Employee employee2 = {
@@ -43,10 +43,10 @@ Employee employee2 = {
     firstName: "Jane",
     lastName: "Doe",
     birthDate: {year: 1996, month: 9, day:15},
-    gender: F,
+    gender: "F",
     hireDate: {year: 2022, month: 6, day: 1},
-    deptNo: "department-2",
-    workspaceId: "workspace-2"
+    departmentDeptNo: "department-2",
+    workspaceWorkspaceId: "workspace-2"
 };
 
 Employee employee3 = {
@@ -54,10 +54,10 @@ Employee employee3 = {
     firstName: "Hugh",
     lastName: "Smith",
     birthDate: {year: 1986, month: 9, day:15},
-    gender: F,
+    gender: "F",
     hireDate: {year: 2021, month: 6, day: 1},
-    deptNo: "department-3",
-    workspaceId: "workspace-3"
+    departmentDeptNo: "department-3",
+    workspaceWorkspaceId: "workspace-3"
 };
 
 Employee updatedEmployee1 = {
@@ -65,10 +65,10 @@ Employee updatedEmployee1 = {
     firstName: "Tom",
     lastName: "Jones",
     birthDate: {year: 1994, month: 11, day:13},
-    gender: M,
+    gender: "M",
     hireDate: {year: 2022, month: 8, day: 1},
-    deptNo: "department-3",
-    workspaceId: "workspace-2"
+    departmentDeptNo: "department-3",
+    workspaceWorkspaceId: "workspace-2"
 };
 
 @test:Config {
@@ -83,6 +83,7 @@ function employeeCreateTest() returns error? {
 
     Employee employeeRetrieved = check rainierClient->/employees/[employee1.empNo].get();
     test:assertEquals(employeeRetrieved, employee1);
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -101,6 +102,7 @@ function employeeCreateTest2() returns error? {
 
     employeeRetrieved = check rainierClient->/employees/[employee3.empNo].get();
     test:assertEquals(employeeRetrieved, employee3);
+    check rainierClient.close();
 }
 
 
@@ -116,6 +118,7 @@ function employeeCreateTestNegative() returns error? {
     } else {
         test:assertFail("Error expected.");
     }
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -127,6 +130,7 @@ function employeeReadOneTest() returns error? {
 
     Employee employeeRetrieved = check rainierClient->/employees/[employee1.empNo].get();
     test:assertEquals(employeeRetrieved, employee1);
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -141,7 +145,9 @@ function employeeReadOneTestNegative() returns error? {
         test:assertEquals(employeeRetrieved.message(), "A record does not exist for 'Employee' for key \"invalid-employee-id\".");
     } else {
         test:assertFail("InvalidKeyError expected.");
-    }}
+    }
+    check rainierClient.close();
+}
 
 @test:Config {
     groups: ["employee"],
@@ -155,6 +161,7 @@ function employeeReadManyTest() returns error? {
         select employee;
 
     test:assertEquals(employees, [employee1, employee2, employee3]);
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -166,7 +173,7 @@ function employeeUpdateTest() returns error? {
 
     Employee employee = check rainierClient->/employees/[employee1.empNo].put({
         lastName: "Jones",
-        deptNo: "department-3",
+        departmentDeptNo: "department-3",
         birthDate: {year: 1994, month: 11, day:13}
     });
 
@@ -174,6 +181,7 @@ function employeeUpdateTest() returns error? {
 
     Employee employeeRetrieved = check rainierClient->/employees/[employee1.empNo].get();
     test:assertEquals(employeeRetrieved, updatedEmployee1);
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -192,6 +200,7 @@ function employeeUpdateTestNegative1() returns error? {
     } else {
         test:assertFail("InvalidKeyError expected.");
     }
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -210,6 +219,7 @@ function employeeUpdateTestNegative2() returns error? {
     } else {
         test:assertFail("InvalidKeyError expected.");
     }
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -220,15 +230,16 @@ function employeeUpdateTestNegative3() returns error? {
     RainierClient rainierClient = check new ();
 
     Employee|error employee = rainierClient->/employees/[employee1.empNo].put({
-        workspaceId: "invalid-workspaceId"
+        workspaceWorkspaceId: "invalid-workspaceWorkspaceId"
     });
 
     if employee is ForeignKeyConstraintViolationError {
         test:assertTrue(employee.message().includes("Cannot add or update a child row: a foreign key constraint fails (`test`.`Employee`, " +
-            "CONSTRAINT `Employee_ibfk_2` FOREIGN KEY (`workspaceId`) REFERENCES `Workspace` (`workspaceId`))."));
+            "CONSTRAINT `Employee_ibfk_2` FOREIGN KEY (`workspaceWorkspaceId`) REFERENCES `Workspace` (`workspaceId`))."));
     } else {
         test:assertFail("ForeignKeyConstraintViolationError expected.");
     }
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -246,6 +257,7 @@ function employeeDeleteTest() returns error? {
         select employee2;
 
     test:assertEquals(employees, [employee2, employee3]);
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -262,4 +274,5 @@ function employeeDeleteTestNegative() returns error? {
     } else {
         test:assertFail("InvalidKeyError expected.");
     }
+    check rainierClient.close();
 }

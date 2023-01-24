@@ -68,6 +68,7 @@ function basicCreateTest() returns error? {
 
     Building buildingRetrieved = check rainierClient->/buildings/[building1.buildingCode].get();
     test:assertEquals(buildingRetrieved, building1);
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -85,6 +86,8 @@ function basicCreateTest2() returns error? {
 
     buildingRetrieved = check rainierClient->/buildings/[building3.buildingCode].get();
     test:assertEquals(buildingRetrieved, building3);
+
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -99,6 +102,7 @@ function basicCreateTestNegative() returns error? {
     } else {
         test:assertFail("Error expected.");
     }
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -110,6 +114,7 @@ function basicReadOneTest() returns error? {
 
     Building buildingRetrieved = check rainierClient->/buildings/[building1.buildingCode].get();
     test:assertEquals(buildingRetrieved, building1);
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -124,7 +129,9 @@ function basicReadOneTestNegative() returns error? {
         test:assertEquals(buildingRetrieved.message(), "A record does not exist for 'Building' for key \"invalid-building-code\".");
     } else {
         test:assertFail("InvalidKeyError expected.");
-    }}
+    }
+    check rainierClient.close();
+}
 
 @test:Config {
     groups: ["basic"],
@@ -138,6 +145,7 @@ function basicReadManyTest() returns error? {
         select building;
 
     test:assertEquals(buildings, [building1, building2, building3]);
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -157,6 +165,7 @@ function basicUpdateTest() returns error? {
 
     Building buildingRetrieved = check rainierClient->/buildings/[building1.buildingCode].get();
     test:assertEquals(buildingRetrieved, updatedBuilding1);
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -177,6 +186,7 @@ function basicUpdateTestNegative1() returns error? {
     } else {
         test:assertFail("InvalidKeyError expected.");
     }
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -197,6 +207,7 @@ function basicUpdateTestNegative2() returns error? {
     } else {
         test:assertFail("InvalidKeyError expected.");
     }
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -214,6 +225,7 @@ function basicDeleteTest() returns error? {
         select building2;
 
     test:assertEquals(buildings, [building2, building3]);
+    check rainierClient.close();
 }
 
 @test:Config {
@@ -230,4 +242,5 @@ function basicDeleteTestNegative() returns error? {
     } else {
         test:assertFail("InvalidKeyError expected.");
     }
+    check rainierClient.close();
 }

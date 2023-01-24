@@ -36,11 +36,11 @@ public client class SQLClient {
     # + fieldMetadata - The metadata associated with each field of the entity
     # + joinMetadata - The metadata associated with performing SQL `JOIN` operations
     # + return - A `persist:Error` if the client creation fails
-    public function init(sql:Client dbClient, string entityName, sql:ParameterizedQuery tableName, string[] keyFields, map<FieldMetadata> fieldMetadata) returns Error? {
-        self.entityName = entityName;
-        self.tableName = tableName;
-        self.fieldMetadata = fieldMetadata;
-        self.keyFields = keyFields;
+    public function init(sql:Client dbClient, Metadata metadata) returns Error? {
+        self.entityName = metadata.entityName;
+        self.tableName = metadata.tableName;
+        self.fieldMetadata = metadata.fieldMetadata;
+        self.keyFields = metadata.keyFields;
         self.dbClient = dbClient;
     }
 

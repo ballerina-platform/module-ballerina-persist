@@ -11,8 +11,8 @@ CREATE TABLE test.Building (
 CREATE TABLE test.Workspace (
     workspaceId VARCHAR(36) PRIMARY KEY,
     workspaceType VARCHAR(10),
-    buildingCode VARCHAR(36),
-    FOREIGN KEY (buildingCode) REFERENCES test.Building(buildingCode)
+    buildingBuildingCode VARCHAR(36),
+    FOREIGN KEY (buildingBuildingCode) REFERENCES test.Building(buildingCode)
 );
 
 CREATE TABLE test.Department (
@@ -27,8 +27,8 @@ CREATE TABLE test.Employee (
     birthDate DATE,
     gender CHAR(1),
     hireDate DATE,
-    deptNo VARCHAR(36),
-    workspaceId VARCHAR(36),
-    FOREIGN KEY (deptNo) REFERENCES test.Department(deptNo),
-    FOREIGN KEY (workspaceId) REFERENCES test.Workspace(workspaceId)
+    departmentDeptNo VARCHAR(36),
+    workspaceWorkspaceId VARCHAR(36),
+    FOREIGN KEY (departmentDeptNo) REFERENCES test.Department(deptNo),
+    FOREIGN KEY (workspaceWorkspaceId) REFERENCES test.Workspace(workspaceId)
 );
