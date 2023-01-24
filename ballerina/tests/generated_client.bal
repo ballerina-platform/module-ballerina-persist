@@ -11,9 +11,7 @@ client class RainierClient {
 
     private final mysql:Client dbClient;
 
-    private final record {|
-        Metadata...;
-    |} metadata = {
+    private final record {|Metadata...;|} metadata = {
         "building": {
             entityName: "Building",
             tableName: `Building`,
