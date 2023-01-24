@@ -6,6 +6,7 @@ const BUILDING = "building";
 const WORKSPACE = "workspace";
 const DEPARTMENT = "department";
 const EMPLOYEE = "employee";
+const ORDERITEM = "orderItem";
 
 client class RainierClient {
 
@@ -57,6 +58,17 @@ client class RainierClient {
                 workspaceWorkspaceId: {columnName: "workspaceWorkspaceId", 'type: string}
             },
             keyFields: ["empNo"]
+        },
+        "orderItem": {
+            entityName: "OrderItem",
+            tableName: `OrderItem`,
+            fieldMetadata: {
+                orderId: {columnName: "orderId", 'type: string},
+                itemId: {columnName: "itemId", 'type: string},
+                quantity: {columnName: "quantity", 'type: int},
+                notes: {columnName: "notes", 'type: string}
+            },
+            keyFields: ["orderId", "itemId"]
         }
     };
 
@@ -70,7 +82,8 @@ client class RainierClient {
                 building: check new (self.dbClient, self.metadata.get(BUILDING)),
                 workspace: check new (self.dbClient, self.metadata.get(WORKSPACE)),
                 department: check new (self.dbClient, self.metadata.get(DEPARTMENT)),
-                employee: check new (self.dbClient, self.metadata.get(EMPLOYEE))
+                employee: check new (self.dbClient, self.metadata.get(EMPLOYEE)),
+                orderItem: check new (self.dbClient, self.metadata.get(ORDERITEM))
             };
         } on fail error e {
             return <Error>error(e.message());
@@ -194,6 +207,36 @@ client class RainierClient {
     isolated resource function delete employees/[string empNo]() returns Employee|error {
         Employee 'object = check self->/employees/[empNo].get();
         _ = check self.persistClients.get(EMPLOYEE).runDeleteQuery(empNo);
+        return 'object;
+    };
+
+    isolated resource function get orderItems() returns stream<OrderItem, error?> {
+        stream<record{}, sql:Error?>|Error result = self.persistClients.get(ORDERITEM).runReadQuery(OrderItem);
+        if result is Error {
+            return new stream<OrderItem, Error?>(new OrderItemStream((), result));
+        } else {
+            return new stream<OrderItem, Error?>(new OrderItemStream(result));
+        }
+    };
+
+    isolated resource function get orderItems/[string orderId]/[string itemId]() returns OrderItem|error {
+        return (check self.persistClients.get(ORDERITEM).runReadByKeyQuery(OrderItem, {orderId: orderId, itemId: itemId})).cloneWithType(OrderItem);
+    };
+
+    isolated resource function post orderItems(OrderItemInsert[] data) returns [string, string][]|error {
+        _ = check self.persistClients.get(ORDERITEM).runBatchInsertQuery(data);
+        return from OrderItemInsert inserted in data
+               select [inserted.orderId, inserted.itemId];
+    };
+
+    isolated resource function put orderItems/[string orderId]/[string itemId](OrderItemUpdate data) returns OrderItem|error {
+        _ = check self.persistClients.get(ORDERITEM).runUpdateQuery({orderId: orderId, itemId: itemId}, data);
+        return self->/orderItems/[orderId]/[itemId].get();
+    };
+
+    isolated resource function delete orderItems/[string orderId]/[string itemId]() returns OrderItem|error {
+        OrderItem 'object = check self->/orderItems/[orderId]/[itemId].get();
+        _ = check self.persistClients.get(ORDERITEM).runDeleteQuery({orderId:orderId, itemId:itemId});
         return 'object;
     };
 
@@ -338,6 +381,44 @@ public class EmployeeStream {
             } else {
                 do {
                     record {|Employee value;|} nextRecord = {value: check streamValue.value.cloneWithType(Employee)};
+                    return nextRecord;
+                } on fail error e {
+                    return <Error>e;
+                }
+            }
+        } else {
+            // Unreachable code
+            return ();
+        }
+    }
+
+    public isolated function close() returns Error? {
+        check closeEntityStream(self.anydataStream);
+    }
+}
+
+public class OrderItemStream {
+    private stream<anydata, sql:Error?>? anydataStream;
+    private Error? err;
+
+    public isolated function init(stream<anydata, sql:Error?>? anydataStream, Error? err = ()) {
+        self.anydataStream = anydataStream;
+        self.err = err;
+    }
+
+    public isolated function next() returns record {|OrderItem value;|}|Error? {
+        if self.err is error {
+            return self.err;
+        } else if self.anydataStream is stream<anydata, sql:Error?> {
+            var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
+            var streamValue = anydataStream.next();
+            if streamValue is () {
+                return streamValue;
+            } else if (streamValue is sql:Error) {
+                return <Error>error(streamValue.message());
+            } else {
+                do {
+                    record {|OrderItem value;|} nextRecord = {value: check streamValue.value.cloneWithType(OrderItem)};
                     return nextRecord;
                 } on fail error e {
                     return <Error>e;

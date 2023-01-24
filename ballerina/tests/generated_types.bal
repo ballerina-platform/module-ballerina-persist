@@ -31,6 +31,13 @@ public type Employee record {|
     string workspaceWorkspaceId;
 |};
 
+public type OrderItem record {|
+    readonly string orderId;
+    readonly string itemId;
+    int quantity;
+    string notes;
+|};
+
 type BuildingInsert Building;
 
 type DepartmentInsert Department;
@@ -38,6 +45,8 @@ type DepartmentInsert Department;
 type WorkspaceInsert Workspace;
 
 type EmployeeInsert Employee;
+
+type OrderItemInsert OrderItem;
 
 public type BuildingUpdate record {|
     string city?;
@@ -64,4 +73,9 @@ public type EmployeeUpdate record {|
 
     string departmentDeptNo?; 
     string workspaceWorkspaceId?;
+|};
+
+public type OrderItemUpdate record {|
+    int quantity;
+    string notes;
 |};
