@@ -232,11 +232,11 @@ There are 3 types of derived entity types:
     ```
 
 3. Update Types
-    These are records used to update data in the data source. These are entity types without the identifier fields.
+    These are records used to update data in the data source. These are entity types without the identifier fields. All fields will be optional. Only the value provided fields will be updated.
     ```ballerina
     type WorkspaceUpdate record {|
-        string workspaceType;
-        string buildingBuildingCode;
+        string workspaceType?;
+        string buildingBuildingCode?;
     |};
     ```
 
