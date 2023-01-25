@@ -43,7 +43,10 @@ public enum DiagnosticsCodes {
     PERSIST_303("PERSIST_303", "entity does not support duplicated relations to an associated entity", ERROR),
     PERSIST_304("PERSIST_304", "entity should not contain foreign key field ''{0}'' for relation ''{1}''", ERROR),
     PERSIST_305("PERSIST_305", "n:m association is not supported yet", ERROR),
-    PERSIST_306("PERSIST_306", "entity does not support nillable associations", ERROR);
+    PERSIST_306("PERSIST_306", "entity does not support nillable associations", ERROR),
+
+    PERSIST_401("PERSIST_401", "identifier field cannot be nillable", ERROR),
+    PERSIST_402("PERSIST_402", "fields indicating associations cannot be an identifier field", ERROR);
 
     private final String code;
     private final String message;

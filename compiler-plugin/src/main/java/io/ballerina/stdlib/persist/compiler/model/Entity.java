@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Model class to hold entity properties.
@@ -37,11 +38,10 @@ public class Entity {
     private final String entityName;
     private final NodeLocation entityNameLocation;
     private final RecordTypeDescriptorNode typeDescriptorNode;
-    private final List<String> identifierFields = new ArrayList<>();
+    private final List<IdentifierField> identifierFields = new ArrayList<>();
     private final Map<String, NodeLocation> nonRelationFields = new HashMap<>();
     private final List<RelationField> relationFields = new ArrayList<>();
     private final List<Diagnostic> diagnosticList = new ArrayList<>();
-    private int readonlyFieldCount = 0;
     private boolean containsRelations = false;
 
     public Entity(String entityName, NodeLocation entityNameLocation, RecordTypeDescriptorNode typeDescriptorNode) {
@@ -62,20 +62,16 @@ public class Entity {
         return typeDescriptorNode;
     }
 
-    public int getReadonlyFieldCount() {
-        return readonlyFieldCount;
+    public List<String> getIdentifierFieldNames() {
+        return identifierFields.stream().map(IdentifierField::getName).collect(Collectors.toList());
     }
 
-    public void incrementReadonlyFieldCount() {
-        this.readonlyFieldCount++;
-    }
-
-    public List<String> getIdentifierFields() {
+    public List<IdentifierField> getIdentifierFields() {
         return identifierFields;
     }
 
-    public void addIdentifierField(String fieldName) {
-        this.identifierFields.add(fieldName);
+    public void addIdentifierField(IdentifierField field) {
+        this.identifierFields.add(field);
     }
 
     public Map<String, NodeLocation> getNonRelationFields() {
