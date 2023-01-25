@@ -9,6 +9,7 @@ function truncate() returns error? {
     _ = check dbClient->execute(`TRUNCATE Workspace`);
     _ = check dbClient->execute(`TRUNCATE Department`);
     _ = check dbClient->execute(`TRUNCATE Employee`);
+    _ = check dbClient->execute(`TRUNCATE OrderItem`);
     _ = check dbClient->execute(`SET FOREIGN_KEY_CHECKS = 1`);
     check dbClient.close();
 }

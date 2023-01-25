@@ -57,6 +57,11 @@ public client class SQLClient {
         sql:ExecutionResult[]|sql:Error result = self.dbClient->batchExecute(insertQueries);
 
         if result is sql:Error {
+            if result.message().indexOf("Duplicate entry ") != () {
+                string duplicateKey = check getKeyFromDuplicateKeyErrorMessage(result.message());
+                return <DuplicateKeyError>error(string `A ${self.entityName} entity with the key '${duplicateKey}' already exists.`);
+            }
+
             return <Error>error(result.message());
         }
 
