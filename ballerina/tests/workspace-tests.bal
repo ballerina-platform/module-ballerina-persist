@@ -53,10 +53,10 @@ Workspace updatedWorkspace1 = {
 function workspaceCreateTest() returns error? {
     RainierClient rainierClient = check new ();
     
-    string[] workspaceIds = check rainierClient->/workspaces.post([workspace1]);    
+    string[] workspaceIds = check rainierClient->/workspace.post([workspace1]);    
     test:assertEquals(workspaceIds, [workspace1.workspaceId]);
 
-    Workspace workspaceRetrieved = check rainierClient->/workspaces/[workspace1.workspaceId].get();
+    Workspace workspaceRetrieved = check rainierClient->/workspace/[workspace1.workspaceId].get();
     test:assertEquals(workspaceRetrieved, workspace1);
 }
 
@@ -66,14 +66,14 @@ function workspaceCreateTest() returns error? {
 function workspaceCreateTest2() returns error? {
     RainierClient rainierClient = check new ();
     
-    string[] workspaceIds = check rainierClient->/workspaces.post([workspace2, workspace3]);
+    string[] workspaceIds = check rainierClient->/workspace.post([workspace2, workspace3]);
 
     test:assertEquals(workspaceIds, [workspace2.workspaceId, workspace3.workspaceId]);
 
-    Workspace workspaceRetrieved = check rainierClient->/workspaces/[workspace2.workspaceId].get();
+    Workspace workspaceRetrieved = check rainierClient->/workspace/[workspace2.workspaceId].get();
     test:assertEquals(workspaceRetrieved, workspace2);
 
-    workspaceRetrieved = check rainierClient->/workspaces/[workspace3.workspaceId].get();
+    workspaceRetrieved = check rainierClient->/workspace/[workspace3.workspaceId].get();
     test:assertEquals(workspaceRetrieved, workspace3);
     check rainierClient.close();
 }
@@ -84,7 +84,7 @@ function workspaceCreateTest2() returns error? {
 function workspaceCreateTestNegative() returns error? {
     RainierClient rainierClient = check new ();
     
-    string[]|error workspace = rainierClient->/workspaces.post([invalidWorkspace]);   
+    string[]|error workspace = rainierClient->/workspace.post([invalidWorkspace]);   
     if workspace is Error {
         test:assertTrue(workspace.message().includes("Data truncation: Data too long for column 'workspaceId' at row 1."));
     } else {
@@ -100,7 +100,7 @@ function workspaceCreateTestNegative() returns error? {
 function workspaceReadOneTest() returns error? {
     RainierClient rainierClient = check new ();
 
-    Workspace workspaceRetrieved = check rainierClient->/workspaces/[workspace1.workspaceId].get();
+    Workspace workspaceRetrieved = check rainierClient->/workspace/[workspace1.workspaceId].get();
     test:assertEquals(workspaceRetrieved, workspace1);
     check rainierClient.close();
 }
@@ -112,7 +112,7 @@ function workspaceReadOneTest() returns error? {
 function workspaceReadOneTestNegative() returns error? {
     RainierClient rainierClient = check new ();
 
-    Workspace|error workspaceRetrieved = rainierClient->/workspaces/["invalid-workspace-id"].get();
+    Workspace|error workspaceRetrieved = rainierClient->/workspace/["invalid-workspace-id"].get();
     if workspaceRetrieved is InvalidKeyError {
         test:assertEquals(workspaceRetrieved.message(), "A record does not exist for 'Workspace' for key \"invalid-workspace-id\".");
     } else {
@@ -128,7 +128,7 @@ function workspaceReadOneTestNegative() returns error? {
 function workspaceReadManyTest() returns error? {
     RainierClient rainierClient = check new ();
 
-    stream<Workspace, error?> workspaceStream = rainierClient->/workspaces.get();
+    stream<Workspace, error?> workspaceStream = rainierClient->/workspace.get();
     Workspace[] workspaces = check from Workspace workspace in workspaceStream 
         select workspace;
 
@@ -143,13 +143,13 @@ function workspaceReadManyTest() returns error? {
 function workspaceUpdateTest() returns error? {
     RainierClient rainierClient = check new ();
 
-    Workspace workspace = check rainierClient->/workspaces/[workspace1.workspaceId].put({
+    Workspace workspace = check rainierClient->/workspace/[workspace1.workspaceId].put({
         workspaceType: "large"   
     });
 
     test:assertEquals(workspace, updatedWorkspace1);
 
-    Workspace workspaceRetrieved = check rainierClient->/workspaces/[workspace1.workspaceId].get();
+    Workspace workspaceRetrieved = check rainierClient->/workspace/[workspace1.workspaceId].get();
     test:assertEquals(workspaceRetrieved, updatedWorkspace1);
     check rainierClient.close();
 }
@@ -161,7 +161,7 @@ function workspaceUpdateTest() returns error? {
 function workspaceUpdateTestNegative1() returns error? {
     RainierClient rainierClient = check new ();
 
-    Workspace|error workspace = rainierClient->/workspaces/["invalid-workspace-id"].put({
+    Workspace|error workspace = rainierClient->/workspace/["invalid-workspace-id"].put({
         workspaceType: "large"   
     });
 
@@ -180,7 +180,7 @@ function workspaceUpdateTestNegative1() returns error? {
 function workspaceUpdateTestNegative2() returns error? {
     RainierClient rainierClient = check new ();
 
-    Workspace|error workspace = rainierClient->/workspaces/[workspace1.workspaceId].put({
+    Workspace|error workspace = rainierClient->/workspace/[workspace1.workspaceId].put({
         workspaceType: "unncessarily-long-workspace-type-to-force-error-on-update"
     });
 
@@ -199,10 +199,10 @@ function workspaceUpdateTestNegative2() returns error? {
 function workspaceDeleteTest() returns error? {
     RainierClient rainierClient = check new ();
 
-    Workspace workspace = check rainierClient->/workspaces/[workspace1.workspaceId].delete();
+    Workspace workspace = check rainierClient->/workspace/[workspace1.workspaceId].delete();
     test:assertEquals(workspace, updatedWorkspace1);
 
-    stream<Workspace, error?> workspaceStream = rainierClient->/workspaces.get();
+    stream<Workspace, error?> workspaceStream = rainierClient->/workspace.get();
     Workspace[] workspaces = check from Workspace workspace2 in workspaceStream 
         select workspace2;
 
@@ -217,7 +217,7 @@ function workspaceDeleteTest() returns error? {
 function workspaceDeleteTestNegative() returns error? {
     RainierClient rainierClient = check new ();
 
-    Workspace|error workspace = rainierClient->/workspaces/[workspace1.workspaceId].delete();
+    Workspace|error workspace = rainierClient->/workspace/[workspace1.workspaceId].delete();
 
     if workspace is InvalidKeyError {
         test:assertEquals(workspace.message(), string `A record does not exist for 'Workspace' for key "${workspace1.workspaceId}".`);

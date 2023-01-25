@@ -1,10 +1,5 @@
 import ballerina/time;
 
-enum Gender {
-    M,
-    F
-}
-
 type Building record {|
     readonly string buildingCode;
     string city;
@@ -40,4 +35,11 @@ type Employee record {|
 
     Department department;
     Workspace workspace;
+|};
+
+type OrderItem record {|
+    readonly string orderId;
+    readonly string itemId;
+    int quantity;
+    string notes;
 |};

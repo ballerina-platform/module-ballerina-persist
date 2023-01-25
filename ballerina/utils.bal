@@ -30,3 +30,16 @@ public isolated function closeEntityStream(stream<anydata, sql:Error?>? anydataS
         }
     }
 }
+
+isolated function getKeyFromDuplicateKeyErrorMessage(string errorMessage) returns string|Error {
+    int? startIndex = errorMessage.indexOf(".Duplicate entry '");
+    int? endIndex = errorMessage.indexOf("' for key");
+    
+    if startIndex is () || endIndex is () {
+        return <Error>error("Unable to determine key from DuplicateKey error message.");
+    }
+
+    string key = errorMessage.substring(startIndex+18, endIndex);
+    return key;
+}
+

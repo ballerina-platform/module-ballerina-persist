@@ -32,3 +32,12 @@ CREATE TABLE test.Employee (
     FOREIGN KEY (departmentDeptNo) REFERENCES test.Department(deptNo),
     FOREIGN KEY (workspaceWorkspaceId) REFERENCES test.Workspace(workspaceId)
 );
+
+CREATE TABLE test.OrderItem (
+    orderId VARCHAR(36),
+    itemId VARCHAR(30),
+    quantity INTEGER,
+    notes VARCHAR(255),
+    PRIMARY KEY(orderId, itemId)  
+);
+
