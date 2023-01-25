@@ -78,6 +78,7 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_302;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_303;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_304;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_305;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_306;
 
 /**
  * Persist model definition validator.
@@ -189,7 +190,9 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             Node processedTypeNode = typeNode;
             String typeNamePostfix = "";
             boolean isArrayType = false;
+            boolean isOptionalType = false;
             if (processedTypeNode instanceof OptionalTypeDescriptorNode) {
+                isOptionalType = true;
                 processedTypeNode = ((OptionalTypeDescriptorNode) processedTypeNode).typeDescriptor();
             }
             if (processedTypeNode instanceof ArrayTypeDescriptorNode) {
@@ -234,6 +237,11 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             } else if (processedTypeNode instanceof SimpleNameReferenceNode) {
                 String typeName = ((SimpleNameReferenceNode) processedTypeNode).name().text().trim();
                 if (this.entityNames.contains(typeName)) {
+                    // Remove once optional associations are supported
+                    if (isOptionalType) {
+                        entity.reportDiagnostic(PERSIST_306.getCode(), PERSIST_306.getMessage(),
+                                PERSIST_306.getSeverity(), typeNode.location());
+                    }
                     entity.setContainsRelations(true);
                     entity.addRelationField(new RelationField(typeName, isArrayType, recordFieldNode.location(),
                             entity.getEntityName()));
