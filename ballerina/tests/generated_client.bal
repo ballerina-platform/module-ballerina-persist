@@ -6,7 +6,7 @@ const BUILDING = "building";
 const WORKSPACE = "workspace";
 const DEPARTMENT = "department";
 const EMPLOYEE = "employee";
-const ORDER_ITEM = "orderItem";
+const ORDER_ITEM = "orderitem";
 
 client class RainierClient {
 
@@ -59,7 +59,7 @@ client class RainierClient {
             },
             keyFields: ["empNo"]
         },
-        "orderItem": {
+        "orderitem": {
             entityName: "OrderItem",
             tableName: `OrderItem`,
             fieldMetadata: {
@@ -83,7 +83,7 @@ client class RainierClient {
                 workspace: check new (self.dbClient, self.metadata.get(WORKSPACE)),
                 department: check new (self.dbClient, self.metadata.get(DEPARTMENT)),
                 employee: check new (self.dbClient, self.metadata.get(EMPLOYEE)),
-                orderItem: check new (self.dbClient, self.metadata.get(ORDER_ITEM))
+                orderitem: check new (self.dbClient, self.metadata.get(ORDER_ITEM))
             };
         } on fail error e {
             return <Error>error(e.message());
