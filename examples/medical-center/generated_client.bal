@@ -3,13 +3,16 @@ import ballerina/sql;
 import ballerina/time;
 import ballerina/persist;
 
+const MEDICAL_ITEM = "medicalItem";
+const MEDICAL_NEED = "medicalNeed";
+
 client class MedicalCenterClient {
 
     private final mysql:Client dbClient;
 
-    private final map<persist:Metadata> metadata = {
-        medicalItem: {
-            entityName: "MedicalItem",
+    private final record{|persist:Metadata...;|} metadata = {
+        "medicalItem": {
+            entityName: MEDICAL_ITEM,
             tableName: `MedicalItem`,
             fieldMetadata: {
                 itemId: {columnName: "itemId", 'type: int},
@@ -19,8 +22,8 @@ client class MedicalCenterClient {
             },
             keyFields: ["itemId"]
         },
-        medicalNeed: {
-            entityName: "MedicalNeed",
+        "medicalNeed": {
+            entityName: MEDICAL_NEED,
             tableName: `MedicalNeed`,
             fieldMetadata: {
                 needId : {columnName: "needId", 'type: int},
@@ -41,8 +44,8 @@ client class MedicalCenterClient {
             self.dbClient = check new (host = host, user = user, password = password, database = database, port = port);
 
             self.persistClients = {
-                medicalItem: check new (self.dbClient, self.metadata.get("medicalItem").entityName, self.metadata.get("medicalItem").tableName, self.metadata.get("medicalItem").keyFields, self.metadata.get("medicalItem").fieldMetadata),
-                medicalNeed: check new (self.dbClient, self.metadata.get("medicalNeed").entityName, self.metadata.get("medicalNeed").tableName, self.metadata.get("medicalNeed").keyFields, self.metadata.get("medicalNeed").fieldMetadata)
+                medicalItem: check new (self.dbClient, self.metadata.get(MEDICAL_ITEM)),
+                medicalNeed: check new (self.dbClient, self.metadata.get(MEDICAL_NEED))
             };
         } on fail error e {
             return <persist:Error>error(e.message());
@@ -50,7 +53,7 @@ client class MedicalCenterClient {
     }
 
     isolated resource function get medicalItems() returns stream<MedicalItem, error?> {
-        stream<anydata, sql:Error?>|persist:Error result = self.persistClients.get("medicalItem").runReadQuery(MedicalItem);
+        stream<anydata, sql:Error?>|persist:Error result = self.persistClients.get(MEDICAL_ITEM).runReadQuery(MedicalItem);
         if result is persist:Error {
             return new stream<MedicalItem, persist:Error?>(new MedicalItemStream((), result));
         } else {
@@ -59,28 +62,28 @@ client class MedicalCenterClient {
     };
 
     isolated resource function get medicalItems/[int itemId]() returns MedicalItem|error {
-        return (check self.persistClients.get("medicalItem").runReadByKeyQuery(MedicalItem, itemId)).cloneWithType(MedicalItem);
+        return (check self.persistClients.get(MEDICAL_ITEM).runReadByKeyQuery(MedicalItem, itemId)).cloneWithType(MedicalItem);
     };
 
     isolated resource function post medicalItems(MedicalItemInsert[] data) returns int[]|error {
-        _ = check self.persistClients.get("medicalItem").runBatchInsertQuery(data);
+        _ = check self.persistClients.get(MEDICAL_ITEM).runBatchInsertQuery(data);
         return from MedicalItemInsert inserted in data
                select inserted.itemId;
     };
 
     isolated resource function put medicalItems/[int itemId](MedicalItemUpdate data) returns MedicalItem|error {
-        _ = check self.persistClients.get("medicalItem").runUpdateQuery(itemId, data);
+        _ = check self.persistClients.get(MEDICAL_ITEM).runUpdateQuery(itemId, data);
         return self->/medicalItems/[itemId].get();
     };
 
     isolated resource function delete medicalItems/[int itemId]() returns MedicalItem|error {
         MedicalItem 'object = check self->/medicalItems/[itemId].get();
-        _ = check self.persistClients.get("medicalItem").runDeleteQuery(itemId);
+        _ = check self.persistClients.get(MEDICAL_ITEM).runDeleteQuery(itemId);
         return 'object;
     };
 
     isolated resource function get medicalNeeds() returns stream<MedicalNeed, error?> {
-        stream<anydata, sql:Error?>|persist:Error result = self.persistClients.get("medicalNeed").runReadQuery(MedicalNeed);
+        stream<anydata, sql:Error?>|persist:Error result = self.persistClients.get(MEDICAL_NEED).runReadQuery(MedicalNeed);
         if result is persist:Error {
             return new stream<MedicalNeed, persist:Error?>(new MedicalNeedStream((), result));
         } else {
@@ -89,23 +92,23 @@ client class MedicalCenterClient {
     };
 
     isolated resource function get medicalNeeds/[int needId]() returns MedicalNeed|error {
-        return (check self.persistClients.get("medicalNeed").runReadByKeyQuery(MedicalNeed, needId)).cloneWithType(MedicalNeed);
+        return (check self.persistClients.get(MEDICAL_NEED).runReadByKeyQuery(MedicalNeed, needId)).cloneWithType(MedicalNeed);
     };
 
     isolated resource function post medicalNeeds(MedicalNeedInsert[] data) returns int[]|error {
-        _ = check self.persistClients.get("medicalNeed").runBatchInsertQuery(data);
+        _ = check self.persistClients.get(MEDICAL_NEED).runBatchInsertQuery(data);
         return from MedicalNeedInsert inserted in data
                select inserted.needId;
     };
 
     isolated resource function put medicalNeeds/[int needId](MedicalNeedUpdate data) returns MedicalNeed|error {
-        _ = check self.persistClients.get("medicalNeed").runUpdateQuery(needId, data);
+        _ = check self.persistClients.get(MEDICAL_NEED).runUpdateQuery(needId, data);
         return self->/medicalNeeds/[needId].get();
     };
 
     isolated resource function delete medicalNeeds/[int needId]() returns MedicalNeed|error {
         MedicalNeed 'object = check self->/medicalNeeds/[needId].get();
-        _ = check self.persistClients.get("medicalNeed").runDeleteQuery(needId);
+        _ = check self.persistClients.get(MEDICAL_NEED).runDeleteQuery(needId);
         return 'object;
     };
 
@@ -151,14 +154,8 @@ public class MedicalItemStream {
         }
     }
 
-    public isolated function close() returns persist:Error? {
-        if self.anydataStream is stream<anydata, sql:Error?> {
-            var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
-            sql:Error? e = anydataStream.close();
-            if e is sql:Error {
-                return <persist:Error>error(e.message());
-            }
-        }
+    public isolated function close() returns persist:Error? { 
+        check persist:closeEntityStream(self.anydataStream);
     }
 }
 
@@ -195,13 +192,7 @@ public class MedicalNeedStream {
         }
     }
 
-    public isolated function close() returns persist:Error? {
-        if self.anydataStream is stream<anydata, sql:Error?> {
-            var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
-            sql:Error? e = anydataStream.close();
-            if e is sql:Error {
-                return <persist:Error>error(e.message());
-            }
-        }
+    public isolated function close() returns persist:Error? { 
+        check persist:closeEntityStream(self.anydataStream);
     }
 }
