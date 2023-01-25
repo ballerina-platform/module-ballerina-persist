@@ -8,6 +8,7 @@ const DEPARTMENT = "department";
 const EMPLOYEE = "employee";
 
 client class RainierClient {
+    *AbstractPersistClient;
 
     private final mysql:Client dbClient;
 
