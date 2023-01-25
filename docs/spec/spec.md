@@ -114,17 +114,19 @@ It is mandatory for the entity to contain at least one identifier field. The val
 
 The identifier field(s) can be defined by marking a field as `readonly`:
 
+Say type T is a subtype of SimpleType and T does not contain (),
+
 ```ballerina
 type EntityType record {|
-    readonly SimpleType <fieldName>;
+    readonly T <fieldName>;
 |} 
 ```
 The identifier field can be a single field or a combination of multiple fields. 
 
 ```ballerina
 type EntityType record {|
-    readonly SimpleType <fieldName1>;
-    readonly SimpleType <fieldName2>;
+    readonly T <fieldName1>;
+    readonly T <fieldName2>;
 |} 
 ```
 
