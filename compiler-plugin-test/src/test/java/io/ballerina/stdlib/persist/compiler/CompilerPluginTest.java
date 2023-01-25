@@ -50,6 +50,7 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_302;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_303;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_304;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_305;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_306;
 
 /**
  * Tests persist compiler plugin.
@@ -309,6 +310,23 @@ public class CompilerPluginTest {
                 new String[]{
                         "(2:0,2:17)",
                         "(10:4,10:13)"
+                }
+        );
+    }
+
+    @Test
+    public void validateOptionalAssociation() {
+        List<Diagnostic> diagnostics = getDiagnostic("optional-association.bal", 1, DiagnosticSeverity.ERROR);
+        testDiagnostic(
+                diagnostics,
+                new String[]{
+                        "entity does not support nillable associations"
+                },
+                new String[]{
+                        PERSIST_306.getCode()
+                },
+                new String[]{
+                        "(14:4,14:13)"
                 }
         );
     }
