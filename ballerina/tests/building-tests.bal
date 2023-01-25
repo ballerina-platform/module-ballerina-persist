@@ -48,7 +48,6 @@ BuildingInsert building3 = {
     postalCode: "39202"
 };
 
-
 Building updatedBuilding1 = {
     buildingCode: "building-1",
     city: "Galle",
@@ -63,10 +62,10 @@ Building updatedBuilding1 = {
 function basicCreateTest() returns error? {
     RainierClient rainierClient = check new ();
     
-    string[] buildingCodes = check rainierClient->/buildings.post([building1]);    
+    string[] buildingCodes = check rainierClient->/building.post([building1]);    
     test:assertEquals(buildingCodes, [building1.buildingCode]);
 
-    Building buildingRetrieved = check rainierClient->/buildings/[building1.buildingCode].get();
+    Building buildingRetrieved = check rainierClient->/building/[building1.buildingCode].get();
     test:assertEquals(buildingRetrieved, building1);
     check rainierClient.close();
 }
@@ -77,14 +76,14 @@ function basicCreateTest() returns error? {
 function basicCreateTest2() returns error? {
     RainierClient rainierClient = check new ();
     
-    string[] buildingCodes = check rainierClient->/buildings.post([building2, building3]);
+    string[] buildingCodes = check rainierClient->/building.post([building2, building3]);
 
     test:assertEquals(buildingCodes, [building2.buildingCode, building3.buildingCode]);
 
-    Building buildingRetrieved = check rainierClient->/buildings/[building2.buildingCode].get();
+    Building buildingRetrieved = check rainierClient->/building/[building2.buildingCode].get();
     test:assertEquals(buildingRetrieved, building2);
 
-    buildingRetrieved = check rainierClient->/buildings/[building3.buildingCode].get();
+    buildingRetrieved = check rainierClient->/building/[building3.buildingCode].get();
     test:assertEquals(buildingRetrieved, building3);
 
     check rainierClient.close();
@@ -96,7 +95,7 @@ function basicCreateTest2() returns error? {
 function basicCreateTestNegative() returns error? {
     RainierClient rainierClient = check new ();
     
-    string[]|error building = rainierClient->/buildings.post([invalidBuilding]);   
+    string[]|error building = rainierClient->/building.post([invalidBuilding]);   
     if building is Error {
         test:assertTrue(building.message().includes("Data truncation: Data too long for column 'buildingCode' at row 1."));
     } else {
@@ -112,7 +111,7 @@ function basicCreateTestNegative() returns error? {
 function basicReadOneTest() returns error? {
     RainierClient rainierClient = check new ();
 
-    Building buildingRetrieved = check rainierClient->/buildings/[building1.buildingCode].get();
+    Building buildingRetrieved = check rainierClient->/building/[building1.buildingCode].get();
     test:assertEquals(buildingRetrieved, building1);
     check rainierClient.close();
 }
@@ -124,7 +123,7 @@ function basicReadOneTest() returns error? {
 function basicReadOneTestNegative() returns error? {
     RainierClient rainierClient = check new ();
 
-    Building|error buildingRetrieved = rainierClient->/buildings/["invalid-building-code"].get();
+    Building|error buildingRetrieved = rainierClient->/building/["invalid-building-code"].get();
     if buildingRetrieved is InvalidKeyError {
         test:assertEquals(buildingRetrieved.message(), "A record does not exist for 'Building' for key \"invalid-building-code\".");
     } else {
@@ -140,7 +139,7 @@ function basicReadOneTestNegative() returns error? {
 function basicReadManyTest() returns error? {
     RainierClient rainierClient = check new ();
 
-    stream<Building, error?> buildingStream = rainierClient->/buildings.get();
+    stream<Building, error?> buildingStream = rainierClient->/building.get();
     Building[] buildings = check from Building building in buildingStream 
         select building;
 
@@ -155,7 +154,7 @@ function basicReadManyTest() returns error? {
 function basicUpdateTest() returns error? {
     RainierClient rainierClient = check new ();
 
-    Building building = check rainierClient->/buildings/[building1.buildingCode].put({
+    Building building = check rainierClient->/building/[building1.buildingCode].put({
         city: "Galle",
         state: "Southern Province",
         postalCode: "10890"
@@ -163,7 +162,7 @@ function basicUpdateTest() returns error? {
 
     test:assertEquals(building, updatedBuilding1);
 
-    Building buildingRetrieved = check rainierClient->/buildings/[building1.buildingCode].get();
+    Building buildingRetrieved = check rainierClient->/building/[building1.buildingCode].get();
     test:assertEquals(buildingRetrieved, updatedBuilding1);
     check rainierClient.close();
 }
@@ -175,7 +174,7 @@ function basicUpdateTest() returns error? {
 function basicUpdateTestNegative1() returns error? {
     RainierClient rainierClient = check new ();
 
-    Building|error building = rainierClient->/buildings/["invalid-building-code"].put({
+    Building|error building = rainierClient->/building/["invalid-building-code"].put({
         city: "Galle",
         state: "Southern Province",
         postalCode: "10890"
@@ -196,7 +195,7 @@ function basicUpdateTestNegative1() returns error? {
 function basicUpdateTestNegative2() returns error? {
     RainierClient rainierClient = check new ();
 
-    Building|error building = rainierClient->/buildings/[building1.buildingCode].put({
+    Building|error building = rainierClient->/building/[building1.buildingCode].put({
         city: "unncessarily-long-city-name-to-force-error-on-update",
         state: "Southern Province",
         postalCode: "10890"
@@ -217,10 +216,10 @@ function basicUpdateTestNegative2() returns error? {
 function basicDeleteTest() returns error? {
     RainierClient rainierClient = check new ();
 
-    Building building = check rainierClient->/buildings/[building1.buildingCode].delete();
+    Building building = check rainierClient->/building/[building1.buildingCode].delete();
     test:assertEquals(building, updatedBuilding1);
 
-    stream<Building, error?> buildingStream = rainierClient->/buildings.get();
+    stream<Building, error?> buildingStream = rainierClient->/building.get();
     Building[] buildings = check from Building building2 in buildingStream 
         select building2;
 
@@ -235,7 +234,7 @@ function basicDeleteTest() returns error? {
 function basicDeleteTestNegative() returns error? {
     RainierClient rainierClient = check new ();
 
-    Building|error building = rainierClient->/buildings/[building1.buildingCode].delete();
+    Building|error building = rainierClient->/building/[building1.buildingCode].delete();
 
     if building is error {
         test:assertEquals(building.message(), string `A record does not exist for 'Building' for key "${building1.buildingCode}".`);
