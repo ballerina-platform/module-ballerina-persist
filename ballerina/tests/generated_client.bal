@@ -6,7 +6,7 @@ const BUILDING = "building";
 const WORKSPACE = "workspace";
 const DEPARTMENT = "department";
 const EMPLOYEE = "employee";
-const ORDERITEM = "orderItem";
+const ORDER_ITEM = "orderItem";
 
 client class RainierClient {
 
@@ -83,7 +83,7 @@ client class RainierClient {
                 workspace: check new (self.dbClient, self.metadata.get(WORKSPACE)),
                 department: check new (self.dbClient, self.metadata.get(DEPARTMENT)),
                 employee: check new (self.dbClient, self.metadata.get(EMPLOYEE)),
-                orderItem: check new (self.dbClient, self.metadata.get(ORDERITEM))
+                orderItem: check new (self.dbClient, self.metadata.get(ORDER_ITEM))
             };
         } on fail error e {
             return <Error>error(e.message());
@@ -211,7 +211,7 @@ client class RainierClient {
     };
 
     isolated resource function get orderItems() returns stream<OrderItem, error?> {
-        stream<record{}, sql:Error?>|Error result = self.persistClients.get(ORDERITEM).runReadQuery(OrderItem);
+        stream<record{}, sql:Error?>|Error result = self.persistClients.get(ORDER_ITEM).runReadQuery(OrderItem);
         if result is Error {
             return new stream<OrderItem, Error?>(new OrderItemStream((), result));
         } else {
@@ -220,23 +220,23 @@ client class RainierClient {
     };
 
     isolated resource function get orderItems/[string orderId]/[string itemId]() returns OrderItem|error {
-        return (check self.persistClients.get(ORDERITEM).runReadByKeyQuery(OrderItem, {orderId: orderId, itemId: itemId})).cloneWithType(OrderItem);
+        return (check self.persistClients.get(ORDER_ITEM).runReadByKeyQuery(OrderItem, {orderId: orderId, itemId: itemId})).cloneWithType(OrderItem);
     };
 
     isolated resource function post orderItems(OrderItemInsert[] data) returns [string, string][]|error {
-        _ = check self.persistClients.get(ORDERITEM).runBatchInsertQuery(data);
+        _ = check self.persistClients.get(ORDER_ITEM).runBatchInsertQuery(data);
         return from OrderItemInsert inserted in data
                select [inserted.orderId, inserted.itemId];
     };
 
     isolated resource function put orderItems/[string orderId]/[string itemId](OrderItemUpdate data) returns OrderItem|error {
-        _ = check self.persistClients.get(ORDERITEM).runUpdateQuery({orderId: orderId, itemId: itemId}, data);
+        _ = check self.persistClients.get(ORDER_ITEM).runUpdateQuery({orderId: orderId, itemId: itemId}, data);
         return self->/orderItems/[orderId]/[itemId].get();
     };
 
     isolated resource function delete orderItems/[string orderId]/[string itemId]() returns OrderItem|error {
         OrderItem 'object = check self->/orderItems/[orderId]/[itemId].get();
-        _ = check self.persistClients.get(ORDERITEM).runDeleteQuery({orderId:orderId, itemId:itemId});
+        _ = check self.persistClients.get(ORDER_ITEM).runDeleteQuery({orderId:orderId, itemId:itemId});
         return 'object;
     };
 
