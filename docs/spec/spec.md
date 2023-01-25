@@ -345,9 +345,9 @@ client class RainierClient {
     };
 
     isolated resource function delete workspaces/[string workspaceId]() returns Workspace|error {
-        Workspace 'object = check self->/workspaces/[workspaceId].get();
+        Workspace result = check self->/workspaces/[workspaceId].get();
         _ = check self.persistClients.get(WORKSPACE).runDeleteQuery(workspaceId);
-        return 'object;
+        return result;
     };
 
     public function close() returns error? {
