@@ -49,7 +49,7 @@ public client class SQLClient {
     # + objects - The records to be inserted into the table
     # + return - An `sql:ExecutionResult[]` containing the metadata of the query execution
     #            or a `persist:Error` if the operation fails
-    public isolated function runBatchInsertQuery(record {}[] objects) returns sql:ExecutionResult[]|error {
+    public isolated function runBatchInsertQuery(record {}[] objects) returns sql:ExecutionResult[]|Error {
         sql:ParameterizedQuery[] insertQueries = 
             from record {} 'object in objects
             select sql:queryConcat(`INSERT INTO `, self.tableName, ` (`, self.getInsertColumnNames(), ` ) `, `VALUES `, self.getInsertQueryParams('object));
