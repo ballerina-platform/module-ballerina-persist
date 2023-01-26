@@ -8,9 +8,9 @@ _Edition_: Swan Lake
 
 ## Introduction
 
-This is the specification for the Ballerina persist standard library of [Ballerina language](https://ballerina.io/), which provides functionality to store and query data conveniently through data model instead of SQL query language.
+This is the specification for the `persist` standard library of the [Ballerina language](https://ballerina.io/), which provides functionality to store and query data conveniently through data model instead of SQL query language.
 
-The persist library specification has evolved and may continue to evolve in the future. The released versions of the specification can be found under the relevant GitHub tag. 
+The `persist` library specification has evolved and may continue to evolve in the future. The released versions of the specification can be found under the relevant GitHub tag. 
 
 If you have any feedback or suggestions about the library, start a discussion via a [GitHub issue](https://github.com/ballerina-platform/ballerina-standard-library/issues) or in the [Discord server](https://discord.gg/ballerinalang). Based on the outcome of the discussion, the specification and implementation can be updated. Community feedback is always welcome. Any accepted proposal, which affects the specification is stored under `/docs/proposals`. Proposals under discussion can be found with the label `type/proposal` in GitHub.
 
@@ -33,7 +33,7 @@ The conforming implementation of the specification is released and included in t
 
 ## 1. Overview
 
-The `persist` standard library creates a programming model to store and query data conveniently. The library uses the statically typed nature of Ballerina language to provide a convenient way to define, store and query data. The initial release of `persist` library only supports MySQL data providers.
+The `persist` standard library creates a programming model to store and query data conveniently. The library uses the statically typed nature of Ballerina language to provide a convenient way to define, store and query data. The initial release of the `persist` library only supports the MySQL data providers.
 
 ## 2. Data Model Definition
 
