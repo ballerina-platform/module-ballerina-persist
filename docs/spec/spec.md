@@ -8,7 +8,7 @@ _Edition_: Swan Lake
 
 ## Introduction
 
-This is the specification for the Ballerina persist standard library of [Ballerina language](https://ballerina.io/), which provides functionality to store and query data easily.
+This is the specification for the Ballerina persist standard library of [Ballerina language](https://ballerina.io/), which provides functionality to store and query data conveniently through data model instead of SQL query language.
 
 The persist library specification has evolved and may continue to evolve in the future. The released versions of the specification can be found under the relevant GitHub tag. 
 
@@ -33,17 +33,17 @@ The conforming implementation of the specification is released and included in t
 
 ## 1. Overview
 
-The `persist` standard library creates a programming model to store and query data easily. This uses the statically typed nature of Ballerina to provide a convenient way to define and store the data model of an application across various providers such as RDBMS, NoSQL, and others. At this initial release `persist` library only supports MySQL data provider.
+The `persist` standard library creates a programming model to store and query data conveniently. The library uses the statically typed nature of Ballerina language to provide a convenient way to define, store and query data. The initial release of `persist` library only supports MySQL data providers.
 
 ## 2. Data Model Definition
 
-Within a Ballerina project, the data model should be defined in a separate bal file under `persist` directory. This file is not considered as part of the Ballerina project and is used only for data model definition.
+Within a Ballerina project, the data model should be defined in a separate bal file under the `persist` directory. This file is not considered part of the Ballerina project and is used only for data model definition.
 
-Ballerina `persist` library defines a mechanism to express the data model of an application using Ballerina records. Any record type that is a subtype of the `EntityType` can be defined as an entity in the model.
+The Ballerina `persist` library defines a mechanism to express the application's data model using Ballerina record type. Any record type that is a subtype of the `EntityType` will be an entity in the model.
 
 ### 2.1. EntityType Definition
 
-An EntityType is defined in terms of `SimpleType` field and `EntityType` fields. 
+An EntityType is defined using `SimpleType` and `EntityType` fields. 
 
 ```ballerina
     type SimpleType ()|boolean|int|float|decimal|string|byte[]|time:Date|time:TimeOfDay|time:Utc|time:Civil;
@@ -53,8 +53,8 @@ An EntityType is defined in terms of `SimpleType` field and `EntityType` fields.
 ```
 
 1. SimpleType:	
-    From the data source perspective, a field of `SimpleType` contains only one value. i.e., Each field of `SimpleType` maps to a field of data.
-    > *Note*: This does not support union type of `SimpleType`. i.e., `int|string` is not supported.
+    From the data source perspective, a field of `SimpleType` contains only one value. i.e., Each `SimpleType` field maps to a field of data.
+    > *Note*: This does not support the union type of `SimpleType`. i.e., `int|string` is not supported.
 
 2. EntityType:
     An entity can contain fields of SimpleType, EntityType, or EntityType[]. This design use fields of type EntityType or EntityType[] to define associations between two entities.
@@ -110,11 +110,9 @@ Ballerina record fields are used to model the attributes of an entity. The type 
 
 #### 2.2.1. Identifier Field(s)
 
-It is mandatory for the entity to contain at least one identifier field. The value in this field is used to identify each record uniquely. 
+The entity must contain at least one identifier field. The field's value is used to identify each record uniquely. The identifier field(s) is indicated `readonly` flag.
 
-The identifier field(s) can be defined by marking a field as `readonly`:
-
-Say type T is a subtype of SimpleType and T does not contain (),
+Say type T is a subtype of SimpleType, and T does not contain (),
 
 ```ballerina
 type EntityType record {|
@@ -132,7 +130,7 @@ type EntityType record {|
 
 #### 2.2.2. Nullable Field(s)
 
-Say type T is a subtype of SimpleType and T does not contain (),
+Say type T is a subtype of SimpleType, and T does not contain (),
 | Field definition | Semantics | Examples |  
 | :---: | :---: | :---: |  
 | T field | Mapped to a non-nullable column in the DB | int id; |  
@@ -148,13 +146,13 @@ This design supports the following cardinalities:
 1. One-to-one (1-1)
 2. One-to-many (1-n)
 
-Relationship is mandatory in both entities.
+The relationship field is mandatory in both entities.
 
 #### 2.3.1. One-to-one (1-1)
  
-1-1 relationship is defined by a field of type `EntityType` in both entities. 
+A 1-1 relationship is defined by a field of type `EntityType` in both entities. 
 
-Example: Each User must have a Car, and each Car must have an owner.
+Each User must have a Car, and each Car must have an owner.
 
 ```ballerina
 type Car record {|
@@ -170,15 +168,15 @@ type User record {|
 |};
 ```
 
-The first record `Car` is taken as the parent in the 1-1 relationship and will contain the foreign key of the second record `User`.
+The first record, `Car`, is taken as the parent in the 1-1 relationship and will include the foreign key of the second record, `User`.
 
 The default foreign key field name will be `userId` in the `Car` table, which refers to the identifier field of the `User` table by default. (`<lowercasedAssociatedEntityName><First-Letter Capitalized IdentifierFieldName>`)
 
 #### 2.3.2. One-to-Many (1-n)
 
-1-n relationship is defined by a field of type `EntityType` in one entity and `EntityType[]` in the other.
+A 1-n relationship is defined by a field of type `EntityType` in one entity and `EntityType[]` in the other.
 
-Example: A User can own zero or more cars, and a Car must have an owner. 
+A User can own zero or more cars, and a Car must have an owner. 
 
 ```ballerina
 type Car record {|
@@ -193,13 +191,13 @@ type User record {|
    Car[] cars;
 |};
 ```
-The entity that contains the field of type `EntityType` is taken as the parent in the 1-n relationship and will contain the foreign key of the other entity.
+The entity that contains the field of type `EntityType` is taken as the parent in the 1-n relationship and will include the foreign key.
 
 The default foreign key field name will be `userId` in the `Car` table, which refers to the identifier field of the `User` table by default. (`<lowercasedAssociatedEntityName><First-Letter Capitalized IdentifierFieldName>`)
 
 ## 3. Derived Entity Types and Persist Clients
 
-Derived Entity Types and Clients can be easily generated from Persist CLI tool.
+Persist CLI tool will generate the derived Entity Types and the clients from the model definition.
 
 ### 3.1. Derived Entity Types
 
@@ -215,10 +213,9 @@ type Workspace record {|
 |};
 ```
 
-There are 3 types of derived entity types:
+There are three types of derived entity types:
 1. Entity Types  
-    These are the types defined in the data model. These are used to define the structure of the data in the data source. 
-    The entity who is the parent of the association will include foreign key field.
+    These are the types defined in the data model. These are used to indicate the data structure in the data source. The entity who is the association parent will include the foreign key field.
     ```ballerina
     public type Workspace record {|
         readonly string workspaceId;
@@ -228,7 +225,7 @@ There are 3 types of derived entity types:
     ```
     
 2. Insert Types
-    These are records used to insert data in the data source. It is the same as the entity type.
+    These are records used to update data in the data source. These are entity types without identifier fields. All fields will be optional. Record values can be initialized with the fields that need to be updated.
     ```ballerina
     type WorkspaceInsert Workspace;
     ```
@@ -276,10 +273,10 @@ client class RainierClient {
 
 The conventions used in deriving the Persist client are as follows:
 1. The Client name is derived from the name of the file. Example: `rainier.bal` will generate a client named `RainierClient`(<First Letter Capitalized File Name>Client).
-2. The client should be of `persist:AbstractPersistClient` type.
+2. The client should be of the `persist:AbstractPersistClient` type.
 3. It should contain `init()` and `close()` functions.
-4. It should contain 5 resource methods for each entity type defined in the data model namely, get, get(get by identifier), post, put, and delete.
-5. Resource names are lower cased entity names.
+4. It should contain five resource methods for each entity type defined in the data model. Resource methods are get, get(get by identifier), post, put, and delete.
+5. Resource names are lowercase entity names.
 6. The resource method should return the derived entity types.
 7. Resource method with path parameters will support composite identifier field by having multiple path parameters.
 
