@@ -183,7 +183,7 @@ public client class SQLClient {
                 params = sql:queryConcat(params, `, `);
             }
 
-            params = sql:queryConcat(params, stringToParameterizedQuery(fieldMetadata.columnName));
+            params = sql:queryConcat(params, stringToParameterizedQuery("`" + fieldMetadata.columnName + "`"));
             columnCount = columnCount + 1;
         }
         return params;
@@ -198,7 +198,7 @@ public client class SQLClient {
             if columnCount > 0 {
                 params = sql:queryConcat(params, `, `);
             }
-            params = sql:queryConcat(params, stringToParameterizedQuery(self.entityName + "." + fieldMetadata.columnName + " AS `" + key + "`"));
+            params = sql:queryConcat(params, stringToParameterizedQuery(self.entityName + ".`" + fieldMetadata.columnName + "` AS `" + key + "`"));
             columnCount = columnCount + 1;
         }
         return params;
@@ -255,7 +255,7 @@ public client class SQLClient {
 
     private isolated function getFieldParamQuery(string fieldName) returns sql:ParameterizedQuery {
         FieldMetadata fieldMetadata = self.fieldMetadata.get(fieldName);
-        return stringToParameterizedQuery(fieldMetadata.columnName);
+        return stringToParameterizedQuery("`" + fieldMetadata.columnName + "`");
     }
 
 }

@@ -6,6 +6,7 @@ public type Building record {|
     string state;
     string country;
     string postalCode;
+    string 'type;
 |};
 
 public type Workspace record {|
@@ -53,6 +54,7 @@ public type BuildingUpdate record {|
     string state?;
     string country?;
     string postalCode?;
+    string 'type?;
 |};
 
 public type WorkspaceUpdate record {|
