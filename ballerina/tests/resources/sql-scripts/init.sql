@@ -6,7 +6,7 @@ CREATE TABLE test.Building (
     state VARCHAR(50),
     country VARCHAR(50),
     postalCode VARCHAR(50),
-    `'type` VARCHAR(50)
+    type VARCHAR(50)
 );
 
 CREATE TABLE test.Workspace (
