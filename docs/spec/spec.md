@@ -1,6 +1,6 @@
 # Specification: Ballerina Persist Library
 
-_Owners_: @daneshk @niveathika @kaneeldias
+_Owners_: @daneshk @niveathika @kaneeldias  
 _Reviewers_: @daneshk  
 _Created_: 2022/01/25   
 _Updated_: 2022/01/25  
@@ -20,16 +20,16 @@ The conforming implementation of the specification is released and included in t
 
 1. [Overview](#1-overview)  
 2. [Data Model Definition](#2-data-model-definition)  
-    2.1. [EntityType Definition](#21-entitytype-definition)  
-    2.2. [Entity Attributes Definition](#22-entity-attributes-definition)  
-        2.2.1. [Identifier Field(s)](#221-identifier-fields)  
-        2.2.2. [Nullable Field(s)](#222-nullable-fields)  
-    2.3. [Relationship Definition](#23-relationship-definition)    
-        2.3.1. [One-to-one (1-1)](#231-one-to-one-1-1)  
-        2.3.2. [One-to-Many (1-n)](#232-one-to-many-1-n)  
+    * 2.1. [EntityType Definition](#21-entitytype-definition)  
+    * 2.2. [Entity Attributes Definition](#22-entity-attributes-definition)  
+        * 2.2.1. [Identifier Field(s)](#221-identifier-fields)  
+        * 2.2.2. [Nullable Field(s)](#222-nullable-fields)  
+    * 2.3. [Relationship Definition](#23-relationship-definition)    
+        * 2.3.1. [One-to-one (1-1)](#231-one-to-one-1-1)  
+        * 2.3.2. [One-to-Many (1-n)](#232-one-to-many-1-n)  
 3. [Derived Entity Types and Persist Clients](#3-derived-entity-types-and-persist-clients)  
-    3.1. [Derived Entity Types](#31-derived-entity-types)  
-    3.2. [Persist Clients](#32-persist-clients)  
+    * 3.1. [Derived Entity Types](#31-derived-entity-types)  
+    * 3.2. [Persist Clients](#32-persist-clients)  
 
 ## 1. Overview
 
