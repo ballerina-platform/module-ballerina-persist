@@ -198,7 +198,7 @@ public client class SQLClient {
             if columnCount > 0 {
                 params = sql:queryConcat(params, `, `);
             }
-            params = sql:queryConcat(params, stringToParameterizedQuery(self.entityName + ".`" + fieldMetadata.columnName + "` AS `" + key + "`"));
+            params = sql:queryConcat(params, stringToParameterizedQuery("`" + self.entityName + "`.`" + fieldMetadata.columnName + "` AS `" + key + "`"));
             columnCount = columnCount + 1;
         }
         return params;
@@ -216,7 +216,7 @@ public client class SQLClient {
         return check self.getWhereClauses(filter);
     }
 
-    private isolated function getWhereClauses(map<anydata> filter, boolean ignoreFieldCheck = false) returns sql:ParameterizedQuery|Error {
+    private isolated function getWhereClauses(map<anydata> filter) returns sql:ParameterizedQuery|Error {
         sql:ParameterizedQuery query = ` `;
 
         string[] keys = filter.keys();
@@ -224,11 +224,7 @@ public client class SQLClient {
             if i > 0 {
                 query = sql:queryConcat(query, ` AND `);
             }
-            if ignoreFieldCheck {
-                query = sql:queryConcat(query, stringToParameterizedQuery(keys[i]), ` = ${<sql:Value>filter[keys[i]]}`);
-            } else {
-                query = sql:queryConcat(query, stringToParameterizedQuery(self.entityName + "."), self.getFieldParamQuery(keys[i]), ` = ${<sql:Value>filter[keys[i]]}`);
-            }
+            query = sql:queryConcat(query, stringToParameterizedQuery("`" + self.entityName + "`."), self.getFieldParamQuery(keys[i]), ` = ${<sql:Value>filter[keys[i]]}`);
         }
         return query;
     }
