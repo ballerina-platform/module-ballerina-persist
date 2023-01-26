@@ -8,7 +8,7 @@ _Edition_: Swan Lake
 
 ## Introduction
 
-This is the specification for the Ballerina persist standard library of [Ballerina language](https://ballerina.io/), which provides functionality to store and query data easily.  
+This is the specification for the Ballerina persist standard library of [Ballerina language](https://ballerina.io/), which provides functionality to store and query data easily.
 
 The persist library specification has evolved and may continue to evolve in the future. The released versions of the specification can be found under the relevant GitHub tag. 
 
@@ -29,9 +29,9 @@ The conforming implementation of the specification is released and included in t
         2.3.2. [One-to-Many (1-n)](#232-one-to-many-1-n)  
 3. [Derived Entity Types and Persist Clients](#3-derived-entity-types-and-persist-clients)  
     3.1. [Derived Entity Types](#31-derived-entity-types)  
-    3.2. [Persist Clients](#32-persist-clients)
+    3.2. [Persist Clients](#32-persist-clients)  
 
-## 1. Overview  
+## 1. Overview
 
 The `persist` standard library creates a programming model to store and query data easily. This uses the statically typed nature of Ballerina to provide a convenient way to define and store the data model of an application across various providers such as RDBMS, NoSQL, and others. At this initial release `persist` library only supports MySQL data provider.
 
