@@ -1,4 +1,4 @@
-# Specification: Ballerina SQL Library
+# Specification: Ballerina Persist Library
 
 _Owners_: @daneshk @niveathika @kaneeldias
 _Reviewers_: @daneshk  
@@ -8,7 +8,7 @@ _Edition_: Swan Lake
 
 ## Introduction
 
-This is the specification for the Ballerina persist standard library of [Ballerina language](https://ballerina.io/), which provides functionality to define and store data.  
+This is the specification for the Ballerina persist standard library of [Ballerina language](https://ballerina.io/), which provides functionality to store and query data easily.  
 
 The persist library specification has evolved and may continue to evolve in the future. The released versions of the specification can be found under the relevant GitHub tag. 
 
@@ -33,7 +33,7 @@ The conforming implementation of the specification is released and included in t
 
 ## 1. Overview  
 
-The `persist` standard library creates a programming model to store and query data easily. This uses the statically typed nature of Ballerina to provide a convenient way to define and store data model of an application across various providers such as RDBMS, NoSQL, and others. At this initial release `persist` library only supports MySQL data provider.
+The `persist` standard library creates a programming model to store and query data easily. This uses the statically typed nature of Ballerina to provide a convenient way to define and store the data model of an application across various providers such as RDBMS, NoSQL, and others. At this initial release `persist` library only supports MySQL data provider.
 
 ## 2. Data Model Definition
 
@@ -275,7 +275,7 @@ client class RainierClient {
 ```
 
 The conventions used in deriving the Persist client are as follows:
-1.  The Client name is derived from the name of the file. Example: `rainier.bal` will generate a client named `RainierClient`(<First Letter Capitalized File Name>Client).
+1. The Client name is derived from the name of the file. Example: `rainier.bal` will generate a client named `RainierClient`(<First Letter Capitalized File Name>Client).
 2. The client should be of `persist:AbstractPersistClient` type.
 3. It should contain `init()` and `close()` functions.
 4. It should contain 5 resource methods for each entity type defined in the data model namely, get, get(get by identifier), post, put, and delete.
