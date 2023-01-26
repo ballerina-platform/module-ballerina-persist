@@ -9,6 +9,7 @@ const EMPLOYEE = "employee";
 const ORDER_ITEM = "orderitem";
 
 client class RainierClient {
+    *AbstractPersistClient;
 
     private final mysql:Client dbClient;
 

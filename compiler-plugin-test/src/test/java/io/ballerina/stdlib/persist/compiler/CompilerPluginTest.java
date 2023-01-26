@@ -50,6 +50,9 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_302;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_303;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_304;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_305;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_306;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_401;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_402;
 
 /**
  * Tests persist compiler plugin.
@@ -194,6 +197,35 @@ public class CompilerPluginTest {
     }
 
     @Test
+    public void validateIdentifierFieldProperties() {
+        List<Diagnostic> diagnostics = getDiagnostic("identifier-field-properties.bal", 5, DiagnosticSeverity.ERROR);
+        testDiagnostic(
+                diagnostics,
+                new String[]{
+                        "identifier field cannot be nillable",
+                        "fields indicating associations cannot be an identifier field",
+                        "entity does not support nillable associations",
+                        "identifier field cannot be nillable",
+                        "fields indicating associations cannot be an identifier field"
+                },
+                new String[]{
+                        PERSIST_401.getCode(),
+                        PERSIST_402.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_401.getCode(),
+                        PERSIST_402.getCode()
+                },
+                new String[]{
+                        "(4:13,4:17)",
+                        "(19:13,19:24)",
+                        "(28:13,28:25)",
+                        "(28:13,28:25)",
+                        "(28:13,28:25)"
+                }
+        );
+    }
+
+    @Test
     public void validateSelfReferencedEntity() {
         List<Diagnostic> diagnostics = getDiagnostic("self-referenced-entity.bal", 1, DiagnosticSeverity.ERROR);
         testDiagnostic(
@@ -309,6 +341,23 @@ public class CompilerPluginTest {
                 new String[]{
                         "(2:0,2:17)",
                         "(10:4,10:13)"
+                }
+        );
+    }
+
+    @Test
+    public void validateOptionalAssociation() {
+        List<Diagnostic> diagnostics = getDiagnostic("optional-association.bal", 1, DiagnosticSeverity.ERROR);
+        testDiagnostic(
+                diagnostics,
+                new String[]{
+                        "entity does not support nillable associations"
+                },
+                new String[]{
+                        PERSIST_306.getCode()
+                },
+                new String[]{
+                        "(14:4,14:13)"
                 }
         );
     }
