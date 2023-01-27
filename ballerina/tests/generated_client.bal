@@ -22,7 +22,8 @@ client class RainierClient {
                 city: {columnName: "city", 'type: string},
                 state: {columnName: "state", 'type: string},
                 country: {columnName: "country", 'type: string},
-                postalCode: {columnName: "postalCode", 'type: string}
+                postalCode: {columnName: "postalCode", 'type: string},
+                'type: {columnName: "type", 'type: string}
             },
             keyFields: ["buildingCode"]
         },

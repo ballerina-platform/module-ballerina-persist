@@ -21,7 +21,8 @@ Building building1 = {
     city: "Colombo",
     state: "Western Province",
     country: "Sri Lanka",
-    postalCode: "10370"
+    postalCode: "10370",
+    'type: "rented"
 };
 
 Building invalidBuilding = {
@@ -29,7 +30,8 @@ Building invalidBuilding = {
     city: "Colombo",
     state: "Western Province",
     country: "Sri Lanka",
-    postalCode: "10370"
+    postalCode: "10370",
+    'type: "owned"
 };
 
 BuildingInsert building2 = {
@@ -37,7 +39,8 @@ BuildingInsert building2 = {
     city: "Manhattan",
     state: "New York",
     country: "USA",
-    postalCode: "10570"
+    postalCode: "10570",
+    'type: "owned"
 };
 
 BuildingInsert building3 = {
@@ -45,7 +48,8 @@ BuildingInsert building3 = {
     city: "London",
     state: "London",
     country: "United Kingdom",
-    postalCode: "39202"
+    postalCode: "39202",
+    'type: "rented"
 };
 
 Building updatedBuilding1 = {
@@ -53,7 +57,8 @@ Building updatedBuilding1 = {
     city: "Galle",
     state: "Southern Province",
     country: "Sri Lanka",
-    postalCode: "10890"
+    postalCode: "10890",
+    'type: "owned"
 };
 
 @test:Config {
@@ -157,7 +162,8 @@ function basicUpdateTest() returns error? {
     Building building = check rainierClient->/building/[building1.buildingCode].put({
         city: "Galle",
         state: "Southern Province",
-        postalCode: "10890"
+        postalCode: "10890",
+        'type: "owned"
     });
 
     test:assertEquals(building, updatedBuilding1);

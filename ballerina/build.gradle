@@ -165,7 +165,6 @@ task startTestDockerContainer(type: Exec) {
     }
 }
 
-
 task stopTestDockerContainer() {
     doLast {
         if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
