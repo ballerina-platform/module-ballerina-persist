@@ -16,6 +16,12 @@
 
 import ballerina/sql;
 
+# Represents the metadata associated with an entity.
+#
+# + entityName - Name of the entity
+# + tableName - Table name associated with the entity
+# + fieldMetadata - Metadata of all the fields of the entity
+# + keyFields - Names of the identifier fields
 public type Metadata record {|
     string entityName;
     sql:ParameterizedQuery tableName;
@@ -23,7 +29,7 @@ public type Metadata record {|
     string[] keyFields;
 |};
 
-# Represents the metadata associated with a simple field in the entity record.
+# Represents the metadata associated with a simple field in the entity.
 #
 # + 'type - The data type of the field  
 # + columnName - The name of the SQL table column to which the field is mapped
