@@ -237,14 +237,12 @@ public client class SQLClient {
                 continue;
             }
 
-            sql:ParameterizedQuery|InvalidInsertionError fieldName = self.getFieldParamQuery(key);
-            if fieldName is sql:ParameterizedQuery {
-                if count > 0 {
-                    query = sql:queryConcat(query, `, `);
-                }
-                query = sql:queryConcat(query, fieldName, ` = ${<sql:Value>'object[key]}`);
-                count = count + 1;
+            sql:ParameterizedQuery fieldName = self.getFieldParamQuery(key);
+            if count > 0 {
+                query = sql:queryConcat(query, `, `);
             }
+            query = sql:queryConcat(query, fieldName, ` = ${<sql:Value>'object[key]}`);
+            count = count + 1;
         }
         return query;
     }
