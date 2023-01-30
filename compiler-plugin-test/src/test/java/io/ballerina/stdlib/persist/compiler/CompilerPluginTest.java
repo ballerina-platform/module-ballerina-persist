@@ -101,7 +101,7 @@ public class CompilerPluginTest {
 
     @Test
     public void identifyModelFileSuccess() {
-        List<Diagnostic> diagnostics = getDiagnostic("valid-persist-model-path.bal", DiagnosticSeverity.ERROR, 1);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("valid-persist-model-path.bal", 1);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -118,7 +118,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateEntityRecordProperties() {
-        List<Diagnostic> diagnostics = getDiagnostic("record-properties.bal", DiagnosticSeverity.ERROR, 1);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("record-properties.bal", 1);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -135,7 +135,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateEntityFieldProperties() {
-        List<Diagnostic> diagnostics = getDiagnostic("field-properties.bal", DiagnosticSeverity.ERROR, 4);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("field-properties.bal", 4);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -161,7 +161,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateEntityFieldType() {
-        List<Diagnostic> diagnostics = getDiagnostic("field-types.bal", DiagnosticSeverity.ERROR, 4);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("field-types.bal", 4);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -187,7 +187,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateReadonlyFieldCount() {
-        List<Diagnostic> diagnostics = getDiagnostic("readonly-field.bal", DiagnosticSeverity.ERROR, 1);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("readonly-field.bal", 1);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -204,7 +204,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateIdentifierFieldProperties() {
-        List<Diagnostic> diagnostics = getDiagnostic("identifier-field-properties.bal", DiagnosticSeverity.ERROR, 5);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("identifier-field-properties.bal", 5);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -233,7 +233,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateSelfReferencedEntity() {
-        List<Diagnostic> diagnostics = getDiagnostic("self-referenced-entity.bal", DiagnosticSeverity.ERROR, 1);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("self-referenced-entity.bal", 1);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -250,7 +250,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateManyToManyRelationship() {
-        List<Diagnostic> diagnostics = getDiagnostic("many-to-many.bal", DiagnosticSeverity.ERROR, 1);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("many-to-many.bal", 1);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -267,7 +267,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateMandatoryRelationField() {
-        List<Diagnostic> diagnostics = getDiagnostic("mandatory-relation-field.bal", DiagnosticSeverity.ERROR, 2);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("mandatory-relation-field.bal", 2);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -287,7 +287,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateDuplicatedRelationField() {
-        List<Diagnostic> diagnostics = getDiagnostic("duplicated-relations-field.bal", DiagnosticSeverity.ERROR, 2);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("duplicated-relations-field.bal", 2);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -307,7 +307,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validatePresenceOfForeignKeyField() {
-        List<Diagnostic> diagnostics = getDiagnostic("foreign-key-present.bal", DiagnosticSeverity.ERROR, 4);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("foreign-key-present.bal", 4);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -333,7 +333,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateInvalidRelations() {
-        List<Diagnostic> diagnostics = getDiagnostic("invalid-relation.bal", DiagnosticSeverity.ERROR, 2);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("invalid-relation.bal", 2);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -353,7 +353,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateOptionalAssociation() {
-        List<Diagnostic> diagnostics = getDiagnostic("optional-association.bal", DiagnosticSeverity.ERROR, 1);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("optional-association.bal", 1);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -370,7 +370,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateUseOfEscapeCharacters() {
-        List<Diagnostic> diagnostics = getDiagnostic("usage-of-escape-characters.bal", DiagnosticSeverity.ERROR, 1);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("usage-of-escape-characters.bal", 1);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -385,10 +385,10 @@ public class CompilerPluginTest {
         );
     }
 
-    private List<Diagnostic> getDiagnostic(String modelFileName, DiagnosticSeverity diagnosticSeverity, int count) {
+    private List<Diagnostic> getErrorDiagnostics(String modelFileName, int count) {
         DiagnosticResult diagnosticResult = loadPersistModelFile(modelFileName).getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().filter
-                (r -> r.diagnosticInfo().severity().equals(diagnosticSeverity)).collect(Collectors.toList());
+                (r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).collect(Collectors.toList());
         Assert.assertEquals(errorDiagnosticsList.size(), count);
         return errorDiagnosticsList;
     }
