@@ -82,6 +82,7 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_305;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_306;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_401;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_402;
+import static io.ballerina.stdlib.persist.compiler.Utils.stripEscapeCharacter;
 
 /**
  * Persist model definition validator.
@@ -109,7 +110,7 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                 TypeDescriptorNode typeDescriptorNode = (TypeDescriptorNode) typeDefinitionNode.typeDescriptor();
                 if (typeDescriptorNode instanceof RecordTypeDescriptorNode) {
                     foundEntities.add(typeDefinitionNode);
-                    this.entityNames.add(typeDefinitionNode.typeName().text().trim());
+                    this.entityNames.add(stripEscapeCharacter(typeDefinitionNode.typeName().text().trim()));
                     continue;
                 }
             }
@@ -119,7 +120,7 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         }
 
         for (TypeDefinitionNode typeDefinitionNode : foundEntities) {
-            String entityName = typeDefinitionNode.typeName().text().trim();
+            String entityName = stripEscapeCharacter(typeDefinitionNode.typeName().text().trim());
             TypeDescriptorNode typeDescriptorNode = (TypeDescriptorNode) typeDefinitionNode.typeDescriptor();
 
             Entity entity = new Entity(entityName, typeDefinitionNode.typeName().location(),
@@ -167,7 +168,8 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                 recordFieldNode = (RecordFieldNode) fieldNode;
                 if (recordFieldNode.readonlyKeyword().isPresent()) {
                     isIdentifierField = true;
-                    identifierField = new IdentifierField(recordFieldNode.fieldName().text().trim());
+                    identifierField = new IdentifierField(
+                            stripEscapeCharacter(recordFieldNode.fieldName().text().trim()));
                 }
             } else if (fieldNode instanceof RecordFieldWithDefaultValueNode) {
                 entity.reportDiagnostic(PERSIST_202.getCode(), PERSIST_202.getMessage(), PERSIST_202.getSeverity(),
@@ -220,12 +222,13 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                                     type + typeNamePostfix), PERSIST_205.getSeverity(),
                             typeNode.location());
                 }
-                entity.addNonRelationField(recordFieldNode.fieldName().text().trim(), recordFieldNode.location());
+                entity.addNonRelationField(stripEscapeCharacter(recordFieldNode.fieldName().text().trim()),
+                        recordFieldNode.location());
             } else if (processedTypeNode instanceof QualifiedNameReferenceNode) {
                 // Support only time constructs
                 QualifiedNameReferenceNode qualifiedName = (QualifiedNameReferenceNode) processedTypeNode;
-                String modulePrefix = qualifiedName.modulePrefix().text();
-                String identifier = qualifiedName.identifier().text();
+                String modulePrefix = stripEscapeCharacter(qualifiedName.modulePrefix().text());
+                String identifier = stripEscapeCharacter(qualifiedName.identifier().text());
                 if (isValidImportedType(modulePrefix, identifier)) {
                     isSimpleType = true;
                     if (isArrayType) {
@@ -238,9 +241,11 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                                     modulePrefix + ":" + identifier + typeNamePostfix), PERSIST_205.getSeverity(),
                             typeNode.location());
                 }
-                entity.addNonRelationField(recordFieldNode.fieldName().text().trim(), recordFieldNode.location());
+                entity.addNonRelationField(stripEscapeCharacter(recordFieldNode.fieldName().text().trim()),
+                        recordFieldNode.location());
             } else if (processedTypeNode instanceof SimpleNameReferenceNode) {
-                String typeName = ((SimpleNameReferenceNode) processedTypeNode).name().text().trim();
+                String typeName = stripEscapeCharacter(
+                        ((SimpleNameReferenceNode) processedTypeNode).name().text().trim());
                 if (this.entityNames.contains(typeName)) {
                     // Remove once optional associations are supported
                     if (isOptionalType) {

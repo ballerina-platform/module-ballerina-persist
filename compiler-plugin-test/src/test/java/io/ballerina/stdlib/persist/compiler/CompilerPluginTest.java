@@ -362,6 +362,23 @@ public class CompilerPluginTest {
         );
     }
 
+    @Test
+    public void validateUseOfEscapeCharacters() {
+        List<Diagnostic> diagnostics = getDiagnostic("usage-of-escape-characters.bal", 1, DiagnosticSeverity.ERROR);
+        testDiagnostic(
+                diagnostics,
+                new String[]{
+                        "entity should not contain foreign key field 'buildingBuildingCode' for relation 'Building'"
+                },
+                new String[]{
+                        PERSIST_304.getCode()
+                },
+                new String[]{
+                        "(18:4,18:33)"
+                }
+        );
+    }
+
     private List<Diagnostic> getDiagnostic(String modelFileName, int count, DiagnosticSeverity diagnosticSeverity) {
         DiagnosticResult diagnosticResult = loadPersistModelFile(modelFileName).getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().filter
