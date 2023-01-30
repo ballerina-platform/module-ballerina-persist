@@ -39,6 +39,5 @@ CREATE TABLE test.OrderItem (
     itemId VARCHAR(30),
     quantity INTEGER,
     notes VARCHAR(255),
-    PRIMARY KEY(orderId, itemId)  
+    PRIMARY KEY(orderId, itemId)
 );
-
