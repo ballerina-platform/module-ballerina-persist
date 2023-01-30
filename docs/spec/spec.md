@@ -245,7 +245,7 @@ Persist Clients are derived for each data model definition file.
 
 The skeleton of the Persist client is as follows,
 ```ballerina
-client class RainierClient {
+public client class RainierClient {
     *persist:AbstractPersistClient;
 
     public function init() returns persist:Error? {
@@ -287,7 +287,7 @@ import ballerina/sql;
 
 const WORKSPACE = "workspace";
 
-client class RainierClient {
+public client class RainierClient {
     *persist:AbstractPersistClient;
 
     private final mysql:Client dbClient;
