@@ -24,13 +24,13 @@ public function main() returns error? {
         'type: "type1",
         unit: "ml"
     };
-    int[] itemIds = check mcClient->/medicalItems.post([item]);
+    int[] itemIds = check mcClient->/medicalitem.post([item]);
     io:println("Created item id: ", itemIds[0]);
 
-    MedicalItem retrievedItem = check mcClient->/medicalItems/[itemIds[0]].get();
+    MedicalItem retrievedItem = check mcClient->/medicalitem/[itemIds[0]].get();
     io:println("Retrieved item: ", retrievedItem);
 
-    MedicalItem|error itemError = check mcClient->/medicalItems/[5].get();
+    MedicalItem|error itemError = mcClient->/medicalitem/[5].get();
     io:println("Retrieved non-existence item: ", itemError);
 
     MedicalItem item2 = {
@@ -51,72 +51,70 @@ public function main() returns error? {
         'type: "type2",
         unit: "kg"
     };
-    _ = check mcClient->/medicalItems.post([item2, item3, item4]);
+    _ = check mcClient->/medicalitem.post([item2, item3, item4]);
 
     io:println("\n========== type1 ==========");
-    _ = check from MedicalItem itemx in mcClient->/medicalItems.get()
-        where itemx.'type == "type1"
+    _ = check from MedicalItem mItem in mcClient->/medicalitem.get()
+        where mItem.'type == "type1"
         do {
-            io:println(itemx);
+            io:println(mItem);
         };
 
     io:println("\n========== type2 ==========");
-    _ = check from MedicalItem itemx in mcClient->/medicalItems.get()
-        where itemx.'type == "type2"
-        order by itemx.itemId
+    _ = check from MedicalItem mItem in mcClient->/medicalitem.get()
+        where mItem.'type == "type2"
+        order by mItem.itemId
         limit 2
         do {
-            io:println(itemx);
+            io:println(mItem);
         };
 
     io:println("\n========== update type2's unit to kg ==========");
-    _ = check from MedicalItem itemx in mcClient->/medicalItems.get()
-        where itemx.'type == "type2"
+    _ = check from MedicalItem mItem in mcClient->/medicalitem.get()
+        where mItem.'type == "type2"
         do {
-            MedicalItemUpdate updatex = {unit: "kg"};
+            MedicalItemUpdate mItemUpdate = {unit: "kg"};
             // TODO: remove comment after issue is resolved (https://github.com/ballerina-platform/ballerina-standard-library/issues/3951)
-            //_ = check mcClient->/medicalItems/[itemx.itemId].put(updatex);
+            //_ = check mcClient->/medicalItems/[mItem.itemId].put(mItemUpdate);
         };
 
-    _ = check from MedicalItem itemx in mcClient->/medicalItems.get()
+    _ = check from MedicalItem mItem in mcClient->/medicalitem.get()
         do {
-            io:println(itemx);
+            io:println(mItem);
         };
 
     io:println("\n========== delete type2 ==========");
-    _ = check from MedicalItem itemx in mcClient->/medicalItems.get()
-        where itemx.'type == "type2"
+    _ = check from MedicalItem mItem in mcClient->/medicalitem.get()
+        where mItem.'type == "type2"
         do {
             // TODO: remove comment after issue is resolved (https://github.com/ballerina-platform/ballerina-standard-library/issues/3951)
-            //_ = check mcClient->/medicalItems/[itemx.itemId].delete();
+            //_ = check mcClient->/medicalitem/[mItem.itemId].delete();
         };
 
-    _ = check from MedicalItem itemx in mcClient->/medicalItems.get()
+    _ = check from MedicalItem mItem in mcClient->/medicalitem.get()
         do {
-            io:println(itemx);
+            io:println(mItem);
         };
 
     io:println("\n========== create medical needs ==========");
     MedicalNeed mnItem = {
         needId: 1,
-        itemId: 1,
         beneficiaryId: 1,
         period: {year: 2022, month: 10, day: 10, hour: 1, minute: 2, second: 3},
         urgency: "URGENT",
         quantity: 5
     };
-    int[] needIds = check mcClient->/medicalNeeds.post([mnItem]);
+    int[] needIds = check mcClient->/medicalneed.post([mnItem]);
     io:println("Created need id: ", needIds[0]);
 
     MedicalNeed mnItem2 = {
         needId: 2,
-        itemId: 2,
         beneficiaryId: 2,
         period: {year: 2021, month: 10, day: 10, hour: 1, minute: 2, second: 3},
         urgency: "NOT URGENT",
         quantity: 5
     };
-    needIds = check mcClient->/medicalNeeds.post([mnItem2]);
+    needIds = check mcClient->/medicalneed.post([mnItem2]);
     io:println("Created need id: ", needIds[0]);
 
     check mcClient.close();
