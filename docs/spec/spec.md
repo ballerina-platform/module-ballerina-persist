@@ -225,7 +225,7 @@ There are three types of derived entity types:
     ```
     
 2. Insert Types
-    These are records used to update data in the data source. These are entity types without identifier fields. All fields will be optional. Record values can be initialized with the fields that need to be updated.
+    These are records used to insert data in the data source. This is same as the Entity Type.
     ```ballerina
     type WorkspaceInsert Workspace;
     ```
