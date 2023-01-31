@@ -225,15 +225,15 @@ There are three types of derived entity types:
     ```
     
 2. Insert Types
-    These are records used to update data in the data source. These are entity types without identifier fields. All fields will be optional. Record values can be initialized with the fields that need to be updated.
+    These are records used to insert data in the data source. This is same as the Entity Type.
     ```ballerina
-    type WorkspaceInsert Workspace;
+    public type WorkspaceInsert Workspace;
     ```
 
 3. Update Types
     These are records used to update data in the data source. These are entity types without the identifier fields. All fields will be optional. Only the value provided fields will be updated.
     ```ballerina
-    type WorkspaceUpdate record {|
+    public type WorkspaceUpdate record {|
         string workspaceType?;
         string buildingBuildingCode?;
     |};
@@ -245,7 +245,7 @@ Persist Clients are derived for each data model definition file.
 
 The skeleton of the Persist client is as follows,
 ```ballerina
-client class RainierClient {
+public client class RainierClient {
     *persist:AbstractPersistClient;
 
     public function init() returns persist:Error? {
@@ -287,7 +287,7 @@ import ballerina/sql;
 
 const WORKSPACE = "workspace";
 
-client class RainierClient {
+public client class RainierClient {
     *persist:AbstractPersistClient;
 
     private final mysql:Client dbClient;

@@ -40,6 +40,10 @@ public final class Utils {
         return false;
     }
 
+    public static String stripEscapeCharacter(String name) {
+        return name.startsWith("'") ? name.substring(1) : name;
+    }
+
     public static String getTypeName(Node processedTypeNode) {
         String typeName = processedTypeNode.kind().stringValue();
         switch (processedTypeNode.kind()) {
