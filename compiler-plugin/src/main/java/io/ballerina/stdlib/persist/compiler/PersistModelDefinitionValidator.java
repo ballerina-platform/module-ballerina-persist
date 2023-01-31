@@ -255,6 +255,16 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                     entity.setContainsRelations(true);
                     entity.addRelationField(new RelationField(typeName, isArrayType, recordFieldNode.location(),
                             entity.getEntityName()));
+                // Revisit once https://github.com/ballerina-platform/ballerina-lang/issues/39441 is resolved
+                } else if (isValidSimpleType(typeName)) {
+                    isSimpleType = true;
+                    if (isArrayType) {
+                        entity.reportDiagnostic(PERSIST_206.getCode(),
+                                MessageFormat.format(PERSIST_206.getMessage(), typeName),
+                                PERSIST_206.getSeverity(), processedTypeNode.location());
+                    }
+                } else if (typeName.equals(BYTE) && isArrayType) {
+                    isSimpleType = true;
                 } else {
                     entity.reportDiagnostic(PERSIST_205.getCode(), MessageFormat.format(PERSIST_205.getMessage(),
                                     typeName + typeNamePostfix), PERSIST_205.getSeverity(),

@@ -6,7 +6,7 @@ type 'Building record {|
     string city;
     string state;
     string country;
-    string postalCode;
+    'string postalCode;
 
     Workspace[] workspaces;
 |};
