@@ -397,11 +397,11 @@ public class CompilerPluginTest {
                                 String[] locations) {
         for (int index = 0; index < errorDiagnosticsList.size(); index++) {
             Diagnostic diagnostic = errorDiagnosticsList.get(index);
-            String location = diagnostic.location().lineRange().toString();
-            Assert.assertEquals(location, locations[index]);
             DiagnosticInfo diagnosticInfo = diagnostic.diagnosticInfo();
             Assert.assertEquals(diagnosticInfo.code(), codes[index]);
             Assert.assertTrue(diagnosticInfo.messageFormat().startsWith(messages[index]));
+            String location = diagnostic.location().lineRange().toString();
+            Assert.assertEquals(location, locations[index]);
         }
     }
 }
