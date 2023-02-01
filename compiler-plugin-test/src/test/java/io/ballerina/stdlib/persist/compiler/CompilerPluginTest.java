@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_101;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_102;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_103;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_104;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_201;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_202;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_203;
@@ -381,6 +382,26 @@ public class CompilerPluginTest {
                 },
                 new String[]{
                         "(18:4,18:33)"
+                }
+        );
+    }
+
+    @Test
+    public void validateUseOfImportPrefix() {
+        List<Diagnostic> diagnostics = getErrorDiagnostics("usage-of-import-prefix.bal", 2);
+        testDiagnostic(
+                diagnostics,
+                new String[]{
+                        PERSIST_205.getCode(),
+                        PERSIST_104.getCode()
+                },
+                new String[]{
+                        "time2:Date-typed field is not supported in an entity",
+                        "persist model definition does not support import prefix"
+                },
+                new String[]{
+                        "(9:4,9:14)",
+                        "(0:22,0:30)"
                 }
         );
     }

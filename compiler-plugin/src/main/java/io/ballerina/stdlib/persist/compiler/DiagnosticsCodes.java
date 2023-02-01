@@ -29,6 +29,7 @@ public enum DiagnosticsCodes {
     PERSIST_101("PERSIST_101", "persist model definition only supports record definitions", ERROR),
     PERSIST_102("PERSIST_102", "an entity should be a closed record", ERROR),
     PERSIST_103("PERSIST_103", "entity ''{0}'' must have at least one identifier readonly field", ERROR),
+    PERSIST_104("PERSIST_104", "persist model definition does not support import prefix", ERROR),
 
     PERSIST_201("PERSIST_201", "an entity does not support rest descriptor field", ERROR),
     PERSIST_202("PERSIST_202", "an entity does not support defaultable field", ERROR),
