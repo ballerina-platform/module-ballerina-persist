@@ -101,25 +101,31 @@ public class CompilerPluginTest {
 
     @Test
     public void identifyModelFileSuccess() {
-        List<Diagnostic> diagnostics = getDiagnostic("valid-persist-model-path.bal", 1, DiagnosticSeverity.ERROR);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("valid-persist-model-path.bal", 1);
         testDiagnostic(
                 diagnostics,
-                new String[]{"persist model definition only supports record definitions"},
-                new String[]{PERSIST_101.getCode()},
-                new String[]{"(2:0,3:1)"}
+                new String[]{
+                        PERSIST_101.getCode()
+                },
+                new String[]{
+                        "persist model definition only supports record definitions"
+                },
+                new String[]{
+                        "(2:0,3:1)"
+                }
         );
     }
 
     @Test
     public void validateEntityRecordProperties() {
-        List<Diagnostic> diagnostics = getDiagnostic("record-properties.bal", 1, DiagnosticSeverity.ERROR);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("record-properties.bal", 1);
         testDiagnostic(
                 diagnostics,
                 new String[]{
-                        "an entity should be a closed record"
+                        PERSIST_102.getCode()
                 },
                 new String[]{
-                        PERSIST_102.getCode()
+                        "an entity should be a closed record"
                 },
                 new String[]{
                         "(11:25,17:1)"
@@ -129,20 +135,20 @@ public class CompilerPluginTest {
 
     @Test
     public void validateEntityFieldProperties() {
-        List<Diagnostic> diagnostics = getDiagnostic("field-properties.bal", 4, DiagnosticSeverity.ERROR);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("field-properties.bal", 4);
         testDiagnostic(
                 diagnostics,
-                new String[]{
-                        "an entity does not support defaultable field",
-                        "an entity does not support inherited field",
-                        "an entity does not support optional field",
-                        "an entity does not support rest descriptor field"
-                },
                 new String[]{
                         PERSIST_202.getCode(),
                         PERSIST_203.getCode(),
                         PERSIST_204.getCode(),
                         PERSIST_201.getCode()
+                },
+                new String[]{
+                        "an entity does not support defaultable field",
+                        "an entity does not support inherited field",
+                        "an entity does not support optional field",
+                        "an entity does not support rest descriptor field"
                 },
                 new String[]{
                         "(4:4,4:28)",
@@ -155,20 +161,20 @@ public class CompilerPluginTest {
 
     @Test
     public void validateEntityFieldType() {
-        List<Diagnostic> diagnostics = getDiagnostic("field-types.bal", 4, DiagnosticSeverity.ERROR);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("field-types.bal", 4);
         testDiagnostic(
                 diagnostics,
-                new String[]{
-                        "array of boolean-typed field is not supported in an entity",
-                        "json-typed field is not supported in an entity",
-                        "json[]-typed field is not supported in an entity",
-                        "union-typed field is not supported in an entity"
-                },
                 new String[]{
                         PERSIST_206.getCode(),
                         PERSIST_205.getCode(),
                         PERSIST_205.getCode(),
                         PERSIST_205.getCode()
+                },
+                new String[]{
+                        "array of boolean-typed field is not supported in an entity",
+                        "json-typed field is not supported in an entity",
+                        "json[]-typed field is not supported in an entity",
+                        "union-typed field is not supported in an entity"
                 },
                 new String[]{
                         "(12:4,12:11)",
@@ -181,14 +187,14 @@ public class CompilerPluginTest {
 
     @Test
     public void validateReadonlyFieldCount() {
-        List<Diagnostic> diagnostics = getDiagnostic("readonly-field.bal", 1, DiagnosticSeverity.ERROR);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("readonly-field.bal", 1);
         testDiagnostic(
                 diagnostics,
                 new String[]{
-                        "entity 'MedicalNeed' must have at least one identifier readonly field"
+                        PERSIST_103.getCode()
                 },
                 new String[]{
-                        PERSIST_103.getCode()
+                        "entity 'MedicalNeed' must have at least one identifier readonly field"
                 },
                 new String[]{
                         "(3:12,3:23)"
@@ -198,22 +204,22 @@ public class CompilerPluginTest {
 
     @Test
     public void validateIdentifierFieldProperties() {
-        List<Diagnostic> diagnostics = getDiagnostic("identifier-field-properties.bal", 5, DiagnosticSeverity.ERROR);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("identifier-field-properties.bal", 5);
         testDiagnostic(
                 diagnostics,
-                new String[]{
-                        "identifier field cannot be nillable",
-                        "fields indicating associations cannot be an identifier field",
-                        "entity does not support nillable associations",
-                        "identifier field cannot be nillable",
-                        "fields indicating associations cannot be an identifier field"
-                },
                 new String[]{
                         PERSIST_401.getCode(),
                         PERSIST_402.getCode(),
                         PERSIST_306.getCode(),
                         PERSIST_401.getCode(),
                         PERSIST_402.getCode()
+                },
+                new String[]{
+                        "identifier field cannot be nillable",
+                        "fields indicating associations cannot be an identifier field",
+                        "entity does not support nillable associations",
+                        "identifier field cannot be nillable",
+                        "fields indicating associations cannot be an identifier field"
                 },
                 new String[]{
                         "(4:13,4:17)",
@@ -227,14 +233,14 @@ public class CompilerPluginTest {
 
     @Test
     public void validateSelfReferencedEntity() {
-        List<Diagnostic> diagnostics = getDiagnostic("self-referenced-entity.bal", 1, DiagnosticSeverity.ERROR);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("self-referenced-entity.bal", 1);
         testDiagnostic(
                 diagnostics,
                 new String[]{
-                        "an entity cannot reference itself in association"
+                        PERSIST_301.getCode()
                 },
                 new String[]{
-                        PERSIST_301.getCode()
+                        "an entity cannot reference itself in association"
                 },
                 new String[]{
                         "(8:4,8:26)"
@@ -244,14 +250,14 @@ public class CompilerPluginTest {
 
     @Test
     public void validateManyToManyRelationship() {
-        List<Diagnostic> diagnostics = getDiagnostic("many-to-many.bal", 1, DiagnosticSeverity.ERROR);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("many-to-many.bal", 1);
         testDiagnostic(
                 diagnostics,
                 new String[]{
-                        "n:m association is not supported yet"
+                        PERSIST_305.getCode()
                 },
                 new String[]{
-                        PERSIST_305.getCode()
+                        "n:m association is not supported yet"
                 },
                 new String[]{
                         "(14:4,14:24)"
@@ -261,16 +267,16 @@ public class CompilerPluginTest {
 
     @Test
     public void validateMandatoryRelationField() {
-        List<Diagnostic> diagnostics = getDiagnostic("mandatory-relation-field.bal", 2, DiagnosticSeverity.ERROR);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("mandatory-relation-field.bal", 2);
         testDiagnostic(
                 diagnostics,
                 new String[]{
-                        "the associated entity 'Workspace' does not have the associated Building-typed field",
-                        "the associated entity 'Building1' does not have the associated Workspace2-typed field"
-                },
-                new String[]{
                         PERSIST_302.getCode(),
                         PERSIST_302.getCode()
+                },
+                new String[]{
+                        "the associated entity 'Workspace' does not have the associated Building-typed field",
+                        "the associated entity 'Building1' does not have the associated Workspace2-typed field"
                 },
                 new String[]{
                         "(8:4,8:27)",
@@ -281,16 +287,16 @@ public class CompilerPluginTest {
 
     @Test
     public void validateDuplicatedRelationField() {
-        List<Diagnostic> diagnostics = getDiagnostic("duplicated-relations-field.bal", 2, DiagnosticSeverity.ERROR);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("duplicated-relations-field.bal", 2);
         testDiagnostic(
                 diagnostics,
                 new String[]{
-                        "entity does not support duplicated relations to an associated entity",
-                        "entity does not support duplicated relations to an associated entity"
-                },
-                new String[]{
                         PERSIST_303.getCode(),
                         PERSIST_303.getCode()
+                },
+                new String[]{
+                        "entity does not support duplicated relations to an associated entity",
+                        "entity does not support duplicated relations to an associated entity"
                 },
                 new String[]{
                         "(9:4,9:28)",
@@ -301,20 +307,20 @@ public class CompilerPluginTest {
 
     @Test
     public void validatePresenceOfForeignKeyField() {
-        List<Diagnostic> diagnostics = getDiagnostic("foreign-key-present.bal", 4, DiagnosticSeverity.ERROR);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("foreign-key-present.bal", 4);
         testDiagnostic(
                 diagnostics,
-                new String[]{
-                        "entity should not contain foreign key field 'buildingBuildingCode' for relation 'Building'",
-                        "entity should not contain foreign key field 'building2BuildingCode' for relation 'Building2'",
-                        "entity should not contain foreign key field 'workspace3WorkspaceId' for relation 'Workspace3'",
-                        "entity should not contain foreign key field 'building4BuildingCode' for relation 'Building4'"
-                },
                 new String[]{
                         PERSIST_304.getCode(),
                         PERSIST_304.getCode(),
                         PERSIST_304.getCode(),
                         PERSIST_304.getCode()
+                },
+                new String[]{
+                        "entity should not contain foreign key field 'buildingBuildingCode' for relation 'Building'",
+                        "entity should not contain foreign key field 'building2BuildingCode' for relation 'Building2'",
+                        "entity should not contain foreign key field 'workspace3WorkspaceId' for relation 'Workspace3'",
+                        "entity should not contain foreign key field 'building4BuildingCode' for relation 'Building4'"
                 },
                 new String[]{
                         "(15:4,15:32)",
@@ -327,16 +333,16 @@ public class CompilerPluginTest {
 
     @Test
     public void validateInvalidRelations() {
-        List<Diagnostic> diagnostics = getDiagnostic("invalid-relation.bal", 2, DiagnosticSeverity.ERROR);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("invalid-relation.bal", 2);
         testDiagnostic(
                 diagnostics,
                 new String[]{
-                        "persist model definition only supports record definitions",
-                        "Integer[]-typed field is not supported in an entity"
-                },
-                new String[]{
                         PERSIST_101.getCode(),
                         PERSIST_205.getCode()
+                },
+                new String[]{
+                        "persist model definition only supports record definitions",
+                        "Integer[]-typed field is not supported in an entity"
                 },
                 new String[]{
                         "(2:0,2:17)",
@@ -347,14 +353,14 @@ public class CompilerPluginTest {
 
     @Test
     public void validateOptionalAssociation() {
-        List<Diagnostic> diagnostics = getDiagnostic("optional-association.bal", 1, DiagnosticSeverity.ERROR);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("optional-association.bal", 1);
         testDiagnostic(
                 diagnostics,
                 new String[]{
-                        "entity does not support nillable associations"
+                        PERSIST_306.getCode()
                 },
                 new String[]{
-                        PERSIST_306.getCode()
+                        "entity does not support nillable associations"
                 },
                 new String[]{
                         "(14:4,14:13)"
@@ -362,23 +368,40 @@ public class CompilerPluginTest {
         );
     }
 
-    private List<Diagnostic> getDiagnostic(String modelFileName, int count, DiagnosticSeverity diagnosticSeverity) {
+    @Test
+    public void validateUseOfEscapeCharacters() {
+        List<Diagnostic> diagnostics = getErrorDiagnostics("usage-of-escape-characters.bal", 1);
+        testDiagnostic(
+                diagnostics,
+                new String[]{
+                        PERSIST_304.getCode()
+                },
+                new String[]{
+                        "entity should not contain foreign key field 'buildingBuildingCode' for relation 'Building'"
+                },
+                new String[]{
+                        "(18:4,18:33)"
+                }
+        );
+    }
+
+    private List<Diagnostic> getErrorDiagnostics(String modelFileName, int count) {
         DiagnosticResult diagnosticResult = loadPersistModelFile(modelFileName).getCompilation().diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().filter
-                (r -> r.diagnosticInfo().severity().equals(diagnosticSeverity)).collect(Collectors.toList());
+                (r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).collect(Collectors.toList());
         Assert.assertEquals(errorDiagnosticsList.size(), count);
         return errorDiagnosticsList;
     }
 
-    private void testDiagnostic(List<Diagnostic> errorDiagnosticsList, String[] messages, String[] codes,
+    private void testDiagnostic(List<Diagnostic> errorDiagnosticsList, String[] codes, String[] messages,
                                 String[] locations) {
         for (int index = 0; index < errorDiagnosticsList.size(); index++) {
             Diagnostic diagnostic = errorDiagnosticsList.get(index);
-            String location = diagnostic.location().lineRange().toString();
-            Assert.assertEquals(location, locations[index]);
             DiagnosticInfo diagnosticInfo = diagnostic.diagnosticInfo();
             Assert.assertEquals(diagnosticInfo.code(), codes[index]);
             Assert.assertTrue(diagnosticInfo.messageFormat().startsWith(messages[index]));
+            String location = diagnostic.location().lineRange().toString();
+            Assert.assertEquals(location, locations[index]);
         }
     }
 }

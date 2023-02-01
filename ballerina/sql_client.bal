@@ -30,11 +30,7 @@ public client class SQLClient {
     # Initializes the `SQLClient`.
     #
     # + dbClient - The `sql:Client`, which is used to execute SQL queries
-    # + entityName - The name of the entity with which the client performs CRUD operations
-    # + tableName - The name of the SQL table, which is mapped to the entity
-    # + keyFields - The names of the key fields of the entity
-    # + fieldMetadata - The metadata associated with each field of the entity
-    # + joinMetadata - The metadata associated with performing SQL `JOIN` operations
+    # + metadata - Metadata of the entity
     # + return - A `persist:Error` if the client creation fails
     public function init(sql:Client dbClient, Metadata metadata) returns Error? {
         self.entityName = metadata.entityName;
@@ -44,15 +40,15 @@ public client class SQLClient {
         self.dbClient = dbClient;
     }
 
-    # Performs a batch SQL `INSERT` operation to insert records into a table.
+    # Performs a batch SQL `INSERT` operation to insert entity instances into a table.
     #
-    # + objects - The records to be inserted into the table
+    # + insertRecords - The entity records to be inserted into the table
     # + return - An `sql:ExecutionResult[]` containing the metadata of the query execution
     #            or a `persist:Error` if the operation fails
-    public isolated function runBatchInsertQuery(record {}[] objects) returns sql:ExecutionResult[]|Error {
+    public isolated function runBatchInsertQuery(record {}[] insertRecords) returns sql:ExecutionResult[]|Error {
         sql:ParameterizedQuery[] insertQueries = 
-            from record {} 'object in objects
-            select sql:queryConcat(`INSERT INTO `, self.tableName, ` (`, self.getInsertColumnNames(), ` ) `, `VALUES `, self.getInsertQueryParams('object));
+            from record {} insertRecord in insertRecords
+            select sql:queryConcat(`INSERT INTO `, self.tableName, ` (`, self.getInsertColumnNames(), ` ) `, `VALUES `, self.getInsertQueryParams(insertRecord));
         
         sql:ExecutionResult[]|sql:Error result = self.dbClient->batchExecute(insertQueries);
 
@@ -68,9 +64,9 @@ public client class SQLClient {
         return result;
     }
 
-    # Performs an SQL `SELECT` operation to read a single record from the database.
+    # Performs an SQL `SELECT` operation to read a single entity record from the database.
     #
-    # + rowType - The record-type to be retrieved (the record type of the entity)    
+    # + rowType - The type description of the entity to be retrieved
     # + key - The value of the key (to be used as the `WHERE` clauses)
     # + include - The relations to be retrieved (SQL `JOINs` to be performed)
     # + return - A record in the `rowType` type or a `persist:Error` if the operation fails
@@ -93,9 +89,9 @@ public client class SQLClient {
         return result;
     }
 
-    # Performs an SQL `SELECT` operation to read multiple records from the database.
+    # Performs an SQL `SELECT` operation to read multiple entity records from the database.
     #
-    # + rowType - The record-type to be retrieved (the record type of the entity)    
+    # + rowType - The type description of the entity to be retrieved
     # + include - The relations to be retrieved (SQL `JOINs` to be performed)
     # + return - A stream of records in the `rowType` type or a `persist:Error` if the operation fails
     public isolated function runReadQuery(typedesc<record {}> rowType, string[] include = [])
@@ -108,16 +104,16 @@ public client class SQLClient {
         return resultStream;
     }
 
-    # Performs an SQL `UPDATE` operation to update multiple records in the database.
+    # Performs an SQL `UPDATE` operation to update multiple entity records in the database.
     #
     # + key - the key of the entity
-    # + 'object - the record to be updated
+    # + updateRecord - the record to be updated
     # + updateAssociations - The associations that should be updated
     # + return - `()` if the operation is performed successfully.
     # A `ForeignKeyConstraintViolationError` if the operation violates a foreign key constraint.
     # A `persist:Error` if the operation fails due to another reason.
-    public isolated function runUpdateQuery(anydata key, record {} 'object, string[] updateAssociations = []) returns ForeignKeyConstraintViolationError|Error? {
-        sql:ParameterizedQuery query = sql:queryConcat(`UPDATE `, self.tableName, stringToParameterizedQuery(" " + self.entityName), ` SET`, check self.getSetClauses('object, updateAssociations));
+    public isolated function runUpdateQuery(anydata key, record {} updateRecord, string[] updateAssociations = []) returns ForeignKeyConstraintViolationError|Error? {
+        sql:ParameterizedQuery query = sql:queryConcat(`UPDATE `, self.tableName, stringToParameterizedQuery(" " + self.entityName), ` SET`, check self.getSetClauses(updateRecord, updateAssociations));
         query = sql:queryConcat(query, ` WHERE`, check self.getWhereClauses(self.getKey(key)));
 
         sql:ExecutionResult|sql:Error? e = self.dbClient->execute(query);
@@ -131,13 +127,13 @@ public client class SQLClient {
         }
     }
 
-    # Performs an SQL `DELETE` operation to delete a record from the database.
+    # Performs an SQL `DELETE` operation to delete an entity record from the database.
     #
-    # + 'object - The record to be deleted
+    # + deleteKey - The key used to delete an entity record
     # + return - `()` if the operation is performed successfully or a `persist:Error` if the operation fails
-    public isolated function runDeleteQuery(anydata 'object) returns Error? {
+    public isolated function runDeleteQuery(anydata deleteKey) returns Error? {
         sql:ParameterizedQuery query = sql:queryConcat(`DELETE FROM `, self.tableName, stringToParameterizedQuery(" " + self.entityName));
-        query = sql:queryConcat(query, ` WHERE`, check self.getWhereClauses(self.getKey('object)));
+        query = sql:queryConcat(query, ` WHERE`, check self.getWhereClauses(self.getKey(deleteKey)));
         sql:ExecutionResult|sql:Error e = self.dbClient->execute(query);
 
         if e is sql:Error {

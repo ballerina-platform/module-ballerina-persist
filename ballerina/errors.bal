@@ -17,11 +17,11 @@
 # Defines the generic error type for the `persist` module.
 public type Error distinct error;
 
-# Represents an error that occurs when an attempt is to perform an operation, which violates a foreign key constraint.
+# Represents an error that occurs when an attempt is made to perform an operation, which violates a foreign key constraint.
 public type ForeignKeyConstraintViolationError distinct Error;
 
-# Represents an error that occurs when an attempt is made to retrieve a record using a key, which does not exist.
+# Represents an error that occurs when an attempt is made to retrieve a record using a non-existing key.
 public type InvalidKeyError distinct Error;
 
-# This error is thrown when the user attempts to create a record which already exists in the database.
+# Represents an error that occurs when the user attempts to create a record which already exists in the database.
 public type DuplicateKeyError distinct Error;
