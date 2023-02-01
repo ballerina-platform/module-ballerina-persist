@@ -7,17 +7,17 @@ It has two entities, `MedicalItem` and `MedicalNeed`. They are both basic entiti
 
 ## Run the example
 
-*Info* As a prerequisite to running the example, start a MySQL database server.
+>**Note** : As a prerequisite to running the example, start a MySQL database server.
 
 First, clone this repository, and then run the following commands to run this example in your local machine.
 
 1. Run `bal persist init` command to add configurations.
 
-    ```sh
+    ```shell
     $ cd examples/medical-center
     $ bal persist init
     ```
-    This will create/update the following files with the necessary db configurations
+    This will create/update the following files with the necessary db configurations.
     * `Config.toml`
     * `Ballerina.toml`
     * `generated/database_configuration.bal`
@@ -28,8 +28,8 @@ First, clone this repository, and then run the following commands to run this ex
 
 3. Run `bal persist generate` command to generate the client and related types.
 
-   ```sh
-   cd examples/medical-center
+   ```shell
+   $ cd examples/medical-center
    $ bal persist generate
    ```
 
@@ -39,16 +39,16 @@ First, clone this repository, and then run the following commands to run this ex
 
 4. Run `bal persist push` command to generate and execute the SQL script file (`medical_center_db_script.sql`) in the `persist` directory.
 
-   ```sh
-   cd examples/medical-center
+   ```shell
+   $ cd examples/medical-center
    $ bal persist push
    ```
    This will generate the necessary database and tables corresponding to the `MedicalNeed` and `Medicalitem` entities in the MySQL server.
 
 5. Run the example.
 
-   ```sh
-   cd examples/medical-center
+   ```shell
+   $ examples/medical-center
    $ bal run
    
    Running executable
