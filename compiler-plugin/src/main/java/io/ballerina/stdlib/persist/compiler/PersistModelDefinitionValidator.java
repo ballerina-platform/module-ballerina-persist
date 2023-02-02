@@ -20,6 +20,7 @@ package io.ballerina.stdlib.persist.compiler;
 
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -32,6 +33,7 @@ import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.projects.ProjectKind;
@@ -68,6 +70,7 @@ import static io.ballerina.stdlib.persist.compiler.Constants.TIME_MODULE;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_101;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_102;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_103;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_104;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_105;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_201;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_202;
@@ -101,6 +104,16 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         }
 
         if (Utils.hasCompilationErrors(ctx)) {
+            return;
+        }
+
+        if (ctx.node() instanceof ImportPrefixNode) {
+            Token prefix = ((ImportPrefixNode) ctx.node()).prefix();
+            if (prefix.kind() != SyntaxKind.UNDERSCORE_KEYWORD) {
+                ctx.reportDiagnostic(DiagnosticFactory.createDiagnostic(
+                        new DiagnosticInfo(PERSIST_104.getCode(), PERSIST_104.getMessage(), PERSIST_104.getSeverity()),
+                        ctx.node().location()));
+            }
             return;
         }
 
