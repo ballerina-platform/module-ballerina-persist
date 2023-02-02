@@ -40,12 +40,14 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_101;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_102;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_103;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_104;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_105;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_201;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_202;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_203;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_204;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_205;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_206;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_207;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_301;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_302;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_303;
@@ -402,6 +404,26 @@ public class CompilerPluginTest {
                 new String[]{
                         "(9:4,9:14)",
                         "(0:22,0:30)"
+                }
+        );
+    }
+    
+    @Test
+    public void validateEntityNamesCaseSensitivity() {
+        List<Diagnostic> diagnostics = getErrorDiagnostics("case-sensitive-entities.bal", 2);
+        testDiagnostic(
+                diagnostics,
+                new String[]{
+                        PERSIST_105.getCode(),
+                        PERSIST_207.getCode()
+                },
+                new String[]{
+                        "redeclared entity 'building'",
+                        "redeclared field 'Location'"
+                },
+                new String[]{
+                        "(12:5,12:13)",
+                        "(27:11,27:19)"
                 }
         );
     }
