@@ -1,3 +1,8 @@
+// AUTO-GENERATED FILE. DO NOT MODIFY.
+
+// This file is an auto-generated file by Ballerina persistence layer for medical_center.
+// It should not be modified by hand.
+
 import ballerina/time;
 
 public type MedicalItem record {|
@@ -10,7 +15,6 @@ public type MedicalItem record {|
 public type MedicalItemInsert MedicalItem;
 
 public type MedicalItemUpdate record {|
-    int itemId?;
     string name?;
     string 'type?;
     string unit?;
@@ -18,7 +22,6 @@ public type MedicalItemUpdate record {|
 
 public type MedicalNeed record {|
     readonly int needId;
-    int itemId;
     int beneficiaryId;
     time:Civil period;
     string urgency;
@@ -28,10 +31,9 @@ public type MedicalNeed record {|
 public type MedicalNeedInsert MedicalNeed;
 
 public type MedicalNeedUpdate record {|
-    readonly int needId?;
-    int itemId?;
     int beneficiaryId?;
     time:Civil period?;
     string urgency?;
     int quantity?;
 |};
+

@@ -1,6 +1,6 @@
 [medical_center]
 host = "localhost"
-port = 3306
+port = 3305
 user = "root"
-password = ""
+password = "Test123#"
 database = "medical_center_db"
