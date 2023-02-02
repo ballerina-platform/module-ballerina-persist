@@ -27,29 +27,30 @@ import static io.ballerina.tools.diagnostics.DiagnosticSeverity.ERROR;
  */
 public enum DiagnosticsCodes {
     PERSIST_101("PERSIST_101", "persist model definition only supports record definitions", ERROR),
-    PERSIST_102("PERSIST_102", "an entity should be a closed record", ERROR),
-    PERSIST_103("PERSIST_103", "entity ''{0}'' must have at least one identifier readonly field", ERROR),
-    PERSIST_104("PERSIST_104", "persist model definition does not support import prefix", ERROR),
-    PERSIST_105("PERSIST_105", "redeclared entity ''{0}''", ERROR),
+    PERSIST_102("PERSIST_102", "persist model definition does not support import prefix", ERROR),
 
-    PERSIST_201("PERSIST_201", "an entity does not support rest descriptor field", ERROR),
-    PERSIST_202("PERSIST_202", "an entity does not support defaultable field", ERROR),
-    PERSIST_203("PERSIST_203", "an entity does not support inherited field", ERROR),
-    PERSIST_204("PERSIST_204", "an entity does not support optional field", ERROR),
-    PERSIST_205("PERSIST_205", "{0}-typed field is not supported in an entity", ERROR),
-    PERSIST_206("PERSIST_206", "array of {0}-typed field is not supported in an entity", ERROR),
-    PERSIST_207("PERSIST_207", "redeclared field ''{0}''", ERROR),
+    PERSIST_201("PERSIST_201", "an entity should be a closed record", ERROR),
+    PERSIST_202("PERSIST_202", "redeclared entity ''{0}''", ERROR),
 
-    PERSIST_301("PERSIST_301", "an entity cannot reference itself in association", ERROR),
-    PERSIST_302("PERSIST_302",
+    PERSIST_301("PERSIST_301", "an entity does not support rest descriptor field", ERROR),
+    PERSIST_302("PERSIST_302", "an entity does not support defaultable field", ERROR),
+    PERSIST_303("PERSIST_303", "an entity does not support inherited field", ERROR),
+    PERSIST_304("PERSIST_304", "an entity does not support optional field", ERROR),
+    PERSIST_305("PERSIST_305", "{0}-typed field is not supported in an entity", ERROR),
+    PERSIST_306("PERSIST_306", "array of {0}-typed field is not supported in an entity", ERROR),
+    PERSIST_307("PERSIST_307", "redeclared field ''{0}''", ERROR),
+
+    PERSIST_401("PERSIST_401", "an entity cannot reference itself in association", ERROR),
+    PERSIST_402("PERSIST_402",
             "the associated entity ''{0}'' does not have the associated {1}-typed field", ERROR),
-    PERSIST_303("PERSIST_303", "entity does not support duplicated relations to an associated entity", ERROR),
-    PERSIST_304("PERSIST_304", "entity should not contain foreign key field ''{0}'' for relation ''{1}''", ERROR),
-    PERSIST_305("PERSIST_305", "n:m association is not supported yet", ERROR),
-    PERSIST_306("PERSIST_306", "entity does not support nillable associations", ERROR),
+    PERSIST_403("PERSIST_403", "entity does not support duplicated relations to an associated entity", ERROR),
+    PERSIST_420("PERSIST_420", "n:m association is not supported yet", ERROR),
+    PERSIST_421("PERSIST_421", "entity does not support nillable associations", ERROR),
+    PERSIST_422("PERSIST_422", "entity should not contain foreign key field ''{0}'' for relation ''{1}''", ERROR),
 
-    PERSIST_401("PERSIST_401", "identifier field cannot be nillable", ERROR),
-    PERSIST_402("PERSIST_402", "fields indicating associations cannot be an identifier field", ERROR);
+    PERSIST_501("PERSIST_501", "entity ''{0}'' must have at least one identifier readonly field", ERROR),
+    PERSIST_502("PERSIST_502", "identifier field cannot be nillable", ERROR),
+    PERSIST_503("PERSIST_503", "fields indicating associations cannot be an identifier field", ERROR);
 
     private final String code;
     private final String message;
