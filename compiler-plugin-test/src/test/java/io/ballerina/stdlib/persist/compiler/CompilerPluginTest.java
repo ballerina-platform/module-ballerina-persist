@@ -38,24 +38,24 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_101;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_102;
-import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_103;
-import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_104;
-import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_105;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_201;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_202;
-import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_203;
-import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_204;
-import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_205;
-import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_206;
-import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_207;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_301;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_302;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_303;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_304;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_305;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_306;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_307;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_401;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_402;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_403;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_420;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_421;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_422;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_501;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_502;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_503;
 
 /**
  * Tests persist compiler plugin.
@@ -125,7 +125,7 @@ public class CompilerPluginTest {
         testDiagnostic(
                 diagnostics,
                 new String[]{
-                        PERSIST_102.getCode()
+                        PERSIST_201.getCode()
                 },
                 new String[]{
                         "an entity should be a closed record"
@@ -142,10 +142,10 @@ public class CompilerPluginTest {
         testDiagnostic(
                 diagnostics,
                 new String[]{
-                        PERSIST_202.getCode(),
-                        PERSIST_203.getCode(),
-                        PERSIST_204.getCode(),
-                        PERSIST_201.getCode()
+                        PERSIST_302.getCode(),
+                        PERSIST_303.getCode(),
+                        PERSIST_304.getCode(),
+                        PERSIST_301.getCode()
                 },
                 new String[]{
                         "an entity does not support defaultable field",
@@ -168,10 +168,10 @@ public class CompilerPluginTest {
         testDiagnostic(
                 diagnostics,
                 new String[]{
-                        PERSIST_206.getCode(),
-                        PERSIST_205.getCode(),
-                        PERSIST_205.getCode(),
-                        PERSIST_205.getCode()
+                        PERSIST_306.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_305.getCode()
                 },
                 new String[]{
                         "array of boolean-typed field is not supported in an entity",
@@ -194,7 +194,7 @@ public class CompilerPluginTest {
         testDiagnostic(
                 diagnostics,
                 new String[]{
-                        PERSIST_103.getCode()
+                        PERSIST_501.getCode()
                 },
                 new String[]{
                         "entity 'MedicalNeed' must have at least one identifier readonly field"
@@ -211,11 +211,11 @@ public class CompilerPluginTest {
         testDiagnostic(
                 diagnostics,
                 new String[]{
-                        PERSIST_401.getCode(),
-                        PERSIST_402.getCode(),
-                        PERSIST_306.getCode(),
-                        PERSIST_401.getCode(),
-                        PERSIST_402.getCode()
+                        PERSIST_502.getCode(),
+                        PERSIST_503.getCode(),
+                        PERSIST_421.getCode(),
+                        PERSIST_502.getCode(),
+                        PERSIST_503.getCode()
                 },
                 new String[]{
                         "identifier field cannot be nillable",
@@ -240,7 +240,7 @@ public class CompilerPluginTest {
         testDiagnostic(
                 diagnostics,
                 new String[]{
-                        PERSIST_301.getCode()
+                        PERSIST_401.getCode()
                 },
                 new String[]{
                         "an entity cannot reference itself in association"
@@ -257,7 +257,7 @@ public class CompilerPluginTest {
         testDiagnostic(
                 diagnostics,
                 new String[]{
-                        PERSIST_305.getCode()
+                        PERSIST_420.getCode()
                 },
                 new String[]{
                         "n:m association is not supported yet"
@@ -274,8 +274,8 @@ public class CompilerPluginTest {
         testDiagnostic(
                 diagnostics,
                 new String[]{
-                        PERSIST_302.getCode(),
-                        PERSIST_302.getCode()
+                        PERSIST_402.getCode(),
+                        PERSIST_402.getCode()
                 },
                 new String[]{
                         "the associated entity 'Workspace' does not have the associated Building-typed field",
@@ -294,8 +294,8 @@ public class CompilerPluginTest {
         testDiagnostic(
                 diagnostics,
                 new String[]{
-                        PERSIST_303.getCode(),
-                        PERSIST_303.getCode()
+                        PERSIST_403.getCode(),
+                        PERSIST_403.getCode()
                 },
                 new String[]{
                         "entity does not support duplicated relations to an associated entity",
@@ -314,10 +314,10 @@ public class CompilerPluginTest {
         testDiagnostic(
                 diagnostics,
                 new String[]{
-                        PERSIST_304.getCode(),
-                        PERSIST_304.getCode(),
-                        PERSIST_304.getCode(),
-                        PERSIST_304.getCode()
+                        PERSIST_422.getCode(),
+                        PERSIST_422.getCode(),
+                        PERSIST_422.getCode(),
+                        PERSIST_422.getCode()
                 },
                 new String[]{
                         "entity should not contain foreign key field 'buildingBuildingCode' for relation 'Building'",
@@ -341,7 +341,7 @@ public class CompilerPluginTest {
                 diagnostics,
                 new String[]{
                         PERSIST_101.getCode(),
-                        PERSIST_205.getCode()
+                        PERSIST_305.getCode()
                 },
                 new String[]{
                         "persist model definition only supports record definitions",
@@ -360,7 +360,7 @@ public class CompilerPluginTest {
         testDiagnostic(
                 diagnostics,
                 new String[]{
-                        PERSIST_306.getCode()
+                        PERSIST_421.getCode()
                 },
                 new String[]{
                         "entity does not support nillable associations"
@@ -377,7 +377,7 @@ public class CompilerPluginTest {
         testDiagnostic(
                 diagnostics,
                 new String[]{
-                        PERSIST_304.getCode()
+                        PERSIST_422.getCode()
                 },
                 new String[]{
                         "entity should not contain foreign key field 'buildingBuildingCode' for relation 'Building'"
@@ -394,8 +394,8 @@ public class CompilerPluginTest {
         testDiagnostic(
                 diagnostics,
                 new String[]{
-                        PERSIST_205.getCode(),
-                        PERSIST_104.getCode()
+                        PERSIST_305.getCode(),
+                        PERSIST_102.getCode()
                 },
                 new String[]{
                         "time2:Date-typed field is not supported in an entity",
@@ -414,8 +414,8 @@ public class CompilerPluginTest {
         testDiagnostic(
                 diagnostics,
                 new String[]{
-                        PERSIST_105.getCode(),
-                        PERSIST_207.getCode()
+                        PERSIST_202.getCode(),
+                        PERSIST_307.getCode()
                 },
                 new String[]{
                         "redeclared entity 'building'",
