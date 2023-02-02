@@ -174,10 +174,10 @@ public class CompilerPluginTest {
                         PERSIST_305.getCode()
                 },
                 new String[]{
-                        "array of boolean-typed field is not supported in an entity",
-                        "json-typed field is not supported in an entity",
-                        "json[]-typed field is not supported in an entity",
-                        "union-typed field is not supported in an entity"
+                        "an entity does not support boolean array field type",
+                        "an entity does not support json-typed field",
+                        "an entity does not support json[]-typed field",
+                        "an entity does not support union-typed field"
                 },
                 new String[]{
                         "(12:4,12:11)",
@@ -197,7 +197,7 @@ public class CompilerPluginTest {
                         PERSIST_501.getCode()
                 },
                 new String[]{
-                        "entity 'MedicalNeed' must have at least one identifier readonly field"
+                        "'MedicalNeed' entity must have at least one identifier readonly field"
                 },
                 new String[]{
                         "(3:12,3:23)"
@@ -218,11 +218,11 @@ public class CompilerPluginTest {
                         PERSIST_503.getCode()
                 },
                 new String[]{
-                        "identifier field cannot be nillable",
-                        "fields indicating associations cannot be an identifier field",
-                        "entity does not support nillable associations",
-                        "identifier field cannot be nillable",
-                        "fields indicating associations cannot be an identifier field"
+                        "an identifier field cannot be nillable",
+                        "association fields cannot be an identifier field",
+                        "an entity does not support nillable associations",
+                        "an identifier field cannot be nillable",
+                        "association fields cannot be an identifier field"
                 },
                 new String[]{
                         "(4:13,4:17)",
@@ -243,7 +243,7 @@ public class CompilerPluginTest {
                         PERSIST_401.getCode()
                 },
                 new String[]{
-                        "an entity cannot reference itself in association"
+                        "an entity cannot reference itself in associations"
                 },
                 new String[]{
                         "(8:4,8:26)"
@@ -260,7 +260,7 @@ public class CompilerPluginTest {
                         PERSIST_420.getCode()
                 },
                 new String[]{
-                        "n:m association is not supported yet"
+                        "many-to-many association is not supported yet"
                 },
                 new String[]{
                         "(14:4,14:24)"
@@ -298,8 +298,8 @@ public class CompilerPluginTest {
                         PERSIST_403.getCode()
                 },
                 new String[]{
-                        "entity does not support duplicated relations to an associated entity",
-                        "entity does not support duplicated relations to an associated entity"
+                        "the entity does not support duplicated relations to 'Workspace' entity",
+                        "the entity does not support duplicated relations to 'Building1' entity"
                 },
                 new String[]{
                         "(9:4,9:28)",
@@ -320,10 +320,14 @@ public class CompilerPluginTest {
                         PERSIST_422.getCode()
                 },
                 new String[]{
-                        "entity should not contain foreign key field 'buildingBuildingCode' for relation 'Building'",
-                        "entity should not contain foreign key field 'building2BuildingCode' for relation 'Building2'",
-                        "entity should not contain foreign key field 'workspace3WorkspaceId' for relation 'Workspace3'",
-                        "entity should not contain foreign key field 'building4BuildingCode' for relation 'Building4'"
+                        "the entity should not contain foreign key field " +
+                                "'buildingBuildingCode' for relation 'Building'",
+                        "the entity should not contain foreign key field " +
+                                "'building2BuildingCode' for relation 'Building2'",
+                        "the entity should not contain foreign key field " +
+                                "'workspace3WorkspaceId' for relation 'Workspace3'",
+                        "the entity should not contain foreign key field " +
+                                "'building4BuildingCode' for relation 'Building4'"
                 },
                 new String[]{
                         "(15:4,15:32)",
@@ -345,7 +349,7 @@ public class CompilerPluginTest {
                 },
                 new String[]{
                         "persist model definition only supports record definitions",
-                        "Integer[]-typed field is not supported in an entity"
+                        "an entity does not support Integer[]-typed field"
                 },
                 new String[]{
                         "(2:0,2:17)",
@@ -363,7 +367,7 @@ public class CompilerPluginTest {
                         PERSIST_421.getCode()
                 },
                 new String[]{
-                        "entity does not support nillable associations"
+                        "an entity does not support nillable associations"
                 },
                 new String[]{
                         "(14:4,14:13)"
@@ -380,7 +384,7 @@ public class CompilerPluginTest {
                         PERSIST_422.getCode()
                 },
                 new String[]{
-                        "entity should not contain foreign key field 'buildingBuildingCode' for relation 'Building'"
+                        "the entity should not contain foreign key field 'buildingBuildingCode' for relation 'Building'"
                 },
                 new String[]{
                         "(18:4,18:33)"
@@ -398,7 +402,7 @@ public class CompilerPluginTest {
                         PERSIST_102.getCode()
                 },
                 new String[]{
-                        "time2:Date-typed field is not supported in an entity",
+                        "an entity does not support time2:Date-typed field",
                         "persist model definition does not support import prefix"
                 },
                 new String[]{
