@@ -68,12 +68,14 @@ import static io.ballerina.stdlib.persist.compiler.Constants.TIME_MODULE;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_101;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_102;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_103;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_105;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_201;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_202;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_203;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_204;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_205;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_206;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_207;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_301;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_302;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_303;
@@ -103,14 +105,26 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         }
 
         ModulePartNode rootNode = (ModulePartNode) ctx.node();
+        // Names in lowercase to check for duplicate entity names
+        List<String> entityNames = new ArrayList<>();
         List<TypeDefinitionNode> foundEntities = new ArrayList<>();
         for (ModuleMemberDeclarationNode member : rootNode.members()) {
             if (member instanceof TypeDefinitionNode) {
                 TypeDefinitionNode typeDefinitionNode = (TypeDefinitionNode) member;
                 TypeDescriptorNode typeDescriptorNode = (TypeDescriptorNode) typeDefinitionNode.typeDescriptor();
                 if (typeDescriptorNode instanceof RecordTypeDescriptorNode) {
-                    foundEntities.add(typeDefinitionNode);
-                    this.entityNames.add(stripEscapeCharacter(typeDefinitionNode.typeName().text().trim()));
+                    String entityName = stripEscapeCharacter(typeDefinitionNode.typeName().text().trim());
+                    if (entityNames.contains(entityName.toLowerCase(Locale.ROOT))) {
+                        ctx.reportDiagnostic(DiagnosticFactory.createDiagnostic(
+                            new DiagnosticInfo(PERSIST_105.getCode(),
+                                    MessageFormat.format(PERSIST_105.getMessage(), entityName),
+                                    PERSIST_105.getSeverity()), typeDefinitionNode.typeName().location())
+                        );
+                    } else {
+                        foundEntities.add(typeDefinitionNode);
+                        entityNames.add(entityName.toLowerCase(Locale.ROOT));
+                        this.entityNames.add(entityName);
+                    }
                     continue;
                 }
             }
@@ -160,16 +174,19 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         }
 
         NodeList<Node> fields = typeDescriptorNode.fields();
+        // FieldNames in lower case
+        List<String> fieldNames = new ArrayList<>();
         for (Node fieldNode : fields) {
             IdentifierField identifierField = null;
             boolean isIdentifierField = false;
             RecordFieldNode recordFieldNode;
+            String fieldName;
             if (fieldNode instanceof RecordFieldNode) {
                 recordFieldNode = (RecordFieldNode) fieldNode;
+                fieldName = stripEscapeCharacter(recordFieldNode.fieldName().text().trim());
                 if (recordFieldNode.readonlyKeyword().isPresent()) {
                     isIdentifierField = true;
-                    identifierField = new IdentifierField(
-                            stripEscapeCharacter(recordFieldNode.fieldName().text().trim()));
+                    identifierField = new IdentifierField(fieldName);
                 }
             } else if (fieldNode instanceof RecordFieldWithDefaultValueNode) {
                 entity.reportDiagnostic(PERSIST_202.getCode(), PERSIST_202.getMessage(), PERSIST_202.getSeverity(),
@@ -181,6 +198,14 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                         fieldNode.location());
                 continue;
             }
+
+            if (fieldNames.contains(fieldName.toLowerCase(Locale.ROOT))) {
+                entity.reportDiagnostic(PERSIST_207.getCode(),
+                        MessageFormat.format(PERSIST_207.getMessage(), fieldName), PERSIST_207.getSeverity(),
+                        recordFieldNode.fieldName().location());
+                continue;
+            }
+            fieldNames.add(fieldName.toLowerCase(Locale.ROOT));
 
             // Check if optional field
             if (recordFieldNode.questionMarkToken().isPresent()) {
