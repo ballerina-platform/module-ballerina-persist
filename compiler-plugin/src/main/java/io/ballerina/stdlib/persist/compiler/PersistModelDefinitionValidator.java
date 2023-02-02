@@ -387,7 +387,8 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
 
             // Duplicated Relations
             if (validRelationTypes.contains(relationField.getType())) {
-                entity.reportDiagnostic(PERSIST_403.getCode(), PERSIST_403.getMessage(),
+                entity.reportDiagnostic(PERSIST_403.getCode(),
+                        MessageFormat.format(PERSIST_403.getMessage(), relationField.getType()),
                         PERSIST_403.getSeverity(), relationField.getLocation());
                 break;
             }

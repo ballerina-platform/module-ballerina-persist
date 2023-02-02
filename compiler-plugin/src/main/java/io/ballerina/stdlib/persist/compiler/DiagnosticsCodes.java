@@ -36,21 +36,21 @@ public enum DiagnosticsCodes {
     PERSIST_302("PERSIST_302", "an entity does not support defaultable field", ERROR),
     PERSIST_303("PERSIST_303", "an entity does not support inherited field", ERROR),
     PERSIST_304("PERSIST_304", "an entity does not support optional field", ERROR),
-    PERSIST_305("PERSIST_305", "{0}-typed field is not supported in an entity", ERROR),
-    PERSIST_306("PERSIST_306", "array of {0}-typed field is not supported in an entity", ERROR),
+    PERSIST_305("PERSIST_305", "an entity does not support {0}-typed field", ERROR),
+    PERSIST_306("PERSIST_306", "an entity does not support {0} array field type", ERROR),
     PERSIST_307("PERSIST_307", "redeclared field ''{0}''", ERROR),
 
-    PERSIST_401("PERSIST_401", "an entity cannot reference itself in association", ERROR),
+    PERSIST_401("PERSIST_401", "an entity cannot reference itself in associations", ERROR),
     PERSIST_402("PERSIST_402",
             "the associated entity ''{0}'' does not have the associated {1}-typed field", ERROR),
-    PERSIST_403("PERSIST_403", "entity does not support duplicated relations to an associated entity", ERROR),
-    PERSIST_420("PERSIST_420", "n:m association is not supported yet", ERROR),
-    PERSIST_421("PERSIST_421", "entity does not support nillable associations", ERROR),
-    PERSIST_422("PERSIST_422", "entity should not contain foreign key field ''{0}'' for relation ''{1}''", ERROR),
+    PERSIST_403("PERSIST_403", "the entity does not support duplicated relations to ''{0}'' entity", ERROR),
+    PERSIST_420("PERSIST_420", "many-to-many association is not supported yet", ERROR),
+    PERSIST_421("PERSIST_421", "an entity does not support nillable associations", ERROR),
+    PERSIST_422("PERSIST_422", "the entity should not contain foreign key field ''{0}'' for relation ''{1}''", ERROR),
 
-    PERSIST_501("PERSIST_501", "entity ''{0}'' must have at least one identifier readonly field", ERROR),
-    PERSIST_502("PERSIST_502", "identifier field cannot be nillable", ERROR),
-    PERSIST_503("PERSIST_503", "fields indicating associations cannot be an identifier field", ERROR);
+    PERSIST_501("PERSIST_501", "''{0}'' entity must have at least one identifier readonly field", ERROR),
+    PERSIST_502("PERSIST_502", "an identifier field cannot be nillable", ERROR),
+    PERSIST_503("PERSIST_503", "association fields cannot be an identifier field", ERROR);
 
     private final String code;
     private final String message;
