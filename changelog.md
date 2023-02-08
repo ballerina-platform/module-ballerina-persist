@@ -7,8 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Support for generic persistent client and annotations
-- Support SQL script generation
-- Support for advanced filter queries
+- Support to define Entity Data Model (Explicit entities, 1-1 associations and 1-n associations)
+- Support for generic persistent client
+- Support for validations based on EDM specification
 
 ### Changed
