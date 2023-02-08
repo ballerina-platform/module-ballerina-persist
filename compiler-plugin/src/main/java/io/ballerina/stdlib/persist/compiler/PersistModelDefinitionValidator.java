@@ -247,17 +247,7 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             if (processedTypeNode instanceof BuiltinSimpleNameReferenceNode) {
                 String type = ((BuiltinSimpleNameReferenceNode) processedTypeNode).name().text();
                 identifierFieldType = type;
-                if (isValidSimpleType(type)) {
-                    if (isArrayType) {
-                        entity.reportDiagnostic(PERSIST_306.getCode(),
-                                MessageFormat.format(PERSIST_306.getMessage(), type),
-                                PERSIST_306.getSeverity(), processedTypeNode.location());
-                    }
-                } else if (!(type.equals(BYTE) && isArrayType)) {
-                    entity.reportDiagnostic(PERSIST_305.getCode(), MessageFormat.format(PERSIST_305.getMessage(),
-                                    type + typeNamePostfix), PERSIST_305.getSeverity(),
-                            typeNode.location());
-                }
+                validateSimpleTypes(entity, typeNode, processedTypeNode, typeNamePostfix, isArrayType, type);
                 entity.addNonRelationField(stripEscapeCharacter(recordFieldNode.fieldName().text().trim()),
                         recordFieldNode.location());
             } else if (processedTypeNode instanceof QualifiedNameReferenceNode) {
@@ -293,16 +283,8 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                     entity.addRelationField(new RelationField(typeName, isArrayType, recordFieldNode.location(),
                             entity.getEntityName()));
                 // Revisit once https://github.com/ballerina-platform/ballerina-lang/issues/39441 is resolved
-                } else if (isValidSimpleType(typeName)) {
-                    if (isArrayType) {
-                        entity.reportDiagnostic(PERSIST_306.getCode(),
-                                MessageFormat.format(PERSIST_306.getMessage(), typeName),
-                                PERSIST_306.getSeverity(), processedTypeNode.location());
-                    }
-                } else if (!(typeName.equals(BYTE) && isArrayType)) {
-                    entity.reportDiagnostic(PERSIST_305.getCode(), MessageFormat.format(PERSIST_305.getMessage(),
-                                    typeName + typeNamePostfix), PERSIST_305.getSeverity(),
-                            typeNode.location());
+                } else {
+                    validateSimpleTypes(entity, typeNode, processedTypeNode, typeNamePostfix, isArrayType, typeName);
                 }
             } else {
                 String typeName = Utils.getTypeName(processedTypeNode);
@@ -317,6 +299,21 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                 identifierField.setTypeLocation(typeNode.location());
                 entity.addIdentifierField(identifierField);
             }
+        }
+    }
+
+    private void validateSimpleTypes(Entity entity, Node typeNode, Node processedTypeNode, String typeNamePostfix,
+                                     boolean isArrayType, String type) {
+        if (isValidSimpleType(type)) {
+            if (isArrayType) {
+                entity.reportDiagnostic(PERSIST_306.getCode(),
+                        MessageFormat.format(PERSIST_306.getMessage(), type),
+                        PERSIST_306.getSeverity(), processedTypeNode.location());
+            }
+        } else if (!(type.equals(BYTE) && isArrayType)) {
+            entity.reportDiagnostic(PERSIST_305.getCode(), MessageFormat.format(PERSIST_305.getMessage(),
+                            type + typeNamePostfix), PERSIST_305.getSeverity(),
+                    typeNode.location());
         }
     }
 
