@@ -207,29 +207,25 @@ public class CompilerPluginTest {
 
     @Test
     public void validateIdentifierFieldProperties() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("identifier-field-properties.bal", 5);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("identifier-field-properties.bal", 3);
         testDiagnostic(
                 diagnostics,
                 new String[]{
                         PERSIST_502.getCode(),
                         PERSIST_503.getCode(),
-                        PERSIST_421.getCode(),
-                        PERSIST_502.getCode(),
                         PERSIST_503.getCode()
                 },
                 new String[]{
                         "an identifier field cannot be nillable",
-                        "association fields cannot be an identifier field",
-                        "an entity does not support nillable associations",
-                        "an identifier field cannot be nillable",
-                        "association fields cannot be an identifier field"
+                        "only 'int', 'string', 'float', 'boolean', 'decimal' types " +
+                                "are supported as identifier fields, found 'time:Civil'",
+                        "only 'int', 'string', 'float', 'boolean', 'decimal' types " +
+                                "are supported as identifier fields, found 'MedicalNeed'"
                 },
                 new String[]{
                         "(4:13,4:17)",
-                        "(19:13,19:24)",
-                        "(28:13,28:25)",
-                        "(28:13,28:25)",
-                        "(28:13,28:25)"
+                        "(16:13,16:23)",
+                        "(18:13,18:24)"
                 }
         );
     }

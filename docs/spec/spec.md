@@ -112,7 +112,7 @@ Ballerina record fields are used to model the attributes of an entity. The type 
 
 The entity must contain at least one identifier field. The field's value is used to identify each record uniquely. The identifier field(s) is indicated `readonly` flag.
 
-Say type T is a subtype of SimpleType, and T does not contain (),
+Say type T is one of 'int', 'string', 'float', 'boolean' or 'decimal' types,
 
 ```ballerina
 type EntityType record {|

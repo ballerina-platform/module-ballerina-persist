@@ -25,7 +25,7 @@ import io.ballerina.compiler.syntax.tree.NodeLocation;
  */
 public class IdentifierField {
     private final String name;
-    private boolean isSimpleType = false;
+    private String type;
     private boolean isNullable = false;
     private NodeLocation typeLocation;
 
@@ -37,12 +37,12 @@ public class IdentifierField {
         return name;
     }
 
-    public boolean isSimpleType() {
-        return isSimpleType;
+    public String getType() {
+        return type;
     }
 
-    public void setSimpleType(boolean simpleType) {
-        isSimpleType = simpleType;
+    public void setType(String type) {
+        this.type = type;
     }
 
     public boolean isNullable() {
