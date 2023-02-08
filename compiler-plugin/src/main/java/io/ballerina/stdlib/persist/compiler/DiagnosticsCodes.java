@@ -50,7 +50,8 @@ public enum DiagnosticsCodes {
 
     PERSIST_501("PERSIST_501", "''{0}'' entity must have at least one identifier readonly field", ERROR),
     PERSIST_502("PERSIST_502", "an identifier field cannot be nillable", ERROR),
-    PERSIST_503("PERSIST_503", "association fields cannot be an identifier field", ERROR);
+    PERSIST_503("PERSIST_503", "only ''int'', ''string'', ''float'', ''boolean'', ''decimal'' " +
+            "types are supported as identifier fields, found ''{0}''", ERROR);
 
     private final String code;
     private final String message;
