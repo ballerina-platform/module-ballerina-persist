@@ -18,6 +18,14 @@ function truncate() returns error? {
     _ = check dbClient->execute(`TRUNCATE Building`);
     _ = check dbClient->execute(`TRUNCATE Department`);
     _ = check dbClient->execute(`TRUNCATE OrderItem`);
+    _ = check dbClient->execute(`TRUNCATE AllTypes`);
+    _ = check dbClient->execute(`TRUNCATE FloatIdRecord`);
+    _ = check dbClient->execute(`TRUNCATE StringIdRecord`);
+    _ = check dbClient->execute(`TRUNCATE DecimalIdRecord`);
+    _ = check dbClient->execute(`TRUNCATE BooleanIdRecord`);
+    _ = check dbClient->execute(`TRUNCATE IntIdRecord`);
+    _ = check dbClient->execute(`TRUNCATE AllTypesIdRecord`);
+    _ = check dbClient->execute(`TRUNCATE CompositeAssociationRecord`);
     _ = check dbClient->execute(`SET FOREIGN_KEY_CHECKS = 1`);
     check dbClient.close();
 }
