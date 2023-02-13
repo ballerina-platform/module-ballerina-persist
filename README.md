@@ -3,6 +3,7 @@ Ballerina Persist Library
 
   [![Build](https://github.com/ballerina-platform/module-ballerina-persist/actions/workflows/build-timestamped-master.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerina-persist/actions/workflows/build-timestamped-master.yml)
   [![Trivy](https://github.com/ballerina-platform/module-ballerina-persist/actions/workflows/trivy-scan.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerina-persist/actions/workflows/trivy-scan.yml)
+  [![GraalVM Check](https://github.com/ballerina-platform/module-ballerina-persist/actions/workflows/build-with-bal-test-native.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerina-persist/actions/workflows/build-with-bal-test-native.yml)
   [![GitHub Last Commit](https://img.shields.io/github/last-commit/ballerina-platform/module-ballerina-persist.svg)](https://github.com/ballerina-platform/module-ballerina-persist/commits/main)
   [![GitHub Issues](https://img.shields.io/github/issues/ballerina-platform/ballerina-standard-library/module/persist.svg?label=Open%20Issues)](https://github.com/ballerina-platform/ballerina-standard-library/labels/module%2Fpersist)
   [![codecov](https://codecov.io/gh/ballerina-platform/module-ballerina-persist/branch/main/graph/badge.svg)](https://codecov.io/gh/ballerina-platform/module-ballerina-persist)
