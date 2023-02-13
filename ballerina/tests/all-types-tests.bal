@@ -16,6 +16,8 @@
 
 import ballerina/test;
 
+time:Zone zone = check time:loadSystemZone();
+
 AllTypes allTypes1 = {
     id: 1,
     booleanType: false,
