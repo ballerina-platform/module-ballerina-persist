@@ -10,7 +10,6 @@ public type AllTypes record {|
     byte[] byteArrayType;
     time:Date dateType;
     time:TimeOfDay timeOfDayType;
-    time:Utc utcType;
     time:Civil civilType;
     boolean? booleanTypeOptional;
     int? intTypeOptional;
@@ -19,7 +18,6 @@ public type AllTypes record {|
     string? stringTypeOptional;
     time:Date dateTypeOptional;
     time:TimeOfDay timeOfDayTypeOptional;
-    time:Utc utcTypeOptional;
     time:Civil civilTypeOptional;
 |};
 
@@ -34,7 +32,6 @@ public type AllTypesUpdate record {|
     byte[] byteArrayType?;
     time:Date dateType?;
     time:TimeOfDay timeOfDayType?;
-    time:Utc utcType?;
     time:Civil civilType?;
     boolean? booleanTypeOptional?;
     int? intTypeOptional?;
@@ -43,7 +40,6 @@ public type AllTypesUpdate record {|
     string? stringTypeOptional?;
     time:Date? dateTypeOptional?;
     time:TimeOfDay? timeOfDayTypeOptional?;
-    time:Utc? utcTypeOptional?;
     time:Civil? civilTypeOptional?;
 |};
 

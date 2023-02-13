@@ -32,7 +32,6 @@ public client class TestEntitiesClient {
                 byteArrayType: {columnName: "byteArrayType", 'type: byte},
                 dateType: {columnName: "dateType", 'type: time:Date},
                 timeOfDayType: {columnName: "timeOfDayType", 'type: time:TimeOfDay},
-                utcType: {columnName: "utcType", 'type: time:Utc},
                 civilType: {columnName: "civilType", 'type: time:Civil},
                 booleanTypeOptional: {columnName: "booleanTypeOptional", 'type: boolean},
                 intTypeOptional: {columnName: "intTypeOptional", 'type: int},
@@ -41,7 +40,6 @@ public client class TestEntitiesClient {
                 stringTypeOptional: {columnName: "stringTypeOptional", 'type: string},
                 dateTypeOptional: {columnName: "dateTypeOptional", 'type: time:Date},
                 timeOfDayTypeOptional: {columnName: "timeOfDayTypeOptional", 'type: time:TimeOfDay},
-                utcTypeOptional: {columnName: "utcTypeOptional", 'type: time:Utc},
                 civilTypeOptional: {columnName: "civilTypeOptional", 'type: time:Civil}
             },
             keyFields: ["id"]
