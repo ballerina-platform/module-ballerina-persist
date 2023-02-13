@@ -17,6 +17,8 @@
 import ballerina/test;
 import ballerina/time;
 
+time:Zone zone = check time:loadSystemZone();
+
 AllTypes allTypes1 = {
     id: 1,
     booleanType: false,
@@ -27,7 +29,6 @@ AllTypes allTypes1 = {
     byteArrayType: base16 `55 EE 66 FF 77 AB`,
     dateType: {year: 1993, month: 11, day: 3},
     timeOfDayType: {hour: 12, minute: 32, second: 34},
-    utcType: check time:utcFromString("2021-04-12T23:20:50.000Z"),
     civilType: {year: 1993, month: 11, day: 3, hour: 12, minute: 32, second: 34},
     booleanTypeOptional: false,
     intTypeOptional: 5,
@@ -36,7 +37,6 @@ AllTypes allTypes1 = {
     stringTypeOptional: "test",
     dateTypeOptional: {year: 1993, month: 11, day: 3},
     timeOfDayTypeOptional: {hour: 12, minute: 32, second: 34},
-    utcTypeOptional: check time:utcFromString("2021-04-12T23:20:50.000Z"),
     civilTypeOptional: {year: 1993, month: 11, day: 3, hour: 12, minute: 32, second: 34}
 };
 
@@ -50,7 +50,6 @@ AllTypes allTypes1Expected = {
     byteArrayType: allTypes1.byteArrayType,
     dateType: allTypes1.dateType,
     timeOfDayType: allTypes1.timeOfDayType,
-    utcType: time:utcAddSeconds(allTypes1.utcType, -19800), // adjust for time-zone
     civilType: allTypes1.civilType,
     booleanTypeOptional: allTypes1.booleanTypeOptional,
     intTypeOptional: allTypes1.intTypeOptional,
@@ -59,7 +58,6 @@ AllTypes allTypes1Expected = {
     stringTypeOptional: allTypes1.stringTypeOptional,
     dateTypeOptional: allTypes1.dateTypeOptional,
     timeOfDayTypeOptional: allTypes1.timeOfDayTypeOptional,
-    utcTypeOptional: time:utcAddSeconds(<time:Utc>allTypes1.utcTypeOptional, -19800), // adjust for time-zone
     civilTypeOptional: allTypes1.civilTypeOptional
 };
 
@@ -73,7 +71,6 @@ AllTypes allTypes2 = {
     byteArrayType: base16 `55 EE 66 AF 77 AB`,
     dateType: {year: 1996, month: 11, day: 3},
     timeOfDayType: {hour: 17, minute: 32, second: 34},
-    utcType: check time:utcFromString("2022-09-14T22:20:50.000Z"),
     civilType: {year: 1999, month: 11, day: 3, hour: 12, minute: 32, second: 34},
     booleanTypeOptional: true,
     intTypeOptional: 6,
@@ -82,7 +79,6 @@ AllTypes allTypes2 = {
     stringTypeOptional: "test2",
     dateTypeOptional: {year: 1293, month: 11, day: 3},
     timeOfDayTypeOptional: {hour: 19, minute: 32, second: 34},
-    utcTypeOptional: check time:utcFromString("2025-06-12T23:20:50.000Z"),
     civilTypeOptional: {year: 1989, month: 11, day: 3, hour: 12, minute: 32, second: 34}
 };
 
@@ -96,7 +92,6 @@ AllTypes allTypes2Expected = {
     byteArrayType: allTypes2.byteArrayType,
     dateType: allTypes2.dateType,
     timeOfDayType: allTypes2.timeOfDayType,
-    utcType: time:utcAddSeconds(allTypes2.utcType, -19800), // adjust for time-zone
     civilType: allTypes2.civilType,
     booleanTypeOptional: allTypes2.booleanTypeOptional,
     intTypeOptional: allTypes2.intTypeOptional,
@@ -105,7 +100,6 @@ AllTypes allTypes2Expected = {
     stringTypeOptional: allTypes2.stringTypeOptional,
     dateTypeOptional: allTypes2.dateTypeOptional,
     timeOfDayTypeOptional: allTypes2.timeOfDayTypeOptional,
-    utcTypeOptional: time:utcAddSeconds(<time:Utc>allTypes2.utcTypeOptional, -19800), // adjust for time-zone
     civilTypeOptional: allTypes2.civilTypeOptional
 };
 
@@ -120,7 +114,6 @@ AllTypes allTypes3 = {
     byteArrayType: base16 `55 EE 66 AF 77 AB`,
     dateType: {year: 1996, month: 11, day: 3},
     timeOfDayType: {hour: 17, minute: 32, second: 34},
-    utcType: check time:utcFromString("2022-09-14T22:20:50.000Z"),
     civilType: {year: 1999, month: 11, day: 3, hour: 12, minute: 32, second: 34},
     booleanTypeOptional: (),
     intTypeOptional: (),
@@ -129,7 +122,6 @@ AllTypes allTypes3 = {
     stringTypeOptional: (),
     dateTypeOptional: {year: 1293, month: 11, day: 3},
     timeOfDayTypeOptional: {hour: 19, minute: 32, second: 34},
-    utcTypeOptional: check time:utcFromString("2025-06-12T23:20:50.000Z"),
     civilTypeOptional: {year: 1989, month: 11, day: 3, hour: 12, minute: 32, second: 34}
 };
 
@@ -143,7 +135,6 @@ AllTypes allTypes3Expected = {
     byteArrayType: allTypes3.byteArrayType,
     dateType: allTypes3.dateType,
     timeOfDayType: allTypes3.timeOfDayType,
-    utcType: time:utcAddSeconds(allTypes3.utcType, -19800), // adjust for time-zone
     civilType: allTypes3.civilType,
     booleanTypeOptional: allTypes3.booleanTypeOptional,
     intTypeOptional: allTypes3.intTypeOptional,
@@ -152,7 +143,6 @@ AllTypes allTypes3Expected = {
     stringTypeOptional: allTypes3.stringTypeOptional,
     dateTypeOptional: allTypes3.dateTypeOptional,
     timeOfDayTypeOptional: allTypes3.timeOfDayTypeOptional,
-    utcTypeOptional: time:utcAddSeconds(<time:Utc>allTypes3.utcTypeOptional, -19800), // adjust for time-zone
     civilTypeOptional: allTypes3.civilTypeOptional
 };
 
@@ -166,7 +156,6 @@ AllTypes allTypes1Updated = {
     byteArrayType: base16 `55 FE 66 FF 77 AB`,
     dateType: {year: 1996, month: 12, day: 13},
     timeOfDayType: {hour: 16, minute: 12, second: 14},
-    utcType: check time:utcFromString("2021-03-12T23:20:50.000Z"),
     civilType: {year: 1998, month: 9, day: 13, hour: 12, minute: 32, second: 34},
     booleanTypeOptional: true,
     intTypeOptional: 53,
@@ -175,7 +164,6 @@ AllTypes allTypes1Updated = {
     stringTypeOptional: "testUpdate",
     dateTypeOptional: {year: 1923, month: 11, day: 3},
     timeOfDayTypeOptional: {hour: 18, minute: 32, second: 34},
-    utcTypeOptional: check time:utcFromString("2021-03-12T23:20:50.000Z"),
     civilTypeOptional: {year: 1991, month: 11, day: 3, hour: 12, minute: 32, second: 34}
 };
 
@@ -189,7 +177,6 @@ AllTypes allTypes1UpdatedExpected = {
     byteArrayType: allTypes1Updated.byteArrayType,
     dateType: allTypes1Updated.dateType,
     timeOfDayType: allTypes1Updated.timeOfDayType,
-    utcType: time:utcAddSeconds(allTypes1Updated.utcType, -19800), // adjust for time-zone
     civilType: allTypes1Updated.civilType,
     booleanTypeOptional: allTypes1Updated.booleanTypeOptional,
     intTypeOptional: allTypes1Updated.intTypeOptional,
@@ -198,7 +185,6 @@ AllTypes allTypes1UpdatedExpected = {
     stringTypeOptional: allTypes1Updated.stringTypeOptional,
     dateTypeOptional: allTypes1Updated.dateTypeOptional,
     timeOfDayTypeOptional: allTypes1Updated.timeOfDayTypeOptional,
-    utcTypeOptional: time:utcAddSeconds(<time:Utc>allTypes1Updated.utcTypeOptional, -19800), // adjust for time-zone
     civilTypeOptional: allTypes1Updated.civilTypeOptional
 };
 
@@ -302,7 +288,6 @@ function allTypesUpdateTest() returns error? {
         byteArrayType: allTypes1Updated.byteArrayType,
         dateType: allTypes1Updated.dateType,
         timeOfDayType: allTypes1Updated.timeOfDayType,
-        utcType: allTypes1Updated.utcType,
         civilType: allTypes1Updated.civilType,
         booleanTypeOptional: allTypes1Updated.booleanTypeOptional,
         intTypeOptional: allTypes1Updated.intTypeOptional,
@@ -311,7 +296,6 @@ function allTypesUpdateTest() returns error? {
         stringTypeOptional: allTypes1Updated.stringTypeOptional,
         dateTypeOptional: allTypes1Updated.dateTypeOptional,
         timeOfDayTypeOptional: allTypes1Updated.timeOfDayTypeOptional,
-        utcTypeOptional: allTypes1Updated.utcTypeOptional,
         civilTypeOptional: allTypes1Updated.civilTypeOptional
     });
     test:assertEquals(allTypes, allTypes1UpdatedExpected);

@@ -52,7 +52,6 @@ CREATE TABLE test.AllTypes (
     byteArrayType BINARY(6) NOT NULL,
 	dateType DATE NOT NULL,
 	timeOfDayType TIME NOT NULL,
-	utcType TIMESTAMP NOT NULL,
 	civilType DATETIME NOT NULL,
 	booleanTypeOptional BOOLEAN,
 	intTypeOptional INT,
@@ -61,7 +60,6 @@ CREATE TABLE test.AllTypes (
 	stringTypeOptional VARCHAR(191),
 	dateTypeOptional DATE,
 	timeOfDayTypeOptional TIME,
-	utcTypeOptional TIMESTAMP,
 	civilTypeOptional DATETIME,
 	PRIMARY KEY(id)
 );
