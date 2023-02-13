@@ -24,6 +24,7 @@ description = 'Ballerina - Persist Examples'
 
 def ballerinaDist = "${project.rootDir}/target/ballerina-runtime"
 def examples = ["medical-center"]
+def nativeFlag = ""
 
 clean {
     examples.forEach { example ->
@@ -32,16 +33,23 @@ clean {
     }
 }
 
+task initializeVariables {
+    if (project.hasProperty('balNativeTest')) {
+         nativeFlag = '--native'
+    }
+}
+
 task testExamples {
+    dependsOn(initializeVariables)
     doLast {
         examples.each { example ->
             try {
                 exec {
                     workingDir "${project.projectDir}/${example}"
                     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                        commandLine 'cmd', '/c', "${ballerinaDist}/bin/bal.bat test --offline && exit %%ERRORLEVEL%%"
+                        commandLine 'cmd', '/c', "${ballerinaDist}/bin/bal.bat test ${nativeFlag} --offline && exit %%ERRORLEVEL%%"
                     } else {
-                        commandLine 'sh', '-c', "${ballerinaDist}/bin/bal test --offline"
+                        commandLine 'sh', '-c', "${ballerinaDist}/bin/bal test ${nativeFlag} --offline"
                     }
                 }
             } catch (Exception e) {
@@ -53,6 +61,7 @@ task testExamples {
 }
 
 task buildExamples {
+    dependsOn(initializeVariables)
     gradle.taskGraph.whenReady { graph ->
         if (graph.hasTask(":persist-examples:testExamples")) {
             buildExamples.enabled = false
@@ -64,9 +73,9 @@ task buildExamples {
                 exec {
                     workingDir "${project.projectDir}/${example}"
                     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                        commandLine 'cmd', '/c', "${ballerinaDist}/bin/bal.bat build --offline && exit %%ERRORLEVEL%%"
+                        commandLine 'cmd', '/c', "${ballerinaDist}/bin/bal.bat build ${nativeFlag} --offline && exit %%ERRORLEVEL%%"
                     } else {
-                        commandLine 'sh', '-c', "${ballerinaDist}/bin/bal build --offline"
+                        commandLine 'sh', '-c', "${ballerinaDist}/bin/bal build ${nativeFlag} --offline"
                     }
                 }
             } catch (Exception e) {
