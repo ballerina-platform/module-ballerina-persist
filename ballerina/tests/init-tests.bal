@@ -13,8 +13,6 @@ configurable mysql:Options connectionOptions = {};
 function truncate() returns error? {
     mysql:Client dbClient = check new (host = host, user = user, password = password, database = database, port = port);
     _ = check dbClient->execute(`SET FOREIGN_KEY_CHECKS = 0`);
-    _ = check dbClient->execute(`SET GLOBAL time_zone = '+09:00'`);
-    _ = check dbClient->execute(`SET @@session.time_zone = "+09:00"`);
     _ = check dbClient->execute(`TRUNCATE Employee`);
     _ = check dbClient->execute(`TRUNCATE Workspace`);
     _ = check dbClient->execute(`TRUNCATE Building`);
