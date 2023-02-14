@@ -41,3 +41,77 @@ CREATE TABLE test.OrderItem (
     notes VARCHAR(255),
     PRIMARY KEY(orderId, itemId)
 );
+
+CREATE TABLE test.AllTypes (
+	id INT NOT NULL,
+	booleanType BOOLEAN NOT NULL,
+	intType INT NOT NULL,
+	floatType FLOAT(10, 2) NOT NULL,
+	decimalType DECIMAL(10, 2) NOT NULL,
+	stringType VARCHAR(191) NOT NULL,
+    byteArrayType BINARY(6) NOT NULL,
+	dateType DATE NOT NULL,
+	timeOfDayType TIME NOT NULL,
+	civilType DATETIME NOT NULL,
+	booleanTypeOptional BOOLEAN,
+	intTypeOptional INT,
+	floatTypeOptional FLOAT,
+	decimalTypeOptional DECIMAL(10, 2),
+	stringTypeOptional VARCHAR(191),
+	dateTypeOptional DATE,
+	timeOfDayTypeOptional TIME,
+	civilTypeOptional DATETIME,
+	PRIMARY KEY(id)
+);
+
+CREATE TABLE test.FloatIdRecord (
+	id FLOAT(10, 2) NOT NULL,
+	randomField VARCHAR(191) NOT NULL,
+	PRIMARY KEY(id)
+);
+
+CREATE TABLE test.StringIdRecord (
+	id VARCHAR(191) NOT NULL,
+	randomField VARCHAR(191) NOT NULL,
+	PRIMARY KEY(id)
+);
+
+CREATE TABLE test.DecimalIdRecord (
+	id DECIMAL(10, 2) NOT NULL,
+	randomField VARCHAR(191) NOT NULL,
+	PRIMARY KEY(id)
+);
+
+CREATE TABLE test.BooleanIdRecord (
+	id BOOLEAN NOT NULL,
+	randomField VARCHAR(191) NOT NULL,
+	PRIMARY KEY(id)
+);
+
+CREATE TABLE test.IntIdRecord (
+	id INT NOT NULL,
+	randomField VARCHAR(191) NOT NULL,
+	PRIMARY KEY(id)
+);
+
+CREATE TABLE test.AllTypesIdRecord (
+	booleanType BOOLEAN NOT NULL,
+	intType INT NOT NULL,
+	floatType FLOAT(10, 2) NOT NULL,
+	decimalType DECIMAL(10, 2) NOT NULL,
+	stringType VARCHAR(191) NOT NULL,
+	randomField VARCHAR(191) NOT NULL,
+	PRIMARY KEY(booleanType,intType,floatType,decimalType,stringType)
+);
+
+CREATE TABLE test.CompositeAssociationRecord (
+	id VARCHAR(191) NOT NULL,
+	randomField VARCHAR(191) NOT NULL,
+	alltypesidrecordBooleanType BOOLEAN NOT NULL,
+	alltypesidrecordIntType INT NOT NULL,
+	alltypesidrecordFloatType FLOAT(10, 2) NOT NULL,
+	alltypesidrecordDecimalType DECIMAL(10, 2) NOT NULL,
+	alltypesidrecordStringType VARCHAR(191) NOT NULL,
+	CONSTRAINT FK_COMPOSITEASSOCIATIONRECORD_ALLTYPESIDRECORD FOREIGN KEY(alltypesidrecordBooleanType, alltypesidrecordIntType, alltypesidrecordFloatType, alltypesidrecordDecimalType, alltypesidrecordStringType) REFERENCES AllTypesIdRecord(booleanType, intType, floatType, decimalType, stringType),
+	PRIMARY KEY(id)
+);

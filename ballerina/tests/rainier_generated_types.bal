@@ -1,3 +1,8 @@
+// AUTO-GENERATED FILE. DO NOT MODIFY.
+
+// This file is an auto-generated file by Ballerina persistence layer for rainier.
+// It should not be modified by hand.
+
 import ballerina/time;
 
 public type Employee record {|
@@ -7,12 +12,11 @@ public type Employee record {|
     time:Date birthDate;
     string gender;
     time:Date hireDate;
-
     string departmentDeptNo;
     string workspaceWorkspaceId;
 |};
 
-type EmployeeInsert Employee;
+public type EmployeeInsert Employee;
 
 public type EmployeeUpdate record {|
     string firstName?;
@@ -20,8 +24,7 @@ public type EmployeeUpdate record {|
     time:Date birthDate?;
     string gender?;
     time:Date hireDate?;
-
-    string departmentDeptNo?; 
+    string departmentDeptNo?;
     string workspaceWorkspaceId?;
 |};
 
@@ -31,7 +34,7 @@ public type Workspace record {|
     string buildingBuildingCode;
 |};
 
-type WorkspaceInsert Workspace;
+public type WorkspaceInsert Workspace;
 
 public type WorkspaceUpdate record {|
     string workspaceType?;
@@ -47,7 +50,7 @@ public type Building record {|
     string 'type;
 |};
 
-type BuildingInsert Building;
+public type BuildingInsert Building;
 
 public type BuildingUpdate record {|
     string city?;
@@ -62,7 +65,7 @@ public type Department record {|
     string deptName;
 |};
 
-type DepartmentInsert Department;
+public type DepartmentInsert Department;
 
 public type DepartmentUpdate record {|
     string deptName?;
@@ -75,9 +78,10 @@ public type OrderItem record {|
     string notes;
 |};
 
-type OrderItemInsert OrderItem;
+public type OrderItemInsert OrderItem;
 
 public type OrderItemUpdate record {|
-    int quantity;
-    string notes;
+    int quantity?;
+    string notes?;
 |};
+
