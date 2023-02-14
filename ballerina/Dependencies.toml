@@ -98,7 +98,7 @@ modules = [
 [[package]]
 org = "ballerinax"
 name = "mysql"
-version = "1.6.2"
+version = "1.7.0"
 scope = "testOnly"
 dependencies = [
 	{org = "ballerina", name = "crypto"},
