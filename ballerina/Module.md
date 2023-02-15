@@ -68,8 +68,8 @@ Simple Types are mapped to native data source types as follows:
    | () | NULL |
    | boolean | BOOLEAN |
    | int | INT |
-   | float | REAL |
-   | decimal | DECIMAL |
+   | float | DOUBLE |
+   | decimal | DECIMAL(65,30) |
    | string | VARCHAR(191) |
    | byte[] | BINARY |
    | time:Date | DATE |
