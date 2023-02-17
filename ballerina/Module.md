@@ -119,7 +119,7 @@ This design supports the following cardinalities:
 1. One-to-one (1-1)
 2. One-to-many (1-n)
 
-The relationship field is mandatory in both entities.
+The relation field is mandatory in both entities.
 
 #### One-to-one (1-1)
 
@@ -143,7 +143,7 @@ type User record {|
 
 The first record, `Car`, is taken as the parent in the 1-1 relationship and will include the foreign key of the second record, `User`.
 
-The default foreign key field name will be `userId` in the `Car` table, which refers to the identity field of the `User` table by default. (`<lowercasedAssociatedEntityName><First-Letter Capitalized IdentityFieldName>`)
+The default foreign key field name will be `userId` in the `Car` table, which refers to the identity field of the `User` table by default. (`<lowercasedRelatedEntityName><First-Letter Capitalized IdentityFieldName>`)
 
 #### One-to-Many (1-n)
 
@@ -166,7 +166,7 @@ type User record {|
 ```
 The entity that contains the field of type `EntityType` is taken as the parent in the 1-n relationship and will include the foreign key.
 
-The default foreign key field name will be `userId` in the `Car` table, which refers to the identity field of the `User` table by default. (`<lowercasedAssociatedEntityName><First-Letter Capitalized IdentityFieldName>`)
+The default foreign key field name will be `userId` in the `Car` table, which refers to the identity field of the `User` table by default. (`<lowercasedRelatedEntityName><First-Letter Capitalized IdentityFieldName>`)
 
 
 
