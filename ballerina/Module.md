@@ -81,9 +81,9 @@ Simple Types are mapped to native data source types as follows:
 
 Ballerina record fields are used to model the attributes of an entity. The type of the field should be a subtype of SimpleType.
 
-#### Identifier Field(s)
+#### Identity Field(s)
 
-The entity must contain at least one identifier field. The field's value is used to identify each record uniquely. The identifier field(s) is indicated `readonly` flag.
+The entity must contain at least one identity field. The field's value is used to identify each record uniquely. The identity field(s) is indicated `readonly` flag.
 
 Say type T is one of 'int', 'string', 'float', 'boolean' or 'decimal' types,
 
@@ -92,7 +92,7 @@ type EntityType record {|
     readonly T <fieldName>;
 |} 
 ```
-The identifier field can be a single field or a combination of multiple fields.
+The identity field can be a single field or a combination of multiple fields.
 
 ```ballerina
 type EntityType record {|
@@ -143,7 +143,7 @@ type User record {|
 
 The first record, `Car`, is taken as the parent in the 1-1 relationship and will include the foreign key of the second record, `User`.
 
-The default foreign key field name will be `userId` in the `Car` table, which refers to the identifier field of the `User` table by default. (`<lowercasedAssociatedEntityName><First-Letter Capitalized IdentifierFieldName>`)
+The default foreign key field name will be `userId` in the `Car` table, which refers to the identity field of the `User` table by default. (`<lowercasedAssociatedEntityName><First-Letter Capitalized IdentityFieldName>`)
 
 #### One-to-Many (1-n)
 
@@ -166,7 +166,7 @@ type User record {|
 ```
 The entity that contains the field of type `EntityType` is taken as the parent in the 1-n relationship and will include the foreign key.
 
-The default foreign key field name will be `userId` in the `Car` table, which refers to the identifier field of the `User` table by default. (`<lowercasedAssociatedEntityName><First-Letter Capitalized IdentifierFieldName>`)
+The default foreign key field name will be `userId` in the `Car` table, which refers to the identity field of the `User` table by default. (`<lowercasedAssociatedEntityName><First-Letter Capitalized IdentityFieldName>`)
 
 
 

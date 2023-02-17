@@ -21,7 +21,7 @@ import ballerina/sql;
 # + entityName - Name of the entity
 # + tableName - Table name associated with the entity
 # + fieldMetadata - Metadata of all the fields of the entity
-# + keyFields - Names of the identifier fields
+# + keyFields - Names of the identity fields
 public type Metadata record {|
     string entityName;
     sql:ParameterizedQuery tableName;
