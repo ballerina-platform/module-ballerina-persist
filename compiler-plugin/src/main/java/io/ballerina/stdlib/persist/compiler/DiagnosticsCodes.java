@@ -48,10 +48,10 @@ public enum DiagnosticsCodes {
     PERSIST_421("PERSIST_421", "an entity does not support nillable associations", ERROR),
     PERSIST_422("PERSIST_422", "the entity should not contain foreign key field ''{0}'' for relation ''{1}''", ERROR),
 
-    PERSIST_501("PERSIST_501", "''{0}'' entity must have at least one identifier readonly field", ERROR),
-    PERSIST_502("PERSIST_502", "an identifier field cannot be nillable", ERROR),
+    PERSIST_501("PERSIST_501", "''{0}'' entity must have at least one identity readonly field", ERROR),
+    PERSIST_502("PERSIST_502", "an identity field cannot be nillable", ERROR),
     PERSIST_503("PERSIST_503", "only ''int'', ''string'', ''float'', ''boolean'', ''decimal'' " +
-            "types are supported as identifier fields, found ''{0}''", ERROR);
+            "types are supported as identity fields, found ''{0}''", ERROR);
 
     private final String code;
     private final String message;

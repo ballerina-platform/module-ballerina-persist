@@ -197,7 +197,7 @@ public class CompilerPluginTest {
                         PERSIST_501.getCode()
                 },
                 new String[]{
-                        "'MedicalNeed' entity must have at least one identifier readonly field"
+                        "'MedicalNeed' entity must have at least one identity readonly field"
                 },
                 new String[]{
                         "(3:12,3:23)"
@@ -216,11 +216,11 @@ public class CompilerPluginTest {
                         PERSIST_503.getCode()
                 },
                 new String[]{
-                        "an identifier field cannot be nillable",
+                        "an identity field cannot be nillable",
                         "only 'int', 'string', 'float', 'boolean', 'decimal' types " +
-                                "are supported as identifier fields, found 'time:Civil'",
+                                "are supported as identity fields, found 'time:Civil'",
                         "only 'int', 'string', 'float', 'boolean', 'decimal' types " +
-                                "are supported as identifier fields, found 'MedicalNeed'"
+                                "are supported as identity fields, found 'MedicalNeed'"
                 },
                 new String[]{
                         "(4:13,4:17)",
