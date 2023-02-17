@@ -206,7 +206,7 @@ public class CompilerPluginTest {
     }
 
     @Test
-    public void validateIdentifierFieldProperties() {
+    public void validateIdentityFieldProperties() {
         List<Diagnostic> diagnostics = getErrorDiagnostics("identifier-field-properties.bal", 3);
         testDiagnostic(
                 diagnostics,

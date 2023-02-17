@@ -21,15 +21,15 @@ package io.ballerina.stdlib.persist.compiler.model;
 import io.ballerina.compiler.syntax.tree.NodeLocation;
 
 /**
- * Model Class for identifier field.
+ * Model Class for identity field.
  */
-public class IdentifierField {
+public class IdentityField {
     private final String name;
     private String type;
     private boolean isNullable = false;
     private NodeLocation typeLocation;
 
-    public IdentifierField(String name) {
+    public IdentityField(String name) {
         this.name = name;
     }
 
