@@ -38,7 +38,7 @@ public class Entity {
     private final String entityName;
     private final NodeLocation entityNameLocation;
     private final RecordTypeDescriptorNode typeDescriptorNode;
-    private final List<IdentifierField> identifierFields = new ArrayList<>();
+    private final List<IdentityField> identityFields = new ArrayList<>();
     private final Map<String, NodeLocation> nonRelationFields = new HashMap<>();
     private final List<RelationField> relationFields = new ArrayList<>();
     private final List<Diagnostic> diagnosticList = new ArrayList<>();
@@ -62,16 +62,16 @@ public class Entity {
         return typeDescriptorNode;
     }
 
-    public List<String> getIdentifierFieldNames() {
-        return identifierFields.stream().map(IdentifierField::getName).collect(Collectors.toList());
+    public List<String> getIdentityFieldNames() {
+        return identityFields.stream().map(IdentityField::getName).collect(Collectors.toList());
     }
 
-    public List<IdentifierField> getIdentifierFields() {
-        return identifierFields;
+    public List<IdentityField> getIdentityFields() {
+        return identityFields;
     }
 
-    public void addIdentifierField(IdentifierField field) {
-        this.identifierFields.add(field);
+    public void addIdentityField(IdentityField field) {
+        this.identityFields.add(field);
     }
 
     public Map<String, NodeLocation> getNonRelationFields() {

@@ -22,7 +22,7 @@ The conforming implementation of the specification is released and included in t
 2. [Data Model Definition](#2-data-model-definition)  
     * 2.1. [EntityType Definition](#21-entitytype-definition)  
     * 2.2. [Entity Attributes Definition](#22-entity-attributes-definition)  
-        * 2.2.1. [Identifier Field(s)](#221-identifier-fields)  
+        * 2.2.1. [Identity Field(s)](#221-identity-fields)  
         * 2.2.2. [Nullable Field(s)](#222-nullable-fields)  
     * 2.3. [Relationship Definition](#23-relationship-definition)    
         * 2.3.1. [One-to-one (1-1)](#231-one-to-one-1-1)  
@@ -108,9 +108,9 @@ Simple Types are mapped to native data source types as follows:
 
 Ballerina record fields are used to model the attributes of an entity. The type of the field should be a subtype of SimpleType.
 
-#### 2.2.1. Identifier Field(s)
+#### 2.2.1. Identity Field(s)
 
-The entity must contain at least one identifier field. The field's value is used to identify each record uniquely. The identifier field(s) is indicated `readonly` flag.
+The entity must contain at least one identity field. The field's value is used to identify each record uniquely. The identity field(s) is indicated `readonly` flag.
 
 Say type T is one of 'int', 'string', 'float', 'boolean' or 'decimal' types,
 
@@ -119,7 +119,7 @@ type EntityType record {|
     readonly T <fieldName>;
 |} 
 ```
-The identifier field can be a single field or a combination of multiple fields. 
+The identity field can be a single field or a combination of multiple fields. 
 
 ```ballerina
 type EntityType record {|
@@ -146,7 +146,7 @@ This design supports the following cardinalities:
 1. One-to-one (1-1)
 2. One-to-many (1-n)
 
-The relationship field is mandatory in both entities.
+The relation field is mandatory in both entities.
 
 #### 2.3.1. One-to-one (1-1)
  
@@ -170,7 +170,7 @@ type User record {|
 
 The first record, `Car`, is taken as the parent in the 1-1 relationship and will include the foreign key of the second record, `User`.
 
-The default foreign key field name will be `userId` in the `Car` table, which refers to the identifier field of the `User` table by default. (`<lowercasedAssociatedEntityName><First-Letter Capitalized IdentifierFieldName>`)
+The default foreign key field name will be `userId` in the `Car` table, which refers to the identity field of the `User` table by default. (`<lowercasedRelatedEntityName><First-Letter Capitalized IdentityFieldName>`)
 
 #### 2.3.2. One-to-Many (1-n)
 
@@ -193,7 +193,7 @@ type User record {|
 ```
 The entity that contains the field of type `EntityType` is taken as the parent in the 1-n relationship and will include the foreign key.
 
-The default foreign key field name will be `userId` in the `Car` table, which refers to the identifier field of the `User` table by default. (`<lowercasedAssociatedEntityName><First-Letter Capitalized IdentifierFieldName>`)
+The default foreign key field name will be `userId` in the `Car` table, which refers to the identity field of the `User` table by default. (`<lowercasedRelatedEntityName><First-Letter Capitalized IdentityFieldName>`)
 
 ## 3. Derived Entity Types and Persist Clients
 
@@ -231,7 +231,7 @@ There are three types of derived entity types:
     ```
 
 3. Update Types
-    These are records used to update data in the data source. These are entity types without the identifier fields. All fields will be optional. Only the value provided fields will be updated.
+    These are records used to update data in the data source. These are entity types without the identity fields. All fields will be optional. Only the value provided fields will be updated.
     ```ballerina
     public type WorkspaceUpdate record {|
         string workspaceType?;
@@ -275,10 +275,10 @@ The conventions used in deriving the Persist client are as follows:
 1. The Client name is derived from the name of the file. Example: `rainier.bal` will generate a client named `RainierClient`(<First Letter Capitalized File Name>Client).
 2. The client should be of the `persist:AbstractPersistClient` type.
 3. It should contain `init()` and `close()` functions.
-4. It should contain five resource methods for each entity type defined in the data model. Resource methods are get, get(get by identifier), post, put, and delete.
+4. It should contain five resource methods for each entity type defined in the data model. Resource methods are get, get(get by identity), post, put, and delete.
 5. Resource names are lowercase entity names.
 6. The resource method should return the derived entity types.
-7. Resource method with path parameters will support composite identifier field by having multiple path parameters.
+7. Resource method with path parameters will support composite identity field by having multiple path parameters.
 
 The implementation of the client is as follows:
 ```ballerina
