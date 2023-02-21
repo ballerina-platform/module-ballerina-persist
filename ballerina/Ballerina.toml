@@ -10,6 +10,18 @@ license = ["Apache-2.0"]
 distribution = "2201.3.0"
 
 [[platform.java11.dependency]]
+groupId = "io.ballerina.stdlib"
+artifactId = "sql-native"
+version = "1.7.0"
+path = "./lib/sql-native-1.7.0-20230214-062200-50a090a.jar"
+
+[[platform.java11.dependency]]
+groupId = "io.ballerina.stdlib"
+artifactId = "mysql-native"
+version = "1.7.0"
+path = "./lib/mysql-native-1.7.0-SNAPSHOT.jar"
+
+[[platform.java11.dependency]]
 groupId = "io.ballerina.persist"
 artifactId = "persist-native"
 version = "0.1.0"
