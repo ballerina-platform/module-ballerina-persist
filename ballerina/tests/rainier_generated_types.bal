@@ -85,3 +85,51 @@ public type OrderItemUpdate record {|
     string notes?;
 |};
 
+public type BuildingOptionalized record {|
+    readonly string buildingCode?;
+    string city?;
+    string state?;
+    string country?;
+    string postalCode?;
+    string 'type?;
+|};
+
+public type WorkspaceOptionalized record {|
+    readonly string workspaceId?;
+    string workspaceType?;
+    string buildingBuildingCode?;
+|};
+
+public type EmployeeOptionalized record {|
+    readonly string empNo?;
+    string firstName?;
+    string lastName?;
+    time:Date birthDate?;
+    string gender?;
+    time:Date hireDate?;
+    string departmentDeptNo?;
+    string workspaceWorkspaceId?;
+|};
+
+public type DepartmentOptionalized record {|
+    readonly string deptNo?;
+    string deptName?;
+    string buildingBuildingCode?;
+|};
+
+public type OrderItemOptionalized record {|
+    readonly string orderId?;
+    readonly string itemId?;
+    int quantity?;
+    string notes?;
+|};
+
+public type EmployeeTargetType typedesc<EmployeeOptionalized>;
+
+public type DepartmentTargetType typedesc<DepartmentOptionalized>;
+
+public type WorkspaceTargetType typedesc<WorkspaceOptionalized>;
+
+public type BuildingTargetType typedesc<BuildingOptionalized>;
+
+public type OrderItemTargetType typedesc<OrderItemOptionalized>;

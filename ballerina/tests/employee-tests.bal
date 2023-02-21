@@ -156,7 +156,7 @@ function employeeReadOneTestNegative() returns error? {
 function employeeReadManyTest() returns error? {
     RainierClient rainierClient = check new ();
 
-    stream<Employee, error?> employeeStream = rainierClient->/employee.get();
+    stream<Employee, Error?> employeeStream = rainierClient->/employee.get();
     Employee[] employees = check from Employee employee in employeeStream 
         select employee;
 
@@ -164,9 +164,33 @@ function employeeReadManyTest() returns error? {
     check rainierClient.close();
 }
 
+public type EmployeeName record {|
+    string firstName;
+    string lastName;
+|};
+
+@test:Config {
+    groups:  ["dependent", "employee"],
+    dependsOn: [employeeCreateTest, employeeCreateTest2]
+}
+function employeeReadManyTest2() returns error? {
+    RainierClient rainierClient = check new ();
+
+    stream<EmployeeName, Error?> employeeStream = rainierClient->/employee.get();
+    EmployeeName[] employees = check from EmployeeName employee in employeeStream 
+        select employee;
+
+    test:assertEquals(employees, [
+        {firstName: "Tom", lastName: "Scott"},
+        {firstName: "Jane", lastName: "Doe"},
+        {firstName: "Hugh", lastName: "Smith"}
+    ]);
+    check rainierClient.close();
+}
+
 @test:Config {
     groups: ["employee"],
-    dependsOn: [employeeReadOneTest, employeeReadManyTest]
+    dependsOn: [employeeReadOneTest, employeeReadManyTest, employeeReadManyTest2]
 }
 function employeeUpdateTest() returns error? {
     RainierClient rainierClient = check new ();
@@ -186,7 +210,7 @@ function employeeUpdateTest() returns error? {
 
 @test:Config {
     groups: ["employee"],
-    dependsOn: [employeeReadOneTest, employeeReadManyTest]
+    dependsOn: [employeeReadOneTest, employeeReadManyTest, employeeReadManyTest2]
 }
 function employeeUpdateTestNegative1() returns error? {
     RainierClient rainierClient = check new ();
@@ -205,7 +229,7 @@ function employeeUpdateTestNegative1() returns error? {
 
 @test:Config {
     groups: ["employee"],
-    dependsOn: [employeeReadOneTest, employeeReadManyTest]
+    dependsOn: [employeeReadOneTest, employeeReadManyTest, employeeReadManyTest2]
 }
 function employeeUpdateTestNegative2() returns error? {
     RainierClient rainierClient = check new ();
@@ -224,7 +248,7 @@ function employeeUpdateTestNegative2() returns error? {
 
 @test:Config {
     groups: ["employee"],
-    dependsOn: [employeeReadOneTest, employeeReadManyTest]
+    dependsOn: [employeeReadOneTest, employeeReadManyTest, employeeReadManyTest2]
 }
 function employeeUpdateTestNegative3() returns error? {
     RainierClient rainierClient = check new ();

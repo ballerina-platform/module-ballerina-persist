@@ -1,6 +1,7 @@
 import ballerina/sql;
 import ballerina/time;
 import ballerinax/mysql;
+import ballerina/jballerina.java;
 
 const EMPLOYEE = "employee";
 const WORKSPACE = "workspace";
@@ -91,14 +92,10 @@ public client class RainierClient {
         };
     }
 
-    isolated resource function get employee() returns stream<Employee, Error?> {
-        stream<record {}, sql:Error?>|Error result = self.persistClients.get(EMPLOYEE).runReadQuery(Employee);
-        if result is Error {
-            return new stream<Employee, Error?>(new EmployeeStream((), result));
-        } else {
-            return new stream<Employee, Error?>(new EmployeeStream(result));
-        }
-    }
+    isolated resource function get employee(EmployeeTargetType targetType = <>, string entity = "employee") returns stream<targetType, Error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.Utils",
+        name: "queryStream"
+    } external;
 
     isolated resource function get employee/[string empNo]() returns Employee|Error {
         Employee|error result = (check self.persistClients.get(EMPLOYEE).runReadByKeyQuery(Employee, empNo)).cloneWithType(Employee);
@@ -125,14 +122,10 @@ public client class RainierClient {
         return result;
     }
 
-    isolated resource function get workspace() returns stream<Workspace, Error?> {
-        stream<record {}, sql:Error?>|Error result = self.persistClients.get(WORKSPACE).runReadQuery(Workspace);
-        if result is Error {
-            return new stream<Workspace, Error?>(new WorkspaceStream((), result));
-        } else {
-            return new stream<Workspace, Error?>(new WorkspaceStream(result));
-        }
-    }
+    isolated resource function get workspace(WorkspaceTargetType targetType = <>, string entity = "workspace") returns stream<targetType, Error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.Utils",
+        name: "queryStream"
+    } external;
 
     isolated resource function get workspace/[string workspaceId]() returns Workspace|Error {
         Workspace|error result = (check self.persistClients.get(WORKSPACE).runReadByKeyQuery(Workspace, workspaceId)).cloneWithType(Workspace);
@@ -159,14 +152,10 @@ public client class RainierClient {
         return result;
     }
 
-    isolated resource function get building() returns stream<Building, Error?> {
-        stream<record {}, sql:Error?>|Error result = self.persistClients.get(BUILDING).runReadQuery(Building);
-        if result is Error {
-            return new stream<Building, Error?>(new BuildingStream((), result));
-        } else {
-            return new stream<Building, Error?>(new BuildingStream(result));
-        }
-    }
+    isolated resource function get building(BuildingTargetType targetType = <>, string entity = "building") returns stream<targetType, Error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.Utils",
+        name: "queryStream"
+    } external;
 
     isolated resource function get building/[string buildingCode]() returns Building|Error {
         Building|error result = (check self.persistClients.get(BUILDING).runReadByKeyQuery(Building, buildingCode)).cloneWithType(Building);

@@ -68,11 +68,11 @@ public client class SQLClient {
     #
     # + rowType - The type description of the entity to be retrieved
     # + key - The value of the key (to be used as the `WHERE` clauses)
-    # + include - The relations to be retrieved (SQL `JOINs` to be performed)
+    # + fields - The fields to be retrieved
     # + return - A record in the `rowType` type or a `persist:Error` if the operation fails
-    public isolated function runReadByKeyQuery(typedesc<record {}> rowType, anydata key, string[] include = []) returns record {}|Error {
+    public isolated function runReadByKeyQuery(typedesc<record {}> rowType, anydata key, string[] fields = []) returns record {}|Error {
         sql:ParameterizedQuery query = sql:queryConcat(
-            `SELECT `, self.getSelectColumnNames(include), ` FROM `, self.tableName, ` AS `, stringToParameterizedQuery(self.entityName)
+            `SELECT `, self.getSelectColumnNames(fields), ` FROM `, self.tableName, ` AS `, stringToParameterizedQuery(self.entityName)
         );
 
         query = sql:queryConcat(query, ` WHERE `, check self.getGetKeyWhereClauses(key));
@@ -92,12 +92,12 @@ public client class SQLClient {
     # Performs an SQL `SELECT` operation to read multiple entity records from the database.
     #
     # + rowType - The type description of the entity to be retrieved
-    # + include - The relations to be retrieved (SQL `JOINs` to be performed)
+    # + fields - The fields to be retrieved
     # + return - A stream of records in the `rowType` type or a `persist:Error` if the operation fails
-    public isolated function runReadQuery(typedesc<record {}> rowType, string[] include = [])
+    public isolated function runReadQuery(typedesc<record {}> rowType, string[] fields = [])
     returns stream<record {}, sql:Error?>|Error {
         sql:ParameterizedQuery query = sql:queryConcat(
-            `SELECT `, self.getSelectColumnNames(include), ` FROM `, self.tableName, ` `, stringToParameterizedQuery(self.entityName)
+            `SELECT `, self.getSelectColumnNames(fields), ` FROM `, self.tableName, ` `, stringToParameterizedQuery(self.entityName)
         );
 
         stream<record {}, sql:Error?> resultStream = self.dbClient->query(query, rowType);
@@ -185,11 +185,14 @@ public client class SQLClient {
         return params;
     }
 
-    private isolated function getSelectColumnNames(string[] include) returns sql:ParameterizedQuery {
+    private isolated function getSelectColumnNames(string[] fields) returns sql:ParameterizedQuery {
         sql:ParameterizedQuery params = ` `;
         int columnCount = 0;
 
         foreach string key in self.fieldMetadata.keys() {
+            if fields != [] && fields.indexOf(key) is () {
+                continue;
+            }
             FieldMetadata fieldMetadata = self.fieldMetadata.get(key);
             if columnCount > 0 {
                 params = sql:queryConcat(params, `, `);
