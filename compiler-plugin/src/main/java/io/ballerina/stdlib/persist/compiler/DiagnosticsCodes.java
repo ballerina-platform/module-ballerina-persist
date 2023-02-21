@@ -40,18 +40,18 @@ public enum DiagnosticsCodes {
     PERSIST_306("PERSIST_306", "an entity does not support {0} array field type", ERROR),
     PERSIST_307("PERSIST_307", "redeclared field ''{0}''", ERROR),
 
-    PERSIST_401("PERSIST_401", "an entity cannot reference itself in associations", ERROR),
+    PERSIST_401("PERSIST_401", "an entity cannot reference itself in a relation field", ERROR),
     PERSIST_402("PERSIST_402",
-            "the associated entity ''{0}'' does not have the associated {1}-typed field", ERROR),
+            "the related entity ''{0}'' does not have the {1}-typed relation field", ERROR),
     PERSIST_403("PERSIST_403", "the entity does not support duplicated relations to ''{0}'' entity", ERROR),
-    PERSIST_420("PERSIST_420", "many-to-many association is not supported yet", ERROR),
-    PERSIST_421("PERSIST_421", "an entity does not support nillable associations", ERROR),
+    PERSIST_420("PERSIST_420", "many-to-many relation is not supported yet", ERROR),
+    PERSIST_421("PERSIST_421", "an entity does not support nillable relations", ERROR),
     PERSIST_422("PERSIST_422", "the entity should not contain foreign key field ''{0}'' for relation ''{1}''", ERROR),
 
-    PERSIST_501("PERSIST_501", "''{0}'' entity must have at least one identifier readonly field", ERROR),
-    PERSIST_502("PERSIST_502", "an identifier field cannot be nillable", ERROR),
+    PERSIST_501("PERSIST_501", "''{0}'' entity must have at least one identity readonly field", ERROR),
+    PERSIST_502("PERSIST_502", "an identity field cannot be nillable", ERROR),
     PERSIST_503("PERSIST_503", "only ''int'', ''string'', ''float'', ''boolean'', ''decimal'' " +
-            "types are supported as identifier fields, found ''{0}''", ERROR);
+            "types are supported as identity fields, found ''{0}''", ERROR);
 
     private final String code;
     private final String message;

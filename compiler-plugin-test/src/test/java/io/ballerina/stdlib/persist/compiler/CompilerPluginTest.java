@@ -197,7 +197,7 @@ public class CompilerPluginTest {
                         PERSIST_501.getCode()
                 },
                 new String[]{
-                        "'MedicalNeed' entity must have at least one identifier readonly field"
+                        "'MedicalNeed' entity must have at least one identity readonly field"
                 },
                 new String[]{
                         "(3:12,3:23)"
@@ -206,7 +206,7 @@ public class CompilerPluginTest {
     }
 
     @Test
-    public void validateIdentifierFieldProperties() {
+    public void validateIdentityFieldProperties() {
         List<Diagnostic> diagnostics = getErrorDiagnostics("identifier-field-properties.bal", 3);
         testDiagnostic(
                 diagnostics,
@@ -216,11 +216,11 @@ public class CompilerPluginTest {
                         PERSIST_503.getCode()
                 },
                 new String[]{
-                        "an identifier field cannot be nillable",
+                        "an identity field cannot be nillable",
                         "only 'int', 'string', 'float', 'boolean', 'decimal' types " +
-                                "are supported as identifier fields, found 'time:Civil'",
+                                "are supported as identity fields, found 'time:Civil'",
                         "only 'int', 'string', 'float', 'boolean', 'decimal' types " +
-                                "are supported as identifier fields, found 'MedicalNeed'"
+                                "are supported as identity fields, found 'MedicalNeed'"
                 },
                 new String[]{
                         "(4:13,4:17)",
@@ -239,7 +239,7 @@ public class CompilerPluginTest {
                         PERSIST_401.getCode()
                 },
                 new String[]{
-                        "an entity cannot reference itself in associations"
+                        "an entity cannot reference itself in a relation field"
                 },
                 new String[]{
                         "(8:4,8:26)"
@@ -256,7 +256,7 @@ public class CompilerPluginTest {
                         PERSIST_420.getCode()
                 },
                 new String[]{
-                        "many-to-many association is not supported yet"
+                        "many-to-many relation is not supported yet"
                 },
                 new String[]{
                         "(14:4,14:24)"
@@ -274,8 +274,8 @@ public class CompilerPluginTest {
                         PERSIST_402.getCode()
                 },
                 new String[]{
-                        "the associated entity 'Workspace' does not have the associated Building-typed field",
-                        "the associated entity 'Building1' does not have the associated Workspace2-typed field"
+                        "the related entity 'Workspace' does not have the Building-typed relation field",
+                        "the related entity 'Building1' does not have the Workspace2-typed relation field"
                 },
                 new String[]{
                         "(8:4,8:27)",
@@ -363,7 +363,7 @@ public class CompilerPluginTest {
                         PERSIST_421.getCode()
                 },
                 new String[]{
-                        "an entity does not support nillable associations"
+                        "an entity does not support nillable relations"
                 },
                 new String[]{
                         "(14:4,14:13)"
