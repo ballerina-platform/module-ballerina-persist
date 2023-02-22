@@ -128,7 +128,7 @@ function employeeCreateTestNegative() returns error? {
 function employeeReadOneTest() returns error? {
     RainierClient rainierClient = check new ();
 
-    Employee employeeRetrieved = check rainierClient->/employee/[employee1.empNo].get();
+    Employee employeeRetrieved = check rainierClient->/employeed/[employee1.empNo].get();
     test:assertEquals(employeeRetrieved, employee1);
     check rainierClient.close();
 }

@@ -19,10 +19,7 @@
 package io.ballerina.stdlib.persist;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.Future;
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.Runtime;
-import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
@@ -30,7 +27,7 @@ import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BStream;
@@ -48,55 +45,57 @@ public class Utils {
     private Utils() {
     }
 
-    public static BStream queryStream(Environment env, BObject client, BTypedesc recordType, BString entity) {
-        Future balFuture = env.markAsync();
-        BMap<BString, BObject> persistClients = (BMap<BString, BObject>) client.get(Constants.PERSIST_CLIENTS);
-        BObject persistClient = persistClients.get(entity);
-        Runtime runtime = env.getRuntime();
-
+    public static BStream query(Environment env, BObject client, BTypedesc recordType, BString entity) {
         RecordType streamConstraint = (RecordType) TypeUtils.getReferredType(recordType.getDescribingType());
         StreamType streamType = TypeCreator.createStreamType(streamConstraint, PredefinedTypes.TYPE_NULL);
 
+        BFuture future = env.getRuntime().invokeMethodAsyncSequentially(
+                getPersistClient(client, entity), Constants.RUN_READ_QUERY_METHOD,
+                null, null, null, null, streamType,
+                recordType, true, getFields(recordType), true
+        );
+
+        return (BStream) getFutureResult(future);
+    }
+
+    public static Object queryOne(Environment env, BObject client, BString key, BTypedesc recordType,
+                                  BString entity) {
+        RecordType recordConstraint = (RecordType) TypeUtils.getReferredType(recordType.getDescribingType());
+
+        BFuture future = env.getRuntime().invokeMethodAsyncSequentially(
+                getPersistClient(client, entity), Constants.RUN_READ_BY_KEY_QUERY_METHOD,
+                null, null, null, null, recordConstraint,
+                recordType, true, key, true, getFields(recordType), true
+        );
+
+        return getFutureResult(future);
+    }
+
+    private static BObject getPersistClient(BObject client, BString entity) {
+        BMap<?, ?> persistClients = (BMap<?, ?>) client.get(Constants.PERSIST_CLIENTS);
+        return (BObject) persistClients.get(entity);
+    }
+    private static BArray getFields(BTypedesc recordType) {
         ArrayType stringArrayType = TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING);
-        BString[] fields = getFieldsInRecordType(recordType);
         BArray fieldsArray = ValueCreator.createArrayValue(stringArrayType);
+
+        Map<BString, BObject> fieldsMap = recordType.getDescribingType().getEmptyValue();
+        BString[] fields = fieldsMap.keySet().toArray(new BString[0]);
+
         for (BString field : fields) {
             fieldsArray.append(field);
         }
-
-        runtime.invokeMethodAsyncSequentially(persistClient, Constants.RUN_READ_QUERY_METHOD, null, null,
-                new Callback() {
-                    @Override
-                    public void notifySuccess(Object result) {
-                        balFuture.complete(result);
-                    }
-
-                    @Override
-                    public void notifyFailure(BError bError) {
-                        BStream errorStream = getErrorStream(recordType, bError);
-                        balFuture.complete(errorStream);
-                    }
-                }, null, streamType, recordType, true, fieldsArray, true);
-
-        return null;
+        return fieldsArray;
     }
 
-    private static BString[] getFieldsInRecordType(BTypedesc recordType) {
-        Map<BString, BObject> fieldsMap = recordType.getDescribingType().getEmptyValue();
-        return fieldsMap.keySet().toArray(new BString[0]);
+    private static Object getFutureResult(BFuture future) {
+        while (!future.isDone()) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                // ignore
+            }
+        }
+        return future.getResult();
     }
-
-    private static BStream getErrorStream(BTypedesc recordType, BError errorValue) {
-        return ValueCreator.createStreamValue(
-                TypeCreator.createStreamType((recordType).getDescribingType(),
-                        PredefinedTypes.TYPE_NULL), createRecordIterator(errorValue));
-    }
-
-    private static BObject createRecordIterator(BError errorValue) {
-        return ValueCreator.createObjectValue(
-                io.ballerina.stdlib.sql.utils.ModuleUtils.getModule(),
-                io.ballerina.stdlib.sql.Constants.RESULT_ITERATOR_OBJECT,
-                errorValue, null);
-    }
-
 }

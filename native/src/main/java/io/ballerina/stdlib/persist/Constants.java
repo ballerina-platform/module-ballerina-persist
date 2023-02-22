@@ -33,5 +33,6 @@ public final class Constants {
 
     public static final BString PERSIST_CLIENTS = fromString("persistClients");
     public static final String RUN_READ_QUERY_METHOD = "runReadQuery";
+    public static final String RUN_READ_BY_KEY_QUERY_METHOD = "runReadByKeyQuery";
 
 }
