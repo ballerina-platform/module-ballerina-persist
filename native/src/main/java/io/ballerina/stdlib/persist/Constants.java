@@ -35,4 +35,16 @@ public final class Constants {
     public static final String RUN_READ_QUERY_METHOD = "runReadQuery";
     public static final String RUN_READ_BY_KEY_QUERY_METHOD = "runReadByKeyQuery";
 
+    /**
+     * Constant related to the Ballerina time types.
+     *
+     * @since 0.1.0
+     */
+    public static final class TimeTypes {
+        public static final String CIVIL = "Civil";
+        public static final String DATE_RECORD = "Date";
+        public static final String TIME_RECORD = "TimeOfDay";
+
+    }
+
 }

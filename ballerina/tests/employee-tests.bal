@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/io;
 import ballerina/test;
 
 Employee employee1 = {
@@ -80,6 +81,7 @@ function employeeCreateTest() returns error? {
     
     string[] empNos = check rainierClient->/employee.post([employee1]);    
     test:assertEquals(empNos, [employee1.empNo]);
+    io:println(empNos);
 
     Employee employeeRetrieved = check rainierClient->/employee/[employee1.empNo].get();
     test:assertEquals(employeeRetrieved, employee1);
@@ -178,6 +180,34 @@ function employeeReadManyTest2() returns error? {
 
     stream<EmployeeName, Error?> employeeStream = rainierClient->/employee.get();
     EmployeeName[] employees = check from EmployeeName employee in employeeStream 
+        select employee;
+
+    test:assertEquals(employees, [
+        {firstName: "Tom", lastName: "Scott"},
+        {firstName: "Jane", lastName: "Doe"},
+        {firstName: "Hugh", lastName: "Smith"}
+    ]);
+    check rainierClient.close();
+}
+
+public type EmployeeInfo record {|
+    string firstName;
+    string lastName;
+    record {|
+        string deptName;
+    |} department;
+    Workspace workspace;
+|};
+
+@test:Config {
+    groups:  ["dependent", "employee"],
+    dependsOn: [employeeCreateTest, employeeCreateTest2]
+}
+function employeeReadManyTest3() returns error? {
+    RainierClient rainierClient = check new ();
+
+    stream<EmployeeInfo, Error?> employeeStream = rainierClient->/employee.get();
+    EmployeeInfo[] employees = check from EmployeeInfo employee in employeeStream 
         select employee;
 
     test:assertEquals(employees, [

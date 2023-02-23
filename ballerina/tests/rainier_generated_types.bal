@@ -114,7 +114,6 @@ public type EmployeeOptionalized record {|
 public type DepartmentOptionalized record {|
     readonly string deptNo?;
     string deptName?;
-    string buildingBuildingCode?;
 |};
 
 public type OrderItemOptionalized record {|
@@ -124,7 +123,13 @@ public type OrderItemOptionalized record {|
     string notes?;
 |};
 
-public type EmployeeTargetType typedesc<EmployeeOptionalized>;
+public type EmployeeWithRelations record {|
+    *EmployeeOptionalized;
+    DepartmentOptionalized department?;
+    WorkspaceOptionalized workspace?;
+|};
+
+public type EmployeeTargetType typedesc<EmployeeWithRelations>;
 
 public type DepartmentTargetType typedesc<DepartmentOptionalized>;
 

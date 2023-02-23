@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/io;
 import ballerina/sql;
 
 # The client used by the generated persist clients to abstract and 
@@ -26,6 +27,7 @@ public client class SQLClient {
     private sql:ParameterizedQuery tableName;
     private map<FieldMetadata> fieldMetadata;
     private string[] keyFields;
+    private map<JoinMetadata> joinMetadata = {};
 
     # Initializes the `SQLClient`.
     #
@@ -38,6 +40,9 @@ public client class SQLClient {
         self.fieldMetadata = metadata.fieldMetadata;
         self.keyFields = metadata.keyFields;
         self.dbClient = dbClient;
+        if metadata.joinMetadata is map<JoinMetadata> {
+            self.joinMetadata = <map<JoinMetadata>>metadata.joinMetadata;
+        }
     }
 
     # Performs a batch SQL `INSERT` operation to insert entity instances into a table.
@@ -72,7 +77,7 @@ public client class SQLClient {
     # + return - A record in the `rowType` type or a `persist:Error` if the operation fails
     public isolated function runReadByKeyQuery(typedesc<record {}> rowType, anydata key, string[] fields = []) returns record {}|Error {
         sql:ParameterizedQuery query = sql:queryConcat(
-            `SELECT `, self.getSelectColumnNames(fields), ` FROM `, self.tableName, ` AS `, stringToParameterizedQuery(self.entityName)
+            `SELECT `, self.getSelectColumnNames(fields, []), ` FROM `, self.tableName, ` AS `, stringToParameterizedQuery(self.entityName)
         );
 
         query = sql:queryConcat(query, ` WHERE `, check self.getGetKeyWhereClauses(key));
@@ -94,11 +99,23 @@ public client class SQLClient {
     # + rowType - The type description of the entity to be retrieved
     # + fields - The fields to be retrieved
     # + return - A stream of records in the `rowType` type or a `persist:Error` if the operation fails
-    public isolated function runReadQuery(typedesc<record {}> rowType, string[] fields = [])
+    public isolated function runReadQuery(typedesc<record {}> rowType, string[] fields = [], string[] include = [])
     returns stream<record {}, sql:Error?>|Error {
+        io:println("runReadQuery");
+        io:println(fields, include);
         sql:ParameterizedQuery query = sql:queryConcat(
-            `SELECT `, self.getSelectColumnNames(fields), ` FROM `, self.tableName, ` `, stringToParameterizedQuery(self.entityName)
+            `SELECT `, self.getSelectColumnNames(fields, include), ` FROM `, self.tableName, ` `, stringToParameterizedQuery(self.entityName)
         );
+
+        string[] joinKeys = self.joinMetadata.keys();
+        foreach string joinKey in joinKeys {
+            if include.indexOf(joinKey) != () {
+                JoinMetadata joinMetadata = self.joinMetadata.get(joinKey);
+                query = sql:queryConcat(query, ` LEFT JOIN `, stringToParameterizedQuery(joinMetadata.refTable + " " + joinKey),
+                                        ` ON `, check self.getJoinFilters(joinKey, joinMetadata.refColumns, <string[]>joinMetadata.joinColumns));
+            }
+        }
+        io:println(query);
 
         stream<record {}, sql:Error?> resultStream = self.dbClient->query(query, rowType);
         return resultStream;
@@ -158,10 +175,25 @@ public client class SQLClient {
         sql:ParameterizedQuery params = `(`;
         int columnCount = 0;
         foreach string key in self.fieldMetadata.keys() {
+            FieldMetadata fieldMetadata = self.fieldMetadata.get(key);
+            if !isInsertableField(fieldMetadata) {
+                continue;
+            }
             if columnCount > 0 {
                 params = sql:queryConcat(params, `,`);
             }
-            params = sql:queryConcat(params, `${<sql:Value>'object[key]}`);
+
+            if fieldMetadata is ReferentialFieldMetadata {
+                string entity = fieldMetadata.relation.entityName;
+                string fieldName = fieldMetadata.relation.refField;
+                if 'object[entity] is () {
+                    params = sql:queryConcat(params, `NULL`);
+                } else {
+                    params = sql:queryConcat(params, `${<sql:Value>(<record {}>'object[entity])[fieldName]}`);
+                }
+            } else {
+                params = sql:queryConcat(params, `${<sql:Value>'object[key]}`);
+            }
             columnCount = columnCount + 1;
         }
         params = sql:queryConcat(params, `)`);
@@ -174,31 +206,45 @@ public client class SQLClient {
         int columnCount = 0;
         foreach string key in keys {
             FieldMetadata fieldMetadata = self.fieldMetadata.get(key);
-
+            if !isInsertableField(fieldMetadata) {
+                continue;
+            }
             if columnCount > 0 {
                 params = sql:queryConcat(params, `, `);
             }
-
-            params = sql:queryConcat(params, stringToParameterizedQuery("`" + fieldMetadata.columnName + "`"));
+            params = sql:queryConcat(params, stringToParameterizedQuery((<SimpleFieldMetadata|ReferentialFieldMetadata>fieldMetadata).columnName));
             columnCount = columnCount + 1;
         }
         return params;
     }
-
-    private isolated function getSelectColumnNames(string[] fields) returns sql:ParameterizedQuery {
+    private isolated function getSelectColumnNames(string[] fields, string[] include) returns sql:ParameterizedQuery {
         sql:ParameterizedQuery params = ` `;
         int columnCount = 0;
 
         foreach string key in self.fieldMetadata.keys() {
-            if fields != [] && fields.indexOf(key) is () {
+            // TODO: remove empty fields check
+            if fields != [] && fields.indexOf(key) == () {
                 continue;
             }
             FieldMetadata fieldMetadata = self.fieldMetadata.get(key);
-            if columnCount > 0 {
-                params = sql:queryConcat(params, `, `);
+            if fieldMetadata is SimpleFieldMetadata {
+                if columnCount > 0 {
+                    params = sql:queryConcat(params, `, `);
+                }
+                params = sql:queryConcat(params, stringToParameterizedQuery(self.entityName + "." + fieldMetadata.columnName + " AS `" + key + "`"));
+                columnCount = columnCount + 1;
+            } else if include.indexOf(fieldMetadata.relation.entityName) != () {
+                if !key.includes("[]") {
+                    if columnCount > 0 {
+                        params = sql:queryConcat(params, `, `);
+                    }
+                    params = sql:queryConcat(params, stringToParameterizedQuery(
+                        fieldMetadata.relation.entityName + "." + fieldMetadata.relation.refField + 
+                        " AS `" + fieldMetadata.relation.entityName + "." + fieldMetadata.relation.refField + "`"
+                    ));
+                    columnCount = columnCount + 1;
+                }
             }
-            params = sql:queryConcat(params, stringToParameterizedQuery("`" + self.entityName + "`.`" + fieldMetadata.columnName + "` AS `" + key + "`"));
-            columnCount = columnCount + 1;
         }
         return params;
     }
@@ -246,9 +292,21 @@ public client class SQLClient {
         return query;
     }
 
+    private isolated function getJoinFilters(string joinKey, string[] refFields, string[] joinColumns) returns sql:ParameterizedQuery|Error {
+        sql:ParameterizedQuery query = ` `;
+        foreach int i in 0 ..< refFields.length() {
+            if i > 0 {
+                query = sql:queryConcat(query, ` AND `);
+            }
+            sql:ParameterizedQuery filterQuery = stringToParameterizedQuery(joinKey + "." + refFields[i] + " = " + self.entityName + "." + joinColumns[i]);
+            query = sql:queryConcat(query, filterQuery);
+        }
+        return query;
+    }
+
     private isolated function getFieldParamQuery(string fieldName) returns sql:ParameterizedQuery {
-        FieldMetadata fieldMetadata = self.fieldMetadata.get(fieldName);
-        return stringToParameterizedQuery("`" + fieldMetadata.columnName + "`");
+        SimpleFieldMetadata|ReferentialFieldMetadata fieldMetadata = <SimpleFieldMetadata|ReferentialFieldMetadata>self.fieldMetadata.get(fieldName);
+        return stringToParameterizedQuery(fieldMetadata.columnName);
     }
 
 }

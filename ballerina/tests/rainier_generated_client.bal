@@ -28,9 +28,18 @@ public client class RainierClient {
                 gender: {columnName: "gender", 'type: string},
                 hireDate: {columnName: "hireDate", 'type: time:Date},
                 departmentDeptNo: {columnName: "departmentDeptNo", 'type: string},
-                workspaceWorkspaceId: {columnName: "workspaceWorkspaceId", 'type: string}
+                workspaceWorkspaceId: {columnName: "workspaceWorkspaceId", 'type: string},
+                "department.deptNo": {'type: string, relation: {entityName: "department", refField: "deptNo"}},
+                "department.deptName": {'type: string, relation: {entityName: "department", refField: "deptName"}},
+                "workspace.workspaceId": {'type: string, relation: {entityName: "workspace", refField: "workspaceId"}},
+                "workspace.workspaceType": {'type: string, relation: {entityName: "workspace", refField: "workspaceType"}},
+                "workspace.buildingBuildingCode": {'type: string, relation: {entityName: "workspace", refField: "buildingBuildingCode"}}
             },
-            keyFields: ["empNo"]
+            keyFields: ["empNo"],
+            joinMetadata: {
+                department: {entity: Department, fieldName: "department", refTable: "Department", refColumns: ["deptNo"], joinColumns: ["departmentDeptNo"], 'type: ONE_TO_MANY},
+                workspace: {entity: Workspace, fieldName: "workspace", refTable: "Workspace", refColumns: ["workspaceId"], joinColumns: ["workspaceWorkspaceId"], 'type: ONE_TO_ONE}
+            }
         },
         "workspace": {
             entityName: "Workspace",

@@ -47,3 +47,16 @@ isolated function getKeyFromDuplicateKeyErrorMessage(string errorMessage) return
     return key;
 }
 
+isolated function isInsertableField(FieldMetadata fieldMetadata) returns boolean {
+    if fieldMetadata is SimpleFieldMetadata {
+        return true;
+    }
+
+    if fieldMetadata is ReferentialFieldMetadata {
+        return true;
+    }
+
+    return false;
+}
+
+
