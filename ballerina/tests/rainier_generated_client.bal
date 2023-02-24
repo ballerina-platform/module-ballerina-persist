@@ -69,9 +69,20 @@ public client class RainierClient {
             tableName: `Department`,
             fieldMetadata: {
                 deptNo: {columnName: "deptNo", 'type: string},
-                deptName: {columnName: "deptName", 'type: string}
+                deptName: {columnName: "deptName", 'type: string},
+                "employee[].empNo": {'type: string, relation: {entityName: "employee", refField: "empNo"}},
+                "employee[].firstName": {'type: string, relation: {entityName: "employee", refField: "firstName"}},
+                "employee[].lastName": {'type: string, relation: {entityName: "employee", refField: "lastName"}},
+                "employee[].birthDate": {'type: time:Date, relation: {entityName: "employee", refField: "birthDate"}},
+                "employee[].gender": {'type: string, relation: {entityName: "employee", refField: "gender"}},
+                "employee[].hireDate": {'type: time:Date, relation: {entityName: "employee", refField: "hireDate"}},
+                "employee[].departmentDeptNo": {'type: string, relation: {entityName: "employee", refField: "departmentDeptNo"}},
+                "employee[].workspaceWorkspaceId": {'type: string, relation: {entityName: "employee", refField: "workspaceWorkspaceId"}}
             },
-            keyFields: ["deptNo"]
+            keyFields: ["deptNo"],
+            joinMetadata: {
+                employee: {entity: Employee, fieldName: "employee", refTable: "Employee", refColumns: ["departmentDeptNo"], joinColumns: ["deptNo"], 'type: MANY_TO_ONE}
+            }
         },
         "orderitem": {
             entityName: "OrderItem",
@@ -383,10 +394,14 @@ public class DepartmentStream {
 
     private stream<anydata, sql:Error?>? anydataStream;
     private Error? err;
+    private string[]? include;
+    private SQLClient? persistClient;
 
-    public isolated function init(stream<anydata, sql:Error?>? anydataStream, Error? err = ()) {
+    public isolated function init(stream<anydata, sql:Error?>? anydataStream, Error? err = (), string[]? include = (), SQLClient? persistClient = ()) {
         self.anydataStream = anydataStream;
         self.err = err;
+        self.include = include;
+        self.persistClient = persistClient;
     }
 
     public isolated function next() returns record {|Department value;|}|Error? {
@@ -405,6 +420,9 @@ public class DepartmentStream {
                     return <Error>error(value.message());
                 }
                 record {|Department value;|} nextRecord = {value: value};
+                if self.include is string[] {
+                    check (<SQLClient>self.persistClient).getManyRelations(nextRecord.value, <string[]>self.include);
+                }
                 return nextRecord;
             }
         } else {

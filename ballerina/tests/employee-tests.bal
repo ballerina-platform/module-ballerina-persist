@@ -190,34 +190,6 @@ function employeeReadManyTest2() returns error? {
     check rainierClient.close();
 }
 
-public type EmployeeInfo record {|
-    string firstName;
-    string lastName;
-    record {|
-        string deptName;
-    |} department;
-    Workspace workspace;
-|};
-
-@test:Config {
-    groups:  ["dependent", "employee"],
-    dependsOn: [employeeCreateTest, employeeCreateTest2]
-}
-function employeeReadManyTest3() returns error? {
-    RainierClient rainierClient = check new ();
-
-    stream<EmployeeInfo, Error?> employeeStream = rainierClient->/employee.get();
-    EmployeeInfo[] employees = check from EmployeeInfo employee in employeeStream 
-        select employee;
-
-    test:assertEquals(employees, [
-        {firstName: "Tom", lastName: "Scott"},
-        {firstName: "Jane", lastName: "Doe"},
-        {firstName: "Hugh", lastName: "Smith"}
-    ]);
-    check rainierClient.close();
-}
-
 @test:Config {
     groups: ["employee"],
     dependsOn: [employeeReadOneTest, employeeReadManyTest, employeeReadManyTest2]

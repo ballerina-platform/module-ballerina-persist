@@ -129,9 +129,14 @@ public type EmployeeWithRelations record {|
     WorkspaceOptionalized workspace?;
 |};
 
+public type DepartmentWithRelations record {|
+    *DepartmentOptionalized;
+    EmployeeOptionalized[] employee?;
+|};
+
 public type EmployeeTargetType typedesc<EmployeeWithRelations>;
 
-public type DepartmentTargetType typedesc<DepartmentOptionalized>;
+public type DepartmentTargetType typedesc<DepartmentWithRelations>;
 
 public type WorkspaceTargetType typedesc<WorkspaceOptionalized>;
 

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 202, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -58,18 +58,27 @@ public class Utils {
     }
 
     public static BStream query(Environment env, BObject client, BTypedesc recordType, BString entity) {
+        BObject persistClient = getPersistClient(client, entity);
+
         RecordType streamConstraint = (RecordType) TypeUtils.getReferredType(recordType.getDescribingType());
         StreamType streamType = TypeCreator.createStreamType(streamConstraint, PredefinedTypes.TYPE_NULL);
 
         BArray[] fieldsAndIncludes = getFieldsAndIncludes((RecordType) recordType.getDescribingType());
+        BArray fields = fieldsAndIncludes[0];
+        BArray includes = fieldsAndIncludes[1];
 
         BFuture future = env.getRuntime().invokeMethodAsyncSequentially(
-                getPersistClient(client, entity), Constants.RUN_READ_QUERY_METHOD,
+                persistClient, Constants.RUN_READ_QUERY_METHOD,
                 null, null, null, null, streamType,
-                recordType, true, fieldsAndIncludes[0], true, fieldsAndIncludes[1], true
+                recordType, true, fields, true, includes, true
         );
 
-        return (BStream) getFutureResult(future);
+        BStream sqlStream = (BStream) getFutureResult(future);
+        BObject persistStream = ValueCreator.createObjectValue(env.getCurrentModule(),
+                Constants.PERSIST_STREAM, sqlStream, null, includes, persistClient);
+
+        return ValueCreator.createStreamValue(TypeCreator.createStreamType(streamConstraint,
+                PredefinedTypes.TYPE_NULL), persistStream);
     }
 
     public static Object queryOne(Environment env, BObject client, BString key, BTypedesc recordType,
@@ -100,6 +109,13 @@ public class Utils {
         Map<String, Field> fieldsMap = recordType.getFields();
         for (Field field : fieldsMap.values()) {
             Type type = field.getFieldType();
+
+            boolean arrayType = false;
+            if (type.getTag() == TypeTags.ARRAY_TAG) {
+                type = ((ArrayType) type).getElementType();
+                arrayType = true;
+            }
+
             if ((type.getTag() == TypeTags.RECORD_TYPE_TAG || type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) &&
                     !isKnownRecordType(type)) {
                 String innerFieldName = field.getFieldName();
@@ -107,7 +123,11 @@ public class Utils {
 
                 BArray innerFieldsArray = getInnerFieldsArray(type);
                 for (int i = 0; i < innerFieldsArray.size(); i++) {
-                    fieldsArray.append(fromString(innerFieldName + "." + innerFieldsArray.get(i).toString()));
+                    if (arrayType) {
+                        fieldsArray.append(fromString(innerFieldName + "[]." + innerFieldsArray.get(i).toString()));
+                    } else {
+                        fieldsArray.append(fromString(innerFieldName + "." + innerFieldsArray.get(i).toString()));
+                    }
                 }
             } else {
                 fieldsArray.append(fromString(field.getFieldName()));
@@ -155,6 +175,18 @@ public class Utils {
             return ballerinaType.toString();
         }
         return ballerinaType.getName();
+    }
+
+    public static BArray convertToArray(BTypedesc recordType, BArray arr) {
+        ArrayType array = TypeCreator.createArrayType(recordType.getDescribingType());
+        BArray returnArray = ValueCreator.createArrayValue(array);
+        for (Object element : arr.getValues()) {
+            if (element == null) {
+                break;
+            }
+            returnArray.append(element);
+        }
+        return returnArray;
     }
 
 }

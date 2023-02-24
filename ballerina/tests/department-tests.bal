@@ -122,7 +122,6 @@ function departmentReadOneTestNegative() returns error? {
 }
 function departmentReadManyTest() returns error? {
     RainierClient rainierClient = check new ();
-
     stream<Department, error?> departmentStream = rainierClient->/department.get();
     Department[] departments = check from Department department in departmentStream 
         select department;
