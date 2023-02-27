@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/test;
 
 Employee employee1 = {
@@ -81,7 +80,6 @@ function employeeCreateTest() returns error? {
     
     string[] empNos = check rainierClient->/employee.post([employee1]);    
     test:assertEquals(empNos, [employee1.empNo]);
-    io:println(empNos);
 
     Employee employeeRetrieved = check rainierClient->/employee/[employee1.empNo].get();
     test:assertEquals(employeeRetrieved, employee1);

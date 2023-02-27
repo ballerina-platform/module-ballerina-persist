@@ -1,5 +1,4 @@
 import ballerina/sql;
-import ballerina/time;
 import ballerinax/mysql;
 
 const ALL_TYPES = "alltypes";
@@ -23,24 +22,24 @@ public client class TestEntitiesClient {
             entityName: "AllTypes",
             tableName: `AllTypes`,
             fieldMetadata: {
-                id: {columnName: "id", 'type: int},
-                booleanType: {columnName: "booleanType", 'type: boolean},
-                intType: {columnName: "intType", 'type: int},
-                floatType: {columnName: "floatType", 'type: float},
-                decimalType: {columnName: "decimalType", 'type: decimal},
-                stringType: {columnName: "stringType", 'type: string},
-                byteArrayType: {columnName: "byteArrayType", 'type: byte},
-                dateType: {columnName: "dateType", 'type: time:Date},
-                timeOfDayType: {columnName: "timeOfDayType", 'type: time:TimeOfDay},
-                civilType: {columnName: "civilType", 'type: time:Civil},
-                booleanTypeOptional: {columnName: "booleanTypeOptional", 'type: boolean},
-                intTypeOptional: {columnName: "intTypeOptional", 'type: int},
-                floatTypeOptional: {columnName: "floatTypeOptional", 'type: float},
-                decimalTypeOptional: {columnName: "decimalTypeOptional", 'type: decimal},
-                stringTypeOptional: {columnName: "stringTypeOptional", 'type: string},
-                dateTypeOptional: {columnName: "dateTypeOptional", 'type: time:Date},
-                timeOfDayTypeOptional: {columnName: "timeOfDayTypeOptional", 'type: time:TimeOfDay},
-                civilTypeOptional: {columnName: "civilTypeOptional", 'type: time:Civil}
+                id: {columnName: "id"},
+                booleanType: {columnName: "booleanType"},
+                intType: {columnName: "intType"},
+                floatType: {columnName: "floatType"},
+                decimalType: {columnName: "decimalType"},
+                stringType: {columnName: "stringType"},
+                byteArrayType: {columnName: "byteArrayType"},
+                dateType: {columnName: "dateType"},
+                timeOfDayType: {columnName: "timeOfDayType"},
+                civilType: {columnName: "civilType"},
+                booleanTypeOptional: {columnName: "booleanTypeOptional"},
+                intTypeOptional: {columnName: "intTypeOptional"},
+                floatTypeOptional: {columnName: "floatTypeOptional"},
+                decimalTypeOptional: {columnName: "decimalTypeOptional"},
+                stringTypeOptional: {columnName: "stringTypeOptional"},
+                dateTypeOptional: {columnName: "dateTypeOptional"},
+                timeOfDayTypeOptional: {columnName: "timeOfDayTypeOptional"},
+                civilTypeOptional: {columnName: "civilTypeOptional"}
             },
             keyFields: ["id"]
         },
@@ -48,8 +47,8 @@ public client class TestEntitiesClient {
             entityName: "StringIdRecord",
             tableName: `StringIdRecord`,
             fieldMetadata: {
-                id: {columnName: "id", 'type: string},
-                randomField: {columnName: "randomField", 'type: string}
+                id: {columnName: "id"},
+                randomField: {columnName: "randomField"}
             },
             keyFields: ["id"]
         },
@@ -57,8 +56,8 @@ public client class TestEntitiesClient {
             entityName: "IntIdRecord",
             tableName: `IntIdRecord`,
             fieldMetadata: {
-                id: {columnName: "id", 'type: int},
-                randomField: {columnName: "randomField", 'type: string}
+                id: {columnName: "id"},
+                randomField: {columnName: "randomField"}
             },
             keyFields: ["id"]
         },
@@ -66,8 +65,8 @@ public client class TestEntitiesClient {
             entityName: "FloatIdRecord",
             tableName: `FloatIdRecord`,
             fieldMetadata: {
-                id: {columnName: "id", 'type: float},
-                randomField: {columnName: "randomField", 'type: string}
+                id: {columnName: "id"},
+                randomField: {columnName: "randomField"}
             },
             keyFields: ["id"]
         },
@@ -75,8 +74,8 @@ public client class TestEntitiesClient {
             entityName: "DecimalIdRecord",
             tableName: `DecimalIdRecord`,
             fieldMetadata: {
-                id: {columnName: "id", 'type: decimal},
-                randomField: {columnName: "randomField", 'type: string}
+                id: {columnName: "id"},
+                randomField: {columnName: "randomField"}
             },
             keyFields: ["id"]
         },
@@ -84,8 +83,8 @@ public client class TestEntitiesClient {
             entityName: "BooleanIdRecord",
             tableName: `BooleanIdRecord`,
             fieldMetadata: {
-                id: {columnName: "id", 'type: boolean},
-                randomField: {columnName: "randomField", 'type: string}
+                id: {columnName: "id"},
+                randomField: {columnName: "randomField"}
             },
             keyFields: ["id"]
         },
@@ -93,13 +92,13 @@ public client class TestEntitiesClient {
             entityName: "CompositeAssociationRecord",
             tableName: `CompositeAssociationRecord`,
             fieldMetadata: {
-                id: {columnName: "id", 'type: string},
-                randomField: {columnName: "randomField", 'type: string},
-                alltypesidrecordBooleanType: {columnName: "alltypesidrecordBooleanType", 'type: boolean},
-                alltypesidrecordIntType: {columnName: "alltypesidrecordIntType", 'type: int},
-                alltypesidrecordFloatType: {columnName: "alltypesidrecordFloatType", 'type: float},
-                alltypesidrecordDecimalType: {columnName: "alltypesidrecordDecimalType", 'type: decimal},
-                alltypesidrecordStringType: {columnName: "alltypesidrecordStringType", 'type: string}
+                id: {columnName: "id"},
+                randomField: {columnName: "randomField"},
+                alltypesidrecordBooleanType: {columnName: "alltypesidrecordBooleanType"},
+                alltypesidrecordIntType: {columnName: "alltypesidrecordIntType"},
+                alltypesidrecordFloatType: {columnName: "alltypesidrecordFloatType"},
+                alltypesidrecordDecimalType: {columnName: "alltypesidrecordDecimalType"},
+                alltypesidrecordStringType: {columnName: "alltypesidrecordStringType"}
             },
             keyFields: ["id"]
         },
@@ -107,12 +106,12 @@ public client class TestEntitiesClient {
             entityName: "AllTypesIdRecord",
             tableName: `AllTypesIdRecord`,
             fieldMetadata: {
-                booleanType: {columnName: "booleanType", 'type: boolean},
-                intType: {columnName: "intType", 'type: int},
-                floatType: {columnName: "floatType", 'type: float},
-                decimalType: {columnName: "decimalType", 'type: decimal},
-                stringType: {columnName: "stringType", 'type: string},
-                randomField: {columnName: "randomField", 'type: string}
+                booleanType: {columnName: "booleanType"},
+                intType: {columnName: "intType"},
+                floatType: {columnName: "floatType"},
+                decimalType: {columnName: "decimalType"},
+                stringType: {columnName: "stringType"},
+                randomField: {columnName: "randomField"}
             },
             keyFields: ["booleanType", "intType", "floatType", "decimalType", "stringType"]
         }

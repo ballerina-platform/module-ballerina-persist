@@ -1,5 +1,4 @@
 import ballerina/sql;
-import ballerina/time;
 import ballerinax/mysql;
 import ballerina/jballerina.java;
 
@@ -21,19 +20,19 @@ public client class RainierClient {
             entityName: "Employee",
             tableName: `Employee`,
             fieldMetadata: {
-                empNo: {columnName: "empNo", 'type: string},
-                firstName: {columnName: "firstName", 'type: string},
-                lastName: {columnName: "lastName", 'type: string},
-                birthDate: {columnName: "birthDate", 'type: time:Date},
-                gender: {columnName: "gender", 'type: string},
-                hireDate: {columnName: "hireDate", 'type: time:Date},
-                departmentDeptNo: {columnName: "departmentDeptNo", 'type: string},
-                workspaceWorkspaceId: {columnName: "workspaceWorkspaceId", 'type: string},
-                "department.deptNo": {'type: string, relation: {entityName: "department", refField: "deptNo"}},
-                "department.deptName": {'type: string, relation: {entityName: "department", refField: "deptName"}},
-                "workspace.workspaceId": {'type: string, relation: {entityName: "workspace", refField: "workspaceId"}},
-                "workspace.workspaceType": {'type: string, relation: {entityName: "workspace", refField: "workspaceType"}},
-                "workspace.buildingBuildingCode": {'type: string, relation: {entityName: "workspace", refField: "buildingBuildingCode"}}
+                empNo: {columnName: "empNo"},
+                firstName: {columnName: "firstName"},
+                lastName: {columnName: "lastName"},
+                birthDate: {columnName: "birthDate"},
+                gender: {columnName: "gender"},
+                hireDate: {columnName: "hireDate"},
+                departmentDeptNo: {columnName: "departmentDeptNo"},
+                workspaceWorkspaceId: {columnName: "workspaceWorkspaceId"},
+                "department.deptNo": {relation: {entityName: "department", refField: "deptNo"}},
+                "department.deptName": {relation: {entityName: "department", refField: "deptName"}},
+                "workspace.workspaceId": {relation: {entityName: "workspace", refField: "workspaceId"}},
+                "workspace.workspaceType": {relation: {entityName: "workspace", refField: "workspaceType"}},
+                "workspace.buildingBuildingCode": {relation: {entityName: "workspace", refField: "buildingBuildingCode"}}
             },
             keyFields: ["empNo"],
             joinMetadata: {
@@ -45,9 +44,9 @@ public client class RainierClient {
             entityName: "Workspace",
             tableName: `Workspace`,
             fieldMetadata: {
-                workspaceId: {columnName: "workspaceId", 'type: string},
-                workspaceType: {columnName: "workspaceType", 'type: string},
-                buildingBuildingCode: {columnName: "buildingBuildingCode", 'type: string}
+                workspaceId: {columnName: "workspaceId"},
+                workspaceType: {columnName: "workspaceType"},
+                buildingBuildingCode: {columnName: "buildingBuildingCode"}
             },
             keyFields: ["workspaceId"]
         },
@@ -55,12 +54,12 @@ public client class RainierClient {
             entityName: "Building",
             tableName: `Building`,
             fieldMetadata: {
-                buildingCode: {columnName: "buildingCode", 'type: string},
-                city: {columnName: "city", 'type: string},
-                state: {columnName: "state", 'type: string},
-                country: {columnName: "country", 'type: string},
-                postalCode: {columnName: "postalCode", 'type: string},
-                'type: {columnName: "type", 'type: string}
+                buildingCode: {columnName: "buildingCode"},
+                city: {columnName: "city"},
+                state: {columnName: "state"},
+                country: {columnName: "country"},
+                postalCode: {columnName: "postalCode"},
+                'type: {columnName: "type"}
             },
             keyFields: ["buildingCode"]
         },
@@ -68,16 +67,16 @@ public client class RainierClient {
             entityName: "Department",
             tableName: `Department`,
             fieldMetadata: {
-                deptNo: {columnName: "deptNo", 'type: string},
-                deptName: {columnName: "deptName", 'type: string},
-                "employee[].empNo": {'type: string, relation: {entityName: "employee", refField: "empNo"}},
-                "employee[].firstName": {'type: string, relation: {entityName: "employee", refField: "firstName"}},
-                "employee[].lastName": {'type: string, relation: {entityName: "employee", refField: "lastName"}},
-                "employee[].birthDate": {'type: time:Date, relation: {entityName: "employee", refField: "birthDate"}},
-                "employee[].gender": {'type: string, relation: {entityName: "employee", refField: "gender"}},
-                "employee[].hireDate": {'type: time:Date, relation: {entityName: "employee", refField: "hireDate"}},
-                "employee[].departmentDeptNo": {'type: string, relation: {entityName: "employee", refField: "departmentDeptNo"}},
-                "employee[].workspaceWorkspaceId": {'type: string, relation: {entityName: "employee", refField: "workspaceWorkspaceId"}}
+                deptNo: {columnName: "deptNo"},
+                deptName: {columnName: "deptName"},
+                "employee[].empNo": {relation: {entityName: "employee", refField: "empNo"}},
+                "employee[].firstName": {relation: {entityName: "employee", refField: "firstName"}},
+                "employee[].lastName": {relation: {entityName: "employee", refField: "lastName"}},
+                "employee[].birthDate": {relation: {entityName: "employee", refField: "birthDate"}},
+                "employee[].gender": {relation: {entityName: "employee", refField: "gender"}},
+                "employee[].hireDate": {relation: {entityName: "employee", refField: "hireDate"}},
+                "employee[].departmentDeptNo": {relation: {entityName: "employee", refField: "departmentDeptNo"}},
+                "employee[].workspaceWorkspaceId": {relation: {entityName: "employee", refField: "workspaceWorkspaceId"}}
             },
             keyFields: ["deptNo"],
             joinMetadata: {
@@ -88,10 +87,10 @@ public client class RainierClient {
             entityName: "OrderItem",
             tableName: `OrderItem`,
             fieldMetadata: {
-                orderId: {columnName: "orderId", 'type: string},
-                itemId: {columnName: "itemId", 'type: string},
-                quantity: {columnName: "quantity", 'type: int},
-                notes: {columnName: "notes", 'type: string}
+                orderId: {columnName: "orderId"},
+                itemId: {columnName: "itemId"},
+                quantity: {columnName: "quantity"},
+                notes: {columnName: "notes"}
             },
             keyFields: ["orderId", "itemId"]
         }
