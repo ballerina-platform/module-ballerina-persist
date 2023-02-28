@@ -18,7 +18,6 @@
 
 package io.ballerina.stdlib.persist;
 
-import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
@@ -27,14 +26,11 @@ import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.ReferenceType;
-import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
-import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 
@@ -45,7 +41,7 @@ import java.util.Map;
 import static io.ballerina.runtime.api.utils.StringUtils.fromString;
 
 /**
- * TODO: add javadoc comment.
+ * This class has the utility methods required for the Persist module.
  *
  * @since 0.1.0
  */
@@ -57,51 +53,12 @@ public class Utils {
     private Utils() {
     }
 
-    public static BStream query(Environment env, BObject client, BTypedesc recordType, BString entity) {
-        BObject persistClient = getPersistClient(client, entity);
-
-        RecordType streamConstraint = (RecordType) TypeUtils.getReferredType(recordType.getDescribingType());
-        StreamType streamType = TypeCreator.createStreamType(streamConstraint, PredefinedTypes.TYPE_NULL);
-
-        BArray[] fieldsAndIncludes = getFieldsAndIncludes((RecordType) recordType.getDescribingType());
-        BArray fields = fieldsAndIncludes[0];
-        BArray includes = fieldsAndIncludes[1];
-
-        BFuture future = env.getRuntime().invokeMethodAsyncSequentially(
-                persistClient, Constants.RUN_READ_QUERY_METHOD,
-                null, null, null, null, streamType,
-                recordType, true, fields, true, includes, true
-        );
-
-        BStream sqlStream = (BStream) getFutureResult(future);
-        BObject persistStream = ValueCreator.createObjectValue(env.getCurrentModule(),
-                Constants.PERSIST_STREAM, sqlStream, null, includes, persistClient);
-
-        return ValueCreator.createStreamValue(TypeCreator.createStreamType(streamConstraint,
-                PredefinedTypes.TYPE_NULL), persistStream);
-    }
-
-    public static Object queryOne(Environment env, BObject client, BString key, BTypedesc recordType,
-                                  BString entity) {
-        RecordType recordConstraint = (RecordType) TypeUtils.getReferredType(recordType.getDescribingType());
-
-        BArray[] fieldsAndIncludes = getFieldsAndIncludes((RecordType) recordType.getDescribingType());
-
-        BFuture future = env.getRuntime().invokeMethodAsyncSequentially(
-                getPersistClient(client, entity), Constants.RUN_READ_BY_KEY_QUERY_METHOD,
-                null, null, null, null, recordConstraint,
-                recordType, true, key, true, fieldsAndIncludes[0], true
-        );
-
-        return getFutureResult(future);
-    }
-
-    private static BObject getPersistClient(BObject client, BString entity) {
+    static BObject getPersistClient(BObject client, BString entity) {
         BMap<?, ?> persistClients = (BMap<?, ?>) client.get(Constants.PERSIST_CLIENTS);
         return (BObject) persistClients.get(entity);
     }
 
-    private static BArray[] getFieldsAndIncludes(RecordType recordType) {
+    static BArray[] getFieldsAndIncludes(RecordType recordType) {
         ArrayType stringArrayType = TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING);
         BArray fieldsArray = ValueCreator.createArrayValue(stringArrayType);
         BArray includeArray = ValueCreator.createArrayValue(stringArrayType);
@@ -155,7 +112,7 @@ public class Utils {
         return fieldsArray;
     }
 
-    private static Object getFutureResult(BFuture future) {
+    static Object getFutureResult(BFuture future) {
         while (!future.isDone()) {
             try {
                 Thread.sleep(100);
