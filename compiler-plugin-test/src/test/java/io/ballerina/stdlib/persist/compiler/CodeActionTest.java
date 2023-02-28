@@ -19,7 +19,6 @@
 package io.ballerina.stdlib.persist.compiler;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import io.ballerina.projects.CodeActionManager;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
@@ -44,10 +43,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static io.ballerina.stdlib.persist.compiler.Constants.END_DELIMITER_TEXT_RANGE;
 import static io.ballerina.stdlib.persist.compiler.Constants.REMOVE_TEXT_RANGE;
+import static io.ballerina.stdlib.persist.compiler.Constants.START_DELIMITER_TEXT_RANGE;
 import static io.ballerina.stdlib.persist.compiler.TestUtils.getEnvironmentBuilder;
 
 /**
@@ -63,23 +65,31 @@ public class CodeActionTest {
     private Object[][] testDataProvider() {
         return new Object[][]{
                 {"valid-persist-model-path.bal", LinePosition.from(2, 1), "Remove unsupported member",
-                        TextRange.from(32, 26), "PERSIST_101", "REMOVE_UNSUPPORTED_MEMBERS"},
+                        "PERSIST_101", "REMOVE_UNSUPPORTED_MEMBERS",
+                        Map.of(REMOVE_TEXT_RANGE, TextRange.from(32, 26))},
                 {"usage-of-import-prefix.bal", LinePosition.from(0, 25), "Remove import prefix",
-                        TextRange.from(21, 9), "PERSIST_102", "REMOVE_MODULE_PREFIX"},
+                        "PERSIST_102", "REMOVE_MODULE_PREFIX",
+                        Map.of(REMOVE_TEXT_RANGE, TextRange.from(21, 9))},
+                {"record-properties.bal", LinePosition.from(14, 6), "Change to closed record",
+                        "PERSIST_201", "CHANGE_TO_CLOSED_RECORD",
+                        Map.of(START_DELIMITER_TEXT_RANGE, TextRange.from(232, 0),
+                                END_DELIMITER_TEXT_RANGE, TextRange.from(338, 0))},
         };
     }
 
     @Test(dataProvider = "testDataProvider")
     public void testRemoveCodeSyntax(String fileName, LinePosition cursorPos, String codeActionTitle,
-                                     TextRange codeActionArgNodeLocation, String expectedDiagnosticCode,
-                                     String expectedActionName) throws IOException {
+                                     String expectedDiagnosticCode, String expectedActionName,
+                                     Map<String, TextRange> codeActionArgs) throws IOException {
         Path filePath = RESOURCE_PATH.resolve("project_2").resolve("persist")
                 .resolve(fileName);
         Path resultPath = RESOURCE_PATH.resolve("codeaction")
                 .resolve(fileName);
 
-        CodeActionArgument locationArg = CodeActionArgument.from(REMOVE_TEXT_RANGE, codeActionArgNodeLocation);
-        CodeActionInfo expectedCodeAction = CodeActionInfo.from(codeActionTitle, List.of(locationArg));
+        List<CodeActionArgument> codeActionArguments = codeActionArgs.entrySet().stream()
+                .map((entry) -> CodeActionArgument.from(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+        CodeActionInfo expectedCodeAction = CodeActionInfo.from(codeActionTitle, codeActionArguments);
         expectedCodeAction.setProviderName(expectedDiagnosticCode + "/ballerina/persist/" + expectedActionName);
 
         performTest(filePath, cursorPos, expectedCodeAction, resultPath);
@@ -91,14 +101,11 @@ public class CodeActionTest {
         List<CodeActionInfo> codeActions = getCodeActions(filePath, cursorPos, project);
         Assert.assertTrue(codeActions.size() > 0, "Expected at least 1 code action");
 
-        JsonObject expectedCodeAction = GSON.toJsonTree(expected).getAsJsonObject();
         Optional<CodeActionInfo> found = codeActions.stream()
-                .filter(codeActionInfo -> {
-                    JsonObject actualCodeAction = GSON.toJsonTree(codeActionInfo).getAsJsonObject();
-                    return actualCodeAction.equals(expectedCodeAction);
-                })
+                .filter((codeActionInfo) -> expected.getTitle().equals(codeActionInfo.getTitle()) &&
+                        expected.getProviderName().equals(codeActionInfo.getProviderName()))
                 .findFirst();
-        Assert.assertTrue(found.isPresent(), "Code action not found:" + expectedCodeAction.toString());
+        Assert.assertTrue(found.isPresent(), "Code action not found:" + expected);
 
         List<DocumentEdit> actualEdits = executeCodeAction(project, filePath, found.get());
         // Changes to 1 file expected

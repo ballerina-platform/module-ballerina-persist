@@ -24,7 +24,9 @@ package io.ballerina.stdlib.persist.compiler.codeaction;
 public enum PersistCodeActionName {
 
     REMOVE_UNSUPPORTED_MEMBERS("REMOVE_UNSUPPORTED_MEMBERS"),
-    REMOVE_MODULE_PREFIX("REMOVE_MODULE_PREFIX");
+    REMOVE_MODULE_PREFIX("REMOVE_MODULE_PREFIX"),
+
+    CHANGE_TO_CLOSED_RECORD("CHANGE_TO_CLOSED_RECORD");
 
     private final String name;
 
