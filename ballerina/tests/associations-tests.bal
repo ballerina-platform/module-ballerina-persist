@@ -1,5 +1,4 @@
 import ballerina/test;
-import ballerina/io;
 
 public type EmployeeInfo record {|
     string firstName;
@@ -11,7 +10,8 @@ public type EmployeeInfo record {|
 |};
 
 @test:Config {
-    groups:  ["associations"]
+    groups:  ["associations"],
+    dependsOn: [employeeDeleteTestNegative]
 }
 function employeeReadManyTest3() returns error? {
     RainierClient rainierClient = check new ();
@@ -57,7 +57,20 @@ function employeeReadManyTest3() returns error? {
     EmployeeInfo[] employees = check from EmployeeInfo employee in employeeStream 
         select employee;
 
-    io:println(employees);
+    EmployeeInfo expected = {
+        firstName: "Tom",
+        lastName: "Scott",
+        department: {
+            deptName: "Marketing"
+        },
+        workspace: {
+            workspaceId: "workspace-22",
+            workspaceType: "medium",
+            buildingBuildingCode: "building-22"
+        }
+    };
+
+    test:assertTrue(employees.indexOf(expected) is int, "Expected EmployeeInfo not found.");
     check rainierClient.close();
 }
 
@@ -68,7 +81,8 @@ public type DepartmentInfo record {|
 |};
 
 @test:Config {
-    groups: ["associations"]
+    groups: ["associations"],
+    dependsOn: [employeeDeleteTestNegative]
 }
 function departmentReadManyTest2() returns error? {
     RainierClient rainierClient = check new ();
@@ -124,6 +138,12 @@ function departmentReadManyTest2() returns error? {
     DepartmentInfo[] departments = check from DepartmentInfo department in departmentStream 
         select department;
 
-    io:println(departments);
+    DepartmentInfo expected = {
+        deptNo: "department-12",
+        deptName: "Marketing",
+        employee: [employee11, employee12]
+    };
+
+    test:assertTrue(departments.indexOf(expected) is int, "Expected DepartmentInfo not found.");
     check rainierClient.close();
 }

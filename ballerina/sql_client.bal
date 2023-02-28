@@ -97,6 +97,7 @@ public client class SQLClient {
     #
     # + rowType - The type description of the entity to be retrieved
     # + fields - The fields to be retrieved
+    # + include - The associations to be retrieved
     # + return - A stream of records in the `rowType` type or a `persist:Error` if the operation fails
     public isolated function runReadQuery(typedesc<record {}> rowType, string[] fields = [], string[] include = [])
     returns stream<record {}, sql:Error?>|Error {
