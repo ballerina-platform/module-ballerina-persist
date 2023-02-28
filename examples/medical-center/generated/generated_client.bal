@@ -3,10 +3,9 @@
 // This file is an auto-generated file by Ballerina persistence layer for medical_center.
 // It should not be modified by hand.
 
-import ballerina/persist;
 import ballerina/sql;
-import ballerina/time;
 import ballerinax/mysql;
+import ballerina/persist;
 
 const MEDICAL_ITEM = "medicalitem";
 const MEDICAL_NEED = "medicalneed";
@@ -23,10 +22,10 @@ public client class MedicalCenterClient {
             entityName: "MedicalItem",
             tableName: `MedicalItem`,
             fieldMetadata: {
-                itemId: {columnName: "itemId", 'type: int},
-                name: {columnName: "name", 'type: string},
-                'type: {columnName: "type", 'type: string},
-                unit: {columnName: "unit", 'type: string}
+                itemId: {columnName: "itemId"},
+                name: {columnName: "name"},
+                'type: {columnName: "type"},
+                unit: {columnName: "unit"}
             },
             keyFields: ["itemId"]
         },
@@ -34,11 +33,11 @@ public client class MedicalCenterClient {
             entityName: "MedicalNeed",
             tableName: `MedicalNeed`,
             fieldMetadata: {
-                needId: {columnName: "needId", 'type: int},
-                beneficiaryId: {columnName: "beneficiaryId", 'type: int},
-                period: {columnName: "period", 'type: time:Civil},
-                urgency: {columnName: "urgency", 'type: string},
-                quantity: {columnName: "quantity", 'type: int}
+                needId: {columnName: "needId"},
+                beneficiaryId: {columnName: "beneficiaryId"},
+                period: {columnName: "period"},
+                urgency: {columnName: "urgency"},
+                quantity: {columnName: "quantity"}
             },
             keyFields: ["needId"]
         }
