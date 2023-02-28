@@ -20,11 +20,8 @@ package io.ballerina.stdlib.persist.compiler;
 
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Package;
-import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
-import io.ballerina.projects.environment.Environment;
-import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
@@ -56,17 +53,12 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_422;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_501;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_502;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_503;
+import static io.ballerina.stdlib.persist.compiler.TestUtils.getEnvironmentBuilder;
 
 /**
  * Tests persist compiler plugin.
  */
 public class CompilerPluginTest {
-
-    private static ProjectEnvironmentBuilder getEnvironmentBuilder() {
-        Path distributionPath = Paths.get("../", "target", "ballerina-runtime").toAbsolutePath();
-        Environment environment = EnvironmentBuilder.getBuilder().setBallerinaHome(distributionPath).build();
-        return ProjectEnvironmentBuilder.getBuilder(environment);
-    }
 
     private Package loadPersistModelFile(String name) {
         Path projectDirPath = Paths.get("src", "test", "resources", "test-src", "project_2", "persist").

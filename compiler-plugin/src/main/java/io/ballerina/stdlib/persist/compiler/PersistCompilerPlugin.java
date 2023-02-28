@@ -20,6 +20,11 @@ package io.ballerina.stdlib.persist.compiler;
 
 import io.ballerina.projects.plugins.CompilerPlugin;
 import io.ballerina.projects.plugins.CompilerPluginContext;
+import io.ballerina.projects.plugins.codeaction.CodeAction;
+import io.ballerina.stdlib.persist.compiler.codeaction.RemoveModulePrefix;
+import io.ballerina.stdlib.persist.compiler.codeaction.RemoveUnsupportedMembers;
+
+import java.util.List;
 
 /**
  * Persist compiler plugin.
@@ -29,5 +34,13 @@ public class PersistCompilerPlugin extends CompilerPlugin {
     @Override
     public void init(CompilerPluginContext compilerPluginContext) {
         compilerPluginContext.addCodeAnalyzer(new PersistCodeAnalyzer());
+        getCodeActions().forEach(compilerPluginContext::addCodeAction);
+    }
+
+    private List<CodeAction> getCodeActions() {
+        return List.of(
+                new RemoveUnsupportedMembers(),
+                new RemoveModulePrefix()
+        );
     }
 }
