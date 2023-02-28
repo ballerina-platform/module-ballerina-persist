@@ -21,6 +21,7 @@ package io.ballerina.stdlib.persist.compiler;
 import io.ballerina.projects.plugins.CompilerPlugin;
 import io.ballerina.projects.plugins.CompilerPluginContext;
 import io.ballerina.projects.plugins.codeaction.CodeAction;
+import io.ballerina.stdlib.persist.compiler.codeaction.AddRelationFieldInRelatedEntity;
 import io.ballerina.stdlib.persist.compiler.codeaction.ChangeToClosedRecord;
 import io.ballerina.stdlib.persist.compiler.codeaction.RemoveModulePrefix;
 import io.ballerina.stdlib.persist.compiler.codeaction.RemoveUnsupportedMembers;
@@ -42,7 +43,8 @@ public class PersistCompilerPlugin extends CompilerPlugin {
         return List.of(
                 new RemoveUnsupportedMembers(),
                 new RemoveModulePrefix(),
-                new ChangeToClosedRecord()
+                new ChangeToClosedRecord(),
+                new AddRelationFieldInRelatedEntity()
         );
     }
 }

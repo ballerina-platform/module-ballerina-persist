@@ -46,6 +46,7 @@ import io.ballerina.stdlib.persist.compiler.model.RelationField;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.BNumericProperty;
+import org.wso2.ballerinalang.compiler.diagnostic.properties.BStringProperty;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -435,10 +436,15 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         }
 
         if (referredField == null) {
+            NodeList<Node> fields = referredEntity.getTypeDescriptorNode().fields();
+            Node lastField = fields.get(fields.size() - 1);
+            int addFieldLocation = lastField.location().textRange().endOffset();
             reportDiagnosticsEntity.reportDiagnostic(PERSIST_402.getCode(),
                     MessageFormat.format(PERSIST_402.getMessage(), referredEntity.getEntityName(),
                             processingField.getContainingEntity()), PERSIST_402.getSeverity(),
-                    processingField.getLocation());
+                    processingField.getLocation(), List.of(new BNumericProperty(addFieldLocation),
+                            new BStringProperty(processingField.getContainingEntity()),
+                            new BStringProperty(referredEntity.getEntityName())));
             return;
         }
 

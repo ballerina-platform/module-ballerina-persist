@@ -28,6 +28,7 @@ public final class Constants {
     public static final String START_DELIMITER_TEXT_RANGE = "start.text.range";
     public static final String END_DELIMITER_TEXT_RANGE = "end.text.range";
     public static final String EMPTY_STRING = "";
+    public static final String LS = System.lineSeparator();
 
     private Constants() {
     }

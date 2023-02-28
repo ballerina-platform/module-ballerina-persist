@@ -64,27 +64,37 @@ public class CodeActionTest {
     @DataProvider
     private Object[][] testDataProvider() {
         return new Object[][]{
-                {"valid-persist-model-path.bal", LinePosition.from(2, 1), "Remove unsupported member",
-                        "PERSIST_101", "REMOVE_UNSUPPORTED_MEMBERS",
+                {"valid-persist-model-path.bal", LinePosition.from(2, 1), "valid-persist-model-path.bal",
+                        "Remove unsupported member", "PERSIST_101", "REMOVE_UNSUPPORTED_MEMBERS",
                         Map.of(REMOVE_TEXT_RANGE, TextRange.from(32, 26))},
-                {"usage-of-import-prefix.bal", LinePosition.from(0, 25), "Remove import prefix",
-                        "PERSIST_102", "REMOVE_MODULE_PREFIX",
+                {"usage-of-import-prefix.bal", LinePosition.from(0, 25), "usage-of-import-prefix.bal",
+                        "Remove import prefix", "PERSIST_102", "REMOVE_MODULE_PREFIX",
                         Map.of(REMOVE_TEXT_RANGE, TextRange.from(21, 9))},
-                {"record-properties.bal", LinePosition.from(14, 6), "Change to closed record",
-                        "PERSIST_201", "CHANGE_TO_CLOSED_RECORD",
+                {"record-properties.bal", LinePosition.from(14, 6), "record-properties.bal",
+                        "Change to closed record", "PERSIST_201", "CHANGE_TO_CLOSED_RECORD",
                         Map.of(START_DELIMITER_TEXT_RANGE, TextRange.from(232, 0),
                                 END_DELIMITER_TEXT_RANGE, TextRange.from(338, 0))},
+                {"mandatory-relation-field.bal", LinePosition.from(8, 21), "mandatory-relation-field.bal",
+                        "Add 'Building'-typed field in 'Workspace' entity",
+                        "PERSIST_402", "ADD_RELATION_FIELD_IN_RELATED_ENTITY",
+                        Map.of("code.add.text.range", TextRange.from(284, 0),
+                                "relation.type", "Building")},
+                {"mandatory-relation-field.bal", LinePosition.from(27, 19), "mandatory-relation-field2.bal",
+                        "Add 'Workspace2'-typed field in 'Building1' entity",
+                        "PERSIST_402", "ADD_RELATION_FIELD_IN_RELATED_ENTITY",
+                        Map.of("code.add.text.range", TextRange.from(426, 0),
+                                "relation.type", "Building")},
         };
     }
 
     @Test(dataProvider = "testDataProvider")
-    public void testRemoveCodeSyntax(String fileName, LinePosition cursorPos, String codeActionTitle,
+    public void testRemoveCodeSyntax(String fileName, LinePosition cursorPos, String outputFile, String codeActionTitle,
                                      String expectedDiagnosticCode, String expectedActionName,
                                      Map<String, TextRange> codeActionArgs) throws IOException {
         Path filePath = RESOURCE_PATH.resolve("project_2").resolve("persist")
                 .resolve(fileName);
         Path resultPath = RESOURCE_PATH.resolve("codeaction")
-                .resolve(fileName);
+                .resolve(outputFile);
 
         List<CodeActionArgument> codeActionArguments = codeActionArgs.entrySet().stream()
                 .map((entry) -> CodeActionArgument.from(entry.getKey(), entry.getValue()))
