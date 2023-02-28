@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_101;
+import static io.ballerina.stdlib.persist.compiler.codeaction.PersistCodeActionName.REMOVE_UNSUPPORTED_MEMBERS;
 
 /**
  * Code action for removing unsupported members (PERSIST_101).
@@ -33,7 +34,7 @@ public class RemoveUnsupportedMembers extends AbstractRemoveUnsupportedSyntax {
 
     @Override
     protected String getName() {
-        return PersistCodeActionName.REMOVE_UNSUPPORTED_MEMBERS.getName();
+        return REMOVE_UNSUPPORTED_MEMBERS.getName();
     }
 
     @Override

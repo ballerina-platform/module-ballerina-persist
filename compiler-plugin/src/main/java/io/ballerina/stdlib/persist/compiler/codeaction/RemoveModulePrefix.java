@@ -24,6 +24,7 @@ import io.ballerina.tools.text.TextRange;
 import java.util.List;
 
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_102;
+import static io.ballerina.stdlib.persist.compiler.codeaction.PersistCodeActionName.REMOVE_MODULE_PREFIX;
 
 /**
  * Code action for removing module prefix (PERSIST_102).
@@ -32,7 +33,7 @@ public class RemoveModulePrefix extends AbstractRemoveUnsupportedSyntax {
 
     @Override
     protected String getName() {
-        return PersistCodeActionName.REMOVE_MODULE_PREFIX.getName();
+        return REMOVE_MODULE_PREFIX.getName();
     }
 
     @Override

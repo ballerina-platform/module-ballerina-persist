@@ -39,13 +39,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static io.ballerina.stdlib.persist.compiler.Constants.END_DELIMITER_TEXT_RANGE;
-import static io.ballerina.stdlib.persist.compiler.Constants.START_DELIMITER_TEXT_RANGE;
-
 /**
  * Code action for changing to closed record.
  */
 public class ChangeToClosedRecord implements CodeAction {
+
+    private static final String START_DELIMITER_TEXT_RANGE = "start.text.range";
+    private static final String END_DELIMITER_TEXT_RANGE = "end.text.range";
+
     @Override
     public List<String> supportedDiagnosticCodes() {
         return List.of(DiagnosticsCodes.PERSIST_201.getCode());

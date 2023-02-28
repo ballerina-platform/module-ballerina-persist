@@ -24,9 +24,6 @@ package io.ballerina.stdlib.persist.compiler;
 public final class Constants {
     public static final String PERSIST_DIRECTORY = "persist";
     public static final String TIME_MODULE = "time";
-    public static final String REMOVE_TEXT_RANGE = "remove.text.range";
-    public static final String START_DELIMITER_TEXT_RANGE = "start.text.range";
-    public static final String END_DELIMITER_TEXT_RANGE = "end.text.range";
     public static final String EMPTY_STRING = "";
     public static final String LS = System.lineSeparator();
 

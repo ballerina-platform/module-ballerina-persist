@@ -47,9 +47,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static io.ballerina.stdlib.persist.compiler.Constants.END_DELIMITER_TEXT_RANGE;
-import static io.ballerina.stdlib.persist.compiler.Constants.REMOVE_TEXT_RANGE;
-import static io.ballerina.stdlib.persist.compiler.Constants.START_DELIMITER_TEXT_RANGE;
 import static io.ballerina.stdlib.persist.compiler.TestUtils.getEnvironmentBuilder;
 
 /**
@@ -60,20 +57,19 @@ public class CodeActionTest {
     protected static final Path RESOURCE_PATH = Paths.get("src", "test", "resources", "test-src");
     private static final Gson GSON = new Gson();
 
-
     @DataProvider
     private Object[][] testDataProvider() {
         return new Object[][]{
                 {"valid-persist-model-path.bal", LinePosition.from(2, 1), "valid-persist-model-path.bal",
                         "Remove unsupported member", "PERSIST_101", "REMOVE_UNSUPPORTED_MEMBERS",
-                        Map.of(REMOVE_TEXT_RANGE, TextRange.from(32, 26))},
+                        Map.of("remove.text.range", TextRange.from(32, 26))},
                 {"usage-of-import-prefix.bal", LinePosition.from(0, 25), "usage-of-import-prefix.bal",
                         "Remove import prefix", "PERSIST_102", "REMOVE_MODULE_PREFIX",
-                        Map.of(REMOVE_TEXT_RANGE, TextRange.from(21, 9))},
+                        Map.of("remove.text.range", TextRange.from(21, 9))},
                 {"record-properties.bal", LinePosition.from(14, 6), "record-properties.bal",
                         "Change to closed record", "PERSIST_201", "CHANGE_TO_CLOSED_RECORD",
-                        Map.of(START_DELIMITER_TEXT_RANGE, TextRange.from(232, 0),
-                                END_DELIMITER_TEXT_RANGE, TextRange.from(338, 0))},
+                        Map.of("start.text.range", TextRange.from(232, 0),
+                                "end.text.range", TextRange.from(338, 0))},
                 {"mandatory-relation-field.bal", LinePosition.from(8, 21), "mandatory-relation-field.bal",
                         "Add 'Building'-typed field in 'Workspace' entity",
                         "PERSIST_402", "ADD_RELATION_FIELD_IN_RELATED_ENTITY",

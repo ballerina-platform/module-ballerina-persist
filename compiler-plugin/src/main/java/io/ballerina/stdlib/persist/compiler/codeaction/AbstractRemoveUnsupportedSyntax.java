@@ -38,12 +38,13 @@ import java.util.List;
 import java.util.Optional;
 
 import static io.ballerina.stdlib.persist.compiler.Constants.EMPTY_STRING;
-import static io.ballerina.stdlib.persist.compiler.Constants.REMOVE_TEXT_RANGE;
 
 /**
  * Remove unsupported syntax code action.
  */
 public abstract class AbstractRemoveUnsupportedSyntax implements CodeAction {
+
+    private static final String REMOVE_TEXT_RANGE = "remove.text.range";
 
     @Override
     public List<String> supportedDiagnosticCodes() {
