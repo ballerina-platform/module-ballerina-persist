@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static io.ballerina.stdlib.persist.compiler.Constants.EMPTY_STRING;
+import static io.ballerina.stdlib.persist.compiler.Utils.getTextRangeArgument;
 
 /**
  * Remove unsupported syntax code action.
@@ -54,18 +55,13 @@ public abstract class AbstractRemoveUnsupportedSyntax implements CodeAction {
     @Override
     public Optional<CodeActionInfo> codeActionInfo(CodeActionContext codeActionContext) {
         Diagnostic diagnostic = codeActionContext.diagnostic();
-        CodeActionArgument syntaxLocation = CodeActionArgument.from(REMOVE_TEXT_RANGE, getNodeLocation(diagnostic));
-        return Optional.of(CodeActionInfo.from(getTitle(), List.of(syntaxLocation)));
+        CodeActionArgument syntaxLocationArg = CodeActionArgument.from(REMOVE_TEXT_RANGE, getNodeLocation(diagnostic));
+        return Optional.of(CodeActionInfo.from(getTitle(), List.of(syntaxLocationArg)));
     }
 
     @Override
     public List<DocumentEdit> execute(CodeActionExecutionContext context) {
-        TextRange textRange = null;
-        for (CodeActionArgument arg : context.arguments()) {
-            if (REMOVE_TEXT_RANGE.equals(arg.key())) {
-                textRange = arg.valueAs(TextRange.class);
-            }
-        }
+        TextRange textRange = getTextRangeArgument(context, REMOVE_TEXT_RANGE);
         if (textRange == null) {
             return Collections.emptyList();
         }

@@ -25,13 +25,11 @@ import io.ballerina.projects.plugins.codeaction.CodeActionContext;
 import io.ballerina.projects.plugins.codeaction.CodeActionExecutionContext;
 import io.ballerina.projects.plugins.codeaction.CodeActionInfo;
 import io.ballerina.projects.plugins.codeaction.DocumentEdit;
-import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocumentChange;
 import io.ballerina.tools.text.TextEdit;
 import io.ballerina.tools.text.TextRange;
-import org.wso2.ballerinalang.compiler.diagnostic.properties.BNumericProperty;
-import org.wso2.ballerinalang.compiler.diagnostic.properties.BStringProperty;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -42,6 +40,10 @@ import java.util.Optional;
 
 import static io.ballerina.stdlib.persist.compiler.Constants.LS;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_402;
+import static io.ballerina.stdlib.persist.compiler.Utils.getNumericDiagnosticProperty;
+import static io.ballerina.stdlib.persist.compiler.Utils.getStringArgument;
+import static io.ballerina.stdlib.persist.compiler.Utils.getStringDiagnosticProperty;
+import static io.ballerina.stdlib.persist.compiler.Utils.getTextRangeArgument;
 import static io.ballerina.stdlib.persist.compiler.codeaction.PersistCodeActionName.ADD_RELATION_FIELD_IN_RELATED_ENTITY;
 
 /**
@@ -59,12 +61,11 @@ public class AddRelationFieldInRelatedEntity implements CodeAction {
 
     @Override
     public Optional<CodeActionInfo> codeActionInfo(CodeActionContext codeActionContext) {
-        Diagnostic diagnostic = codeActionContext.diagnostic();
+        List<DiagnosticProperty<?>> properties = codeActionContext.diagnostic().properties();
 
-        TextRange lineAddLocation = TextRange.from(
-                ((BNumericProperty) diagnostic.properties().get(0)).value().intValue(), 0);
-        String relationFieldType = ((BStringProperty) diagnostic.properties().get(1)).value();
-        String relatedEntity = ((BStringProperty) diagnostic.properties().get(2)).value();
+        TextRange lineAddLocation = TextRange.from(getNumericDiagnosticProperty(properties, 0), 0);
+        String relationFieldType = getStringDiagnosticProperty(properties, 1);
+        String relatedEntity = getStringDiagnosticProperty(properties, 2);
 
         CodeActionArgument lineAddLocationArg = CodeActionArgument.from(CODE_ADD_TEXT_RANGE, lineAddLocation);
         CodeActionArgument relationFieldTypeArg = CodeActionArgument.from(RELATION_TYPE, relationFieldType);
@@ -75,23 +76,9 @@ public class AddRelationFieldInRelatedEntity implements CodeAction {
 
     @Override
     public List<DocumentEdit> execute(CodeActionExecutionContext context) {
-        TextRange startFrom = null;
-        for (CodeActionArgument arg : context.arguments()) {
-            if (CODE_ADD_TEXT_RANGE.equals(arg.key())) {
-                startFrom = arg.valueAs(TextRange.class);
-            }
-        }
-        if (startFrom == null) {
-            return Collections.emptyList();
-        }
-
-        String relatedTypeName = null;
-        for (CodeActionArgument arg : context.arguments()) {
-            if (RELATION_TYPE.equals(arg.key())) {
-                relatedTypeName = arg.valueAs(String.class);
-            }
-        }
-        if (relatedTypeName == null) {
+        TextRange startFrom = getTextRangeArgument(context, CODE_ADD_TEXT_RANGE);
+        String relatedTypeName = getStringArgument(context, RELATION_TYPE);
+        if (startFrom == null || relatedTypeName == null) {
             return Collections.emptyList();
         }
 

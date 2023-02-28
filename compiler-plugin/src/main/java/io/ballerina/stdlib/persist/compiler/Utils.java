@@ -20,8 +20,16 @@ package io.ballerina.stdlib.persist.compiler;
 
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
+import io.ballerina.projects.plugins.codeaction.CodeActionArgument;
+import io.ballerina.projects.plugins.codeaction.CodeActionExecutionContext;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.text.TextRange;
+import org.wso2.ballerinalang.compiler.diagnostic.properties.BNumericProperty;
+import org.wso2.ballerinalang.compiler.diagnostic.properties.BStringProperty;
+
+import java.util.List;
 
 /**
  * Class containing util functions.
@@ -99,4 +107,31 @@ public final class Utils {
         }
         return typeName;
     }
+
+    public static String getStringArgument(CodeActionExecutionContext context, String key) {
+        for (CodeActionArgument arg : context.arguments()) {
+            if (key.equals(arg.key())) {
+                return arg.valueAs(String.class);
+            }
+        }
+        return null;
+    }
+
+    public static TextRange getTextRangeArgument(CodeActionExecutionContext context, String key) {
+        for (CodeActionArgument arg : context.arguments()) {
+            if (key.equals(arg.key())) {
+                return arg.valueAs(TextRange.class);
+            }
+        }
+        return null;
+    }
+
+    public static String getStringDiagnosticProperty(List<DiagnosticProperty<?>> diagnosticProperties, int index) {
+        return ((BStringProperty) diagnosticProperties.get(index)).value();
+    }
+
+    public static int getNumericDiagnosticProperty(List<DiagnosticProperty<?>> diagnosticProperties, int index) {
+        return ((BNumericProperty) diagnosticProperties.get(index)).value().intValue();
+    }
+
 }
