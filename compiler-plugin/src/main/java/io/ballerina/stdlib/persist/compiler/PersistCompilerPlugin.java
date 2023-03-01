@@ -23,6 +23,7 @@ import io.ballerina.projects.plugins.CompilerPluginContext;
 import io.ballerina.projects.plugins.codeaction.CodeAction;
 import io.ballerina.stdlib.persist.compiler.codeaction.AddRelationFieldInRelatedEntity;
 import io.ballerina.stdlib.persist.compiler.codeaction.ChangeToClosedRecord;
+import io.ballerina.stdlib.persist.compiler.codeaction.ChangeToNonIdentityField;
 import io.ballerina.stdlib.persist.compiler.codeaction.ChangeTypeToBoolean;
 import io.ballerina.stdlib.persist.compiler.codeaction.ChangeTypeToByteArray;
 import io.ballerina.stdlib.persist.compiler.codeaction.ChangeTypeToDecimal;
@@ -51,6 +52,7 @@ public class PersistCompilerPlugin extends CompilerPlugin {
                 new RemoveUnsupportedMembers(),
                 new RemoveModulePrefix(),
                 new RemoveNilType(),
+                new ChangeToNonIdentityField(),
                 new ChangeToClosedRecord(),
                 new AddRelationFieldInRelatedEntity(),
                 new ChangeTypeToInt(),

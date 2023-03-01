@@ -198,6 +198,7 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         for (Node fieldNode : fields) {
             IdentityField identityField = null;
             boolean isIdentityField = false;
+            int readonlyTextRangeStartOffset = 0;
             RecordFieldNode recordFieldNode;
             String fieldName;
             if (fieldNode instanceof RecordFieldNode) {
@@ -205,6 +206,7 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                 fieldName = stripEscapeCharacter(recordFieldNode.fieldName().text().trim());
                 if (recordFieldNode.readonlyKeyword().isPresent()) {
                     isIdentityField = true;
+                    readonlyTextRangeStartOffset = recordFieldNode.readonlyKeyword().get().textRange().startOffset();
                     identityField = new IdentityField(fieldName);
                 }
             } else if (fieldNode instanceof RecordFieldWithDefaultValueNode) {
@@ -311,6 +313,7 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                 identityField.setValidType(isValidType);
                 identityField.setNullable(isOptionalType);
                 identityField.setNullableStartOffset(nullableStartOffset);
+                identityField.setReadonlyTextRangeStartOffset(readonlyTextRangeStartOffset);
                 identityField.setTypeLocation(typeNode.location());
                 entity.addIdentityField(identityField);
             }
@@ -377,7 +380,8 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             String type = identityField.getType();
             if (!getSupportedIdentityFields().contains(type)) {
                 entity.reportDiagnostic(PERSIST_503.getCode(), MessageFormat.format(PERSIST_503.getMessage(),
-                        type), PERSIST_503.getSeverity(), identityField.getTypeLocation());
+                        type), PERSIST_503.getSeverity(), identityField.getTypeLocation(),
+                        List.of(new BNumericProperty(identityField.getReadonlyTextRangeStartOffset())));
                 continue;
             }
             if (identityField.isNullable()) {
