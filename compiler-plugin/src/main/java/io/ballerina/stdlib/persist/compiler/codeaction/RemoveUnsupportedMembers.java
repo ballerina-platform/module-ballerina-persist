@@ -21,10 +21,13 @@ package io.ballerina.stdlib.persist.compiler.codeaction;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.TextRange;
 
-import java.util.Collections;
 import java.util.List;
 
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_101;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_301;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_303;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_401;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_403;
 import static io.ballerina.stdlib.persist.compiler.codeaction.PersistCodeActionName.REMOVE_UNSUPPORTED_MEMBERS;
 
 /**
@@ -39,12 +42,29 @@ public class RemoveUnsupportedMembers extends AbstractRemoveUnsupportedSyntax {
 
     @Override
     protected List<String> getSupportedDiagnosticCodes() {
-        return Collections.singletonList(PERSIST_101.getCode());
+        return List.of(
+                PERSIST_101.getCode(),
+                PERSIST_301.getCode(),
+                PERSIST_303.getCode(),
+                PERSIST_401.getCode(),
+                PERSIST_403.getCode()
+        );
     }
 
     @Override
     protected String getTitle(Diagnostic diagnostic) {
-        return "Remove unsupported member";
+        String code = diagnostic.diagnosticInfo().code();
+        if (code.equals(PERSIST_101.getCode())) {
+            return "Remove unsupported member";
+        } else if (code.equals(PERSIST_301.getCode())) {
+            return "Remove rest descriptor field";
+        } else if (code.equals(PERSIST_303.getCode())) {
+            return "Remove inherited field";
+        } else if (code.equals(PERSIST_401.getCode())) {
+            return "Remove self-referenced field";
+        } else {
+            return "Remove duplicate relation field";
+        }
     }
 
     @Override
