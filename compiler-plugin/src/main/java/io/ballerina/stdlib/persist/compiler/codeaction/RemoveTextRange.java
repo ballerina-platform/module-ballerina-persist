@@ -24,6 +24,7 @@ import io.ballerina.tools.text.TextRange;
 import java.util.List;
 
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_102;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_302;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_503;
 import static io.ballerina.stdlib.persist.compiler.Utils.getNumericDiagnosticProperty;
 import static io.ballerina.stdlib.persist.compiler.codeaction.PersistCodeActionName.REMOVE_TEXT_RANGE;
@@ -41,6 +42,7 @@ public class RemoveTextRange extends AbstractRemoveUnsupportedSyntax {
     protected List<String> getSupportedDiagnosticCodes() {
         return List.of(
                 PERSIST_102.getCode(),
+                PERSIST_302.getCode(),
                 PERSIST_503.getCode()
         );
     }
@@ -50,6 +52,8 @@ public class RemoveTextRange extends AbstractRemoveUnsupportedSyntax {
         String code = diagnostic.diagnosticInfo().code();
         if (code.equals(PERSIST_102.getCode())) {
             return "Remove import prefix";
+        } else if (code.equals(PERSIST_302.getCode())) {
+            return "Remove default value";
         } else {
             return "Change to non-identity field";
         }

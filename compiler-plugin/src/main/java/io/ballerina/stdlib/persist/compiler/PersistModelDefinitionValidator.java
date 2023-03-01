@@ -213,8 +213,11 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                     identityField = new IdentityField(fieldName);
                 }
             } else if (fieldNode instanceof RecordFieldWithDefaultValueNode) {
+                RecordFieldWithDefaultValueNode defaultField = (RecordFieldWithDefaultValueNode) fieldNode;
+                int startOffset = defaultField.fieldName().textRange().endOffset();
+                int length = defaultField.semicolonToken().textRange().startOffset() - startOffset;
                 entity.reportDiagnostic(PERSIST_302.getCode(), PERSIST_302.getMessage(), PERSIST_302.getSeverity(),
-                        fieldNode.location());
+                        fieldNode.location(), List.of(new BNumericProperty(startOffset), new BNumericProperty(length)));
                 continue;
             } else {
                 // Inherited Field

@@ -76,6 +76,8 @@ public class CodeActionTest {
                         "PERSIST_301", "REMOVE_DIAGNOSTIC_LOCATION", "Remove rest descriptor field"},
                 {"field-properties.bal", LinePosition.from(12, 13), "field-properties-inherited-field.bal",
                         "PERSIST_303", "REMOVE_DIAGNOSTIC_LOCATION", "Remove inherited field"},
+                {"field-properties.bal", LinePosition.from(4, 21), "field-properties-default-value.bal",
+                        "PERSIST_302", "REMOVE_TEXT_RANGE", "Remove default value"},
 
                 {"record-properties.bal", LinePosition.from(14, 6), "record-properties.bal",
                         "PERSIST_201", "CHANGE_TO_CLOSED_RECORD", "Change to closed record"},
