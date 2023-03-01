@@ -23,6 +23,12 @@ import io.ballerina.projects.plugins.CompilerPluginContext;
 import io.ballerina.projects.plugins.codeaction.CodeAction;
 import io.ballerina.stdlib.persist.compiler.codeaction.AddRelationFieldInRelatedEntity;
 import io.ballerina.stdlib.persist.compiler.codeaction.ChangeToClosedRecord;
+import io.ballerina.stdlib.persist.compiler.codeaction.ChangeTypeToBoolean;
+import io.ballerina.stdlib.persist.compiler.codeaction.ChangeTypeToByteArray;
+import io.ballerina.stdlib.persist.compiler.codeaction.ChangeTypeToDecimal;
+import io.ballerina.stdlib.persist.compiler.codeaction.ChangeTypeToFloat;
+import io.ballerina.stdlib.persist.compiler.codeaction.ChangeTypeToInt;
+import io.ballerina.stdlib.persist.compiler.codeaction.ChangeTypeToString;
 import io.ballerina.stdlib.persist.compiler.codeaction.RemoveModulePrefix;
 import io.ballerina.stdlib.persist.compiler.codeaction.RemoveUnsupportedMembers;
 
@@ -44,7 +50,13 @@ public class PersistCompilerPlugin extends CompilerPlugin {
                 new RemoveUnsupportedMembers(),
                 new RemoveModulePrefix(),
                 new ChangeToClosedRecord(),
-                new AddRelationFieldInRelatedEntity()
+                new AddRelationFieldInRelatedEntity(),
+                new ChangeTypeToInt(),
+                new ChangeTypeToString(),
+                new ChangeTypeToBoolean(),
+                new ChangeTypeToFloat(),
+                new ChangeTypeToDecimal(),
+                new ChangeTypeToByteArray()
         );
     }
 }

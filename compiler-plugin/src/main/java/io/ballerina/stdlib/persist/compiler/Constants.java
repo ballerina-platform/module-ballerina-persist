@@ -25,6 +25,7 @@ public final class Constants {
     public static final String PERSIST_DIRECTORY = "persist";
     public static final String TIME_MODULE = "time";
     public static final String EMPTY_STRING = "";
+    public static final String ARRAY = "[]";
     public static final String LS = System.lineSeparator();
 
     private Constants() {
