@@ -236,8 +236,11 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
 
             // Check if optional field
             if (recordFieldNode.questionMarkToken().isPresent()) {
+                int startOffset = recordFieldNode.questionMarkToken().get().textRange().startOffset();
+                int length = recordFieldNode.semicolonToken().textRange().startOffset() - startOffset;
                 entity.reportDiagnostic(PERSIST_304.getCode(), PERSIST_304.getMessage(), PERSIST_304.getSeverity(),
-                        recordFieldNode.location());
+                        recordFieldNode.location(),
+                        List.of(new BNumericProperty(startOffset), new BNumericProperty(length)));
             }
 
             Node typeNode = recordFieldNode.typeName();
