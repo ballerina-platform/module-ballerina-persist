@@ -399,7 +399,7 @@ public class CompilerPluginTest {
                 }
         );
     }
-    
+
     @Test
     public void validateEntityNamesCaseSensitivity() {
         List<Diagnostic> diagnostics = getErrorDiagnostics("case-sensitive-entities.bal", 2);

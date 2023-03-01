@@ -63,7 +63,7 @@ public class RemoveTextRange extends AbstractRemoveUnsupportedSyntax {
         } else if (code.equals(PERSIST_302.getCode())) {
             return "Remove default value";
         } else if (code.equals(PERSIST_304.getCode())) {
-                return "Make field mandatory";
+            return "Make field mandatory";
         } else if (code.equals(PERSIST_503.getCode())) {
             return "Change to non-identity field";
         } else {
