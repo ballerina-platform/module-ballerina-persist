@@ -71,7 +71,7 @@ public class AddRelationFieldInRelatedEntity implements CodeAction {
         CodeActionArgument relationFieldTypeArg = CodeActionArgument.from(RELATION_TYPE, relationFieldType);
 
         return Optional.of(CodeActionInfo.from(MessageFormat.format("Add ''{0}''-typed field in ''{1}'' entity",
-                        relationFieldType, relatedEntity), List.of(lineAddLocationArg, relationFieldTypeArg)));
+                relationFieldType, relatedEntity), List.of(lineAddLocationArg, relationFieldTypeArg)));
     }
 
     @Override

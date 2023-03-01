@@ -31,7 +31,6 @@ import io.ballerina.tools.text.TextDocumentChange;
 import io.ballerina.tools.text.TextEdit;
 import io.ballerina.tools.text.TextRange;
 
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -73,7 +72,6 @@ public abstract class AbstractRemoveUnsupportedSyntax implements CodeAction {
         TextDocumentChange change = TextDocumentChange.from(textEdits.toArray(new TextEdit[0]));
         TextDocument modifiedTextDocument = syntaxTree.textDocument().apply(change);
         return Collections.singletonList(new DocumentEdit(context.fileUri(), SyntaxTree.from(modifiedTextDocument)));
-
     }
 
     @Override
@@ -87,6 +85,6 @@ public abstract class AbstractRemoveUnsupportedSyntax implements CodeAction {
 
     protected abstract String getTitle(Diagnostic diagnostic);
 
-    protected abstract TextRange getNodeLocation (Diagnostic diagnostic);
+    protected abstract TextRange getNodeLocation(Diagnostic diagnostic);
 
 }

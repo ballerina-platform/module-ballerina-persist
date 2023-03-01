@@ -131,9 +131,9 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                     String entityName = stripEscapeCharacter(typeDefinitionNode.typeName().text().trim());
                     if (entityNames.contains(entityName.toLowerCase(Locale.ROOT))) {
                         ctx.reportDiagnostic(DiagnosticFactory.createDiagnostic(
-                            new DiagnosticInfo(PERSIST_202.getCode(),
-                                    MessageFormat.format(PERSIST_202.getMessage(), entityName),
-                                    PERSIST_202.getSeverity()), typeDefinitionNode.typeName().location())
+                                new DiagnosticInfo(PERSIST_202.getCode(),
+                                        MessageFormat.format(PERSIST_202.getMessage(), entityName),
+                                        PERSIST_202.getSeverity()), typeDefinitionNode.typeName().location())
                         );
                     } else {
                         foundEntities.add(typeDefinitionNode);
@@ -297,7 +297,7 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                     entity.setContainsRelations(true);
                     entity.addRelationField(new RelationField(typeName, isArrayType, recordFieldNode.location(),
                             entity.getEntityName()));
-                // Revisit once https://github.com/ballerina-platform/ballerina-lang/issues/39441 is resolved
+                    // Revisit once https://github.com/ballerina-platform/ballerina-lang/issues/39441 is resolved
                 } else {
                     isValidType = validateSimpleTypes(entity, typeNode, typeNamePostfix, isArrayType, typeName);
                 }
@@ -321,7 +321,7 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
     }
 
     private boolean validateSimpleTypes(Entity entity, Node typeNode, String typeNamePostfix,
-                                     boolean isArrayType, String type) {
+                                        boolean isArrayType, String type) {
         if (isValidSimpleType(type)) {
             if (isArrayType) {
                 entity.reportDiagnostic(PERSIST_306.getCode(),
@@ -380,13 +380,13 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             String type = identityField.getType();
             if (!getSupportedIdentityFields().contains(type)) {
                 entity.reportDiagnostic(PERSIST_503.getCode(), MessageFormat.format(PERSIST_503.getMessage(),
-                        type), PERSIST_503.getSeverity(), identityField.getTypeLocation(),
+                                type), PERSIST_503.getSeverity(), identityField.getTypeLocation(),
                         List.of(new BNumericProperty(identityField.getReadonlyTextRangeStartOffset())));
                 continue;
             }
             if (identityField.isNullable()) {
                 entity.reportDiagnostic(PERSIST_502.getCode(), MessageFormat.format(PERSIST_502.getMessage(),
-                        entity.getEntityName()), PERSIST_502.getSeverity(), identityField.getTypeLocation(),
+                                entity.getEntityName()), PERSIST_502.getSeverity(), identityField.getTypeLocation(),
                         List.of(new BNumericProperty(identityField.getNullableStartOffset()),
                                 new BStringProperty(type)));
             }
