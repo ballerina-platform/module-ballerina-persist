@@ -72,19 +72,19 @@ public class CodeActionTest {
                         "Add 'Workspace2'-typed field in 'Building1' entity"},
 
                 {"field-types.bal", LinePosition.from(15, 6), "field-types-boolean.bal",
-                        "PERSIST_305", "CHANGE_TYPE_TO_BOOLEAN", "Change type to boolean"},
+                        "PERSIST_305", "CHANGE_TYPE_TO_BOOLEAN", "Change to 'boolean' type"},
                 {"field-types.bal", LinePosition.from(15, 6), "field-types-byte[].bal",
-                        "PERSIST_305", "CHANGE_TYPE_TO_BYTE_ARRAY", "Change type to byte[]"},
+                        "PERSIST_305", "CHANGE_TYPE_TO_BYTE_ARRAY", "Change to 'byte[]' type"},
                 {"field-types.bal", LinePosition.from(15, 6), "field-types-decimal.bal",
-                        "PERSIST_305", "CHANGE_TYPE_TO_DECIMAL", "Change type to decimal"},
+                        "PERSIST_305", "CHANGE_TYPE_TO_DECIMAL", "Change to 'decimal' type"},
                 {"field-types.bal", LinePosition.from(15, 6), "field-types-float.bal",
-                        "PERSIST_305", "CHANGE_TYPE_TO_FLOAT", "Change type to float"},
+                        "PERSIST_305", "CHANGE_TYPE_TO_FLOAT", "Change to 'float' type"},
                 {"field-types.bal", LinePosition.from(15, 6), "field-types-int.bal",
-                        "PERSIST_305", "CHANGE_TYPE_TO_INT", "Change type to int"},
+                        "PERSIST_305", "CHANGE_TYPE_TO_INT", "Change to 'int' type"},
                 {"field-types.bal", LinePosition.from(15, 6), "field-types-string.bal",
-                        "PERSIST_305", "CHANGE_TYPE_TO_STRING", "Change type to string"},
+                        "PERSIST_305", "CHANGE_TYPE_TO_STRING", "Change to 'string' type"},
                 {"identifier-field-properties.bal", LinePosition.from(16, 15), "identifier-field-properties.bal",
-                        "PERSIST_503", "CHANGE_TYPE_TO_STRING", "Change type to string"},
+                        "PERSIST_503", "CHANGE_TYPE_TO_STRING", "Change to 'string' type"},
         };
     }
 

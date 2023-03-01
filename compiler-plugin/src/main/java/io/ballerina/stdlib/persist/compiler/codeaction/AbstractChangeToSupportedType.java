@@ -30,6 +30,7 @@ import io.ballerina.tools.text.TextDocumentChange;
 import io.ballerina.tools.text.TextEdit;
 import io.ballerina.tools.text.TextRange;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -52,7 +53,7 @@ public abstract class AbstractChangeToSupportedType implements CodeAction {
     @Override
     public Optional<CodeActionInfo> codeActionInfo(CodeActionContext codeActionContext) {
         String type = getType();
-        String title = "Change type to " + type;
+        String title = MessageFormat.format("Change to ''{0}'' type", type);
         CodeActionArgument syntaxLocationArg = CodeActionArgument.from(TYPE_CHANGE_TEXT_RANGE,
                 codeActionContext.diagnostic().location().textRange());
         return Optional.of(CodeActionInfo.from(title, List.of(syntaxLocationArg)));
