@@ -67,6 +67,10 @@ public class CodeActionTest {
                 {"identifier-field-properties.bal", LinePosition.from(16, 16),
                         "identifier-field-properties-rm-readonly.bal",
                         "PERSIST_503", "CHANGE_TO_NON_IDENTITY_FIELD", "Change to non-identity field"},
+                {"self-referenced-entity.bal", LinePosition.from(8, 10), "self-referenced-entity.bal",
+                        "PERSIST_401", "REMOVE_UNSUPPORTED_FIELD", "Remove self-referenced field"},
+                {"duplicated-relations-field.bal", LinePosition.from(9, 11), "duplicated-relations-field.bal",
+                        "PERSIST_403", "REMOVE_UNSUPPORTED_FIELD", "Remove duplicate relation field"},
 
                 {"record-properties.bal", LinePosition.from(14, 6), "record-properties.bal",
                         "PERSIST_201", "CHANGE_TO_CLOSED_RECORD", "Change to closed record"},
