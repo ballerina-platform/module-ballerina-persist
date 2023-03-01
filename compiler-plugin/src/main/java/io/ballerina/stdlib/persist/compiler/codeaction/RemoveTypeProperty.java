@@ -24,6 +24,7 @@ import io.ballerina.tools.text.TextRange;
 import java.text.MessageFormat;
 import java.util.List;
 
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_306;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_502;
 import static io.ballerina.stdlib.persist.compiler.Utils.getNumericDiagnosticProperty;
 import static io.ballerina.stdlib.persist.compiler.Utils.getStringDiagnosticProperty;
@@ -40,7 +41,10 @@ public class RemoveTypeProperty extends AbstractRemoveUnsupportedSyntax {
 
     @Override
     protected List<String> getSupportedDiagnosticCodes() {
-        return List.of(PERSIST_502.getCode());
+        return List.of(
+                PERSIST_306.getCode(),
+                PERSIST_502.getCode()
+        );
     }
 
     @Override

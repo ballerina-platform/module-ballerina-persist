@@ -45,6 +45,7 @@ import io.ballerina.stdlib.persist.compiler.model.IdentityField;
 import io.ballerina.stdlib.persist.compiler.model.RelationField;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.BNumericProperty;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.BStringProperty;
 
@@ -247,6 +248,8 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             Node processedTypeNode = typeNode;
             String typeNamePostfix = "";
             boolean isArrayType = false;
+            int arrayStartOffset = 0;
+            int arrayLength = 0;
             boolean isOptionalType = false;
             boolean isValidType = false;
             int nullableStartOffset = 0;
@@ -260,6 +263,9 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             if (processedTypeNode instanceof ArrayTypeDescriptorNode) {
                 isArrayType = true;
                 ArrayTypeDescriptorNode arrayTypeDescriptorNode = ((ArrayTypeDescriptorNode) processedTypeNode);
+                arrayStartOffset = arrayTypeDescriptorNode.dimensions().get(0).openBracket().textRange().startOffset();
+                arrayLength = arrayTypeDescriptorNode.dimensions().get(0).closeBracket().textRange().endOffset() -
+                        arrayStartOffset;
                 processedTypeNode = arrayTypeDescriptorNode.memberTypeDesc();
                 typeNamePostfix = SyntaxKind.OPEN_BRACKET_TOKEN.stringValue() +
                         SyntaxKind.CLOSE_BRACKET_TOKEN.stringValue();
@@ -268,7 +274,11 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             if (processedTypeNode instanceof BuiltinSimpleNameReferenceNode) {
                 String type = ((BuiltinSimpleNameReferenceNode) processedTypeNode).name().text();
                 identityFieldType = type;
-                isValidType = validateSimpleTypes(entity, typeNode, typeNamePostfix, isArrayType, type);
+                List<DiagnosticProperty<?>> properties = List.of(
+                        new BNumericProperty(arrayStartOffset),
+                        new BNumericProperty(arrayLength),
+                        new BStringProperty(isOptionalType ? type + "?" : type));
+                isValidType = validateSimpleTypes(entity, typeNode, typeNamePostfix, isArrayType, properties, type);
                 entity.addNonRelationField(stripEscapeCharacter(recordFieldNode.fieldName().text().trim()),
                         recordFieldNode.location());
             } else if (processedTypeNode instanceof QualifiedNameReferenceNode) {
@@ -279,9 +289,14 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                 identityFieldType = modulePrefix + ":" + identifier;
                 if (isValidImportedType(modulePrefix, identifier)) {
                     if (isArrayType) {
+                        String codeActionType = isOptionalType
+                                ? modulePrefix + ":" + identifier + "?"
+                                : modulePrefix + ":" + identifier;
                         entity.reportDiagnostic(PERSIST_306.getCode(),
                                 MessageFormat.format(PERSIST_306.getMessage(), modulePrefix + ":" + identifier),
-                                PERSIST_306.getSeverity(), typeNode.location());
+                                PERSIST_306.getSeverity(), typeNode.location(),
+                                List.of(new BNumericProperty(arrayStartOffset), new BNumericProperty(arrayLength),
+                                        new BStringProperty(codeActionType)));
                     } else {
                         isValidType = true;
                     }
@@ -308,7 +323,12 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                             entity.getEntityName()));
                     // Revisit once https://github.com/ballerina-platform/ballerina-lang/issues/39441 is resolved
                 } else {
-                    isValidType = validateSimpleTypes(entity, typeNode, typeNamePostfix, isArrayType, typeName);
+                    List<DiagnosticProperty<?>> properties = List.of(
+                            new BNumericProperty(arrayStartOffset),
+                            new BNumericProperty(arrayLength),
+                            new BStringProperty(isOptionalType ? typeName + "?" : typeName));
+                    isValidType = validateSimpleTypes(entity, typeNode, typeNamePostfix, isArrayType, properties,
+                            typeName);
                 }
             } else {
                 String typeName = Utils.getTypeName(processedTypeNode);
@@ -330,12 +350,12 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
     }
 
     private boolean validateSimpleTypes(Entity entity, Node typeNode, String typeNamePostfix,
-                                        boolean isArrayType, String type) {
+                                        boolean isArrayType, List<DiagnosticProperty<?>> properties, String type) {
         if (isValidSimpleType(type)) {
             if (isArrayType) {
                 entity.reportDiagnostic(PERSIST_306.getCode(),
                         MessageFormat.format(PERSIST_306.getMessage(), type),
-                        PERSIST_306.getSeverity(), typeNode.location());
+                        PERSIST_306.getSeverity(), typeNode.location(), properties);
                 return false;
             }
         } else if (!(type.equals(BYTE) && isArrayType)) {
