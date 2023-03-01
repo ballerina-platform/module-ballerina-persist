@@ -21,34 +21,37 @@ package io.ballerina.stdlib.persist.compiler.codeaction;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.TextRange;
 
-import java.util.Collections;
+import java.text.MessageFormat;
 import java.util.List;
 
-import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_101;
-import static io.ballerina.stdlib.persist.compiler.codeaction.PersistCodeActionName.REMOVE_UNSUPPORTED_MEMBERS;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_502;
+import static io.ballerina.stdlib.persist.compiler.Utils.getNumericDiagnosticProperty;
+import static io.ballerina.stdlib.persist.compiler.Utils.getStringDiagnosticProperty;
+import static io.ballerina.stdlib.persist.compiler.codeaction.PersistCodeActionName.REMOVE_NIL_TYPE;
 
 /**
- * Code action for removing unsupported members (PERSIST_101).
+ * Code action for removing nil type (PERSIST_502).
  */
-public class RemoveUnsupportedMembers extends AbstractRemoveUnsupportedSyntax {
-
+public class RemoveNilType extends AbstractRemoveUnsupportedSyntax {
     @Override
     protected String getName() {
-        return REMOVE_UNSUPPORTED_MEMBERS.getName();
+        return REMOVE_NIL_TYPE.getName();
     }
 
     @Override
     protected List<String> getSupportedDiagnosticCodes() {
-        return Collections.singletonList(PERSIST_101.getCode());
+        return List.of(PERSIST_502.getCode());
     }
 
     @Override
     protected String getTitle(Diagnostic diagnostic) {
-        return "Remove unsupported member";
+        return MessageFormat.format("Change to ''{0}'' type",
+                getStringDiagnosticProperty(diagnostic.properties(), 1));
     }
 
     @Override
     protected TextRange getNodeLocation(Diagnostic diagnostic) {
-        return diagnostic.location().textRange();
+        int nullableMarkStartOffset = getNumericDiagnosticProperty(diagnostic.properties(), 0);
+        return TextRange.from(nullableMarkStartOffset, 1);
     }
 }

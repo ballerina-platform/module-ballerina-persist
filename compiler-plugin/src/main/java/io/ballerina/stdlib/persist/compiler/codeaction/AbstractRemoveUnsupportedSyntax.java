@@ -56,7 +56,7 @@ public abstract class AbstractRemoveUnsupportedSyntax implements CodeAction {
     public Optional<CodeActionInfo> codeActionInfo(CodeActionContext codeActionContext) {
         Diagnostic diagnostic = codeActionContext.diagnostic();
         CodeActionArgument syntaxLocationArg = CodeActionArgument.from(REMOVE_TEXT_RANGE, getNodeLocation(diagnostic));
-        return Optional.of(CodeActionInfo.from(getTitle(), List.of(syntaxLocationArg)));
+        return Optional.of(CodeActionInfo.from(getTitle(diagnostic), List.of(syntaxLocationArg)));
     }
 
     @Override
@@ -85,7 +85,7 @@ public abstract class AbstractRemoveUnsupportedSyntax implements CodeAction {
 
     protected abstract List<String> getSupportedDiagnosticCodes();
 
-    protected abstract String getTitle();
+    protected abstract String getTitle(Diagnostic diagnostic);
 
     protected abstract TextRange getNodeLocation (Diagnostic diagnostic);
 

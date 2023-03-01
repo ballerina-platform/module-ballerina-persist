@@ -62,6 +62,9 @@ public class CodeActionTest {
                         "PERSIST_101", "REMOVE_UNSUPPORTED_MEMBERS", "Remove unsupported member"},
                 {"usage-of-import-prefix.bal", LinePosition.from(0, 25), "usage-of-import-prefix.bal",
                         "PERSIST_102", "REMOVE_MODULE_PREFIX", "Remove import prefix"},
+                {"identifier-field-properties.bal", LinePosition.from(4, 14), "identifier-field-properties-nil.bal",
+                        "PERSIST_502", "REMOVE_NIL_TYPE", "Change to 'int' type"},
+
                 {"record-properties.bal", LinePosition.from(14, 6), "record-properties.bal",
                         "PERSIST_201", "CHANGE_TO_CLOSED_RECORD", "Change to closed record"},
                 {"mandatory-relation-field.bal", LinePosition.from(8, 21), "mandatory-relation-field.bal",

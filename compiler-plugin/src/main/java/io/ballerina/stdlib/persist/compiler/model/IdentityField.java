@@ -27,6 +27,7 @@ public class IdentityField {
     private final String name;
     private String type;
     private boolean isNullable = false;
+    private int nullableStartOffset = 0;
     private boolean isValidType = false;
     private NodeLocation typeLocation;
 
@@ -60,6 +61,14 @@ public class IdentityField {
 
     public void setNullable(boolean nullable) {
         isNullable = nullable;
+    }
+
+    public int getNullableStartOffset() {
+        return nullableStartOffset;
+    }
+
+    public void setNullableStartOffset(int nullableStartOffset) {
+        this.nullableStartOffset = nullableStartOffset;
     }
 
     public NodeLocation getTypeLocation() {

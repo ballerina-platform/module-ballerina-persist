@@ -42,7 +42,7 @@ public class RemoveModulePrefix extends AbstractRemoveUnsupportedSyntax {
     }
 
     @Override
-    protected String getTitle() {
+    protected String getTitle(Diagnostic diagnostic) {
         return "Remove import prefix";
     }
 

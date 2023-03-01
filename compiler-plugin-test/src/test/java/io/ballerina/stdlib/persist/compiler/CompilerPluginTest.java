@@ -172,7 +172,7 @@ public class CompilerPluginTest {
                         "an entity does not support union-typed field"
                 },
                 new String[]{
-                        "(12:4,12:11)",
+                        "(12:4,12:13)",
                         "(14:4,14:8)",
                         "(15:4,15:10)",
                         "(18:4,18:21)"

@@ -30,6 +30,7 @@ import io.ballerina.stdlib.persist.compiler.codeaction.ChangeTypeToFloat;
 import io.ballerina.stdlib.persist.compiler.codeaction.ChangeTypeToInt;
 import io.ballerina.stdlib.persist.compiler.codeaction.ChangeTypeToString;
 import io.ballerina.stdlib.persist.compiler.codeaction.RemoveModulePrefix;
+import io.ballerina.stdlib.persist.compiler.codeaction.RemoveNilType;
 import io.ballerina.stdlib.persist.compiler.codeaction.RemoveUnsupportedMembers;
 
 import java.util.List;
@@ -49,6 +50,7 @@ public class PersistCompilerPlugin extends CompilerPlugin {
         return List.of(
                 new RemoveUnsupportedMembers(),
                 new RemoveModulePrefix(),
+                new RemoveNilType(),
                 new ChangeToClosedRecord(),
                 new AddRelationFieldInRelatedEntity(),
                 new ChangeTypeToInt(),
