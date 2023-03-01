@@ -398,7 +398,7 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                 entity.reportDiagnostic(PERSIST_502.getCode(), MessageFormat.format(PERSIST_502.getMessage(),
                                 entity.getEntityName()), PERSIST_502.getSeverity(), identityField.getTypeLocation(),
                         List.of(new BNumericProperty(identityField.getNullableStartOffset()),
-                                new BStringProperty(type)));
+                                new BNumericProperty(1), new BStringProperty(type)));
             }
         }
 

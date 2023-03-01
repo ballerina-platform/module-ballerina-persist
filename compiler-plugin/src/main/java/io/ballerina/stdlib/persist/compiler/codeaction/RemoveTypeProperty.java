@@ -27,15 +27,15 @@ import java.util.List;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_502;
 import static io.ballerina.stdlib.persist.compiler.Utils.getNumericDiagnosticProperty;
 import static io.ballerina.stdlib.persist.compiler.Utils.getStringDiagnosticProperty;
-import static io.ballerina.stdlib.persist.compiler.codeaction.PersistCodeActionName.REMOVE_NIL_TYPE;
+import static io.ballerina.stdlib.persist.compiler.codeaction.PersistCodeActionName.REMOVE_TYPE_PROPERTY;
 
 /**
  * Code action for removing nil type (PERSIST_502).
  */
-public class RemoveNilType extends AbstractRemoveUnsupportedSyntax {
+public class RemoveTypeProperty extends AbstractRemoveUnsupportedSyntax {
     @Override
     protected String getName() {
-        return REMOVE_NIL_TYPE.getName();
+        return REMOVE_TYPE_PROPERTY.getName();
     }
 
     @Override
@@ -46,12 +46,13 @@ public class RemoveNilType extends AbstractRemoveUnsupportedSyntax {
     @Override
     protected String getTitle(Diagnostic diagnostic) {
         return MessageFormat.format("Change to ''{0}'' type",
-                getStringDiagnosticProperty(diagnostic.properties(), 1));
+                getStringDiagnosticProperty(diagnostic.properties(), 2));
     }
 
     @Override
     protected TextRange getNodeLocation(Diagnostic diagnostic) {
-        int nullableMarkStartOffset = getNumericDiagnosticProperty(diagnostic.properties(), 0);
-        return TextRange.from(nullableMarkStartOffset, 1);
+        int startOffset = getNumericDiagnosticProperty(diagnostic.properties(), 0);
+        int length = getNumericDiagnosticProperty(diagnostic.properties(), 1);
+        return TextRange.from(startOffset, length);
     }
 }

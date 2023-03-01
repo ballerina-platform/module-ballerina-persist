@@ -63,7 +63,7 @@ public class CodeActionTest {
                 {"usage-of-import-prefix.bal", LinePosition.from(0, 25), "usage-of-import-prefix.bal",
                         "PERSIST_102", "REMOVE_TEXT_RANGE", "Remove import prefix"},
                 {"identifier-field-properties.bal", LinePosition.from(4, 14), "identifier-field-properties-nil.bal",
-                        "PERSIST_502", "REMOVE_NIL_TYPE", "Change to 'int' type"},
+                        "PERSIST_502", "REMOVE_TYPE_PROPERTY", "Change to 'int' type"},
                 {"identifier-field-properties.bal", LinePosition.from(16, 16),
                         "identifier-field-properties-rm-readonly.bal",
                         "PERSIST_503", "REMOVE_TEXT_RANGE", "Change to non-identity field"},
