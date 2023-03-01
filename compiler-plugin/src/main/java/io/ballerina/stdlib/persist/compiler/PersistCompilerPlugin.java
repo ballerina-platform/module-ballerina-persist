@@ -31,7 +31,6 @@ import io.ballerina.stdlib.persist.compiler.codeaction.ChangeTypeToInt;
 import io.ballerina.stdlib.persist.compiler.codeaction.ChangeTypeToString;
 import io.ballerina.stdlib.persist.compiler.codeaction.RemoveDiagnosticLocation;
 import io.ballerina.stdlib.persist.compiler.codeaction.RemoveTextRange;
-import io.ballerina.stdlib.persist.compiler.codeaction.RemoveTypeProperty;
 
 import java.util.List;
 
@@ -50,7 +49,6 @@ public class PersistCompilerPlugin extends CompilerPlugin {
         return List.of(
                 new RemoveDiagnosticLocation(),
                 new RemoveTextRange(),
-                new RemoveTypeProperty(),
                 new ChangeToClosedRecord(),
                 new AddRelationFieldInRelatedEntity(),
                 new ChangeTypeToInt(),

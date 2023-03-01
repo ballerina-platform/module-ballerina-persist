@@ -21,13 +21,17 @@ package io.ballerina.stdlib.persist.compiler.codeaction;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.TextRange;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_102;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_302;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_304;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_306;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_502;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_503;
 import static io.ballerina.stdlib.persist.compiler.Utils.getNumericDiagnosticProperty;
+import static io.ballerina.stdlib.persist.compiler.Utils.getStringDiagnosticProperty;
 import static io.ballerina.stdlib.persist.compiler.codeaction.PersistCodeActionName.REMOVE_TEXT_RANGE;
 
 /**
@@ -45,7 +49,9 @@ public class RemoveTextRange extends AbstractRemoveUnsupportedSyntax {
                 PERSIST_102.getCode(),
                 PERSIST_302.getCode(),
                 PERSIST_304.getCode(),
-                PERSIST_503.getCode()
+                PERSIST_503.getCode(),
+                PERSIST_306.getCode(),
+                PERSIST_502.getCode()
         );
     }
 
@@ -58,8 +64,12 @@ public class RemoveTextRange extends AbstractRemoveUnsupportedSyntax {
             return "Remove default value";
         } else if (code.equals(PERSIST_304.getCode())) {
                 return "Make field mandatory";
-        } else {
+        } else if (code.equals(PERSIST_503.getCode())) {
             return "Change to non-identity field";
+        } else {
+            // 306 and 502
+            return MessageFormat.format("Change to ''{0}'' type",
+                    getStringDiagnosticProperty(diagnostic.properties(), 2));
         }
     }
 

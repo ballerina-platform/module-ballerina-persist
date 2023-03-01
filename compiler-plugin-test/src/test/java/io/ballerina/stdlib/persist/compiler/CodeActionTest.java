@@ -63,7 +63,7 @@ public class CodeActionTest {
                 {"usage-of-import-prefix.bal", LinePosition.from(0, 25), "usage-of-import-prefix.bal",
                         "PERSIST_102", "REMOVE_TEXT_RANGE", "Remove import prefix"},
                 {"identifier-field-properties.bal", LinePosition.from(4, 14), "identifier-field-properties-nil.bal",
-                        "PERSIST_502", "REMOVE_TYPE_PROPERTY", "Change to 'int' type"},
+                        "PERSIST_502", "REMOVE_TEXT_RANGE", "Change to 'int' type"},
                 {"identifier-field-properties.bal", LinePosition.from(16, 16),
                         "identifier-field-properties-rm-readonly.bal",
                         "PERSIST_503", "REMOVE_TEXT_RANGE", "Change to non-identity field"},
@@ -81,7 +81,7 @@ public class CodeActionTest {
                 {"field-properties.bal", LinePosition.from(13, 27), "field-properties-optional-field.bal",
                         "PERSIST_304", "REMOVE_TEXT_RANGE", "Make field mandatory"},
                 {"field-types.bal", LinePosition.from(12, 9), "field-types-unsupported-array.bal",
-                        "PERSIST_306", "REMOVE_TYPE_PROPERTY", "Change to 'boolean' type"},
+                        "PERSIST_306", "REMOVE_TEXT_RANGE", "Change to 'boolean' type"},
 
                 {"record-properties.bal", LinePosition.from(14, 6), "record-properties.bal",
                         "PERSIST_201", "CHANGE_TO_CLOSED_RECORD", "Change to closed record"},
