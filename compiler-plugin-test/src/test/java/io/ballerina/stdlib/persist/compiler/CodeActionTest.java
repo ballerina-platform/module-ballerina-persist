@@ -52,7 +52,7 @@ import static io.ballerina.stdlib.persist.compiler.TestUtils.getEnvironmentBuild
  */
 public class CodeActionTest {
 
-    protected static final Path RESOURCE_PATH = Paths.get("src", "test", "resources", "test-src");
+    protected static final Path RESOURCE_PATH = Paths.get("src", "test", "resources");
     private static final Gson GSON = new Gson();
 
     @DataProvider

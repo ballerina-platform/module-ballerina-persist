@@ -61,7 +61,7 @@ import static io.ballerina.stdlib.persist.compiler.TestUtils.getEnvironmentBuild
 public class CompilerPluginTest {
 
     private Package loadPersistModelFile(String name) {
-        Path projectDirPath = Paths.get("src", "test", "resources", "test-src", "project_2", "persist").
+        Path projectDirPath = Paths.get("src", "test", "resources", "project_2", "persist").
                 toAbsolutePath().resolve(name);
         SingleFileProject project = SingleFileProject.load(getEnvironmentBuilder(), projectDirPath);
         return project.currentPackage();
@@ -69,7 +69,7 @@ public class CompilerPluginTest {
 
     @Test
     public void identifyModelFileFailure1() {
-        Path projectDirPath = Paths.get("src", "test", "resources", "test-src", "persist").
+        Path projectDirPath = Paths.get("src", "test", "resources", "persist").
                 toAbsolutePath().resolve("single-bal.bal");
         SingleFileProject project = SingleFileProject.load(getEnvironmentBuilder(), projectDirPath);
         DiagnosticResult diagnosticResult = project.currentPackage().getCompilation().diagnosticResult();
@@ -78,7 +78,7 @@ public class CompilerPluginTest {
 
     @Test
     public void identifyModelFileFailure2() {
-        Path projectDirPath = Paths.get("src", "test", "resources", "test-src", "project_1", "resources").
+        Path projectDirPath = Paths.get("src", "test", "resources", "project_1", "resources").
                 toAbsolutePath().resolve("single-bal.bal");
         SingleFileProject project = SingleFileProject.load(getEnvironmentBuilder(), projectDirPath);
         DiagnosticResult diagnosticResult = project.currentPackage().getCompilation().diagnosticResult();
@@ -87,7 +87,7 @@ public class CompilerPluginTest {
 
     @Test
     public void skipValidationsForBalProjectFiles() {
-        Path projectDirPath = Paths.get("src", "test", "resources", "test-src", "project_1").
+        Path projectDirPath = Paths.get("src", "test", "resources", "project_1").
                 toAbsolutePath();
         BuildProject project2 = BuildProject.load(getEnvironmentBuilder(), projectDirPath);
         DiagnosticResult diagnosticResult = project2.currentPackage().getCompilation().diagnosticResult();
