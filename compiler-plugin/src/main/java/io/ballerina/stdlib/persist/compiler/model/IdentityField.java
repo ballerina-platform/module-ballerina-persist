@@ -27,6 +27,7 @@ public class IdentityField {
     private final String name;
     private String type;
     private boolean isNullable = false;
+    private boolean isValidType = false;
     private NodeLocation typeLocation;
 
     public IdentityField(String name) {
@@ -43,6 +44,14 @@ public class IdentityField {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public boolean isValidType() {
+        return isValidType;
+    }
+
+    public void setValidType(boolean validType) {
+        isValidType = validType;
     }
 
     public boolean isNullable() {
