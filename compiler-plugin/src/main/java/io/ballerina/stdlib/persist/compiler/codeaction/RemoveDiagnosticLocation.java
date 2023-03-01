@@ -28,16 +28,16 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_301;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_303;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_401;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_403;
-import static io.ballerina.stdlib.persist.compiler.codeaction.PersistCodeActionName.REMOVE_UNSUPPORTED_MEMBERS;
+import static io.ballerina.stdlib.persist.compiler.codeaction.PersistCodeActionName.REMOVE_DIAGNOSTIC_LOCATION;
 
 /**
  * Code action for removing unsupported members (PERSIST_101).
  */
-public class RemoveUnsupportedMembers extends AbstractRemoveUnsupportedSyntax {
+public class RemoveDiagnosticLocation extends AbstractRemoveUnsupportedSyntax {
 
     @Override
     protected String getName() {
-        return REMOVE_UNSUPPORTED_MEMBERS.getName();
+        return REMOVE_DIAGNOSTIC_LOCATION.getName();
     }
 
     @Override
