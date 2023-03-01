@@ -24,31 +24,41 @@ import io.ballerina.tools.text.TextRange;
 import java.util.List;
 
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_102;
-import static io.ballerina.stdlib.persist.compiler.codeaction.PersistCodeActionName.REMOVE_MODULE_PREFIX;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_503;
+import static io.ballerina.stdlib.persist.compiler.Utils.getNumericDiagnosticProperty;
+import static io.ballerina.stdlib.persist.compiler.codeaction.PersistCodeActionName.REMOVE_TEXT_RANGE;
 
 /**
- * Code action for removing module prefix (PERSIST_102).
+ * Remove test range code action.
  */
-public class RemoveModulePrefix extends AbstractRemoveUnsupportedSyntax {
-
+public class RemoveTextRange extends AbstractRemoveUnsupportedSyntax {
     @Override
     protected String getName() {
-        return REMOVE_MODULE_PREFIX.getName();
+        return REMOVE_TEXT_RANGE.getName();
     }
 
     @Override
     protected List<String> getSupportedDiagnosticCodes() {
-        return List.of(PERSIST_102.getCode());
+        return List.of(
+                PERSIST_102.getCode(),
+                PERSIST_503.getCode()
+        );
     }
 
     @Override
     protected String getTitle(Diagnostic diagnostic) {
-        return "Remove import prefix";
+        String code = diagnostic.diagnosticInfo().code();
+        if (code.equals(PERSIST_102.getCode())) {
+            return "Remove import prefix";
+        } else {
+            return "Change to non-identity field";
+        }
     }
 
     @Override
     protected TextRange getNodeLocation(Diagnostic diagnostic) {
-        TextRange nodeTextRange = diagnostic.location().textRange();
-        return TextRange.from(nodeTextRange.startOffset() - 1, nodeTextRange.length() + 1);
+        int startOffset = getNumericDiagnosticProperty(diagnostic.properties(), 0);
+        int length = getNumericDiagnosticProperty(diagnostic.properties(), 1);
+        return TextRange.from(startOffset, length);
     }
 }

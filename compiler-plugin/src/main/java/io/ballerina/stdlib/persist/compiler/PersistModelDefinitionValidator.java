@@ -112,9 +112,12 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         if (ctx.node() instanceof ImportPrefixNode) {
             Token prefix = ((ImportPrefixNode) ctx.node()).prefix();
             if (prefix.kind() != SyntaxKind.UNDERSCORE_KEYWORD) {
+                int startOffset = ctx.node().location().textRange().startOffset() - 1;
+                int length = ctx.node().location().textRange().length() + 1;
                 ctx.reportDiagnostic(DiagnosticFactory.createDiagnostic(
                         new DiagnosticInfo(PERSIST_102.getCode(), PERSIST_102.getMessage(), PERSIST_102.getSeverity()),
-                        ctx.node().location()));
+                        ctx.node().location(),
+                        List.of(new BNumericProperty(startOffset), new BNumericProperty(length))));
             }
             return;
         }
@@ -381,7 +384,8 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             if (!getSupportedIdentityFields().contains(type)) {
                 entity.reportDiagnostic(PERSIST_503.getCode(), MessageFormat.format(PERSIST_503.getMessage(),
                                 type), PERSIST_503.getSeverity(), identityField.getTypeLocation(),
-                        List.of(new BNumericProperty(identityField.getReadonlyTextRangeStartOffset())));
+                        List.of(new BNumericProperty(identityField.getReadonlyTextRangeStartOffset()),
+                                new BNumericProperty(9)));
                 continue;
             }
             if (identityField.isNullable()) {
