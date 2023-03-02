@@ -23,6 +23,7 @@ import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.util.ArrayList;
@@ -105,6 +106,12 @@ public class Entity {
     public void reportDiagnostic(String code, String message, DiagnosticSeverity severity, NodeLocation location) {
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(code, message, severity);
         this.diagnosticList.add(DiagnosticFactory.createDiagnostic(diagnosticInfo, location));
+    }
+
+    public void reportDiagnostic(String code, String message, DiagnosticSeverity severity, NodeLocation location,
+                                 List<DiagnosticProperty<?>> diagnosticProperties) {
+        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(code, message, severity);
+        this.diagnosticList.add(DiagnosticFactory.createDiagnostic(diagnosticInfo, location, diagnosticProperties));
     }
 
 }

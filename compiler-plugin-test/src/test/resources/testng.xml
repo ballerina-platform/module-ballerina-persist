@@ -22,6 +22,7 @@
     <test name="UnitTests">
         <classes>
             <class name="io.ballerina.stdlib.persist.compiler.CompilerPluginTest"/>
+            <class name="io.ballerina.stdlib.persist.compiler.CodeActionTest"/>
         </classes>
     </test>
 </suite>

@@ -26,7 +26,10 @@ import io.ballerina.compiler.syntax.tree.NodeLocation;
 public class IdentityField {
     private final String name;
     private String type;
+    private int readonlyTextRangeStartOffset = 0;
     private boolean isNullable = false;
+    private int nullableStartOffset = 0;
+    private boolean isValidType = false;
     private NodeLocation typeLocation;
 
     public IdentityField(String name) {
@@ -45,12 +48,36 @@ public class IdentityField {
         this.type = type;
     }
 
+    public int getReadonlyTextRangeStartOffset() {
+        return readonlyTextRangeStartOffset;
+    }
+
+    public void setReadonlyTextRangeStartOffset(int readonlyTextRangeStartOffset) {
+        this.readonlyTextRangeStartOffset = readonlyTextRangeStartOffset;
+    }
+
+    public boolean isValidType() {
+        return isValidType;
+    }
+
+    public void setValidType(boolean validType) {
+        isValidType = validType;
+    }
+
     public boolean isNullable() {
         return isNullable;
     }
 
     public void setNullable(boolean nullable) {
         isNullable = nullable;
+    }
+
+    public int getNullableStartOffset() {
+        return nullableStartOffset;
+    }
+
+    public void setNullableStartOffset(int nullableStartOffset) {
+        this.nullableStartOffset = nullableStartOffset;
     }
 
     public NodeLocation getTypeLocation() {
