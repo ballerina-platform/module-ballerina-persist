@@ -1,4 +1,4 @@
-Ballerina Persist Library
+Ballerina Persist Librar
 ===================
 
   [![Build](https://github.com/ballerina-platform/module-ballerina-persist/actions/workflows/build-timestamped-master.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerina-persist/actions/workflows/build-timestamped-master.yml)
