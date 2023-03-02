@@ -48,7 +48,7 @@ Workspace updatedWorkspace1 = {
 
 @test:Config {
     groups: ["workspace"],
-    dependsOn: [basicDeleteTestNegative]
+    dependsOn: [buildingDeleteTestNegative]
 }
 function workspaceCreateTest() returns error? {
     RainierClient rainierClient = check new ();
@@ -136,9 +136,33 @@ function workspaceReadManyTest() returns error? {
     check rainierClient.close();
 }
 
+public type WorkspaceInfo2 record {|
+    string workspaceType;
+    string buildingBuildingCode;
+|};
+
+@test:Config {
+    groups: ["workspace", "dependent"],
+    dependsOn: [workspaceCreateTest, workspaceCreateTest2]
+}
+function workspaceReadManyDependentTest() returns error? {
+    RainierClient rainierClient = check new ();
+
+    stream<WorkspaceInfo2, error?> workspaceStream = rainierClient->/workspace.get();
+    WorkspaceInfo2[] workspaces = check from WorkspaceInfo2 workspace in workspaceStream 
+        select workspace;
+
+    test:assertEquals(workspaces, [
+        {workspaceType: workspace1.workspaceType, buildingBuildingCode: workspace1.buildingBuildingCode},
+        {workspaceType: workspace2.workspaceType, buildingBuildingCode: workspace2.buildingBuildingCode},
+        {workspaceType: workspace3.workspaceType, buildingBuildingCode: workspace3.buildingBuildingCode}
+    ]);
+    check rainierClient.close();
+}
+
 @test:Config {
     groups: ["workspace"],
-    dependsOn: [workspaceReadOneTest, workspaceReadManyTest]
+    dependsOn: [workspaceReadOneTest, workspaceReadManyTest, workspaceReadManyDependentTest]
 }
 function workspaceUpdateTest() returns error? {
     RainierClient rainierClient = check new ();
@@ -156,7 +180,7 @@ function workspaceUpdateTest() returns error? {
 
 @test:Config {
     groups: ["workspace"],
-    dependsOn: [workspaceReadOneTest, workspaceReadManyTest]
+    dependsOn: [workspaceReadOneTest, workspaceReadManyTest, workspaceReadManyDependentTest]
 }
 function workspaceUpdateTestNegative1() returns error? {
     RainierClient rainierClient = check new ();
@@ -175,7 +199,7 @@ function workspaceUpdateTestNegative1() returns error? {
 
 @test:Config {
     groups: ["workspace"],
-    dependsOn: [workspaceReadOneTest, workspaceReadManyTest]
+    dependsOn: [workspaceReadOneTest, workspaceReadManyTest, workspaceReadManyDependentTest]
 }
 function workspaceUpdateTestNegative2() returns error? {
     RainierClient rainierClient = check new ();

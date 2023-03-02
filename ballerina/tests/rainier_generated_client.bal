@@ -45,9 +45,27 @@ public client class RainierClient {
             fieldMetadata: {
                 workspaceId: {columnName: "workspaceId"},
                 workspaceType: {columnName: "workspaceType"},
-                buildingBuildingCode: {columnName: "buildingBuildingCode"}
+                buildingBuildingCode: {columnName: "buildingBuildingCode"},
+                "building.buildingCode": {relation: {entityName: "building", refField: "buildingCode"}},
+                "building.city": {relation: {entityName: "building", refField: "city"}},
+                "building.state": {relation: {entityName: "building", refField: "state"}},
+                "building.country": {relation: {entityName: "building", refField: "country"}},
+                "building.postalCode": {relation: {entityName: "building", refField: "postalCode"}},
+                "building.type": {relation: {entityName: "building", refField: "type"}},
+                "employee[].empNo": {relation: {entityName: "employee", refField: "empNo"}},
+                "employee[].firstName": {relation: {entityName: "employee", refField: "firstName"}},
+                "employee[].lastName": {relation: {entityName: "employee", refField: "lastName"}},
+                "employee[].birthDate": {relation: {entityName: "employee", refField: "birthDate"}},
+                "employee[].gender": {relation: {entityName: "employee", refField: "gender"}},
+                "employee[].hireDate": {relation: {entityName: "employee", refField: "hireDate"}},
+                "employee[].departmentDeptNo": {relation: {entityName: "employee", refField: "departmentDeptNo"}},
+                "employee[].workspaceWorkspaceId": {relation: {entityName: "employee", refField: "workspaceWorkspaceId"}}
             },
-            keyFields: ["workspaceId"]
+            keyFields: ["workspaceId"],
+            joinMetadata: {
+                building: {entity: Building, fieldName: "building", refTable: "Building", refColumns: ["buildingCode"], joinColumns: ["buildingBuildingCode"], 'type: ONE_TO_ONE},
+                employee: {entity: Employee, fieldName: "employee", refTable: "Employee", refColumns: ["workspaceWorkspaceId"], joinColumns: ["workspaceId"], 'type: MANY_TO_ONE}
+            }
         },
         "building": {
             entityName: "Building",
@@ -239,6 +257,12 @@ public client class RainierClient {
         }
         return result;
     }
+
+    isolated resource function get orderitemd/[string... orderId](OrderItemTargetType targetType = <>, string entity = "orderitem") returns targetType|Error = @java:Method {
+        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        name: "queryOne2"
+    } external;
+
 
     isolated resource function post orderitem(OrderItemInsert[] data) returns [string, string][]|Error {
         _ = check self.persistClients.get(ORDER_ITEM).runBatchInsertQuery(data);

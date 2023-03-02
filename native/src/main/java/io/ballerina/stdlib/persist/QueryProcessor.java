@@ -27,11 +27,13 @@ import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFuture;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 
+import static io.ballerina.runtime.api.utils.StringUtils.fromString;
 import static io.ballerina.stdlib.persist.Utils.getFieldsAndIncludes;
 import static io.ballerina.stdlib.persist.Utils.getFutureResult;
 import static io.ballerina.stdlib.persist.Utils.getPersistClient;
@@ -80,6 +82,25 @@ public class QueryProcessor {
                 getPersistClient(client, entity), Constants.RUN_READ_BY_KEY_QUERY_METHOD,
                 null, null, null, null, recordConstraint,
                 recordType, true, key, true, fieldsAndIncludes[0], true
+        );
+
+        return getFutureResult(future);
+    }
+
+    public static Object queryOne2(Environment env, BObject client, BArray key, BTypedesc recordType,
+                                  BString entity) {
+        RecordType recordConstraint = (RecordType) TypeUtils.getReferredType(recordType.getDescribingType());
+
+        BArray[] fieldsAndIncludes = getFieldsAndIncludes((RecordType) recordType.getDescribingType());
+
+        BMap<BString, Object> filterMap = ValueCreator.createMapValue();
+        filterMap.put(fromString("orderId"), fromString(key.get(0).toString()));
+        filterMap.put(fromString("itemId"), fromString(key.get(1).toString()));
+
+        BFuture future = env.getRuntime().invokeMethodAsyncSequentially(
+                getPersistClient(client, entity), Constants.RUN_READ_BY_KEY_QUERY_METHOD,
+                null, null, null, null, recordConstraint,
+                recordType, true, filterMap, true, fieldsAndIncludes[0], true
         );
 
         return getFutureResult(future);

@@ -82,6 +82,7 @@ public client class SQLClient {
         query = sql:queryConcat(query, ` WHERE `, check self.getGetKeyWhereClauses(key));
         record {}|sql:Error result = self.dbClient->queryRow(query, rowType);
 
+
         if result is sql:NoRowsError {
             return <InvalidKeyError>error(
                 string `A record does not exist for '${self.entityName}' for key ${key.toBalString()}.`);
@@ -340,7 +341,7 @@ public client class SQLClient {
     private isolated function getGetKeyWhereClauses(anydata key) returns sql:ParameterizedQuery|Error {
         map<anydata> filter = {};
 
-        if key is record {} {
+        if key is record {} || key is map<any> {
             filter = key;
         } else {
             filter[self.keyFields[0]] = key;

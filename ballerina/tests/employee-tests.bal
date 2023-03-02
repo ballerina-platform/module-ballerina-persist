@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/test;
+import ballerina/time;
 
 Employee employee1 = {
     empNo: "employee-1",
@@ -173,7 +174,7 @@ public type EmployeeName record {|
     groups:  ["dependent", "employee"],
     dependsOn: [employeeCreateTest, employeeCreateTest2]
 }
-function employeeReadManyTest2() returns error? {
+function employeeReadManyDependentTest1() returns error? {
     RainierClient rainierClient = check new ();
 
     stream<EmployeeName, Error?> employeeStream = rainierClient->/employee.get();
@@ -181,16 +182,42 @@ function employeeReadManyTest2() returns error? {
         select employee;
 
     test:assertEquals(employees, [
-        {firstName: "Tom", lastName: "Scott"},
-        {firstName: "Jane", lastName: "Doe"},
-        {firstName: "Hugh", lastName: "Smith"}
+        {firstName: employee1.firstName, lastName: employee1.lastName},
+        {firstName: employee2.firstName, lastName: employee2.lastName},
+        {firstName: employee3.firstName, lastName: employee3.lastName}
+    ]);
+    check rainierClient.close();
+}
+
+public type EmployeeInfo2 record {|
+    readonly string empNo;
+    time:Date birthDate;
+    string departmentDeptNo;
+    string workspaceWorkspaceId;
+|};
+
+@test:Config {
+    groups:  ["dependent", "employee"],
+    dependsOn: [employeeCreateTest, employeeCreateTest2]
+}
+function employeeReadManyDependentTest2() returns error? {
+    RainierClient rainierClient = check new ();
+
+    stream<EmployeeInfo2, Error?> employeeStream = rainierClient->/employee.get();
+    EmployeeInfo2[] employees = check from EmployeeInfo2 employee in employeeStream 
+        select employee;
+
+    test:assertEquals(employees, [
+        {empNo: employee1.empNo, birthDate: employee1.birthDate, departmentDeptNo: employee1.departmentDeptNo, workspaceWorkspaceId: employee1.workspaceWorkspaceId},
+        {empNo: employee2.empNo, birthDate: employee2.birthDate, departmentDeptNo: employee2.departmentDeptNo, workspaceWorkspaceId: employee2.workspaceWorkspaceId},
+        {empNo: employee3.empNo, birthDate: employee3.birthDate, departmentDeptNo: employee3.departmentDeptNo, workspaceWorkspaceId: employee3.workspaceWorkspaceId}
     ]);
     check rainierClient.close();
 }
 
 @test:Config {
     groups: ["employee"],
-    dependsOn: [employeeReadOneTest, employeeReadManyTest, employeeReadManyTest2]
+    dependsOn: [employeeReadOneTest, employeeReadManyTest, employeeReadManyDependentTest1, employeeReadManyDependentTest2]
 }
 function employeeUpdateTest() returns error? {
     RainierClient rainierClient = check new ();
@@ -210,7 +237,7 @@ function employeeUpdateTest() returns error? {
 
 @test:Config {
     groups: ["employee"],
-    dependsOn: [employeeReadOneTest, employeeReadManyTest, employeeReadManyTest2]
+    dependsOn: [employeeReadOneTest, employeeReadManyTest, employeeReadManyDependentTest1, employeeReadManyDependentTest2]
 }
 function employeeUpdateTestNegative1() returns error? {
     RainierClient rainierClient = check new ();
@@ -229,7 +256,7 @@ function employeeUpdateTestNegative1() returns error? {
 
 @test:Config {
     groups: ["employee"],
-    dependsOn: [employeeReadOneTest, employeeReadManyTest, employeeReadManyTest2]
+    dependsOn: [employeeReadOneTest, employeeReadManyTest, employeeReadManyDependentTest1, employeeReadManyDependentTest2]
 }
 function employeeUpdateTestNegative2() returns error? {
     RainierClient rainierClient = check new ();
@@ -248,7 +275,7 @@ function employeeUpdateTestNegative2() returns error? {
 
 @test:Config {
     groups: ["employee"],
-    dependsOn: [employeeReadOneTest, employeeReadManyTest, employeeReadManyTest2]
+    dependsOn: [employeeReadOneTest, employeeReadManyTest, employeeReadManyDependentTest1, employeeReadManyDependentTest2]
 }
 function employeeUpdateTestNegative3() returns error? {
     RainierClient rainierClient = check new ();

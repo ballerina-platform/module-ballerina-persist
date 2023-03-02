@@ -13,7 +13,7 @@ public type EmployeeInfo record {|
     groups:  ["associations"],
     dependsOn: [employeeDeleteTestNegative]
 }
-function employeeReadManyTest3() returns error? {
+function employeeRelationsTest() returns error? {
     RainierClient rainierClient = check new ();
 
     Employee employee21 = {
@@ -84,7 +84,7 @@ public type DepartmentInfo record {|
     groups: ["associations"],
     dependsOn: [employeeDeleteTestNegative]
 }
-function departmentReadManyTest2() returns error? {
+function departmentRelationsTest() returns error? {
     RainierClient rainierClient = check new ();
 
     Employee employee11 = {
@@ -145,5 +145,86 @@ function departmentReadManyTest2() returns error? {
     };
 
     test:assertTrue(departments.indexOf(expected) is int, "Expected DepartmentInfo not found.");
+    check rainierClient.close();
+}
+
+public type WorkspaceInfo record {|
+    readonly string workspaceId;
+    string workspaceType;
+    Building building;
+    Employee[] employee;
+|};
+
+@test:Config {
+    groups: ["associations"],
+    dependsOn: [employeeRelationsTest]
+}
+function workspaceRelationsTest() returns error? {
+    RainierClient rainierClient = check new ();
+
+    Employee employee22 = {
+        empNo: "employee-22",
+        firstName: "James",
+        lastName: "David",
+        birthDate: {year: 1996, month: 11, day:13},
+        gender: "F",
+        hireDate: {year: 2021, month: 8, day: 1},
+        departmentDeptNo: "department-22",
+        workspaceWorkspaceId: "workspace-22"
+    };
+    _ = check rainierClient->/employee.post([employee22]);    
+
+    stream<WorkspaceInfo, error?> workspaceStream = rainierClient->/workspace.get();
+    WorkspaceInfo[] workspaces = check from WorkspaceInfo workspace in workspaceStream 
+        select workspace;
+
+    WorkspaceInfo expected = {
+        workspaceId: "workspace-22",
+        workspaceType: "medium",
+        building: {
+            buildingCode: "building-22",
+            city: "Manhattan",
+            state: "New York",
+            country: "USA",
+            postalCode: "10570",
+            'type: "owned"
+        },
+        employee: [
+            {
+                empNo: "employee-21",
+                firstName: "Tom",
+                lastName: "Scott",
+                birthDate: {year: 1992, month: 11, day:13},
+                gender: "M",
+                hireDate: {year: 2022, month: 8, day: 1},
+                departmentDeptNo: "department-22",
+                workspaceWorkspaceId: "workspace-22"
+            },
+            {
+                empNo: "employee-22",
+                firstName: "James",
+                lastName: "David",
+                birthDate: {year: 1996, month: 11, day:13},
+                gender: "F",
+                hireDate: {year: 2021, month: 8, day: 1},
+                departmentDeptNo: "department-22",
+                workspaceWorkspaceId: "workspace-22"
+            }
+        ]
+    };
+
+    boolean found = false;
+    _ = from WorkspaceInfo workspace in workspaces
+        do {
+            if (workspace.workspaceId == "workspace-22") {
+                found = true;
+                test:assertEquals(workspace, expected);
+            }
+        };
+
+    if !found {
+        test:assertFail("Expected WorkspaceInfo not found.");
+    }
+
     check rainierClient.close();
 }

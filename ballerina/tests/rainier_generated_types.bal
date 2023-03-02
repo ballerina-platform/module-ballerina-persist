@@ -134,12 +134,23 @@ public type DepartmentWithRelations record {|
     EmployeeOptionalized[] employee?;
 |};
 
+public type WorkspaceWithRelations record {|
+    *WorkspaceOptionalized;
+    BuildingOptionalized building?;
+    EmployeeOptionalized[] employee?;
+|};
+
+public type BuildingWithRelations record {|
+    *BuildingOptionalized;
+    WorkspaceOptionalized[] workspace?;
+|};
+
 public type EmployeeTargetType typedesc<EmployeeWithRelations>;
 
 public type DepartmentTargetType typedesc<DepartmentWithRelations>;
 
-public type WorkspaceTargetType typedesc<WorkspaceOptionalized>;
+public type WorkspaceTargetType typedesc<WorkspaceWithRelations>;
 
-public type BuildingTargetType typedesc<BuildingOptionalized>;
+public type BuildingTargetType typedesc<BuildingWithRelations>;
 
 public type OrderItemTargetType typedesc<OrderItemOptionalized>;
