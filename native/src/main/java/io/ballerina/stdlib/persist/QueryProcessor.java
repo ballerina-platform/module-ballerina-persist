@@ -65,7 +65,7 @@ public class QueryProcessor {
         );
 
         BStream sqlStream = (BStream) getFutureResult(future);
-        BObject persistStream = ValueCreator.createObjectValue(env.getCurrentModule(),
+        BObject persistStream = ValueCreator.createObjectValue(ModuleUtils.getModule(),
                 Constants.PERSIST_STREAM, sqlStream, null, includes, persistClient);
 
         return ValueCreator.createStreamValue(TypeCreator.createStreamType(streamConstraint,

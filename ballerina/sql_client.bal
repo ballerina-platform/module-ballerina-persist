@@ -246,17 +246,8 @@ public client class SQLClient {
                 params = sql:queryConcat(params, `,`);
             }
 
-            if fieldMetadata is ReferentialFieldMetadata {
-                string entity = fieldMetadata.relation.entityName;
-                string fieldName = fieldMetadata.relation.refField;
-                if 'object[entity] is () {
-                    params = sql:queryConcat(params, `NULL`);
-                } else {
-                    params = sql:queryConcat(params, `${<sql:Value>(<record {}>'object[entity])[fieldName]}`);
-                }
-            } else {
-                params = sql:queryConcat(params, `${<sql:Value>'object[key]}`);
-            }
+            
+            params = sql:queryConcat(params, `${<sql:Value>'object[key]}`);
             columnCount = columnCount + 1;
         }
         params = sql:queryConcat(params, `)`);
@@ -275,7 +266,7 @@ public client class SQLClient {
             if columnCount > 0 {
                 params = sql:queryConcat(params, `, `);
             }
-            params = sql:queryConcat(params, stringToParameterizedQuery((<SimpleFieldMetadata|ReferentialFieldMetadata>fieldMetadata).columnName));
+            params = sql:queryConcat(params, stringToParameterizedQuery((<SimpleFieldMetadata>fieldMetadata).columnName));
             columnCount = columnCount + 1;
         }
         return params;
@@ -398,7 +389,7 @@ public client class SQLClient {
     }
 
     private isolated function getFieldParamQuery(string fieldName) returns sql:ParameterizedQuery {
-        SimpleFieldMetadata|ReferentialFieldMetadata fieldMetadata = <SimpleFieldMetadata|ReferentialFieldMetadata>self.fieldMetadata.get(fieldName);
+        SimpleFieldMetadata fieldMetadata = <SimpleFieldMetadata>self.fieldMetadata.get(fieldName);
         return stringToParameterizedQuery(fieldMetadata.columnName);
     }
 

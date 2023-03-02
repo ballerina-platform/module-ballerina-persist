@@ -39,15 +39,6 @@ public type SimpleFieldMetadata record {|
     string columnName;
 |};
 
-# Represents the metadata associated with a field used as a key column in a relation.
-#
-# + columnName - The name of the SQL table column to which the field is mapped
-# + relation - The relational metadata associated with the field
-public type ReferentialFieldMetadata record {|
-    string columnName;
-    RelationMetadata relation;
-|};
-
 # Represents the metadata associated with a field from a related entity.
 #
 # + relation - The relational metadata associated with the field
@@ -58,7 +49,7 @@ public type EntityFieldMetadata record {|
 # Represents the metadata associated with a field of an entity.
 # Only used by the generated persist clients and `persist:SQLClient`.
 #
-public type FieldMetadata SimpleFieldMetadata|ReferentialFieldMetadata|EntityFieldMetadata;
+public type FieldMetadata SimpleFieldMetadata|EntityFieldMetadata;
 
 # Represents the metadata associated with a relation.
 # Only used by the generated persist clients and `persist:SQLClient`.

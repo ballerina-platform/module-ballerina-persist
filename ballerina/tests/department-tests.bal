@@ -153,7 +153,6 @@ function departmentReadManyTestDependent() returns error? {
     check rainierClient.close();
 }
 
-
 @test:Config {
     groups: ["department"],
     dependsOn: [departmentReadOneTest, departmentReadManyTest, departmentReadManyTestDependent]

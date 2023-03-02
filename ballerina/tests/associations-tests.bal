@@ -228,3 +228,57 @@ function workspaceRelationsTest() returns error? {
 
     check rainierClient.close();
 }
+
+public type BuildingInfo record {|
+    readonly string buildingCode;
+    string city;
+    string state;
+    string country;
+    string postalCode;
+    string 'type;
+    Workspace[] workspace;
+|};
+
+@test:Config {
+    groups: ["associations"],
+    dependsOn: [employeeRelationsTest]
+}
+function buildingRelationsTest() returns error? {
+    RainierClient rainierClient = check new ();
+
+    stream<BuildingInfo, error?> buildingStream = rainierClient->/building.get();
+    BuildingInfo[] buildings = check from BuildingInfo building in buildingStream 
+        select building;
+
+    BuildingInfo expected = {
+        buildingCode: "building-22",
+        city: "Manhattan",
+        state: "New York",
+        country: "USA",
+        postalCode: "10570",
+        'type: "owned",
+        workspace: [
+            {
+                workspaceId: "workspace-22",
+                workspaceType: "medium",
+                buildingBuildingCode: "building-22"
+            }
+        ]
+    };
+
+    boolean found = false;
+    _ = from BuildingInfo building in buildings
+        do {
+            if (building.buildingCode == "building-22") {
+                found = true;
+                test:assertEquals(building, expected);
+            }
+        };
+
+    if !found {
+        test:assertFail("Expected BuildingInfo not found.");
+    }
+
+    check rainierClient.close();
+
+}

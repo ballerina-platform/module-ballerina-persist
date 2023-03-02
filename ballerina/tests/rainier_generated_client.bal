@@ -36,7 +36,7 @@ public client class RainierClient {
             keyFields: ["empNo"],
             joinMetadata: {
                 department: {entity: Department, fieldName: "department", refTable: "Department", refColumns: ["deptNo"], joinColumns: ["departmentDeptNo"], 'type: ONE_TO_MANY},
-                workspace: {entity: Workspace, fieldName: "workspace", refTable: "Workspace", refColumns: ["workspaceId"], joinColumns: ["workspaceWorkspaceId"], 'type: ONE_TO_ONE}
+                workspace: {entity: Workspace, fieldName: "workspace", refTable: "Workspace", refColumns: ["workspaceId"], joinColumns: ["workspaceWorkspaceId"], 'type: ONE_TO_MANY}
             }
         },
         "workspace": {
@@ -63,7 +63,7 @@ public client class RainierClient {
             },
             keyFields: ["workspaceId"],
             joinMetadata: {
-                building: {entity: Building, fieldName: "building", refTable: "Building", refColumns: ["buildingCode"], joinColumns: ["buildingBuildingCode"], 'type: ONE_TO_ONE},
+                building: {entity: Building, fieldName: "building", refTable: "Building", refColumns: ["buildingCode"], joinColumns: ["buildingBuildingCode"], 'type: ONE_TO_MANY},
                 employee: {entity: Employee, fieldName: "employee", refTable: "Employee", refColumns: ["workspaceWorkspaceId"], joinColumns: ["workspaceId"], 'type: MANY_TO_ONE}
             }
         },
@@ -76,9 +76,15 @@ public client class RainierClient {
                 state: {columnName: "state"},
                 country: {columnName: "country"},
                 postalCode: {columnName: "postalCode"},
-                'type: {columnName: "type"}
+                'type: {columnName: "type"},
+                "workspace[].workspaceId": {relation: {entityName: "workspace", refField: "workspaceId"}},
+                "workspace[].workspaceType": {relation: {entityName: "workspace", refField: "workspaceType"}},
+                "workspace[].buildingBuildingCode": {relation: {entityName: "workspace", refField: "buildingBuildingCode"}}
             },
-            keyFields: ["buildingCode"]
+            keyFields: ["buildingCode"],
+            joinMetadata: {
+                workspace: {entity: Workspace, fieldName: "workspace", refTable: "Workspace", refColumns: ["buildingBuildingCode"], joinColumns: ["buildingCode"], 'type: MANY_TO_ONE}
+            }
         },
         "department": {
             entityName: "Department",
