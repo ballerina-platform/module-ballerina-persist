@@ -63,13 +63,13 @@ ballerina {
     packageOrganization = packageOrg
     module = packageName
     langVersion = ballerinaLangVersion
+    platform = "any"
 }
 
 task updateTomlFiles {
     doLast {
         def newConfig = ballerinaTomlFilePlaceHolder.text.replace('@project.version@', project.version.toString())
         newConfig = newConfig.replace('@toml.version@', tomlVersion)
-        newConfig = newConfig.replace('@mysql.driver.version@', project.mySQLDriverVersion)
         ballerinaTomlFile.text = newConfig
 
         def newCompilerPluginToml = compilerPluginTomlFilePlaceHolder.text.replace("@project.version@", project.version)
@@ -166,7 +166,6 @@ task startTestDockerContainer(type: Exec) {
     }
 }
 
-
 task stopTestDockerContainer() {
     doLast {
         if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
@@ -188,9 +187,7 @@ startTestDockerContainer.dependsOn createTestDockerImage
 
 build.dependsOn "generatePomFileForMavenPublication"
 build.dependsOn ":${packageName}-compiler-plugin:build"
-build.dependsOn ":${packageName}-native:build"
 build.finalizedBy stopTestDockerContainer
 
 test.dependsOn ":${packageName}-compiler-plugin:build"
-test.dependsOn ":${packageName}-native:build"
 test.dependsOn startTestDockerContainer
