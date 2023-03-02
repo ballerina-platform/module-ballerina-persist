@@ -80,8 +80,8 @@ public class CodeActionTest {
                         "PERSIST_302", "REMOVE_TEXT_RANGE", "Remove default value"},
                 {"field-properties.bal", LinePosition.from(13, 27), "field-properties-optional-field.bal",
                         "PERSIST_304", "REMOVE_TEXT_RANGE", "Make field mandatory"},
-                {"field-types.bal", LinePosition.from(12, 9), "field-types-unsupported-array.bal",
-                        "PERSIST_306", "REMOVE_TEXT_RANGE", "Change to 'boolean' type"},
+                {"field-types.bal", LinePosition.from(18, 12), "field-types-unsupported-array.bal",
+                        "PERSIST_306", "REMOVE_TEXT_RANGE", "Change to 'time:Civil' type"},
 
                 {"record-properties.bal", LinePosition.from(14, 6), "record-properties.bal",
                         "PERSIST_201", "CHANGE_TO_CLOSED_RECORD", "Change to closed record"},

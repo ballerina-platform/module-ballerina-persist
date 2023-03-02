@@ -10,11 +10,12 @@ public type MedicalNeed record {|
     string beneficiaryId;
     byte[] beneficiaryIdByteArray;
 
-    boolean booleanArray;
+    boolean[] booleanArray;
 
     json jsonTest;
     json[] jsonArray;
 
     time:Civil period;
-    time:Civil|string periodArray;
+    time:Civil periodArray;
+    time:Civil|string unionType;
 |};

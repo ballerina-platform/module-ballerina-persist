@@ -156,26 +156,29 @@ public class CompilerPluginTest {
 
     @Test
     public void validateEntityFieldType() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("field-types.bal", 4);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("field-types.bal", 5);
         testDiagnostic(
                 diagnostics,
                 new String[]{
                         PERSIST_306.getCode(),
                         PERSIST_305.getCode(),
                         PERSIST_305.getCode(),
+                        PERSIST_306.getCode(),
                         PERSIST_305.getCode()
                 },
                 new String[]{
                         "an entity does not support boolean array field type",
                         "an entity does not support json-typed field",
                         "an entity does not support json[]-typed field",
+                        "an entity does not support time:Civil array field type",
                         "an entity does not support union-typed field"
                 },
                 new String[]{
                         "(12:4,12:13)",
                         "(14:4,14:8)",
                         "(15:4,15:10)",
-                        "(18:4,18:21)"
+                        "(18:4,18:16)",
+                        "(19:4,19:21)"
                 }
         );
     }

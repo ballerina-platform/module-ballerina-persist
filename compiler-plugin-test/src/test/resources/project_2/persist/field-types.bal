@@ -16,5 +16,6 @@ public type MedicalNeed record {|
     json[] jsonArray;
 
     time:Civil period;
-    time:Civil|string periodArray;
+    time:Civil[] periodArray;
+    time:Civil|string unionType;
 |};
