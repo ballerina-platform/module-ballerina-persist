@@ -25,7 +25,6 @@ import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
-import io.ballerina.compiler.syntax.tree.NodeLocation;
 import io.ballerina.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
@@ -43,6 +42,7 @@ import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.stdlib.persist.compiler.model.Entity;
 import io.ballerina.stdlib.persist.compiler.model.IdentityField;
 import io.ballerina.stdlib.persist.compiler.model.RelationField;
+import io.ballerina.stdlib.persist.compiler.model.SimpleTypeField;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
@@ -70,6 +70,7 @@ import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.INT;
 import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.STRING;
 import static io.ballerina.stdlib.persist.compiler.Constants.PERSIST_DIRECTORY;
 import static io.ballerina.stdlib.persist.compiler.Constants.TIME_MODULE;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_001;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_101;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_102;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_201;
@@ -252,8 +253,9 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             int arrayLength = 0;
             boolean isOptionalType = false;
             boolean isValidType = false;
+            boolean isSimpleType = false;
             int nullableStartOffset = 0;
-            String identityFieldType;
+            String fieldType;
             if (processedTypeNode instanceof OptionalTypeDescriptorNode) {
                 isOptionalType = true;
                 OptionalTypeDescriptorNode optionalTypeNode = (OptionalTypeDescriptorNode) processedTypeNode;
@@ -273,20 +275,19 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
 
             if (processedTypeNode instanceof BuiltinSimpleNameReferenceNode) {
                 String type = ((BuiltinSimpleNameReferenceNode) processedTypeNode).name().text();
-                identityFieldType = type;
+                fieldType = type;
                 List<DiagnosticProperty<?>> properties = List.of(
                         new BNumericProperty(arrayStartOffset),
                         new BNumericProperty(arrayLength),
                         new BStringProperty(isOptionalType ? type + "?" : type));
                 isValidType = validateSimpleTypes(entity, typeNode, typeNamePostfix, isArrayType, properties, type);
-                entity.addNonRelationField(stripEscapeCharacter(recordFieldNode.fieldName().text().trim()),
-                        recordFieldNode.location());
+                isSimpleType = true;
             } else if (processedTypeNode instanceof QualifiedNameReferenceNode) {
                 // Support only time constructs
                 QualifiedNameReferenceNode qualifiedName = (QualifiedNameReferenceNode) processedTypeNode;
                 String modulePrefix = stripEscapeCharacter(qualifiedName.modulePrefix().text());
                 String identifier = stripEscapeCharacter(qualifiedName.identifier().text());
-                identityFieldType = modulePrefix + ":" + identifier;
+                fieldType = modulePrefix + ":" + identifier;
                 if (isValidImportedType(modulePrefix, identifier)) {
                     if (isArrayType) {
                         String codeActionType = isOptionalType
@@ -305,12 +306,11 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                                     modulePrefix + ":" + identifier + typeNamePostfix), PERSIST_305.getSeverity(),
                             typeNode.location());
                 }
-                entity.addNonRelationField(stripEscapeCharacter(recordFieldNode.fieldName().text().trim()),
-                        recordFieldNode.location());
+                isSimpleType = true;
             } else if (processedTypeNode instanceof SimpleNameReferenceNode) {
                 String typeName = stripEscapeCharacter(
                         ((SimpleNameReferenceNode) processedTypeNode).name().text().trim());
-                identityFieldType = typeName;
+                fieldType = typeName;
                 if (this.entityNames.contains(typeName)) {
                     // Remove once optional associations are supported
                     if (isOptionalType) {
@@ -329,16 +329,17 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                             new BStringProperty(isOptionalType ? typeName + "?" : typeName));
                     isValidType = validateSimpleTypes(entity, typeNode, typeNamePostfix, isArrayType, properties,
                             typeName);
+                    isSimpleType = true;
                 }
             } else {
                 String typeName = Utils.getTypeName(processedTypeNode);
-                identityFieldType = typeName;
+                fieldType = typeName;
                 entity.reportDiagnostic(PERSIST_305.getCode(), MessageFormat.format(PERSIST_305.getMessage(),
                                 typeName), PERSIST_305.getSeverity(),
                         typeNode.location());
             }
             if (isIdentityField) {
-                identityField.setType(identityFieldType);
+                identityField.setType(fieldType);
                 identityField.setValidType(isValidType);
                 identityField.setNullable(isOptionalType);
                 identityField.setNullableStartOffset(nullableStartOffset);
@@ -346,6 +347,12 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                 identityField.setTypeLocation(typeNode.location());
                 entity.addIdentityField(identityField);
             }
+
+            if (isSimpleType) {
+                entity.addNonRelationField(new SimpleTypeField(fieldName, fieldType, isValidType,
+                        isOptionalType, isArrayType, fieldNode.location(), typeNode.location()));
+            }
+
         }
     }
 
@@ -399,6 +406,15 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         if (entity.getIdentityFields().isEmpty()) {
             entity.reportDiagnostic(PERSIST_501.getCode(), MessageFormat.format(PERSIST_501.getMessage(),
                     entity.getEntityName()), PERSIST_501.getSeverity(), entity.getEntityNameLocation());
+            entity.getNonRelationFields().stream()
+                    .filter(field -> field.isValidType() && !field.isNullable() &&
+                            !field.isArrayType() && getSupportedIdentityFields().contains(field.getType()))
+                    .forEach(field ->
+                            entity.reportDiagnostic(PERSIST_001.getCode(),
+                                    MessageFormat.format(PERSIST_001.getMessage(), field.getName()),
+                                    PERSIST_001.getSeverity(), entity.getEntityNameLocation(),
+                                    List.of(new BNumericProperty(field.getNodeLocation().textRange().startOffset())))
+                    );
             return;
         }
 
@@ -532,12 +548,14 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         for (String identityField : childEntity.getIdentityFieldNames()) {
             String foreignKey = childEntity.getEntityName().toLowerCase(Locale.ENGLISH) +
                     identityField.substring(0, 1).toUpperCase(Locale.ENGLISH) + identityField.substring(1);
-            NodeLocation foreignKeyFieldLocation = parentEntity.getNonRelationFields().get(foreignKey);
-            if (foreignKeyFieldLocation != null) {
-                reportDiagnosticsEntity.reportDiagnostic(PERSIST_422.getCode(),
-                        MessageFormat.format(PERSIST_422.getMessage(), foreignKey, childEntity.getEntityName()),
-                        PERSIST_422.getSeverity(), foreignKeyFieldLocation);
-            }
+            parentEntity.getNonRelationFields().stream().
+                    filter(field -> field.getName().equals(foreignKey))
+                    .findFirst()
+                    .ifPresent(field ->
+                            reportDiagnosticsEntity.reportDiagnostic(PERSIST_422.getCode(),
+                                    MessageFormat.format(PERSIST_422.getMessage(), foreignKey,
+                                    childEntity.getEntityName()), PERSIST_422.getSeverity(), field.getNodeLocation()));
+
         }
     }
 

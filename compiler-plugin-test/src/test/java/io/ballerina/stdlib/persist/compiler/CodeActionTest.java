@@ -106,6 +106,13 @@ public class CodeActionTest {
                         "PERSIST_305", "CHANGE_TYPE_TO_STRING", "Change to 'string' type"},
                 {"identifier-field-properties.bal", LinePosition.from(16, 15), "identifier-field-properties.bal",
                         "PERSIST_503", "CHANGE_TYPE_TO_STRING", "Change to 'string' type"},
+
+                {"readonly-field.bal", LinePosition.from(3, 16), "readonly-field-beneficiaryId.bal",
+                        "PERSIST_001", "MARK_FIELD_AS_IDENTITY_FIELD", "Mark field 'beneficiaryId' as identity field"},
+                {"readonly-field.bal", LinePosition.from(3, 16), "readonly-field-needId.bal",
+                        "PERSIST_001", "MARK_FIELD_AS_IDENTITY_FIELD", "Mark field 'needId' as identity field"},
+                {"readonly-field.bal", LinePosition.from(3, 16), "readonly-field-quantity.bal",
+                        "PERSIST_001", "MARK_FIELD_AS_IDENTITY_FIELD", "Mark field 'quantity' as identity field"},
         };
     }
 

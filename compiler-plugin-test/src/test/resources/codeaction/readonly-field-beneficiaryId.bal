@@ -4,7 +4,7 @@ import ballerina/persist as _;
 public type MedicalNeed record {|
     int needId;
     int? itemId;
-    int beneficiaryId;
+    readonly int beneficiaryId;
     time:Civil period;
     int quantity;
 |};
