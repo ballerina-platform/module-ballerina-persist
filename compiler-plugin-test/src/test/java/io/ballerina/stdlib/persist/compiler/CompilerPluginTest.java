@@ -48,7 +48,6 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_401;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_402;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_403;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_420;
-import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_421;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_422;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_501;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_502;
@@ -345,23 +344,6 @@ public class CompilerPluginTest {
                 new String[]{
                         "(2:0,2:17)",
                         "(10:4,10:13)"
-                }
-        );
-    }
-
-    @Test
-    public void validateOptionalAssociation() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("optional-association.bal", 1);
-        testDiagnostic(
-                diagnostics,
-                new String[]{
-                        PERSIST_421.getCode()
-                },
-                new String[]{
-                        "an entity does not support nillable relations"
-                },
-                new String[]{
-                        "(14:4,14:13)"
                 }
         );
     }

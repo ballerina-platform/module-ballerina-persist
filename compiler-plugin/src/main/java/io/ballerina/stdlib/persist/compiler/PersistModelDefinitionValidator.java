@@ -86,7 +86,6 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_401;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_402;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_403;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_420;
-import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_421;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_422;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_501;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_502;
@@ -312,11 +311,6 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                         ((SimpleNameReferenceNode) processedTypeNode).name().text().trim());
                 fieldType = typeName;
                 if (this.entityNames.contains(typeName)) {
-                    // Remove once optional associations are supported
-                    if (isOptionalType) {
-                        entity.reportDiagnostic(PERSIST_421.getCode(), PERSIST_421.getMessage(),
-                                PERSIST_421.getSeverity(), typeNode.location());
-                    }
                     isValidType = true;
                     entity.setContainsRelations(true);
                     entity.addRelationField(new RelationField(typeName, isArrayType, recordFieldNode.location(),

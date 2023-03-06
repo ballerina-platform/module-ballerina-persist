@@ -50,7 +50,6 @@ public enum DiagnosticsCodes {
             "the related entity ''{0}'' does not have the {1}-typed relation field", ERROR),
     PERSIST_403("PERSIST_403", "the entity does not support duplicated relations to ''{0}'' entity", ERROR),
     PERSIST_420("PERSIST_420", "many-to-many relation is not supported yet", ERROR),
-    PERSIST_421("PERSIST_421", "an entity does not support nillable relations", ERROR),
     PERSIST_422("PERSIST_422", "the entity should not contain foreign key field ''{0}'' for relation ''{1}''", ERROR),
 
     PERSIST_501("PERSIST_501", "''{0}'' entity must have at least one identity readonly field", ERROR),
