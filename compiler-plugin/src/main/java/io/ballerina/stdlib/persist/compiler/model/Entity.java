@@ -27,9 +27,7 @@ import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -40,7 +38,7 @@ public class Entity {
     private final NodeLocation entityNameLocation;
     private final RecordTypeDescriptorNode typeDescriptorNode;
     private final List<IdentityField> identityFields = new ArrayList<>();
-    private final Map<String, NodeLocation> nonRelationFields = new HashMap<>();
+    private final List<SimpleTypeField> nonRelationFields = new ArrayList<>();
     private final List<RelationField> relationFields = new ArrayList<>();
     private final List<Diagnostic> diagnosticList = new ArrayList<>();
     private boolean containsRelations = false;
@@ -75,12 +73,12 @@ public class Entity {
         this.identityFields.add(field);
     }
 
-    public Map<String, NodeLocation> getNonRelationFields() {
+    public List<SimpleTypeField> getNonRelationFields() {
         return nonRelationFields;
     }
 
-    public void addNonRelationField(String fieldName, NodeLocation location) {
-        this.nonRelationFields.put(fieldName, location);
+    public void addNonRelationField(SimpleTypeField field) {
+        this.nonRelationFields.add(field);
     }
 
     public boolean isContainsRelations() {

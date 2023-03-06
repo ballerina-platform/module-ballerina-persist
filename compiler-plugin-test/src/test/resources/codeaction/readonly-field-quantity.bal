@@ -6,5 +6,5 @@ public type MedicalNeed record {|
     int? itemId;
     int beneficiaryId;
     time:Civil period;
-    int quantity;
+    readonly int quantity;
 |};
