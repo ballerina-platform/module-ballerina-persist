@@ -140,7 +140,7 @@ Say type T is a subtype of SimpleType, and T does not contain (),
 
 ### 2.3. Relationship Definition
 
-Ballerina record fields are used to model the relationship between two entities. The type of the field should be a subtype of EntityType|EntityType[].
+Ballerina record fields are used to model a connection between two entities. The type of the field should be a subtype of EntityType|EntityType?|EntityType[].
 
 This design supports the following cardinalities:
 1. One-to-one (1-1)
@@ -150,9 +150,7 @@ The relation field is mandatory in both entities.
 
 #### 2.3.1. One-to-one (1-1)
  
-A 1-1 relationship is defined by a field of type `EntityType` in both entities. 
-
-Each User must have a Car, and each Car must have an owner.
+A 1-1 relationship is defined by a field of type `EntityType` in one entity and `EntityType?` in the other.
 
 ```ballerina
 type Car record {|
@@ -164,19 +162,21 @@ type Car record {|
 type User record {|
    readonly int id;
    string name;
-   Car car;
+   Car? car;
 |};
 ```
 
-The first record, `Car`, is taken as the parent in the 1-1 relationship and will include the foreign key of the second record, `User`.
+The above entities explains the following,
+ - A `Car` must have a `User` as the owner.
+ - A `User` may own a `Car` or do not own one.
 
-The default foreign key field name will be `userId` in the `Car` table, which refers to the identity field of the `User` table by default. (`<lowercasedRelatedEntityName><First-Letter Capitalized IdentityFieldName>`)
+The first record, `Car`, which holds the `EntityType` field `owner` is taken as the owner in the 1-1 relationship and will include the foreign key of the second record, `User`.
+
+The default foreign key field name will be `userid` in the `Car` table, which refers to the identity field of the `User` table by default. (`<lowercasedRelatedEntityName><First-Letter Capitalized IdentityFieldName>`)
 
 #### 2.3.2. One-to-Many (1-n)
 
 A 1-n relationship is defined by a field of type `EntityType` in one entity and `EntityType[]` in the other.
-
-A User can own zero or more cars, and a Car must have an owner. 
 
 ```ballerina
 type Car record {|
@@ -191,7 +191,12 @@ type User record {|
    Car[] cars;
 |};
 ```
-The entity that contains the field of type `EntityType` is taken as the parent in the 1-n relationship and will include the foreign key.
+
+The above entities explains the following,
+- A `Car` must have a `User` as the owner.
+- A `User` may own multiple `Car`s or do not own one. (Represented with empty array `[]`)
+- 
+The entity that contains the field of type `EntityType` is taken as the owner in the 1-n relationship and will include the foreign key.
 
 The default foreign key field name will be `userId` in the `Car` table, which refers to the identity field of the `User` table by default. (`<lowercasedRelatedEntityName><First-Letter Capitalized IdentityFieldName>`)
 
