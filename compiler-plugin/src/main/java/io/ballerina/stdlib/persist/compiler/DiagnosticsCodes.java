@@ -27,7 +27,8 @@ import static io.ballerina.tools.diagnostics.DiagnosticSeverity.INTERNAL;
  * Persist related diagnostic codes.
  */
 public enum DiagnosticsCodes {
-
+    
+    // Internal diagnostics used to hold detials of the entity fields for entities w/o identity fields
     PERSIST_001("PERSIST_001", "{0}", INTERNAL),
 
     PERSIST_101("PERSIST_101", "persist model definition only supports record definitions", ERROR),
