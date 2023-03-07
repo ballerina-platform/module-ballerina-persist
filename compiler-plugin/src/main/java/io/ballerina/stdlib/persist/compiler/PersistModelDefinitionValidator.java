@@ -562,9 +562,9 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                     filter(field -> field.getName().equals(foreignKey))
                     .findFirst()
                     .ifPresent(field ->
-                            reportDiagnosticsEntity.reportDiagnostic(PERSIST_422.getCode(),
-                                    MessageFormat.format(PERSIST_422.getMessage(), foreignKey,
-                                    childEntity.getEntityName()), PERSIST_422.getSeverity(), field.getNodeLocation()));
+                            reportDiagnosticsEntity.reportDiagnostic(PERSIST_422.getCode(), MessageFormat.format(
+                                            PERSIST_422.getMessage(), foreignKey, childEntity.getEntityName()),
+                                    PERSIST_422.getSeverity(), field.getNodeLocation()));
 
         }
     }
