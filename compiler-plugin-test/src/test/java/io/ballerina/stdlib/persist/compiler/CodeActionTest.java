@@ -93,6 +93,12 @@ public class CodeActionTest {
                         "Add 'Workspace2'-typed field in 'Building1' entity"},
                 {"nillable-relation-field.bal", LinePosition.from(14, 9), "nillable-relation-field.bal",
                         "PERSIST_406", "REMOVE_TEXT_RANGE", "Change to 'Building' type"},
+                {"nillable-relation-field.bal", LinePosition.from(59, 11),
+                        "nillable-relation-field-1-1-both-optional.bal",
+                        "PERSIST_003", "REMOVE_TEXT_RANGE", "Change 'Workspace4.location' to non-nillable field"},
+                {"nillable-relation-field.bal", LinePosition.from(59, 11),
+                        "nillable-relation-field-1-1-both-optional2.bal",
+                        "PERSIST_003", "REMOVE_TEXT_RANGE", "Change 'Building4.workspaces' to non-nillable field"},
 
                 {"field-types.bal", LinePosition.from(15, 6), "field-types-boolean.bal",
                         "PERSIST_305", "CHANGE_TYPE_TO_BOOLEAN", "Change to 'boolean' type"},
