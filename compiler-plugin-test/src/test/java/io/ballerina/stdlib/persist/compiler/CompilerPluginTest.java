@@ -20,11 +20,8 @@ package io.ballerina.stdlib.persist.compiler;
 
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Package;
-import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
-import io.ballerina.projects.environment.Environment;
-import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
@@ -56,20 +53,15 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_422;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_501;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_502;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_503;
+import static io.ballerina.stdlib.persist.compiler.TestUtils.getEnvironmentBuilder;
 
 /**
  * Tests persist compiler plugin.
  */
 public class CompilerPluginTest {
 
-    private static ProjectEnvironmentBuilder getEnvironmentBuilder() {
-        Path distributionPath = Paths.get("../", "target", "ballerina-runtime").toAbsolutePath();
-        Environment environment = EnvironmentBuilder.getBuilder().setBallerinaHome(distributionPath).build();
-        return ProjectEnvironmentBuilder.getBuilder(environment);
-    }
-
     private Package loadPersistModelFile(String name) {
-        Path projectDirPath = Paths.get("src", "test", "resources", "test-src", "project_2", "persist").
+        Path projectDirPath = Paths.get("src", "test", "resources", "project_2", "persist").
                 toAbsolutePath().resolve(name);
         SingleFileProject project = SingleFileProject.load(getEnvironmentBuilder(), projectDirPath);
         return project.currentPackage();
@@ -77,7 +69,7 @@ public class CompilerPluginTest {
 
     @Test
     public void identifyModelFileFailure1() {
-        Path projectDirPath = Paths.get("src", "test", "resources", "test-src", "persist").
+        Path projectDirPath = Paths.get("src", "test", "resources", "persist").
                 toAbsolutePath().resolve("single-bal.bal");
         SingleFileProject project = SingleFileProject.load(getEnvironmentBuilder(), projectDirPath);
         DiagnosticResult diagnosticResult = project.currentPackage().getCompilation().diagnosticResult();
@@ -86,7 +78,7 @@ public class CompilerPluginTest {
 
     @Test
     public void identifyModelFileFailure2() {
-        Path projectDirPath = Paths.get("src", "test", "resources", "test-src", "project_1", "resources").
+        Path projectDirPath = Paths.get("src", "test", "resources", "project_1", "resources").
                 toAbsolutePath().resolve("single-bal.bal");
         SingleFileProject project = SingleFileProject.load(getEnvironmentBuilder(), projectDirPath);
         DiagnosticResult diagnosticResult = project.currentPackage().getCompilation().diagnosticResult();
@@ -95,7 +87,7 @@ public class CompilerPluginTest {
 
     @Test
     public void skipValidationsForBalProjectFiles() {
-        Path projectDirPath = Paths.get("src", "test", "resources", "test-src", "project_1").
+        Path projectDirPath = Paths.get("src", "test", "resources", "project_1").
                 toAbsolutePath();
         BuildProject project2 = BuildProject.load(getEnvironmentBuilder(), projectDirPath);
         DiagnosticResult diagnosticResult = project2.currentPackage().getCompilation().diagnosticResult();
@@ -164,26 +156,29 @@ public class CompilerPluginTest {
 
     @Test
     public void validateEntityFieldType() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("field-types.bal", 4);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("field-types.bal", 5);
         testDiagnostic(
                 diagnostics,
                 new String[]{
                         PERSIST_306.getCode(),
                         PERSIST_305.getCode(),
                         PERSIST_305.getCode(),
+                        PERSIST_306.getCode(),
                         PERSIST_305.getCode()
                 },
                 new String[]{
                         "an entity does not support boolean array field type",
                         "an entity does not support json-typed field",
                         "an entity does not support json[]-typed field",
+                        "an entity does not support time:Civil array field type",
                         "an entity does not support union-typed field"
                 },
                 new String[]{
-                        "(12:4,12:11)",
+                        "(12:4,12:13)",
                         "(14:4,14:8)",
                         "(15:4,15:10)",
-                        "(18:4,18:21)"
+                        "(18:4,18:16)",
+                        "(19:4,19:21)"
                 }
         );
     }
@@ -407,7 +402,7 @@ public class CompilerPluginTest {
                 }
         );
     }
-    
+
     @Test
     public void validateEntityNamesCaseSensitivity() {
         List<Diagnostic> diagnostics = getErrorDiagnostics("case-sensitive-entities.bal", 2);

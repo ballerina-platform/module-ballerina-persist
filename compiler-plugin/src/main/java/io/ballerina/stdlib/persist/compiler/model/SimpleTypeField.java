@@ -21,19 +21,27 @@ package io.ballerina.stdlib.persist.compiler.model;
 import io.ballerina.compiler.syntax.tree.NodeLocation;
 
 /**
- * Model Class for identity field.
+ * Simple type field model.
  */
-public class IdentityField {
-    private final String name;
-    private String type;
-    private int readonlyTextRangeStartOffset = 0;
-    private boolean isNullable = false;
-    private int nullableStartOffset = 0;
-    private boolean isValidType = false;
-    private NodeLocation typeLocation;
+public class SimpleTypeField {
 
-    public IdentityField(String name) {
+    private final String name;
+    private final String type;
+    private final boolean isValidType;
+    private final boolean isNullable;
+    private final boolean isArrayType;
+    private final NodeLocation nodeLocation;
+    private final NodeLocation typeLocation;
+
+    public SimpleTypeField(String name, String type, boolean isValidType, boolean isNullable,
+                           boolean isArrayType, NodeLocation location, NodeLocation typeLocation) {
         this.name = name;
+        this.type = type;
+        this.isValidType = isValidType;
+        this.isNullable = isNullable;
+        this.isArrayType = isArrayType;
+        this.nodeLocation = location;
+        this.typeLocation = typeLocation;
     }
 
     public String getName() {
@@ -44,47 +52,23 @@ public class IdentityField {
         return type;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public int getReadonlyTextRangeStartOffset() {
-        return readonlyTextRangeStartOffset;
-    }
-
-    public void setReadonlyTextRangeStartOffset(int readonlyTextRangeStartOffset) {
-        this.readonlyTextRangeStartOffset = readonlyTextRangeStartOffset;
-    }
-
     public boolean isValidType() {
         return isValidType;
-    }
-
-    public void setValidType(boolean validType) {
-        isValidType = validType;
     }
 
     public boolean isNullable() {
         return isNullable;
     }
 
-    public void setNullable(boolean nullable) {
-        isNullable = nullable;
+    public boolean isArrayType() {
+        return isArrayType;
     }
 
-    public int getNullableStartOffset() {
-        return nullableStartOffset;
-    }
-
-    public void setNullableStartOffset(int nullableStartOffset) {
-        this.nullableStartOffset = nullableStartOffset;
+    public NodeLocation getNodeLocation() {
+        return nodeLocation;
     }
 
     public NodeLocation getTypeLocation() {
         return typeLocation;
-    }
-
-    public void setTypeLocation(NodeLocation typeLocation) {
-        this.typeLocation = typeLocation;
     }
 }

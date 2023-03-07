@@ -22,4 +22,5 @@ module io.ballerina.stdlib.persist.plugin {
     requires io.ballerina.tools.api;
     exports io.ballerina.stdlib.persist.compiler;
     exports io.ballerina.stdlib.persist.compiler.model;
+    exports io.ballerina.stdlib.persist.compiler.codeaction;
 }
