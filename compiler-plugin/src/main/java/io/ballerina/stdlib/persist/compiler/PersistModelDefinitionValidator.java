@@ -410,10 +410,10 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                     .filter(field -> field.isValidType() && !field.isNullable() &&
                             !field.isArrayType() && getSupportedIdentityFields().contains(field.getType()))
                     .forEach(field ->
-                            entity.reportDiagnostic(PERSIST_001.getCode(),
-                                    MessageFormat.format(PERSIST_001.getMessage(), field.getName()),
+                            entity.reportDiagnostic(PERSIST_001.getCode(), PERSIST_001.getMessage(),
                                     PERSIST_001.getSeverity(), entity.getEntityNameLocation(),
-                                    List.of(new BNumericProperty(field.getNodeLocation().textRange().startOffset())))
+                                    List.of(new BNumericProperty(field.getNodeLocation().textRange().startOffset()),
+                                            new BStringProperty(field.getName())))
                     );
             return;
         }
