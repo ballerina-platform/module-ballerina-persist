@@ -92,12 +92,10 @@ public type JoinMetadata record {|
 # + ONE_TO_ONE - The association type is a one-to-one association
 # + ONE_TO_MANY - The entity is in the 'one' side of a one-to-many association
 # + MANY_TO_ONE - The entity is in the 'many' side of a one-to-many association
-# + MANY_TO_MANY - The association type is a many-to-many association
 public enum JoinType {
     ONE_TO_ONE,
     ONE_TO_MANY,
-    MANY_TO_ONE,
-    MANY_TO_MANY
+    MANY_TO_ONE
 }
 
 //regex for "type" keyword following by string of characters

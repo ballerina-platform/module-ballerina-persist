@@ -110,7 +110,7 @@ public client class SQLClient {
         foreach string joinKey in joinKeys {
             if include.indexOf(joinKey) != () {
                 JoinMetadata joinMetadata = self.joinMetadata.get(joinKey);
-                if joinMetadata.'type == MANY_TO_MANY || joinMetadata.'type == MANY_TO_ONE {
+                if joinMetadata.'type == MANY_TO_ONE {
                     continue;
                 }
                 query = sql:queryConcat(query, ` LEFT JOIN `, stringToParameterizedQuery(joinMetadata.refTable + " " + joinKey),
@@ -172,41 +172,17 @@ public client class SQLClient {
             sql:ParameterizedQuery query = ``;
             JoinMetadata joinMetadata = self.joinMetadata.get(joinKey);
 
-            if include.indexOf(joinKey) != () && (joinMetadata.'type == MANY_TO_ONE || joinMetadata.'type == MANY_TO_MANY) {
-                if joinMetadata.'type == MANY_TO_ONE {
-                    map<string> whereFilter = {};
-                    foreach int i in 0 ..< joinMetadata.refColumns.length() {
-                        whereFilter[joinMetadata.refColumns[i]] = 'object[check self.getFieldFromColumn(joinMetadata.joinColumns[i])].toBalString();
-                    }
-
-                    query = sql:queryConcat(
-                        ` SELECT `, self.getManyRelationColumnNames(joinMetadata.fieldName),
-                        ` FROM `, stringToParameterizedQuery(joinMetadata.refTable),
-                        ` WHERE`, check self.getWhereClauses(whereFilter, true)
-                    );
-                } else {
-                    string joinTable = <string>joinMetadata.joinTable;
-                    string[] joiningRefColumns = <string[]>joinMetadata.joiningRefColumns;
-                    string[] joiningJoinColumns = <string[]>joinMetadata.joiningJoinColumns;
-
-                    sql:ParameterizedQuery whereFields = arrayToParameterizedQuery(joinMetadata.refColumns);
-                    sql:ParameterizedQuery joinSelectColumns = arrayToParameterizedQuery(joinMetadata.joinColumns);
-
-                    map<string> innerWhereFilter = {};
-                    foreach int i in 0 ..< joiningRefColumns.length() {
-                        innerWhereFilter[joiningRefColumns[i]] = 'object[check self.getFieldFromColumn(joiningJoinColumns[i])].toString();
-                    }
-
-                    query = sql:queryConcat(
-                        ` SELECT`, self.getManyRelationColumnNames(joinMetadata.fieldName),
-                        ` FROM `, stringToParameterizedQuery(joinMetadata.refTable),
-                        ` WHERE (`, whereFields, `) IN (`,
-                            ` SELECT `, joinSelectColumns,
-                            ` FROM `, stringToParameterizedQuery(joinTable),
-                            ` WHERE`, check self.getWhereClauses(innerWhereFilter),
-                        `)`
-                    );
+            if include.indexOf(joinKey) != () && joinMetadata.'type == MANY_TO_ONE {
+                map<string> whereFilter = {};
+                foreach int i in 0 ..< joinMetadata.refColumns.length() {
+                    whereFilter[joinMetadata.refColumns[i]] = 'object[check self.getFieldFromColumn(joinMetadata.joinColumns[i])].toBalString();
                 }
+
+                query = sql:queryConcat(
+                    ` SELECT `, self.getManyRelationColumnNames(joinMetadata.fieldName),
+                    ` FROM `, stringToParameterizedQuery(joinMetadata.refTable),
+                    ` WHERE`, check self.getWhereClauses(whereFilter, true)
+                );
 
                 stream<record {}, sql:Error?> joinStream = self.dbClient->query(query, joinMetadata.entity);
                 record {}[]|error arr = from record {} item in joinStream

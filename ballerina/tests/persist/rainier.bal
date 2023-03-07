@@ -10,6 +10,7 @@ type Employee record {|
 
     Department department;
     Workspace workspace;
+    Certification[] certifications;
 |};
 
 type Workspace record {|
@@ -43,4 +44,11 @@ type OrderItem record {|
     readonly string itemId;
     int quantity;
     string notes;
+|};
+
+type Certification record {|
+    readonly string certificationId;
+    string name;
+
+    Employee[] completions;
 |};
