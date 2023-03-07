@@ -77,7 +77,7 @@ function employeeRelationsTest() returns error? {
 public type DepartmentInfo record {|
     readonly string deptNo;
     string deptName;
-    Employee[] employee;
+    Employee[] employees;
 |};
 
 @test:Config {
@@ -141,7 +141,7 @@ function departmentRelationsTest() returns error? {
     DepartmentInfo expected = {
         deptNo: "department-12",
         deptName: "Marketing",
-        employee: [employee11, employee12]
+        employees: [employee11, employee12]
     };
 
     test:assertTrue(departments.indexOf(expected) is int, "Expected DepartmentInfo not found.");
@@ -152,7 +152,7 @@ public type WorkspaceInfo record {|
     readonly string workspaceId;
     string workspaceType;
     Building location;
-    Employee[] employee;
+    Employee[] employees;
 |};
 
 @test:Config {
@@ -189,7 +189,7 @@ function workspaceRelationsTest() returns error? {
             postalCode: "10570",
             'type: "owned"
         },
-        employee: [
+        employees: [
             {
                 empNo: "employee-21",
                 firstName: "Tom",
@@ -236,7 +236,7 @@ public type BuildingInfo record {|
     string country;
     string postalCode;
     string 'type;
-    Workspace[] workspace;
+    Workspace[] workspaces;
 |};
 
 @test:Config {
@@ -257,7 +257,7 @@ function buildingRelationsTest() returns error? {
         country: "USA",
         postalCode: "10570",
         'type: "owned",
-        workspace: [
+        workspaces: [
             {
                 workspaceId: "workspace-22",
                 workspaceType: "medium",

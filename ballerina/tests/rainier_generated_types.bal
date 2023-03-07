@@ -131,18 +131,18 @@ public type EmployeeWithRelations record {|
 
 public type DepartmentWithRelations record {|
     *DepartmentOptionalized;
-    EmployeeOptionalized[] employee?;
+    EmployeeOptionalized[] employees?;
 |};
 
 public type WorkspaceWithRelations record {|
     *WorkspaceOptionalized;
     BuildingOptionalized location?;
-    EmployeeOptionalized[] employee?;
+    EmployeeOptionalized[] employees?;
 |};
 
 public type BuildingWithRelations record {|
     *BuildingOptionalized;
-    WorkspaceOptionalized[] workspace?;
+    WorkspaceOptionalized[] workspaces?;
 |};
 
 public type EmployeeTargetType typedesc<EmployeeWithRelations>;

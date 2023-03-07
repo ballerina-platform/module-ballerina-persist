@@ -17,7 +17,7 @@ type Workspace record {|
     string workspaceType;
 
     Building location;
-    Employee[] employee;
+    Employee[] employees;
 |};
 
 type Building record {|

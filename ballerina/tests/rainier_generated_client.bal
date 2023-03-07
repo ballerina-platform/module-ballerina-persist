@@ -53,19 +53,19 @@ public client class RainierClient {
                 "location.country": {relation: {entityName: "building", refField: "country"}},
                 "location.postalCode": {relation: {entityName: "building", refField: "postalCode"}},
                 "location.type": {relation: {entityName: "building", refField: "type"}},
-                "employee[].empNo": {relation: {entityName: "employee", refField: "empNo"}},
-                "employee[].firstName": {relation: {entityName: "employee", refField: "firstName"}},
-                "employee[].lastName": {relation: {entityName: "employee", refField: "lastName"}},
-                "employee[].birthDate": {relation: {entityName: "employee", refField: "birthDate"}},
-                "employee[].gender": {relation: {entityName: "employee", refField: "gender"}},
-                "employee[].hireDate": {relation: {entityName: "employee", refField: "hireDate"}},
-                "employee[].departmentDeptNo": {relation: {entityName: "employee", refField: "departmentDeptNo"}},
-                "employee[].workspaceWorkspaceId": {relation: {entityName: "employee", refField: "workspaceWorkspaceId"}}
+                "employees[].empNo": {relation: {entityName: "employee", refField: "empNo"}},
+                "employees[].firstName": {relation: {entityName: "employee", refField: "firstName"}},
+                "employees[].lastName": {relation: {entityName: "employee", refField: "lastName"}},
+                "employees[].birthDate": {relation: {entityName: "employee", refField: "birthDate"}},
+                "employees[].gender": {relation: {entityName: "employee", refField: "gender"}},
+                "employees[].hireDate": {relation: {entityName: "employee", refField: "hireDate"}},
+                "employees[].departmentDeptNo": {relation: {entityName: "employee", refField: "departmentDeptNo"}},
+                "employees[].workspaceWorkspaceId": {relation: {entityName: "employee", refField: "workspaceWorkspaceId"}}
             },
             keyFields: ["workspaceId"],
             joinMetadata: {
                 location: {entity: Building, fieldName: "location", refTable: "Building", refColumns: ["buildingCode"], joinColumns: ["locationBuildingCode"], 'type: ONE_TO_MANY},
-                employee: {entity: Employee, fieldName: "employee", refTable: "Employee", refColumns: ["workspaceWorkspaceId"], joinColumns: ["workspaceId"], 'type: MANY_TO_ONE}
+                employees: {entity: Employee, fieldName: "employees", refTable: "Employee", refColumns: ["workspaceWorkspaceId"], joinColumns: ["workspaceId"], 'type: MANY_TO_ONE}
             }
         },
         "building": {
@@ -78,13 +78,13 @@ public client class RainierClient {
                 country: {columnName: "country"},
                 postalCode: {columnName: "postalCode"},
                 'type: {columnName: "type"},
-                "workspace[].workspaceId": {relation: {entityName: "workspace", refField: "workspaceId"}},
-                "workspace[].workspaceType": {relation: {entityName: "workspace", refField: "workspaceType"}},
-                "workspace[].locationBuildingCode": {relation: {entityName: "workspace", refField: "locationBuildingCode"}}
+                "workspaces[].workspaceId": {relation: {entityName: "workspace", refField: "workspaceId"}},
+                "workspaces[].workspaceType": {relation: {entityName: "workspace", refField: "workspaceType"}},
+                "workspaces[].locationBuildingCode": {relation: {entityName: "workspace", refField: "locationBuildingCode"}}
             },
             keyFields: ["buildingCode"],
             joinMetadata: {
-                workspace: {entity: Workspace, fieldName: "workspace", refTable: "Workspace", refColumns: ["locationBuildingCode"], joinColumns: ["buildingCode"], 'type: MANY_TO_ONE}
+                workspaces: {entity: Workspace, fieldName: "workspaces", refTable: "Workspace", refColumns: ["locationBuildingCode"], joinColumns: ["buildingCode"], 'type: MANY_TO_ONE}
             }
         },
         "department": {
@@ -93,18 +93,18 @@ public client class RainierClient {
             fieldMetadata: {
                 deptNo: {columnName: "deptNo"},
                 deptName: {columnName: "deptName"},
-                "employee[].empNo": {relation: {entityName: "employee", refField: "empNo"}},
-                "employee[].firstName": {relation: {entityName: "employee", refField: "firstName"}},
-                "employee[].lastName": {relation: {entityName: "employee", refField: "lastName"}},
-                "employee[].birthDate": {relation: {entityName: "employee", refField: "birthDate"}},
-                "employee[].gender": {relation: {entityName: "employee", refField: "gender"}},
-                "employee[].hireDate": {relation: {entityName: "employee", refField: "hireDate"}},
-                "employee[].departmentDeptNo": {relation: {entityName: "employee", refField: "departmentDeptNo"}},
-                "employee[].workspaceWorkspaceId": {relation: {entityName: "employee", refField: "workspaceWorkspaceId"}}
+                "employees[].empNo": {relation: {entityName: "employee", refField: "empNo"}},
+                "employees[].firstName": {relation: {entityName: "employee", refField: "firstName"}},
+                "employees[].lastName": {relation: {entityName: "employee", refField: "lastName"}},
+                "employees[].birthDate": {relation: {entityName: "employee", refField: "birthDate"}},
+                "employees[].gender": {relation: {entityName: "employee", refField: "gender"}},
+                "employees[].hireDate": {relation: {entityName: "employee", refField: "hireDate"}},
+                "employees[].departmentDeptNo": {relation: {entityName: "employee", refField: "departmentDeptNo"}},
+                "employees[].workspaceWorkspaceId": {relation: {entityName: "employee", refField: "workspaceWorkspaceId"}}
             },
             keyFields: ["deptNo"],
             joinMetadata: {
-                employee: {entity: Employee, fieldName: "employee", refTable: "Employee", refColumns: ["departmentDeptNo"], joinColumns: ["deptNo"], 'type: MANY_TO_ONE}
+                employees: {entity: Employee, fieldName: "employees", refTable: "Employee", refColumns: ["departmentDeptNo"], joinColumns: ["deptNo"], 'type: MANY_TO_ONE}
             }
         },
         "orderitem": {
