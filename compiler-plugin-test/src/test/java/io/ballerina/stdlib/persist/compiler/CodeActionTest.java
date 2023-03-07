@@ -91,6 +91,8 @@ public class CodeActionTest {
                 {"mandatory-relation-field.bal", LinePosition.from(27, 19), "mandatory-relation-field2.bal",
                         "PERSIST_402", "ADD_RELATION_FIELD_IN_RELATED_ENTITY",
                         "Add 'Workspace2'-typed field in 'Building1' entity"},
+                {"nillable-relation-field.bal", LinePosition.from(14, 9), "nillable-relation-field.bal",
+                        "PERSIST_406", "REMOVE_TEXT_RANGE", "Change to 'Building' type"},
 
                 {"field-types.bal", LinePosition.from(15, 6), "field-types-boolean.bal",
                         "PERSIST_305", "CHANGE_TYPE_TO_BOOLEAN", "Change to 'boolean' type"},

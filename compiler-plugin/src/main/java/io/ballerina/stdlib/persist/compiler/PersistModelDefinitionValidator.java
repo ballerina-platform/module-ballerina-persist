@@ -316,10 +316,10 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                 if (this.entityNames.contains(typeName)) {
                     isValidType = true;
                     entity.setContainsRelations(true);
-                    entity.addRelationField(new RelationField(typeName, isOptionalType, isArrayType,
-                            recordFieldNode.location(), entity.getEntityName()));
-                    // Revisit once https://github.com/ballerina-platform/ballerina-lang/issues/39441 is resolved
+                    entity.addRelationField(new RelationField(typeName, isOptionalType, nullableStartOffset,
+                            isArrayType, recordFieldNode.location(), entity.getEntityName()));
                 } else {
+                    // Revisit once https://github.com/ballerina-platform/ballerina-lang/issues/39441 is resolved
                     List<DiagnosticProperty<?>> properties = List.of(
                             new BNumericProperty(arrayStartOffset),
                             new BNumericProperty(arrayLength),
@@ -538,18 +538,22 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         }
 
         // 1:n relations
-        if (processingField.isOptionalType()) {
-            reportDiagnosticsEntity.reportDiagnostic(PERSIST_406.getCode(), PERSIST_406.getMessage(),
-                    PERSIST_406.getSeverity(), processingField.getLocation());
-        }
-        if (referredField.isOptionalType()) {
-            reportDiagnosticsEntity.reportDiagnostic(PERSIST_406.getCode(), PERSIST_406.getMessage(),
-                    PERSIST_406.getSeverity(), referredField.getLocation());
-        }
+        validateNillableTypeFor1ToMany(processingField, reportDiagnosticsEntity);
+        validateNillableTypeFor1ToMany(referredField, reportDiagnosticsEntity);
         if (!processingField.isArrayType()) {
             validatePresenceOfForeignKey(processingEntity, referredEntity, reportDiagnosticsEntity);
         } else {
             validatePresenceOfForeignKey(referredEntity, processingEntity, reportDiagnosticsEntity);
+        }
+    }
+
+    private void validateNillableTypeFor1ToMany(RelationField field, Entity reportDiagnosticsEntity) {
+        if (field.isOptionalType()) {
+            String type = field.isArrayType() ? field.getType() + "[]" : field.getType();
+            reportDiagnosticsEntity.reportDiagnostic(PERSIST_406.getCode(), PERSIST_406.getMessage(),
+                    PERSIST_406.getSeverity(), field.getLocation(),
+                    List.of(new BNumericProperty(field.getNullableStartOffset()),
+                            new BNumericProperty(1), new BStringProperty(type)));
         }
     }
 
