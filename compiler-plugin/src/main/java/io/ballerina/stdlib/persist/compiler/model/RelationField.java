@@ -25,13 +25,15 @@ import io.ballerina.compiler.syntax.tree.NodeLocation;
  */
 public class RelationField {
     private final String type;
+    private final boolean isOptionalType;
     private final boolean isArrayType;
     private final String containingEntity;
     private final NodeLocation location;
 
-    public RelationField(String type, boolean isArrayType, NodeLocation location,
+    public RelationField(String type, boolean isOptionalType, boolean isArrayType, NodeLocation location,
                          String containingEntity) {
         this.type = type;
+        this.isOptionalType = isOptionalType;
         this.isArrayType = isArrayType;
         this.location = location;
         this.containingEntity = containingEntity;
@@ -39,6 +41,10 @@ public class RelationField {
 
     public String getType() {
         return type;
+    }
+
+    public boolean isOptionalType() {
+        return isOptionalType;
     }
 
     public boolean isArrayType() {

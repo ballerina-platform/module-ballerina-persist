@@ -85,6 +85,9 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_307;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_401;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_402;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_403;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_404;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_405;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_406;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_420;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_422;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_501;
@@ -313,8 +316,8 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                 if (this.entityNames.contains(typeName)) {
                     isValidType = true;
                     entity.setContainsRelations(true);
-                    entity.addRelationField(new RelationField(typeName, isArrayType, recordFieldNode.location(),
-                            entity.getEntityName()));
+                    entity.addRelationField(new RelationField(typeName, isOptionalType, isArrayType,
+                            recordFieldNode.location(), entity.getEntityName()));
                     // Revisit once https://github.com/ballerina-platform/ballerina-lang/issues/39441 is resolved
                 } else {
                     List<DiagnosticProperty<?>> properties = List.of(
@@ -512,8 +515,13 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
 
         // 1:1 relations
         if (!processingField.isArrayType() && !referredField.isArrayType()) {
-            // Processing second entity
-            if (processingEntity.getEntityName().equals(reportDiagnosticsEntity.getEntityName())) {
+            if (!processingField.isOptionalType() && !referredField.isOptionalType()) {
+                reportDiagnosticsEntity.reportDiagnostic(PERSIST_404.getCode(), PERSIST_404.getMessage(),
+                        PERSIST_404.getSeverity(), processingField.getLocation());
+            } else if (processingField.isOptionalType() && referredField.isOptionalType()) {
+                reportDiagnosticsEntity.reportDiagnostic(PERSIST_405.getCode(), PERSIST_405.getMessage(),
+                        PERSIST_405.getSeverity(), processingField.getLocation());
+            } else if (processingField.isOptionalType()) {
                 validatePresenceOfForeignKey(referredEntity, processingEntity, reportDiagnosticsEntity);
             } else {
                 validatePresenceOfForeignKey(processingEntity, referredEntity, reportDiagnosticsEntity);
@@ -530,6 +538,14 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         }
 
         // 1:n relations
+        if (processingField.isOptionalType()) {
+            reportDiagnosticsEntity.reportDiagnostic(PERSIST_406.getCode(), PERSIST_406.getMessage(),
+                    PERSIST_406.getSeverity(), processingField.getLocation());
+        }
+        if (referredField.isOptionalType()) {
+            reportDiagnosticsEntity.reportDiagnostic(PERSIST_406.getCode(), PERSIST_406.getMessage(),
+                    PERSIST_406.getSeverity(), referredField.getLocation());
+        }
         if (!processingField.isArrayType()) {
             validatePresenceOfForeignKey(processingEntity, referredEntity, reportDiagnosticsEntity);
         } else {
@@ -552,7 +568,6 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
 
         }
     }
-
 
     private boolean isPersistModelDefinitionDocument(SyntaxNodeAnalysisContext ctx) {
         try {

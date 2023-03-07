@@ -7,7 +7,7 @@ public type MedicalNeed record {|
     int beneficiaryId;
     time:Civil period;
     int quantity;
-    MedicalNeed1 mn1;
+    MedicalNeed1? mn1;
 |};
 
 public type MedicalNeed1 record {|
