@@ -136,11 +136,11 @@ public client class SQLClient {
 
         sql:ExecutionResult|sql:Error? e = self.dbClient->execute(query);
         if e is sql:Error {
-            if e.message().indexOf("a foreign key constraint fails ") is () {
-                return <Error>error(e.message());
+            if e.message().indexOf("a foreign key constraint fails ") is int {
+                return <ForeignKeyConstraintViolationError>error(e.message());
             }
             else {
-                return <ForeignKeyConstraintViolationError>error(e.message());
+                return <Error>error(e.message());
             }
         }
     }
@@ -247,12 +247,12 @@ public client class SQLClient {
         }
         return params;
     }
+
     private isolated function getSelectColumnNames(string[] fields, string[] include) returns sql:ParameterizedQuery {
         sql:ParameterizedQuery params = ` `;
         int columnCount = 0;
 
         foreach string key in self.fieldMetadata.keys() {
-            // TODO: remove empty fields check
             if fields != [] && fields.indexOf(key) == () {
                 continue;
             }
@@ -291,8 +291,7 @@ public client class SQLClient {
                 continue;
             }
 
-            int? splitIndex = key.indexOf(prefix + "[].");
-            if splitIndex is () {
+            if key.indexOf(prefix + "[].") is () {
                 continue;
             }
 
@@ -310,7 +309,7 @@ public client class SQLClient {
     private isolated function getGetKeyWhereClauses(anydata key) returns sql:ParameterizedQuery|Error {
         map<anydata> filter = {};
 
-        if key is record {} || key is map<any> {
+        if key is map<any> {
             filter = key;
         } else {
             filter[self.keyFields[0]] = key;
@@ -394,7 +393,6 @@ public client class SQLClient {
         }
         return key.substring(0, splitIndex);
     }
-
 
 }
 

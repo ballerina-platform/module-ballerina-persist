@@ -62,4 +62,5 @@ type AllTypesIdRecord record {|
     readonly decimal decimalType;
     readonly string stringType;
     string randomField;
+    CompositeAssociationRecord compositeAssociationRecord;
 |};

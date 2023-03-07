@@ -85,6 +85,15 @@ public type OrderItemUpdate record {|
     string notes?;
 |};
 
+public type Customer record {|
+    readonly string customerId;
+    string firstName;
+    string lastName;
+    string email;
+    string phone;
+    string address;
+|};
+
 public type BuildingOptionalized record {|
     readonly string buildingCode?;
     string city?;
