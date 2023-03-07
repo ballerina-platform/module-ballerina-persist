@@ -100,6 +100,13 @@ public class CodeActionTest {
                         "nillable-relation-field-1-1-both-optional2.bal",
                         "PERSIST_003", "REMOVE_TEXT_RANGE", "Change 'Building4.workspaces' to non-nillable field"},
 
+                {"nillable-relation-field.bal", LinePosition.from(44, 9),
+                        "nillable-relation-field-building3-owner.bal",
+                        "PERSIST_002", "MAKE_ENTITY_RELATION_OWNER", "Make 'Building3' entity relation owner"},
+                {"nillable-relation-field.bal", LinePosition.from(44, 9),
+                        "nillable-relation-field-workspace3-owner.bal",
+                        "PERSIST_002", "MAKE_ENTITY_RELATION_OWNER", "Make 'Workspace3' entity relation owner"},
+
                 {"field-types.bal", LinePosition.from(15, 6), "field-types-boolean.bal",
                         "PERSIST_305", "CHANGE_TYPE_TO_BOOLEAN", "Change to 'boolean' type"},
                 {"field-types.bal", LinePosition.from(15, 6), "field-types-byte[].bal",

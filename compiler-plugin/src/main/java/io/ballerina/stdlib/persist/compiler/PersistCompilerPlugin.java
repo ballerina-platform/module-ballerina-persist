@@ -29,6 +29,7 @@ import io.ballerina.stdlib.persist.compiler.codeaction.ChangeTypeToDecimal;
 import io.ballerina.stdlib.persist.compiler.codeaction.ChangeTypeToFloat;
 import io.ballerina.stdlib.persist.compiler.codeaction.ChangeTypeToInt;
 import io.ballerina.stdlib.persist.compiler.codeaction.ChangeTypeToString;
+import io.ballerina.stdlib.persist.compiler.codeaction.MakeEntityRelationOwner;
 import io.ballerina.stdlib.persist.compiler.codeaction.MarkFieldAsIdentityField;
 import io.ballerina.stdlib.persist.compiler.codeaction.RemoveDiagnosticLocation;
 import io.ballerina.stdlib.persist.compiler.codeaction.RemoveTextRange;
@@ -53,6 +54,7 @@ public class PersistCompilerPlugin extends CompilerPlugin {
                 new ChangeToClosedRecord(),
                 new AddRelationFieldInRelatedEntity(),
                 new MarkFieldAsIdentityField(),
+                new MakeEntityRelationOwner(),
                 new ChangeTypeToInt(),
                 new ChangeTypeToString(),
                 new ChangeTypeToBoolean(),

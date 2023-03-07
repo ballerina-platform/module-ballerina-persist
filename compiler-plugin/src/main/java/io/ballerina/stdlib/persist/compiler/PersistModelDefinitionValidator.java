@@ -71,6 +71,7 @@ import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.STRI
 import static io.ballerina.stdlib.persist.compiler.Constants.PERSIST_DIRECTORY;
 import static io.ballerina.stdlib.persist.compiler.Constants.TIME_MODULE;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_001;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_002;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_003;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_101;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_102;
@@ -317,7 +318,8 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                 if (this.entityNames.contains(typeName)) {
                     isValidType = true;
                     entity.setContainsRelations(true);
-                    entity.addRelationField(new RelationField(fieldName, typeName, isOptionalType, nullableStartOffset,
+                    entity.addRelationField(new RelationField(fieldName, typeName,
+                            typeNode.location().textRange().endOffset(), isOptionalType, nullableStartOffset,
                             isArrayType, recordFieldNode.location(), entity.getEntityName()));
                 } else {
                     // Revisit once https://github.com/ballerina-platform/ballerina-lang/issues/39441 is resolved
@@ -519,6 +521,14 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             if (!processingField.isOptionalType() && !referredField.isOptionalType()) {
                 reportDiagnosticsEntity.reportDiagnostic(PERSIST_404.getCode(), PERSIST_404.getMessage(),
                         PERSIST_404.getSeverity(), processingField.getLocation());
+                reportDiagnosticsEntity.reportDiagnostic(PERSIST_002.getCode(), PERSIST_002.getMessage(),
+                        PERSIST_002.getSeverity(), processingField.getLocation(),
+                        List.of(new BNumericProperty(referredField.getTypeEndOffset()),
+                                new BStringProperty(processingField.getContainingEntity())));
+                reportDiagnosticsEntity.reportDiagnostic(PERSIST_002.getCode(), PERSIST_002.getMessage(),
+                        PERSIST_002.getSeverity(), processingField.getLocation(),
+                        List.of(new BNumericProperty(processingField.getTypeEndOffset()),
+                                new BStringProperty(referredField.getContainingEntity())));
             } else if (processingField.isOptionalType() && referredField.isOptionalType()) {
                 reportDiagnosticsEntity.reportDiagnostic(PERSIST_405.getCode(), PERSIST_405.getMessage(),
                         PERSIST_405.getSeverity(), processingField.getLocation());
