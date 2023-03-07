@@ -280,6 +280,8 @@ public client class SQLClient {
             if fields != [] && fields.indexOf(key) == () {
                 continue;
             }
+            string fieldName = self.getFieldFromKey(key);
+
             FieldMetadata fieldMetadata = self.fieldMetadata.get(key);
             if fieldMetadata is SimpleFieldMetadata {
                 if columnCount > 0 {
@@ -287,14 +289,14 @@ public client class SQLClient {
                 }
                 params = sql:queryConcat(params, stringToParameterizedQuery(self.entityName + "." + fieldMetadata.columnName + " AS `" + key + "`"));
                 columnCount = columnCount + 1;
-            } else if include.indexOf(fieldMetadata.relation.entityName) != () {
+            } else if include.indexOf(fieldName) != () {
                 if !key.includes("[]") {
                     if columnCount > 0 {
                         params = sql:queryConcat(params, `, `);
                     }
                     params = sql:queryConcat(params, stringToParameterizedQuery(
-                        fieldMetadata.relation.entityName + "." + fieldMetadata.relation.refField + 
-                        " AS `" + fieldMetadata.relation.entityName + "." + fieldMetadata.relation.refField + "`"
+                        fieldName + "." + fieldMetadata.relation.refField + 
+                        " AS `" + fieldName + "." + fieldMetadata.relation.refField + "`"
                     ));
                     columnCount = columnCount + 1;
                 }
@@ -407,6 +409,14 @@ public client class SQLClient {
 
         return <FieldDoesNotExistError>error(
             string `A field corresponding to column '${columnName}' does not exist in entity '${self.entityName}'.`);
+    }
+
+    private isolated function getFieldFromKey(string key) returns string {
+        int? splitIndex = key.indexOf(".");
+        if splitIndex is () {
+            return key;
+        }
+        return key.substring(0, splitIndex);
     }
 
 

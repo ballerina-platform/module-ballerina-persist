@@ -30,7 +30,7 @@ function employeeRelationsTest() returns error? {
     Workspace workspace22 = {
         workspaceId: "workspace-22",
         workspaceType: "medium",
-        buildingBuildingCode: "building-22"
+        locationBuildingCode: "building-22"
     };
 
     BuildingInsert building22 = {
@@ -66,7 +66,7 @@ function employeeRelationsTest() returns error? {
         workspace: {
             workspaceId: "workspace-22",
             workspaceType: "medium",
-            buildingBuildingCode: "building-22"
+            locationBuildingCode: "building-22"
         }
     };
 
@@ -112,7 +112,7 @@ function departmentRelationsTest() returns error? {
     Workspace workspace12 = {
         workspaceId: "workspace-12",
         workspaceType: "medium",
-        buildingBuildingCode: "building-12"
+        locationBuildingCode: "building-12"
     };
 
     BuildingInsert building12 = {
@@ -151,12 +151,12 @@ function departmentRelationsTest() returns error? {
 public type WorkspaceInfo record {|
     readonly string workspaceId;
     string workspaceType;
-    Building building;
+    Building location;
     Employee[] employee;
 |};
 
 @test:Config {
-    groups: ["associations"],
+    groups: ["associationsx"],
     dependsOn: [employeeRelationsTest]
 }
 function workspaceRelationsTest() returns error? {
@@ -181,7 +181,7 @@ function workspaceRelationsTest() returns error? {
     WorkspaceInfo expected = {
         workspaceId: "workspace-22",
         workspaceType: "medium",
-        building: {
+        location: {
             buildingCode: "building-22",
             city: "Manhattan",
             state: "New York",
@@ -261,7 +261,7 @@ function buildingRelationsTest() returns error? {
             {
                 workspaceId: "workspace-22",
                 workspaceType: "medium",
-                buildingBuildingCode: "building-22"
+                locationBuildingCode: "building-22"
             }
         ]
     };

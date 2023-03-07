@@ -12,8 +12,8 @@ CREATE TABLE test.Building (
 CREATE TABLE test.Workspace (
     workspaceId VARCHAR(36) PRIMARY KEY,
     workspaceType VARCHAR(10),
-    buildingBuildingCode VARCHAR(36),
-    FOREIGN KEY (buildingBuildingCode) REFERENCES test.Building(buildingCode)
+    locationBuildingCode VARCHAR(36),
+    FOREIGN KEY (locationBuildingCode) REFERENCES test.Building(buildingCode)
 );
 
 CREATE TABLE test.Department (

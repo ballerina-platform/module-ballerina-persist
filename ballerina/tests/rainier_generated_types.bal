@@ -31,14 +31,14 @@ public type EmployeeUpdate record {|
 public type Workspace record {|
     readonly string workspaceId;
     string workspaceType;
-    string buildingBuildingCode;
+    string locationBuildingCode;
 |};
 
 public type WorkspaceInsert Workspace;
 
 public type WorkspaceUpdate record {|
     string workspaceType?;
-    string buildingBuildingCode?;
+    string locationBuildingCode?;
 |};
 
 public type Building record {|
@@ -97,7 +97,7 @@ public type BuildingOptionalized record {|
 public type WorkspaceOptionalized record {|
     readonly string workspaceId?;
     string workspaceType?;
-    string buildingBuildingCode?;
+    string locationBuildingCode?;
 |};
 
 public type EmployeeOptionalized record {|
@@ -136,7 +136,7 @@ public type DepartmentWithRelations record {|
 
 public type WorkspaceWithRelations record {|
     *WorkspaceOptionalized;
-    BuildingOptionalized building?;
+    BuildingOptionalized location?;
     EmployeeOptionalized[] employee?;
 |};
 

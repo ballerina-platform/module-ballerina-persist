@@ -19,31 +19,31 @@ import ballerina/test;
 Workspace workspace1 = {
     workspaceId: "workspace-1",
     workspaceType: "small",
-    buildingBuildingCode: "building-2"
+    locationBuildingCode: "building-2"
 };
 
 Workspace invalidWorkspace = {
     workspaceId: "invalid-workspace-extra-characters-to-force-failure",
     workspaceType: "small",
-    buildingBuildingCode: "building-2"
+    locationBuildingCode: "building-2"
 };
 
 Workspace workspace2 = {
     workspaceId: "workspace-2",
     workspaceType: "medium",
-    buildingBuildingCode: "building-2"
+    locationBuildingCode: "building-2"
 };
 
 Workspace workspace3 = {
     workspaceId: "workspace-3",
     workspaceType: "small",
-    buildingBuildingCode: "building-2"
+    locationBuildingCode: "building-2"
 };
 
 Workspace updatedWorkspace1 = {
     workspaceId: "workspace-1",
     workspaceType: "large",
-    buildingBuildingCode: "building-2"
+    locationBuildingCode: "building-2"
 };
 
 @test:Config {
@@ -138,7 +138,7 @@ function workspaceReadManyTest() returns error? {
 
 public type WorkspaceInfo2 record {|
     string workspaceType;
-    string buildingBuildingCode;
+    string locationBuildingCode;
 |};
 
 @test:Config {
@@ -153,9 +153,9 @@ function workspaceReadManyDependentTest() returns error? {
         select workspace;
 
     test:assertEquals(workspaces, [
-        {workspaceType: workspace1.workspaceType, buildingBuildingCode: workspace1.buildingBuildingCode},
-        {workspaceType: workspace2.workspaceType, buildingBuildingCode: workspace2.buildingBuildingCode},
-        {workspaceType: workspace3.workspaceType, buildingBuildingCode: workspace3.buildingBuildingCode}
+        {workspaceType: workspace1.workspaceType, locationBuildingCode: workspace1.locationBuildingCode},
+        {workspaceType: workspace2.workspaceType, locationBuildingCode: workspace2.locationBuildingCode},
+        {workspaceType: workspace3.workspaceType, locationBuildingCode: workspace3.locationBuildingCode}
     ]);
     check rainierClient.close();
 }

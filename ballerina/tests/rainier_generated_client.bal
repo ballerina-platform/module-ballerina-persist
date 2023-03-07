@@ -14,6 +14,7 @@ public client class RainierClient {
 
     private final map<SQLClient> persistClients;
 
+
     private final record {|Metadata...;|} metadata = {
         "employee": {
             entityName: "Employee",
@@ -31,7 +32,7 @@ public client class RainierClient {
                 "department.deptName": {relation: {entityName: "department", refField: "deptName"}},
                 "workspace.workspaceId": {relation: {entityName: "workspace", refField: "workspaceId"}},
                 "workspace.workspaceType": {relation: {entityName: "workspace", refField: "workspaceType"}},
-                "workspace.buildingBuildingCode": {relation: {entityName: "workspace", refField: "buildingBuildingCode"}}
+                "workspace.locationBuildingCode": {relation: {entityName: "workspace", refField: "locationBuildingCode"}}
             },
             keyFields: ["empNo"],
             joinMetadata: {
@@ -45,13 +46,13 @@ public client class RainierClient {
             fieldMetadata: {
                 workspaceId: {columnName: "workspaceId"},
                 workspaceType: {columnName: "workspaceType"},
-                buildingBuildingCode: {columnName: "buildingBuildingCode"},
-                "building.buildingCode": {relation: {entityName: "building", refField: "buildingCode"}},
-                "building.city": {relation: {entityName: "building", refField: "city"}},
-                "building.state": {relation: {entityName: "building", refField: "state"}},
-                "building.country": {relation: {entityName: "building", refField: "country"}},
-                "building.postalCode": {relation: {entityName: "building", refField: "postalCode"}},
-                "building.type": {relation: {entityName: "building", refField: "type"}},
+                locationBuildingCode: {columnName: "locationBuildingCode"},
+                "location.buildingCode": {relation: {entityName: "building", refField: "buildingCode"}},
+                "location.city": {relation: {entityName: "building", refField: "city"}},
+                "location.state": {relation: {entityName: "building", refField: "state"}},
+                "location.country": {relation: {entityName: "building", refField: "country"}},
+                "location.postalCode": {relation: {entityName: "building", refField: "postalCode"}},
+                "location.type": {relation: {entityName: "building", refField: "type"}},
                 "employee[].empNo": {relation: {entityName: "employee", refField: "empNo"}},
                 "employee[].firstName": {relation: {entityName: "employee", refField: "firstName"}},
                 "employee[].lastName": {relation: {entityName: "employee", refField: "lastName"}},
@@ -63,7 +64,7 @@ public client class RainierClient {
             },
             keyFields: ["workspaceId"],
             joinMetadata: {
-                building: {entity: Building, fieldName: "building", refTable: "Building", refColumns: ["buildingCode"], joinColumns: ["buildingBuildingCode"], 'type: ONE_TO_MANY},
+                location: {entity: Building, fieldName: "location", refTable: "Building", refColumns: ["buildingCode"], joinColumns: ["locationBuildingCode"], 'type: ONE_TO_MANY},
                 employee: {entity: Employee, fieldName: "employee", refTable: "Employee", refColumns: ["workspaceWorkspaceId"], joinColumns: ["workspaceId"], 'type: MANY_TO_ONE}
             }
         },
@@ -79,11 +80,11 @@ public client class RainierClient {
                 'type: {columnName: "type"},
                 "workspace[].workspaceId": {relation: {entityName: "workspace", refField: "workspaceId"}},
                 "workspace[].workspaceType": {relation: {entityName: "workspace", refField: "workspaceType"}},
-                "workspace[].buildingBuildingCode": {relation: {entityName: "workspace", refField: "buildingBuildingCode"}}
+                "workspace[].locationBuildingCode": {relation: {entityName: "workspace", refField: "locationBuildingCode"}}
             },
             keyFields: ["buildingCode"],
             joinMetadata: {
-                workspace: {entity: Workspace, fieldName: "workspace", refTable: "Workspace", refColumns: ["buildingBuildingCode"], joinColumns: ["buildingCode"], 'type: MANY_TO_ONE}
+                workspace: {entity: Workspace, fieldName: "workspace", refTable: "Workspace", refColumns: ["locationBuildingCode"], joinColumns: ["buildingCode"], 'type: MANY_TO_ONE}
             }
         },
         "department": {
