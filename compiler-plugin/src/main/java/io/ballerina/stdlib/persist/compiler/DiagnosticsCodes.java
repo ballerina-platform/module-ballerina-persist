@@ -27,9 +27,13 @@ import static io.ballerina.tools.diagnostics.DiagnosticSeverity.INTERNAL;
  * Persist related diagnostic codes.
  */
 public enum DiagnosticsCodes {
-    
-    // Internal diagnostics used to hold detials of the entity fields for entities w/o identity fields
-    PERSIST_001("PERSIST_001", "{0}", INTERNAL),
+
+    // Internal diagnostics used to hold details of the entity fields for entities w/o identity fields
+    PERSIST_001("PERSIST_001", "", INTERNAL),
+    // Internal diagnostics used to hold details of the entity fields for PERSIST_404
+    PERSIST_002("PERSIST_002", "", INTERNAL),
+    // Internal diagnostics used to hold details of the entity fields for PERSIST_405
+    PERSIST_003("PERSIST_003", "", INTERNAL),
 
     PERSIST_101("PERSIST_101", "persist model definition only supports record definitions", ERROR),
     PERSIST_102("PERSIST_102", "persist model definition does not support import prefix", ERROR),
@@ -49,8 +53,12 @@ public enum DiagnosticsCodes {
     PERSIST_402("PERSIST_402",
             "the related entity ''{0}'' does not have the {1}-typed relation field", ERROR),
     PERSIST_403("PERSIST_403", "the entity does not support duplicated relations to ''{0}'' entity", ERROR),
+    PERSIST_404("PERSIST_404", "1-1 relationship should have at least one relation field nillable " +
+            "to indicate non-owner of the relationship", ERROR),
+    PERSIST_405("PERSIST_405", "1-1 relationship should have only one nillable relation field", ERROR),
+    PERSIST_406("PERSIST_406", "1-n relationship does not support nillable relation field", ERROR),
+
     PERSIST_420("PERSIST_420", "many-to-many relation is not supported yet", ERROR),
-    PERSIST_421("PERSIST_421", "an entity does not support nillable relations", ERROR),
     PERSIST_422("PERSIST_422", "the entity should not contain foreign key field ''{0}'' for relation ''{1}''", ERROR),
 
     PERSIST_501("PERSIST_501", "''{0}'' entity must have at least one identity readonly field", ERROR),

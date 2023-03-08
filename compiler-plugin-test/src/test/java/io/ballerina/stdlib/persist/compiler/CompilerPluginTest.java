@@ -47,8 +47,10 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_307;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_401;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_402;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_403;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_404;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_405;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_406;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_420;
-import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_421;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_422;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_501;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_502;
@@ -243,6 +245,33 @@ public class CompilerPluginTest {
     }
 
     @Test
+    public void validateNillableRelationField() {
+        List<Diagnostic> diagnostics = getErrorDiagnostics("nillable-relation-field.bal", 4);
+        testDiagnostic(
+                diagnostics,
+                new String[]{
+                        PERSIST_406.getCode(),
+                        PERSIST_406.getCode(),
+                        PERSIST_404.getCode(),
+                        PERSIST_405.getCode()
+                },
+                new String[]{
+                        "1-n relationship does not support nillable relation field",
+                        "1-n relationship does not support nillable relation field",
+                        "1-1 relationship should have at least one relation field nillable " +
+                                "to indicate non-owner of the relationship",
+                        "1-1 relationship should have only one nillable relation field"
+                },
+                new String[]{
+                        "(14:4,14:23)",
+                        "(29:4,29:29)",
+                        "(44:4,44:23)",
+                        "(59:4,59:27)"
+                }
+        );
+    }
+
+    @Test
     public void validateManyToManyRelationship() {
         List<Diagnostic> diagnostics = getErrorDiagnostics("many-to-many.bal", 1);
         testDiagnostic(
@@ -318,13 +347,13 @@ public class CompilerPluginTest {
                         "the entity should not contain foreign key field " +
                                 "'workspace3WorkspaceId' for relation 'Workspace3'",
                         "the entity should not contain foreign key field " +
-                                "'building4BuildingCode' for relation 'Building4'"
+                                "'workspace4WorkspaceId' for relation 'Workspace4'"
                 },
                 new String[]{
                         "(15:4,15:32)",
                         "(22:4,22:33)",
                         "(42:4,42:33)",
-                        "(56:4,56:33)"
+                        "(66:4,66:33)"
                 }
         );
     }
@@ -345,23 +374,6 @@ public class CompilerPluginTest {
                 new String[]{
                         "(2:0,2:17)",
                         "(10:4,10:13)"
-                }
-        );
-    }
-
-    @Test
-    public void validateOptionalAssociation() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("optional-association.bal", 1);
-        testDiagnostic(
-                diagnostics,
-                new String[]{
-                        PERSIST_421.getCode()
-                },
-                new String[]{
-                        "an entity does not support nillable relations"
-                },
-                new String[]{
-                        "(14:4,14:13)"
                 }
         );
     }
