@@ -122,7 +122,6 @@ function departmentReadOneTestNegative() returns error? {
 }
 function departmentReadManyTest() returns error? {
     RainierClient rainierClient = check new ();
-
     stream<Department, error?> departmentStream = rainierClient->/department.get();
     Department[] departments = check from Department department in departmentStream 
         select department;
@@ -131,9 +130,32 @@ function departmentReadManyTest() returns error? {
     check rainierClient.close();
 }
 
+public type DepartmentInfo2 record {|
+    string deptName;
+|};
+
+@test:Config {
+    groups: ["department", "dependent"],
+    dependsOn: [departmentCreateTest, departmentCreateTest2]
+}
+function departmentReadManyTestDependent() returns error? {
+    RainierClient rainierClient = check new ();
+
+    stream<DepartmentInfo2, Error?> departmentStream = rainierClient->/department.get();
+    DepartmentInfo2[] departments = check from DepartmentInfo2 department in departmentStream 
+        select department;
+
+    test:assertEquals(departments, [
+        {deptName: department1.deptName},
+        {deptName: department2.deptName},
+        {deptName: department3.deptName}
+    ]);
+    check rainierClient.close();
+}
+
 @test:Config {
     groups: ["department"],
-    dependsOn: [departmentReadOneTest, departmentReadManyTest]
+    dependsOn: [departmentReadOneTest, departmentReadManyTest, departmentReadManyTestDependent]
 }
 function departmentUpdateTest() returns error? {
     RainierClient rainierClient = check new ();
@@ -151,7 +173,7 @@ function departmentUpdateTest() returns error? {
 
 @test:Config {
     groups: ["department"],
-    dependsOn: [departmentReadOneTest, departmentReadManyTest]
+    dependsOn: [departmentReadOneTest, departmentReadManyTest, departmentReadManyTestDependent]
 }
 function departmentUpdateTestNegative1() returns error? {
     RainierClient rainierClient = check new ();
@@ -170,7 +192,7 @@ function departmentUpdateTestNegative1() returns error? {
 
 @test:Config {
     groups: ["department"],
-    dependsOn: [departmentReadOneTest, departmentReadManyTest]
+    dependsOn: [departmentReadOneTest, departmentReadManyTest, departmentReadManyTestDependent]
 }
 function departmentUpdateTestNegative2() returns error? {
     RainierClient rainierClient = check new ();

@@ -99,6 +99,17 @@ function compositeKeyReadOneTest() returns error? {
 }
 
 @test:Config {
+    groups: ["composite-key2"],
+    dependsOn: [compositeKeyCreateTest]
+}
+function compositeKeyReadOneTest2() returns error? {
+    RainierClient rainierClient = check new ();
+    OrderItem orderItem = check rainierClient->/orderitem/[orderItem1.orderId]/[orderItem1.itemId].get();    
+    test:assertEquals(orderItem, orderItem1);
+    check rainierClient.close();
+}
+
+@test:Config {
     groups: ["composite-key"],
     dependsOn: [compositeKeyCreateTest]
 }
@@ -134,7 +145,7 @@ function compositeKeyReadOneTestNegative2() returns error? {
 
 @test:Config {
     groups: ["composite-key"],
-    dependsOn: [compositeKeyCreateTest, compositeKeyReadOneTest, compositeKeyReadManyTest]
+    dependsOn: [compositeKeyCreateTest, compositeKeyReadOneTest, compositeKeyReadManyTest, compositeKeyReadOneTest2]
 }
 function compositeKeyUpdateTest() returns error? {
     RainierClient rainierClient = check new ();
@@ -153,7 +164,7 @@ function compositeKeyUpdateTest() returns error? {
 
 @test:Config {
     groups: ["composite-key"],
-    dependsOn: [compositeKeyCreateTest, compositeKeyReadOneTest, compositeKeyReadManyTest]
+    dependsOn: [compositeKeyCreateTest, compositeKeyReadOneTest, compositeKeyReadManyTest, compositeKeyReadOneTest2]
 }
 function compositeKeyUpdateTestNegative() returns error? {
     RainierClient rainierClient = check new ();

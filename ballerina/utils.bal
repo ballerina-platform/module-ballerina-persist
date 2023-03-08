@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/sql;
+import ballerina/jballerina.java;
 
 isolated function stringToParameterizedQuery(string queryStr) returns sql:ParameterizedQuery {
     sql:ParameterizedQuery query = ``;
@@ -47,3 +48,13 @@ isolated function getKeyFromDuplicateKeyErrorMessage(string errorMessage) return
     return key;
 }
 
+isolated function isInsertableField(FieldMetadata fieldMetadata) returns boolean {
+    if fieldMetadata is SimpleFieldMetadata {
+        return true;
+    }
+    return false;
+}
+
+isolated function convertToArray(typedesc<record {}> elementType, record {}[] arr) returns elementType[] = @java:Method {
+    'class: "io.ballerina.stdlib.persist.Utils"
+} external;

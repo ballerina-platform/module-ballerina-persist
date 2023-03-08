@@ -3,12 +3,12 @@
 _Owners_: @daneshk @niveathika @kaneeldias  
 _Reviewers_: @daneshk  
 _Created_: 2022/01/25   
-_Updated_: 2022/01/25  
+_Updated_: 2022/03/08  
 _Edition_: Swan Lake  
 
 ## Introduction
 
-This is the specification for the `persist` standard library of the [Ballerina language](https://ballerina.io/), which provides functionality to store and query data conveniently through data model instead of SQL query language.
+This is the specification for the `persist` standard library of the [Ballerina language](https://ballerina.io/), which provides functionality to store and query data conveniently through a data model instead of the SQL query language.
 
 The `persist` library specification has evolved and may continue to evolve in the future. The released versions of the specification can be found under the relevant GitHub tag. 
 
@@ -37,27 +37,26 @@ The `persist` standard library creates a programming model to store and query da
 
 ## 2. Data Model Definition
 
-Within a Ballerina project, the data model should be defined in a separate bal file under the `persist` directory. This file is not considered part of the Ballerina project and is used only for data model definition.
+Within a Ballerina project, the data model should be defined in a separate bal file under the `persist` directory. This file is not considered part of the Ballerina project and is used only for the data model definition.
 
-The Ballerina `persist` library defines a mechanism to express the application's data model using Ballerina record type. Any record type that is a subtype of the `EntityType` will be an entity in the model.
+The Ballerina `persist` library defines a mechanism to express the application's data model using the Ballerina record type. Any record type that is a subtype of the `EntityType` will be an entity in the model.
 
 ### 2.1. EntityType Definition
 
 An EntityType is defined using `SimpleType` and `EntityType` fields. 
 
 ```ballerina
-    type SimpleType ()|boolean|int|float|decimal|string|byte[]|time:Date|time:TimeOfDay|time:Utc|time:Civil;
-    type EntityType record {|
-       SimpleType|EntityType|EntityType[]...;
-    |};
+type SimpleType ()|boolean|int|float|decimal|string|byte[]|time:Date|time:TimeOfDay|time:Utc|time:Civil;
+type EntityType record {|
+   SimpleType|EntityType|EntityType[]...;
+|};
 ```
+1. Simple Type:  
+   From the data source perspective, a field of `SimpleType` contains only one value. i.e., Each `SimpleType` field maps to a field of data.
+   > *Note*: This does not support the union type of `SimpleType`. i.e., `int|string` is not supported.
 
-1. SimpleType:	
-    From the data source perspective, a field of `SimpleType` contains only one value. i.e., Each `SimpleType` field maps to a field of data.
-    > *Note*: This does not support the union type of `SimpleType`. i.e., `int|string` is not supported.
-
-2. EntityType:
-    An entity can contain fields of SimpleType, EntityType, or EntityType[]. This design use fields of type EntityType or EntityType[] to define associations between two entities.
+2. Entity Type:  
+   An entity can contain fields of `SimpleType`, `EntityType`, or `EntityType[]`. This design uses fields of type `EntityType` or `EntityType[]` to define associations between two entities.
 
 Here are some examples of subtypes of the entity type:
 
@@ -106,13 +105,13 @@ Simple Types are mapped to native data source types as follows:
 
 ### 2.2. Entity Attributes Definition
 
-Ballerina record fields are used to model the attributes of an entity. The type of the field should be a subtype of SimpleType.
+Ballerina record fields are used to model the attributes of an entity. The type of the field should be a subtype of `SimpleType`.
 
 #### 2.2.1. Identity Field(s)
 
-The entity must contain at least one identity field. The field's value is used to identify each record uniquely. The identity field(s) is indicated `readonly` flag.
+The entity must contain at least one identity field. This field's value is used to identify each record uniquely. The identity field(s) is indicated by the `readonly` flag.
 
-Say type T is one of 'int', 'string', 'float', 'boolean' or 'decimal' types,
+Say type T is one of `int`, `string`, `float`, `boolean` or `decimal` types,
 
 ```ballerina
 type EntityType record {|
@@ -130,19 +129,18 @@ type EntityType record {|
 
 #### 2.2.2. Nullable Field(s)
 
-Say type T is a subtype of SimpleType, and T does not contain (),
+Say type T is a subtype of `SimpleType`, and T does not contain (),
 | Field definition | Semantics | Examples |  
 | :---: | :---: | :---: |  
 | T field | Mapped to a non-nullable column in the DB | int id; |  
 | T? field | Mapped to a nullable column in the DB | string? description; |  
 | T field? | Not allowed | - |  
 | T? field? | Not allowed | - |  
-
 ### 2.3. Relationship Definition
 
-Ballerina record fields are used to model a connection between two entities. The type of the field should be a subtype of EntityType|EntityType?|EntityType[].
+Ballerina record fields are used to model a connection between two entities. The type of the field should be a subtype of `EntityType|EntityType?|EntityType[]`.
 
-This design supports the following cardinalities:
+This design supports the following cardinalties:
 1. One-to-one (1-1)
 2. One-to-many (1-n)
 
@@ -168,11 +166,11 @@ type User record {|
 
 The above entities explains the following,
  - A `Car` must have a `User` as the owner.
- - A `User` may own a `Car` or do not own one.
+ - A `User` may or may not own a `Car`.
 
-The first record, `Car`, which holds the `EntityType` field `owner` is taken as the owner in the 1-1 relationship and will include the foreign key of the second record, `User`.
+In first record, `Car`, the `EntityType` field `owner` is taken as the owner in the 1-1 relationship and will include the foreign key of the second record, `User`.
 
-The default foreign key field name will be `userid` in the `Car` table, which refers to the identity field of the `User` table by default. (`<lowercasedRelatedEntityName><First-Letter Capitalized IdentityFieldName>`)
+The default foreign key field name will be `userId` in the `Car` table, which refers to the identity field of the `User` table by default. (`<lowercasedRelatedEntityName><First-Letter Capitalized IdentityFieldName>`)
 
 #### 2.3.2. One-to-Many (1-n)
 
@@ -214,13 +212,13 @@ type Workspace record {|
     readonly string workspaceId;
     string workspaceType;
     Building location; // 1-n relation (parent)
-    Employee employee; // 1-1 relation (child)
+    Employee[] employees; // 1-n relation (child)
 |};
 ```
 
-There are three types of derived entity types:
+There are six types of derived entity types:
 1. Entity Types  
-    These are the types defined in the data model. These are used to indicate the data structure in the data source. The entity who is the association parent will include the foreign key field.
+    These are the types defined in the data model. These are used to indicate the data structure in the data source. The entity who is the association parent will include the foreign key field(s).
     ```ballerina
     public type Workspace record {|
         readonly string workspaceId;
@@ -230,20 +228,48 @@ There are three types of derived entity types:
     ```
     
 2. Insert Types
-    These are records used to insert data in the data source. This is same as the Entity Type.
+    These are the records used to insert data in the data source. This is same as the Entity Type.
     ```ballerina
     public type WorkspaceInsert Workspace;
     ```
 
 3. Update Types
-    These are records used to update data in the data source. These are entity types without the identity fields. All fields will be optional. Only the value provided fields will be updated.
+    These are the records used to update data in the data source. These are entity types without the identity fields. All fields will be optional. Only the fields for which values are provided will be updated.
     ```ballerina
     public type WorkspaceUpdate record {|
         string workspaceType?;
         string buildingBuildingCode?;
     |};
     ```
+   
+4. Optionalized Types
+    These are the same as the Entity Types, but all the fields are made optional. This type is not directly used in any operations.
+    ```ballerina
+    public type WorkspaceOptionalized record {|
+        readonly string workspaceId?;
+        string workspaceType?;
+        string locationBuildingCode?;
+    |};
+    ```
+   
+5. With Relations Types
+    This types inherits all fields from the corresponding `Optionalized` type, and adds the relation fields as optional. This type is not directly used in any operations.
+    ```ballerina
+    public type WorkspaceWithRelations record {|
+        *WorkspaceOptionalized;
+        BuildingOptionalized location?;
+        EmployeeOptionalized[] employees?;
+    |};
+    ```
 
+6. Target Types
+    This type is used to retrieve data from the data source. If the entity contains a relation field, the target type 
+    will be a type description of the corresponding `WithRelations` type. Otherwise, the target type will be a 
+    type description of the corresponding `Optionalized` type.
+    ```ballerina
+    public type WorkspaceTargetType typedesc<WorkspaceWithRelations>;
+    ```
+    
 ### 3.2. Persist Clients
 
 Persist Clients are derived for each data model definition file.
@@ -256,19 +282,19 @@ public client class RainierClient {
     public function init() returns persist:Error? {
     }
 
-    isolated resource function get workspaces() returns stream<Workspace, persist:Error?> {
+    isolated resource function get workspace(WorkspaceTargetType targetType = <>) returns stream<targetType, Error?> {
     };
 
-    isolated resource function get workspaces/[string workspaceId]() returns Workspace|persist:Error {
+    isolated resource function get workspace/[string workspaceId](WorkspaceTargetType targetType = <>) returns targetType|Error {
     };
 
-    isolated resource function post workspaces(WorkspaceInsert[] data) returns string[]|persist:Error {
+    isolated resource function post workspace(WorkspaceInsert[] data) returns string[]|persist:Error {
     };
 
-    isolated resource function put workspaces/[string workspaceId](WorkspaceUpdate data) returns Workspace|persist:Error {
+    isolated resource function put workspace/[string workspaceId](WorkspaceUpdate data) returns Workspace|persist:Error {
     };
 
-    isolated resource function delete workspaces/[string workspaceId]() returns Workspace|persist:Error {
+    isolated resource function delete workspace/[string workspaceId]() returns Workspace|persist:Error {
     };
 
     public function close() returns persist:Error? {
@@ -286,121 +312,260 @@ The conventions used in deriving the Persist client are as follows:
 7. Resource method with path parameters will support composite identity field by having multiple path parameters.
 
 The implementation of the client is as follows:
+//TOOD: update after dependent support for get by identity is supported.
 ```ballerina
+import ballerina/persist;
 import ballerinax/mysql;
-import ballerina/sql;
+import ballerina/jballerina.java;
 
+const EMPLOYEE = "employee";
 const WORKSPACE = "workspace";
+const BUILDING = "building";
+const DEPARTMENT = "department";
 
 public client class RainierClient {
     *persist:AbstractPersistClient;
 
     private final mysql:Client dbClient;
 
-    private final record {|Metadata...;|} metadata = {
+    private final map<persist:SQLClient> persistClients;
+
+
+    private final record {|persist:Metadata...;|} metadata = {
+        "employee": {
+            entityName: "Employee",
+            tableName: `Employee`,
+            fieldMetadata: {
+                empNo: {columnName: "empNo"},
+                firstName: {columnName: "firstName"},
+                lastName: {columnName: "lastName"},
+                birthDate: {columnName: "birthDate"},
+                gender: {columnName: "gender"},
+                hireDate: {columnName: "hireDate"},
+                departmentDeptNo: {columnName: "departmentDeptNo"},
+                workspaceWorkspaceId: {columnName: "workspaceWorkspaceId"},
+                "department.deptNo": {relation: {entityName: "department", refField: "deptNo"}},
+                "department.deptName": {relation: {entityName: "department", refField: "deptName"}},
+                "workspace.workspaceId": {relation: {entityName: "workspace", refField: "workspaceId"}},
+                "workspace.workspaceType": {relation: {entityName: "workspace", refField: "workspaceType"}},
+                "workspace.locationBuildingCode": {relation: {entityName: "workspace", refField: "locationBuildingCode"}}
+            },
+            keyFields: ["empNo"],
+            joinMetadata: {
+                department: {entity: Department, fieldName: "department", refTable: "Department", refColumns: ["deptNo"], joinColumns: ["departmentDeptNo"], 'type: ONE_TO_MANY},
+                workspace: {entity: Workspace, fieldName: "workspace", refTable: "Workspace", refColumns: ["workspaceId"], joinColumns: ["workspaceWorkspaceId"], 'type: ONE_TO_MANY}
+            }
+        },
         "workspace": {
             entityName: "Workspace",
             tableName: `Workspace`,
             fieldMetadata: {
-                workspaceId: {columnName: "workspaceId", 'type: string},
-                workspaceType: {columnName: "workspaceType", 'type: string},
-                buildingBuildingCode: {columnName: "buildingBuildingCode", 'type: string}
+                workspaceId: {columnName: "workspaceId"},
+                workspaceType: {columnName: "workspaceType"},
+                locationBuildingCode: {columnName: "locationBuildingCode"},
+                "location.buildingCode": {relation: {entityName: "building", refField: "buildingCode"}},
+                "location.city": {relation: {entityName: "building", refField: "city"}},
+                "location.state": {relation: {entityName: "building", refField: "state"}},
+                "location.country": {relation: {entityName: "building", refField: "country"}},
+                "location.postalCode": {relation: {entityName: "building", refField: "postalCode"}},
+                "location.type": {relation: {entityName: "building", refField: "type"}},
+                "employees[].empNo": {relation: {entityName: "employee", refField: "empNo"}},
+                "employees[].firstName": {relation: {entityName: "employee", refField: "firstName"}},
+                "employees[].lastName": {relation: {entityName: "employee", refField: "lastName"}},
+                "employees[].birthDate": {relation: {entityName: "employee", refField: "birthDate"}},
+                "employees[].gender": {relation: {entityName: "employee", refField: "gender"}},
+                "employees[].hireDate": {relation: {entityName: "employee", refField: "hireDate"}},
+                "employees[].departmentDeptNo": {relation: {entityName: "employee", refField: "departmentDeptNo"}},
+                "employees[].workspaceWorkspaceId": {relation: {entityName: "employee", refField: "workspaceWorkspaceId"}}
             },
-            keyFields: ["workspaceId"]
+            keyFields: ["workspaceId"],
+            joinMetadata: {
+                location: {entity: Building, fieldName: "location", refTable: "Building", refColumns: ["buildingCode"], joinColumns: ["locationBuildingCode"], 'type: ONE_TO_MANY},
+                employees: {entity: Employee, fieldName: "employees", refTable: "Employee", refColumns: ["workspaceWorkspaceId"], joinColumns: ["workspaceId"], 'type: MANY_TO_ONE}
+            }
+        },
+        "building": {
+            entityName: "Building",
+            tableName: `Building`,
+            fieldMetadata: {
+                buildingCode: {columnName: "buildingCode"},
+                city: {columnName: "city"},
+                state: {columnName: "state"},
+                country: {columnName: "country"},
+                postalCode: {columnName: "postalCode"},
+                'type: {columnName: "type"},
+                "workspaces[].workspaceId": {relation: {entityName: "workspace", refField: "workspaceId"}},
+                "workspaces[].workspaceType": {relation: {entityName: "workspace", refField: "workspaceType"}},
+                "workspaces[].locationBuildingCode": {relation: {entityName: "workspace", refField: "locationBuildingCode"}}
+            },
+            keyFields: ["buildingCode"],
+            joinMetadata: {
+                workspaces: {entity: Workspace, fieldName: "workspaces", refTable: "Workspace", refColumns: ["locationBuildingCode"], joinColumns: ["buildingCode"], 'type: MANY_TO_ONE}
+            }
+        },
+        "department": {
+            entityName: "Department",
+            tableName: `Department`,
+            fieldMetadata: {
+                deptNo: {columnName: "deptNo"},
+                deptName: {columnName: "deptName"},
+                "employees[].empNo": {relation: {entityName: "employee", refField: "empNo"}},
+                "employees[].firstName": {relation: {entityName: "employee", refField: "firstName"}},
+                "employees[].lastName": {relation: {entityName: "employee", refField: "lastName"}},
+                "employees[].birthDate": {relation: {entityName: "employee", refField: "birthDate"}},
+                "employees[].gender": {relation: {entityName: "employee", refField: "gender"}},
+                "employees[].hireDate": {relation: {entityName: "employee", refField: "hireDate"}},
+                "employees[].departmentDeptNo": {relation: {entityName: "employee", refField: "departmentDeptNo"}},
+                "employees[].workspaceWorkspaceId": {relation: {entityName: "employee", refField: "workspaceWorkspaceId"}}
+            },
+            keyFields: ["deptNo"],
+            joinMetadata: {
+                employees: {entity: Employee, fieldName: "employees", refTable: "Employee", refColumns: ["departmentDeptNo"], joinColumns: ["deptNo"], 'type: MANY_TO_ONE}
+            }
         }
     };
 
-    private final map<SQLClient> persistClients;
-    
     public function init() returns persist:Error? {
-        do {
-            self.dbClient = check new (host = host, user = user, password = password, database = database, port = port);
-
-            self.persistClients = {
-                workspace: check new (self.dbClient, self.metadata.get(WORKSPACE))
-            };
-        } on fail error e {
-            return <persist:Error>error(e.message());
+        mysql:Client|error dbClient = new (host = host, user = user, password = password, database = database, port = port);
+        if dbClient is error {
+            return <persist:Error>error(dbClient.message());
         }
+        self.dbClient = dbClient;
+        self.persistClients = {
+            employee: check new (self.dbClient, self.metadata.get(EMPLOYEE)),
+            workspace: check new (self.dbClient, self.metadata.get(WORKSPACE)),
+            building: check new (self.dbClient, self.metadata.get(BUILDING)),
+            department: check new (self.dbClient, self.metadata.get(DEPARTMENT))
+        };
     }
 
-    isolated resource function get workspace() returns stream<Workspace, persist:Error?> {
-        stream<record{}, sql:Error?>|persist:Error result = self.persistClients.get(WORKSPACE).runReadQuery(Workspace);
-        if result is persist:Error {
-            return new stream<Workspace, persist:Error?>(new WorkspaceStream((), result));
-        } else {
-            return new stream<Workspace, persist:Error?>(new WorkspaceStream(result));
-        }
-    };
+    isolated resource function get employee(EmployeeTargetType targetType = <>) returns stream<targetType, persist:Error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        name: "query"
+    } external;
 
+    //TOOD: update after dependent support for get by identity is supported.
+    isolated resource function get employee/[string empNo](EmployeeTargetType targetType = <>, string entity = "employee") returns targetType|Error = @java:Method {
+        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        name: "queryOne"
+    } external;
+
+    isolated resource function post employee(EmployeeInsert[] data) returns string[]|persist:Error {
+        _ = check self.persistClients.get(EMPLOYEE).runBatchInsertQuery(data);
+        return from EmployeeInsert inserted in data
+            select inserted.empNo;
+    }
+
+    isolated resource function put employee/[string empNo](EmployeeUpdate data) returns Employee|persist:Error {
+        _ = check self.persistClients.get(EMPLOYEE).runUpdateQuery(empNo, data);
+        return self->/employee/[empNo].get();
+    }
+
+    isolated resource function delete employee/[string empNo]() returns Employee|persist:Error {
+        Employee result = check self->/employee/[empNo].get();
+        _ = check self.persistClients.get(EMPLOYEE).runDeleteQuery(empNo);
+        return result;
+    }
+
+    isolated resource function get workspace(WorkspaceTargetType targetType = <>) returns stream<targetType, persist:Error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        name: "query"
+    } external;
+
+    //TOOD: update after dependent support for get by identity is supported.
     isolated resource function get workspace/[string workspaceId]() returns Workspace|persist:Error {
-        Workspace|error workspace = (check self.persistClients.get(WORKSPACE).runReadByKeyQuery(Workspace, workspaceId)).cloneWithType(Workspace);
-        if workspace is error {
-            return <persist:Error>error(workspace.message());
+        Workspace|error result = (check self.persistClients.get(WORKSPACE).runReadByKeyQuery(Workspace, workspaceId)).cloneWithType(Workspace);
+        if result is error {
+            return <persist:Error>error(result.message());
         }
-        return workspace;
-    };
+        return result;
+    }
 
     isolated resource function post workspace(WorkspaceInsert[] data) returns string[]|persist:Error {
         _ = check self.persistClients.get(WORKSPACE).runBatchInsertQuery(data);
         return from WorkspaceInsert inserted in data
-               select inserted.workspaceId;
-    };
+            select inserted.workspaceId;
+    }
 
     isolated resource function put workspace/[string workspaceId](WorkspaceUpdate data) returns Workspace|persist:Error {
         _ = check self.persistClients.get(WORKSPACE).runUpdateQuery(workspaceId, data);
         return self->/workspace/[workspaceId].get();
-    };
+    }
 
     isolated resource function delete workspace/[string workspaceId]() returns Workspace|persist:Error {
         Workspace result = check self->/workspace/[workspaceId].get();
         _ = check self.persistClients.get(WORKSPACE).runDeleteQuery(workspaceId);
         return result;
-    };
+    }
+
+    isolated resource function get building(BuildingTargetType targetType = <>) returns stream<targetType, persist:Error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        name: "query"
+    } external;
+
+    //TOOD: update after dependent support for get by identity is supported.
+    isolated resource function get building/[string buildingCode]() returns Building|persist:Error {
+        Building|error result = (check self.persistClients.get(BUILDING).runReadByKeyQuery(Building, buildingCode)).cloneWithType(Building);
+        if result is error {
+            return <persist:Error>error(result.message());
+        }
+        return result;
+    }
+
+    isolated resource function post building(BuildingInsert[] data) returns string[]|persist:Error {
+        _ = check self.persistClients.get(BUILDING).runBatchInsertQuery(data);
+        return from BuildingInsert inserted in data
+            select inserted.buildingCode;
+    }
+
+    isolated resource function put building/[string buildingCode](BuildingUpdate data) returns Building|persist:Error {
+        _ = check self.persistClients.get(BUILDING).runUpdateQuery(buildingCode, data);
+        return self->/building/[buildingCode].get();
+    }
+
+    isolated resource function delete building/[string buildingCode]() returns Building|persist:Error {
+        Building result = check self->/building/[buildingCode].get();
+        _ = check self.persistClients.get(BUILDING).runDeleteQuery(buildingCode);
+        return result;
+    }
+
+    isolated resource function get department(DepartmentTargetType targetType = <>) returns stream<targetType, persist:Error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        name: "query"
+    } external;
+
+    //TOOD: update after dependent support for get by identity is supported.
+    isolated resource function get department/[string deptNo]() returns Department|persist:Error {
+        Department|error result = (check self.persistClients.get(DEPARTMENT).runReadByKeyQuery(Department, deptNo)).cloneWithType(Department);
+        if result is error {
+            return <persist:Error>error(result.message());
+        }
+        return result;
+    }
+
+    isolated resource function post department(DepartmentInsert[] data) returns string[]|persist:Error {
+        _ = check self.persistClients.get(DEPARTMENT).runBatchInsertQuery(data);
+        return from DepartmentInsert inserted in data
+            select inserted.deptNo;
+    }
+
+    isolated resource function put department/[string deptNo](DepartmentUpdate data) returns Department|persist:Error {
+        _ = check self.persistClients.get(DEPARTMENT).runUpdateQuery(deptNo, data);
+        return self->/department/[deptNo].get();
+    }
+
+    isolated resource function delete department/[string deptNo]() returns Department|persist:Error {
+        Department result = check self->/department/[deptNo].get();
+        _ = check self.persistClients.get(DEPARTMENT).runDeleteQuery(deptNo);
+        return result;
+    }
 
     public function close() returns persist:Error? {
-        error? e = self.dbClient.close();
-        if e is error {
-            return <persist:Error>error(e.message());
+        error? result = self.dbClient.close();
+        if result is error {
+            return <persist:Error>error(result.message());
         }
-    }
-}
-
-public class WorkspaceStream {
-    private stream<anydata, sql:Error?>? anydataStream;
-    private persist:Error? err;
-
-    public isolated function init(stream<anydata, sql:Error?>? anydataStream, persist:Error? err = ()) {
-        self.anydataStream = anydataStream;
-        self.err = err;
-    }
-
-    public isolated function next() returns record {|Workspace value;|}|persist:Error? {
-        if self.err is error {
-            return self.err;
-        } else if self.anydataStream is stream<anydata, sql:Error?> {
-            var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
-            var streamValue = anydataStream.next();
-            if streamValue is () {
-                return streamValue;
-            } else if (streamValue is sql:Error) {
-                return <persist:Error>error(streamValue.message());
-            } else {
-                do {
-                    record {|Workspace value;|} nextRecord = {value: check streamValue.value.cloneWithType(Workspace)};
-                    return nextRecord;
-                } on fail error e {
-                    return <persist:Error>e;
-                }
-            }
-        } else {
-            // Unreachable code
-            return ();
-        }
-    }
-
-    public isolated function close() returns persist:Error? {
-        check persist:closeEntityStream(self.anydataStream);
+        return result;
     }
 }
 ```

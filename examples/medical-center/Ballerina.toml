@@ -3,15 +3,21 @@ org = "wso2"
 name = "medical_center"
 version = "0.1.0"
 
-[[dependency]]
-org = "ballerina"
-name = "persist"
-version = "0.1.0"
-repository = "local"
-
 [persist.medical_center.storage.mysql]
 host = "localhost"
 port = 3305
 user = "root"
 password = "Test123#"
 database = "medical_center_db"
+
+[[dependency]]
+org = "ballerina"
+name = "persist"
+version = "0.1.1"
+repository = "local"
+
+[[platform.java11.dependency]]
+groupId = "io.ballerina.persist"
+artifactId = "persist-native"
+version = "0.1.1"
+path = "../../native/build/libs/persist-native-0.1.1-SNAPSHOT.jar"

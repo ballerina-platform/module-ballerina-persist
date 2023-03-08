@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/test;
+import ballerina/time;
 
 AllTypes allTypes1 = {
     id: 1,
@@ -117,9 +118,9 @@ AllTypes allTypes3 = {
     floatTypeOptional: (),
     decimalTypeOptional: (),
     stringTypeOptional: (),
-    dateTypeOptional: {year: 1293, month: 11, day: 3},
-    timeOfDayTypeOptional: {hour: 19, minute: 32, second: 34},
-    civilTypeOptional: {year: 1989, month: 11, day: 3, hour: 12, minute: 32, second: 34}
+    dateTypeOptional: (),
+    timeOfDayTypeOptional: (),
+    civilTypeOptional: ()
 };
 
 AllTypes allTypes3Expected = {
@@ -233,6 +234,69 @@ function allTypesReadTest() returns error? {
     check testEntitiesClient.close();
 }
 
+public type AllTypesDependent record {|
+    boolean booleanType;
+    int intType;
+    float floatType;
+    decimal decimalType;
+    string stringType;
+    byte[] byteArrayType;
+    time:Date dateType;
+    time:TimeOfDay timeOfDayType;
+    time:Civil civilType;
+    boolean? booleanTypeOptional;
+    int? intTypeOptional;
+    float? floatTypeOptional;
+    decimal? decimalTypeOptional;
+    string? stringTypeOptional;
+    time:Date? dateTypeOptional;
+    time:TimeOfDay? timeOfDayTypeOptional;
+    time:Civil? civilTypeOptional;
+|};
+
+@test:Config {
+    groups: ["all-types", "dependent"],
+    dependsOn: [allTypesCreateTest, allTypesCreateOptionalTest]
+}
+function allTypesReadDependentTest() returns error? {
+    TestEntitiesClient testEntitiesClient = check new ();
+
+    stream<AllTypesDependent, error?> allTypesStream = testEntitiesClient->/alltypes.get();
+    AllTypesDependent[] allTypes = check from AllTypesDependent allTypesRecord in allTypesStream
+        select allTypesRecord;
+
+    test:assertEquals(allTypes, [
+        {
+            booleanType: allTypes1Expected.booleanType, intType: allTypes1Expected.intType, floatType: allTypes1Expected.floatType,
+            decimalType: allTypes1Expected.decimalType, stringType: allTypes1Expected.stringType, byteArrayType: allTypes1Expected.byteArrayType,
+            dateType: allTypes1Expected.dateType, timeOfDayType: allTypes1Expected.timeOfDayType, civilType: allTypes1Expected.civilType,
+            booleanTypeOptional: allTypes1Expected.booleanTypeOptional, intTypeOptional: allTypes1Expected.intTypeOptional,
+            floatTypeOptional: allTypes1Expected.floatTypeOptional, decimalTypeOptional: allTypes1Expected.decimalTypeOptional,
+            stringTypeOptional: allTypes1Expected.stringTypeOptional, dateTypeOptional: allTypes1Expected.dateTypeOptional,
+            timeOfDayTypeOptional: allTypes1Expected.timeOfDayTypeOptional, civilTypeOptional: allTypes1Expected.civilTypeOptional
+        },
+        {
+            booleanType: allTypes2Expected.booleanType, intType: allTypes2Expected.intType, floatType: allTypes2Expected.floatType,
+            decimalType: allTypes2Expected.decimalType, stringType: allTypes2Expected.stringType, byteArrayType: allTypes2Expected.byteArrayType,
+            dateType: allTypes2Expected.dateType, timeOfDayType: allTypes2Expected.timeOfDayType, civilType: allTypes2Expected.civilType,
+            booleanTypeOptional: allTypes2Expected.booleanTypeOptional, intTypeOptional: allTypes2Expected.intTypeOptional,
+            floatTypeOptional: allTypes2Expected.floatTypeOptional, decimalTypeOptional: allTypes2Expected.decimalTypeOptional,
+            stringTypeOptional: allTypes2Expected.stringTypeOptional, dateTypeOptional: allTypes2Expected.dateTypeOptional,
+            timeOfDayTypeOptional: allTypes2Expected.timeOfDayTypeOptional, civilTypeOptional: allTypes2Expected.civilTypeOptional
+        },
+        {
+            booleanType: allTypes3Expected.booleanType, intType: allTypes3Expected.intType, floatType: allTypes3Expected.floatType,
+            decimalType: allTypes3Expected.decimalType, stringType: allTypes3Expected.stringType, byteArrayType: allTypes3Expected.byteArrayType,
+            dateType: allTypes3Expected.dateType, timeOfDayType: allTypes3Expected.timeOfDayType, civilType: allTypes3Expected.civilType,
+            booleanTypeOptional: allTypes3Expected.booleanTypeOptional, intTypeOptional: allTypes3Expected.intTypeOptional,
+            floatTypeOptional: allTypes3Expected.floatTypeOptional, decimalTypeOptional: allTypes3Expected.decimalTypeOptional,
+            stringTypeOptional: allTypes3Expected.stringTypeOptional, dateTypeOptional: allTypes3Expected.dateTypeOptional,
+            timeOfDayTypeOptional: allTypes3Expected.timeOfDayTypeOptional, civilTypeOptional: allTypes3Expected.civilTypeOptional
+        }
+    ]);
+    check testEntitiesClient.close();
+}
+
 @test:Config {
     groups: ["all-types"],
     dependsOn: [allTypesCreateTest, allTypesCreateOptionalTest]
@@ -271,7 +335,7 @@ function allTypesReadOneTestNegative() returns error? {
 
 @test:Config {
     groups: ["all-types"],
-    dependsOn: [allTypesReadOneTest, allTypesReadTest]
+    dependsOn: [allTypesReadOneTest, allTypesReadTest, allTypesReadDependentTest]
 }
 function allTypesUpdateTest() returns error? {
     TestEntitiesClient testEntitiesClient = check new ();

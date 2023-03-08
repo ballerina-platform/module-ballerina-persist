@@ -24,28 +24,28 @@ type AllTypes record {|
     time:Civil? civilTypeOptional;
 |};
 
-type StringIdRecord record {| 
-    readonly string id; 
+type StringIdRecord record {|
+    readonly string id;
     string randomField;
 |};
 
-type IntIdRecord record {| 
-    readonly int id; 
+type IntIdRecord record {|
+    readonly int id;
     string randomField;
 |};
 
-type FloatIdRecord record {| 
-    readonly float id; 
+type FloatIdRecord record {|
+    readonly float id;
     string randomField;
 |};
 
-type DecimalIdRecord record {| 
-    readonly decimal id; 
+type DecimalIdRecord record {|
+    readonly decimal id;
     string randomField;
 |};
 
-type BooleanIdRecord record {| 
-    readonly boolean id; 
+type BooleanIdRecord record {|
+    readonly boolean id;
     string randomField;
 |};
 
@@ -62,4 +62,5 @@ type AllTypesIdRecord record {|
     readonly decimal decimalType;
     readonly string stringType;
     string randomField;
+    CompositeAssociationRecord? compositeAssociationRecord;
 |};

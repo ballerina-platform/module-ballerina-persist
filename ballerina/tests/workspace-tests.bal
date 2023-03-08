@@ -19,36 +19,36 @@ import ballerina/test;
 Workspace workspace1 = {
     workspaceId: "workspace-1",
     workspaceType: "small",
-    buildingBuildingCode: "building-2"
+    locationBuildingCode: "building-2"
 };
 
 Workspace invalidWorkspace = {
     workspaceId: "invalid-workspace-extra-characters-to-force-failure",
     workspaceType: "small",
-    buildingBuildingCode: "building-2"
+    locationBuildingCode: "building-2"
 };
 
 Workspace workspace2 = {
     workspaceId: "workspace-2",
     workspaceType: "medium",
-    buildingBuildingCode: "building-2"
+    locationBuildingCode: "building-2"
 };
 
 Workspace workspace3 = {
     workspaceId: "workspace-3",
     workspaceType: "small",
-    buildingBuildingCode: "building-2"
+    locationBuildingCode: "building-2"
 };
 
 Workspace updatedWorkspace1 = {
     workspaceId: "workspace-1",
     workspaceType: "large",
-    buildingBuildingCode: "building-2"
+    locationBuildingCode: "building-2"
 };
 
 @test:Config {
     groups: ["workspace"],
-    dependsOn: [basicDeleteTestNegative]
+    dependsOn: [buildingDeleteTestNegative]
 }
 function workspaceCreateTest() returns error? {
     RainierClient rainierClient = check new ();
@@ -136,9 +136,33 @@ function workspaceReadManyTest() returns error? {
     check rainierClient.close();
 }
 
+public type WorkspaceInfo2 record {|
+    string workspaceType;
+    string locationBuildingCode;
+|};
+
+@test:Config {
+    groups: ["workspace", "dependent"],
+    dependsOn: [workspaceCreateTest, workspaceCreateTest2]
+}
+function workspaceReadManyDependentTest() returns error? {
+    RainierClient rainierClient = check new ();
+
+    stream<WorkspaceInfo2, error?> workspaceStream = rainierClient->/workspace.get();
+    WorkspaceInfo2[] workspaces = check from WorkspaceInfo2 workspace in workspaceStream 
+        select workspace;
+
+    test:assertEquals(workspaces, [
+        {workspaceType: workspace1.workspaceType, locationBuildingCode: workspace1.locationBuildingCode},
+        {workspaceType: workspace2.workspaceType, locationBuildingCode: workspace2.locationBuildingCode},
+        {workspaceType: workspace3.workspaceType, locationBuildingCode: workspace3.locationBuildingCode}
+    ]);
+    check rainierClient.close();
+}
+
 @test:Config {
     groups: ["workspace"],
-    dependsOn: [workspaceReadOneTest, workspaceReadManyTest]
+    dependsOn: [workspaceReadOneTest, workspaceReadManyTest, workspaceReadManyDependentTest]
 }
 function workspaceUpdateTest() returns error? {
     RainierClient rainierClient = check new ();
@@ -156,7 +180,7 @@ function workspaceUpdateTest() returns error? {
 
 @test:Config {
     groups: ["workspace"],
-    dependsOn: [workspaceReadOneTest, workspaceReadManyTest]
+    dependsOn: [workspaceReadOneTest, workspaceReadManyTest, workspaceReadManyDependentTest]
 }
 function workspaceUpdateTestNegative1() returns error? {
     RainierClient rainierClient = check new ();
@@ -175,7 +199,7 @@ function workspaceUpdateTestNegative1() returns error? {
 
 @test:Config {
     groups: ["workspace"],
-    dependsOn: [workspaceReadOneTest, workspaceReadManyTest]
+    dependsOn: [workspaceReadOneTest, workspaceReadManyTest, workspaceReadManyDependentTest]
 }
 function workspaceUpdateTestNegative2() returns error? {
     RainierClient rainierClient = check new ();
