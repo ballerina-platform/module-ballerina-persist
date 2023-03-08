@@ -68,7 +68,7 @@ test {
 
 jacocoTestReport {
     dependsOn test
-    def projs = configurations.implementation.getAllDependencies().withType(ProjectDependency).collect{it.getDependencyProject()}
+    def projs = configurations.implementation.getAllDependencies().withType(ProjectDependency).collect { it.getDependencyProject() }
     projs.each {
         additionalSourceDirs files(it.sourceSets.main.allSource.srcDirs)
         additionalClassDirs files(it.sourceSets.main.output)
@@ -87,7 +87,7 @@ spotbugsMain {
         text.enabled = true
     }
     def excludeFile = file("${rootDir}/spotbugs-exclude.xml")
-    if(excludeFile.exists()) {
+    if (excludeFile.exists()) {
         excludeFilter = excludeFile
     }
 }
@@ -116,7 +116,7 @@ tasks.withType(Checkstyle) {
 checkstyle {
     toolVersion "${project.puppycrawlCheckstyleVersion}"
     configFile rootProject.file("build-config/checkstyle/build/checkstyle.xml")
-    configProperties = ["suppressionFile" : file("${rootDir}/build-config/checkstyle/build/suppressions.xml")]
+    configProperties = ["suppressionFile": file("${rootDir}/build-config/checkstyle/build/suppressions.xml")]
 }
 
 checkstyleTest.dependsOn(":checkstyle:downloadCheckstyleRuleFiles")

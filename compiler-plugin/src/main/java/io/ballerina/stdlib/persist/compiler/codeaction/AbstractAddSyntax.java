@@ -25,58 +25,60 @@ import io.ballerina.projects.plugins.codeaction.CodeActionContext;
 import io.ballerina.projects.plugins.codeaction.CodeActionExecutionContext;
 import io.ballerina.projects.plugins.codeaction.CodeActionInfo;
 import io.ballerina.projects.plugins.codeaction.DocumentEdit;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocumentChange;
 import io.ballerina.tools.text.TextEdit;
 import io.ballerina.tools.text.TextRange;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_001;
 import static io.ballerina.stdlib.persist.compiler.Utils.getNumericDiagnosticProperty;
+import static io.ballerina.stdlib.persist.compiler.Utils.getStringArgument;
 import static io.ballerina.stdlib.persist.compiler.Utils.getTextRangeArgument;
-import static io.ballerina.stdlib.persist.compiler.codeaction.PersistCodeActionName.MARK_FIELD_AS_IDENTITY_FIELD;
+import static io.ballerina.stdlib.persist.compiler.codeaction.PersistCodeActionName.ADD_SINGLE_TEXT;
 
 /**
- * Code action to mark a field as identity.
+ * Abstract class to add syntax as code action.
  */
-public class MarkFieldAsIdentityField implements CodeAction {
+public abstract class AbstractAddSyntax implements CodeAction {
 
-    public static final String READONLY_ADD_TEXT_RANGE = "readonly.add.text.range";
+    public static final String ADD_TEXT_RANGE = "add.text.range";
+    public static final String ADD_TEXT = "add.text";
 
     @Override
     public List<String> supportedDiagnosticCodes() {
-        return List.of(PERSIST_001.getCode());
+        return getSupportedDiagnosticCodes();
     }
 
     @Override
     public Optional<CodeActionInfo> codeActionInfo(CodeActionContext codeActionContext) {
-        List<DiagnosticProperty<?>> properties = codeActionContext.diagnostic().properties();
+        Diagnostic diagnostic = codeActionContext.diagnostic();
+        List<DiagnosticProperty<?>> properties = diagnostic.properties();
 
         TextRange lineAddLocation = TextRange.from(getNumericDiagnosticProperty(properties, 0), 0);
+        CodeActionArgument lineAddLocationArg = CodeActionArgument.from(ADD_TEXT_RANGE, lineAddLocation);
+        CodeActionArgument addTextArg = CodeActionArgument.from(ADD_TEXT, getAddText(diagnostic));
 
-        CodeActionArgument lineAddLocationArg = CodeActionArgument.from(READONLY_ADD_TEXT_RANGE, lineAddLocation);
-
-        return Optional.of(CodeActionInfo.from(MessageFormat.format("Mark field ''{0}'' as identity field",
-                codeActionContext.diagnostic().diagnosticInfo().messageFormat()), List.of(lineAddLocationArg)));
+        return Optional.of(CodeActionInfo.from(getTitle(diagnostic), List.of(lineAddLocationArg, addTextArg)));
     }
 
     @Override
     public List<DocumentEdit> execute(CodeActionExecutionContext context) {
-        TextRange startFrom = getTextRangeArgument(context, READONLY_ADD_TEXT_RANGE);
-        if (startFrom == null) {
+        TextRange startFrom = getTextRangeArgument(context, ADD_TEXT_RANGE);
+        String addText = getStringArgument(context, ADD_TEXT);
+        if (startFrom == null || addText == null) {
             return Collections.emptyList();
         }
 
         SyntaxTree syntaxTree = context.currentDocument().syntaxTree();
 
         List<TextEdit> textEdits = new ArrayList<>();
-        textEdits.add(TextEdit.from(startFrom, "readonly "));
+        textEdits.add(TextEdit.from(startFrom, addText));
 
         TextDocumentChange change = TextDocumentChange.from(textEdits.toArray(new TextEdit[0]));
         TextDocument modifiedTextDocument = syntaxTree.textDocument().apply(change);
@@ -85,6 +87,12 @@ public class MarkFieldAsIdentityField implements CodeAction {
 
     @Override
     public String name() {
-        return MARK_FIELD_AS_IDENTITY_FIELD.getName();
+        return ADD_SINGLE_TEXT.getName();
     }
+
+    protected abstract List<String> getSupportedDiagnosticCodes();
+
+    protected abstract String getTitle(Diagnostic diagnostic);
+
+    protected abstract String getAddText(Diagnostic diagnostic);
 }

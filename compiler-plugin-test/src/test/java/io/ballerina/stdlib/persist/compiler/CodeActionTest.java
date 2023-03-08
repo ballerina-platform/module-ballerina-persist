@@ -86,11 +86,24 @@ public class CodeActionTest {
                 {"record-properties.bal", LinePosition.from(14, 6), "record-properties.bal",
                         "PERSIST_201", "CHANGE_TO_CLOSED_RECORD", "Change to closed record"},
                 {"mandatory-relation-field.bal", LinePosition.from(8, 21), "mandatory-relation-field.bal",
-                        "PERSIST_402", "ADD_RELATION_FIELD_IN_RELATED_ENTITY",
-                        "Add 'Building'-typed field in 'Workspace' entity"},
+                        "PERSIST_402", "ADD_SINGLE_TEXT", "Add 'Building'-typed field in 'Workspace' entity"},
                 {"mandatory-relation-field.bal", LinePosition.from(27, 19), "mandatory-relation-field2.bal",
-                        "PERSIST_402", "ADD_RELATION_FIELD_IN_RELATED_ENTITY",
-                        "Add 'Workspace2'-typed field in 'Building1' entity"},
+                        "PERSIST_402", "ADD_SINGLE_TEXT", "Add 'Workspace2'-typed field in 'Building1' entity"},
+                {"nillable-relation-field.bal", LinePosition.from(14, 9), "nillable-relation-field.bal",
+                        "PERSIST_406", "REMOVE_TEXT_RANGE", "Change to 'Building' type"},
+                {"nillable-relation-field.bal", LinePosition.from(59, 11),
+                        "nillable-relation-field-1-1-both-optional.bal",
+                        "PERSIST_003", "REMOVE_TEXT_RANGE", "Change 'Workspace4.location' to non-nillable field"},
+                {"nillable-relation-field.bal", LinePosition.from(59, 11),
+                        "nillable-relation-field-1-1-both-optional2.bal",
+                        "PERSIST_003", "REMOVE_TEXT_RANGE", "Change 'Building4.workspaces' to non-nillable field"},
+
+                {"nillable-relation-field.bal", LinePosition.from(44, 9),
+                        "nillable-relation-field-building3-owner.bal",
+                        "PERSIST_002", "ADD_SINGLE_TEXT", "Make 'Building3' entity relation owner"},
+                {"nillable-relation-field.bal", LinePosition.from(44, 9),
+                        "nillable-relation-field-workspace3-owner.bal",
+                        "PERSIST_002", "ADD_SINGLE_TEXT", "Make 'Workspace3' entity relation owner"},
 
                 {"field-types.bal", LinePosition.from(15, 6), "field-types-boolean.bal",
                         "PERSIST_305", "CHANGE_TYPE_TO_BOOLEAN", "Change to 'boolean' type"},
@@ -108,11 +121,11 @@ public class CodeActionTest {
                         "PERSIST_503", "CHANGE_TYPE_TO_STRING", "Change to 'string' type"},
 
                 {"readonly-field.bal", LinePosition.from(3, 16), "readonly-field-beneficiaryId.bal",
-                        "PERSIST_001", "MARK_FIELD_AS_IDENTITY_FIELD", "Mark field 'beneficiaryId' as identity field"},
+                        "PERSIST_001", "ADD_SINGLE_TEXT", "Mark field 'beneficiaryId' as identity field"},
                 {"readonly-field.bal", LinePosition.from(3, 16), "readonly-field-needId.bal",
-                        "PERSIST_001", "MARK_FIELD_AS_IDENTITY_FIELD", "Mark field 'needId' as identity field"},
+                        "PERSIST_001", "ADD_SINGLE_TEXT", "Mark field 'needId' as identity field"},
                 {"readonly-field.bal", LinePosition.from(3, 16), "readonly-field-quantity.bal",
-                        "PERSIST_001", "MARK_FIELD_AS_IDENTITY_FIELD", "Mark field 'quantity' as identity field"},
+                        "PERSIST_001", "ADD_SINGLE_TEXT", "Mark field 'quantity' as identity field"},
         };
     }
 

@@ -24,21 +24,45 @@ import io.ballerina.compiler.syntax.tree.NodeLocation;
  * Model class to hold relation field details.
  */
 public class RelationField {
+    private final String name;
     private final String type;
+    private final int typeEndOffset;
+    private final boolean isOptionalType;
+    private final int nullableStartOffset;
     private final boolean isArrayType;
     private final String containingEntity;
     private final NodeLocation location;
 
-    public RelationField(String type, boolean isArrayType, NodeLocation location,
-                         String containingEntity) {
+    public RelationField(String name, String type, int typeEndOffset, boolean isOptionalType, int nullableStartOffset,
+                         boolean isArrayType, NodeLocation location, String containingEntity) {
+        this.name = name;
         this.type = type;
+        this.typeEndOffset = typeEndOffset;
+        this.isOptionalType = isOptionalType;
+        this.nullableStartOffset = nullableStartOffset;
         this.isArrayType = isArrayType;
         this.location = location;
         this.containingEntity = containingEntity;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public String getType() {
         return type;
+    }
+
+    public int getTypeEndOffset() {
+        return typeEndOffset;
+    }
+
+    public boolean isOptionalType() {
+        return isOptionalType;
+    }
+
+    public int getNullableStartOffset() {
+        return nullableStartOffset;
     }
 
     public boolean isArrayType() {
