@@ -20,6 +20,7 @@ plugins {
     id 'com.github.spotbugs'
     id 'checkstyle'
     id 'jacoco'
+    id 'maven-publish'
 }
 
 description = 'Ballerina - Persist Java Native'
@@ -135,6 +136,18 @@ publishing {
             credentials {
                 username = System.getenv("publishUser")
                 password = System.getenv("publishPAT")
+            }
+        }
+        maven {
+            name = "NexusRepo"
+            if(project.version.endsWith('-SNAPSHOT')) {
+                url "https://maven.wso2.org/nexus/content/repositories/snapshots/"
+            } else {
+                url "https://maven.wso2.org/nexus/service/local/staging/deploy/maven2/"
+            }
+            credentials {
+                username System.getenv("nexusUser")
+                password System.getenv("nexusPassword")
             }
         }
     }
