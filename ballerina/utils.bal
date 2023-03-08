@@ -15,8 +15,6 @@
 // under the License.
 
 import ballerina/sql;
-import ballerina/jballerina.java;
-import ballerina/time;
 
 isolated function stringToParameterizedQuery(string queryStr) returns sql:ParameterizedQuery {
     sql:ParameterizedQuery query = ``;
@@ -24,30 +22,28 @@ isolated function stringToParameterizedQuery(string queryStr) returns sql:Parame
     return query;
 }
 
-isolated function flattenRecord(record {} r) returns record {} {
-    record {} returnRecord = {};
-    foreach string key in r.keys() {
-        if r[key] is record {} && !isKnownRecordType(<record {}> r[key]) {
-            record {} innerFlattenedRecord = flattenRecord(<record {}>r[key]);
-            foreach string innerKey in innerFlattenedRecord.keys() {
-                returnRecord[key + "." + innerKey] = innerFlattenedRecord[innerKey];
-            }
-        } else {
-            returnRecord[key] = r[key];
+# Closes the entity stream.
+#
+# + customStream - Stream that needs to be closed
+# + return - `()` if the operation is performed successfully or a `persist:Error` if the operation fails
+public isolated function closeEntityStream(stream<anydata, sql:Error?>? customStream) returns Error? {
+    if customStream is stream<anydata, sql:Error?> {
+        sql:Error? e = customStream.close();
+        if e is sql:Error {
+            return <Error>error(e.message());
         }
     }
-    return returnRecord;
 }
 
-isolated function isKnownRecordType(record {} r) returns boolean {
-    if r is time:Civil || 
-       r is time:TimeOfDay || 
-       r is time:Date {
-        return true;
+isolated function getKeyFromDuplicateKeyErrorMessage(string errorMessage) returns string|Error {
+    int? startIndex = errorMessage.indexOf(".Duplicate entry '");
+    int? endIndex = errorMessage.indexOf("' for key");
+    
+    if startIndex is () || endIndex is () {
+        return <Error>error("Unable to determine key from DuplicateKey error message.");
     }
-    return false;
+
+    string key = errorMessage.substring(startIndex+18, endIndex);
+    return key;
 }
 
-isolated function convertToArray(typedesc<record {}> elementType, record {}[] arr) returns elementType[] = @java:Method {
-    'class: "io.ballerina.stdlib.persist.Utils"
-} external;

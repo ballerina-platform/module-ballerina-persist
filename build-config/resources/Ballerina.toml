@@ -8,13 +8,3 @@ repository = "https://github.com/ballerina-platform/module-ballerina-persist"
 icon = "icon.png"
 license = ["Apache-2.0"]
 distribution = "2201.3.0"
-
-[[platform.java11.dependency]]
-path = "./lib/mysql-connector-java-@mysql.driver.version@.jar"
-scope="testOnly"
-
-[[platform.java11.dependency]]
-groupId = "io.ballerina.persist"
-artifactId = "persist-native"
-version = "@toml.version@"
-path = "../native/build/libs/persist-native-@project.version@.jar"

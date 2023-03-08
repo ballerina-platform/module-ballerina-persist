@@ -7,8 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Support for generic persistent client and annotations
-- Support SQL script generation
-- Support for advanced filter queries
+- [Change one-to-one association owner retrieval logic](https://github.com/ballerina-platform/ballerina-standard-library/issues/4163)
+- [Add Quick Fix code actions to Entity Model Definition File validations](https://github.com/ballerina-platform/ballerina-standard-library/issues/4088)
 
 ### Changed
+
+## [0.1.0] - 2023-02-20
+
+### Added
+
+- Support to define Entity Data Model (Explicit entities, 1-1 associations and 1-n associations)
+- Support for generic persistent client
+- Support for validations based on EDM specification

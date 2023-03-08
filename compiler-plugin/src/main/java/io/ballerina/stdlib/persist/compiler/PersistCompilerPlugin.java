@@ -20,6 +20,19 @@ package io.ballerina.stdlib.persist.compiler;
 
 import io.ballerina.projects.plugins.CompilerPlugin;
 import io.ballerina.projects.plugins.CompilerPluginContext;
+import io.ballerina.projects.plugins.codeaction.CodeAction;
+import io.ballerina.stdlib.persist.compiler.codeaction.AddSingleText;
+import io.ballerina.stdlib.persist.compiler.codeaction.ChangeToClosedRecord;
+import io.ballerina.stdlib.persist.compiler.codeaction.ChangeTypeToBoolean;
+import io.ballerina.stdlib.persist.compiler.codeaction.ChangeTypeToByteArray;
+import io.ballerina.stdlib.persist.compiler.codeaction.ChangeTypeToDecimal;
+import io.ballerina.stdlib.persist.compiler.codeaction.ChangeTypeToFloat;
+import io.ballerina.stdlib.persist.compiler.codeaction.ChangeTypeToInt;
+import io.ballerina.stdlib.persist.compiler.codeaction.ChangeTypeToString;
+import io.ballerina.stdlib.persist.compiler.codeaction.RemoveDiagnosticLocation;
+import io.ballerina.stdlib.persist.compiler.codeaction.RemoveTextRange;
+
+import java.util.List;
 
 /**
  * Persist compiler plugin.
@@ -29,7 +42,21 @@ public class PersistCompilerPlugin extends CompilerPlugin {
     @Override
     public void init(CompilerPluginContext compilerPluginContext) {
         compilerPluginContext.addCodeAnalyzer(new PersistCodeAnalyzer());
-        // Remove advance filter for phase 1
-        // compilerPluginContext.addCodeModifier(new PersistCodeModifier());
+        getCodeActions().forEach(compilerPluginContext::addCodeAction);
+    }
+
+    private List<CodeAction> getCodeActions() {
+        return List.of(
+                new RemoveDiagnosticLocation(),
+                new RemoveTextRange(),
+                new ChangeToClosedRecord(),
+                new AddSingleText(),
+                new ChangeTypeToInt(),
+                new ChangeTypeToString(),
+                new ChangeTypeToBoolean(),
+                new ChangeTypeToFloat(),
+                new ChangeTypeToDecimal(),
+                new ChangeTypeToByteArray()
+        );
     }
 }

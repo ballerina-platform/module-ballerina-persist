@@ -3,16 +3,15 @@ org = "wso2"
 name = "medical_center"
 version = "0.1.0"
 
-[[platform.java11.dependency]]
-path = "../../ballerina/lib/mysql-connector-java-8.0.29.jar"
-
-[[platform.java11.dependency]]
-groupId = "mysql"
-artifactId = "mysql-connector-java"
-version = "8.0.29"
-
 [[dependency]]
 org = "ballerina"
 name = "persist"
 version = "0.1.0"
 repository = "local"
+
+[persist.medical_center.storage.mysql]
+host = "localhost"
+port = 3305
+user = "root"
+password = "Test123#"
+database = "medical_center_db"

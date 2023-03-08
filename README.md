@@ -2,12 +2,17 @@ Ballerina Persist Library
 ===================
 
   [![Build](https://github.com/ballerina-platform/module-ballerina-persist/actions/workflows/build-timestamped-master.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerina-persist/actions/workflows/build-timestamped-master.yml)
+  [![codecov](https://codecov.io/gh/ballerina-platform/module-ballerina-persist/branch/main/graph/badge.svg)](https://codecov.io/gh/ballerina-platform/module-ballerina-persist)
   [![Trivy](https://github.com/ballerina-platform/module-ballerina-persist/actions/workflows/trivy-scan.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerina-persist/actions/workflows/trivy-scan.yml)
+  [![GraalVM Check](https://github.com/ballerina-platform/module-ballerina-persist/actions/workflows/build-with-bal-test-native.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerina-persist/actions/workflows/build-with-bal-test-native.yml)
   [![GitHub Last Commit](https://img.shields.io/github/last-commit/ballerina-platform/module-ballerina-persist.svg)](https://github.com/ballerina-platform/module-ballerina-persist/commits/main)
   [![GitHub Issues](https://img.shields.io/github/issues/ballerina-platform/ballerina-standard-library/module/persist.svg?label=Open%20Issues)](https://github.com/ballerina-platform/ballerina-standard-library/labels/module%2Fpersist)
-  [![codecov](https://codecov.io/gh/ballerina-platform/module-ballerina-persist/branch/main/graph/badge.svg)](https://codecov.io/gh/ballerina-platform/module-ballerina-persist)
 
-This library provides the generic interface and functionality to interact with an SQL database using Ballerina Persistent Layer.
+This library provides Ballerina `persist` Tooling, which provides functionality to store and query data conveniently through a data model instead of SQL query language.
+
+The `persist` commands will make it easy to enable Ballerina Persistence Layer in a bal project. With this support, users need not worry about the persistence layer in a project. Users can define an entity data model, validate the model and generate `persist` clients, which provide convenient APIs to store and query data in a data store.
+
+For more information, see [`persist` API Documentation](https://lib.ballerina.io/ballerina/persist/latest).
 
 ## Issues and projects 
 

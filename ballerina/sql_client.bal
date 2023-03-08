@@ -26,53 +26,47 @@ public client class SQLClient {
     private sql:ParameterizedQuery tableName;
     private map<FieldMetadata> fieldMetadata;
     private string[] keyFields;
-    private map<JoinMetadata> joinMetadata;
 
     # Initializes the `SQLClient`.
     #
     # + dbClient - The `sql:Client`, which is used to execute SQL queries
-    # + entityName - The name of the entity with which the client performs CRUD operations
-    # + tableName - The name of the SQL table, which is mapped to the entity
-    # + keyFields - The names of the key fields of the entity
-    # + fieldMetadata - The metadata associated with each field of the entity
-    # + joinMetadata - The metadata associated with performing SQL `JOIN` operations
+    # + metadata - Metadata of the entity
     # + return - A `persist:Error` if the client creation fails
-    public function init(sql:Client dbClient, string entityName, sql:ParameterizedQuery tableName, string[] keyFields, map<FieldMetadata> fieldMetadata,
-                        map<JoinMetadata> joinMetadata = {}) returns Error? {
-        self.entityName = entityName;
-        self.tableName = tableName;
-        self.fieldMetadata = fieldMetadata;
-        self.keyFields = keyFields;
+    public function init(sql:Client dbClient, Metadata metadata) returns Error? {
+        self.entityName = metadata.entityName;
+        self.tableName = metadata.tableName;
+        self.fieldMetadata = metadata.fieldMetadata;
+        self.keyFields = metadata.keyFields;
         self.dbClient = dbClient;
-        self.joinMetadata = joinMetadata;
     }
 
-    # Performs an SQL `INSERT` operation to insert a record into a table.
+    # Performs a batch SQL `INSERT` operation to insert entity instances into a table.
     #
-    # + 'object - The record to be inserted into the table
-    # + return - An `sql:ExecutionResult` containing the metadata of the query execution
+    # + insertRecords - The entity records to be inserted into the table
+    # + return - An `sql:ExecutionResult[]` containing the metadata of the query execution
     #            or a `persist:Error` if the operation fails
-    public isolated function runInsertQuery(record {} 'object) returns sql:ExecutionResult|Error {
-        sql:ParameterizedQuery query = sql:queryConcat(
-            `INSERT INTO `, self.tableName, ` (`,
-            self.getInsertColumnNames(), ` ) `,
-            `VALUES `, self.getInsertQueryParams('object)
-        );
-        sql:ExecutionResult|sql:Error result = self.dbClient->execute(query);
+    public isolated function runBatchInsertQuery(record {}[] insertRecords) returns sql:ExecutionResult[]|Error {
+        sql:ParameterizedQuery[] insertQueries = 
+            from record {} insertRecord in insertRecords
+            select sql:queryConcat(`INSERT INTO `, self.tableName, ` (`, self.getInsertColumnNames(), ` ) `, `VALUES `, self.getInsertQueryParams(insertRecord));
+        
+        sql:ExecutionResult[]|sql:Error result = self.dbClient->batchExecute(insertQueries);
 
         if result is sql:Error {
             if result.message().indexOf("Duplicate entry ") != () {
-                return <DuplicateKeyError>error(string `A ${self.entityName} entity with the key ${self.getKey('object).toString()} already exists.`);
+                string duplicateKey = check getKeyFromDuplicateKeyErrorMessage(result.message());
+                return <DuplicateKeyError>error(string `A ${self.entityName} entity with the key '${duplicateKey}' already exists.`);
             }
+
             return <Error>error(result.message());
         }
 
         return result;
     }
 
-    # Performs an SQL `SELECT` operation to read a single record from the database.
+    # Performs an SQL `SELECT` operation to read a single entity record from the database.
     #
-    # + rowType - The record-type to be retrieved (the record type of the entity)    
+    # + rowType - The type description of the entity to be retrieved
     # + key - The value of the key (to be used as the `WHERE` clauses)
     # + include - The relations to be retrieved (SQL `JOINs` to be performed)
     # + return - A record in the `rowType` type or a `persist:Error` if the operation fails
@@ -80,14 +74,6 @@ public client class SQLClient {
         sql:ParameterizedQuery query = sql:queryConcat(
             `SELECT `, self.getSelectColumnNames(include), ` FROM `, self.tableName, ` AS `, stringToParameterizedQuery(self.entityName)
         );
-
-        foreach string joinKey in self.joinMetadata.keys() {
-            JoinMetadata joinMetadata = self.joinMetadata.get(joinKey);
-            if include.indexOf(joinKey) != () {
-                query = sql:queryConcat(query, ` LEFT JOIN `, stringToParameterizedQuery(joinMetadata.refTable + " " + joinKey),
-                                        ` ON `, check self.getJoinFilters(joinKey, joinMetadata.refFields, <string[]>joinMetadata.joinColumns));
-            }
-        }
 
         query = sql:queryConcat(query, ` WHERE `, check self.getGetKeyWhereClauses(key));
         record {}|sql:Error result = self.dbClient->queryRow(query, rowType);
@@ -97,65 +83,38 @@ public client class SQLClient {
                 string `A record does not exist for '${self.entityName}' for key ${key.toBalString()}.`);
         }
 
-        if result is record {} {
-            check self.getManyRelations(result, include);
-        }
-
         if result is sql:Error {
             return <Error>error(result.message());
         }
         return result;
     }
 
-    # Performs an SQL `SELECT` operation to read multiple records from the database.
+    # Performs an SQL `SELECT` operation to read multiple entity records from the database.
     #
-    # + rowType - The record-type to be retrieved (the entity record-type)
+    # + rowType - The type description of the entity to be retrieved
     # + include - The relations to be retrieved (SQL `JOINs` to be performed)
     # + return - A stream of records in the `rowType` type or a `persist:Error` if the operation fails
     public isolated function runReadQuery(typedesc<record {}> rowType, string[] include = [])
     returns stream<record {}, sql:Error?>|Error {
         sql:ParameterizedQuery query = sql:queryConcat(
-            `SELECT `, self.getSelectColumnNames(include), ` FROM `, self.tableName, stringToParameterizedQuery(" " + self.entityName)
+            `SELECT `, self.getSelectColumnNames(include), ` FROM `, self.tableName, ` `, stringToParameterizedQuery(self.entityName)
         );
-
-        string[] joinKeys = self.joinMetadata.keys();
-        foreach string joinKey in joinKeys {
-            if include.indexOf(joinKey) != () {
-                JoinMetadata joinMetadata = self.joinMetadata.get(joinKey);
-                query = sql:queryConcat(query, ` LEFT JOIN `, stringToParameterizedQuery(joinMetadata.refTable + " " + joinKey),
-                                        ` ON `, check self.getJoinFilters(joinKey, joinMetadata.refFields, <string[]>joinMetadata.joinColumns));
-            }
-        }
 
         stream<record {}, sql:Error?> resultStream = self.dbClient->query(query, rowType);
         return resultStream;
     }
 
-    # Performs an SQL `SELECT` operation to read multiple records from the database when an advanced filter is provided.
+    # Performs an SQL `UPDATE` operation to update multiple entity records in the database.
     #
-    # + filterClause - The filter query to be used in the SQL `WHERE` clauses
-    # + rowType - The record type to be retrieved (the record type of the entity)
-    # + include - The relations to be retrieved (SQL `JOINs` to be performed)
-    # + return - A stream of records in the `rowType` type or a `persist:Error` if the operation fails
-    public isolated function runExecuteQuery(sql:ParameterizedQuery filterClause, typedesc<record {}> rowType, string[] include = [])
-    returns stream<record {}, sql:Error?>|Error {
-        if self.joinMetadata.length() != 0 {
-            return <UnsupportedOperationError>error("Advanced queries are not supported for entities with relations.");
-        }
-        sql:ParameterizedQuery query = sql:queryConcat(`SELECT `, self.getSelectColumnNames(include), ` FROM `,
-        self.tableName, ` AS `, stringToParameterizedQuery(self.entityName), filterClause);
-        return self.dbClient->query(query, rowType);
-    }
-
-    # Performs an SQL `UPDATE` operation to update multiple records in the database.
-    #
-    # + 'object - the record to be updated
+    # + key - the key of the entity
+    # + updateRecord - the record to be updated
+    # + updateAssociations - The associations that should be updated
     # + return - `()` if the operation is performed successfully.
-    #            A `ForeignKeyConstraintViolationError` if the operation violates a foreign key constraint.
-    #            A `persist:Error` if the operation fails due to another reason.
-    public isolated function runUpdateQuery(record {} 'object) returns ForeignKeyConstraintViolationError|Error? {
-        sql:ParameterizedQuery query = sql:queryConcat(`UPDATE `, self.tableName, stringToParameterizedQuery(" " + self.entityName), ` SET`, check self.getSetClauses('object));
-        query = sql:queryConcat(query, ` WHERE`, check self.getWhereClauses(self.getKey('object)));
+    # A `ForeignKeyConstraintViolationError` if the operation violates a foreign key constraint.
+    # A `persist:Error` if the operation fails due to another reason.
+    public isolated function runUpdateQuery(anydata key, record {} updateRecord, string[] updateAssociations = []) returns ForeignKeyConstraintViolationError|Error? {
+        sql:ParameterizedQuery query = sql:queryConcat(`UPDATE `, self.tableName, stringToParameterizedQuery(" " + self.entityName), ` SET`, check self.getSetClauses(updateRecord, updateAssociations));
+        query = sql:queryConcat(query, ` WHERE`, check self.getWhereClauses(self.getKey(key)));
 
         sql:ExecutionResult|sql:Error? e = self.dbClient->execute(query);
         if e is sql:Error {
@@ -168,13 +127,13 @@ public client class SQLClient {
         }
     }
 
-    # Performs an SQL `DELETE` operation to delete a record from the database.
+    # Performs an SQL `DELETE` operation to delete an entity record from the database.
     #
-    # + 'object - The record to be deleted
+    # + deleteKey - The key used to delete an entity record
     # + return - `()` if the operation is performed successfully or a `persist:Error` if the operation fails
-    public isolated function runDeleteQuery(record {} 'object) returns Error? {
+    public isolated function runDeleteQuery(anydata deleteKey) returns Error? {
         sql:ParameterizedQuery query = sql:queryConcat(`DELETE FROM `, self.tableName, stringToParameterizedQuery(" " + self.entityName));
-        query = sql:queryConcat(query, ` WHERE`, check self.getWhereClauses(self.getKey('object)));
+        query = sql:queryConcat(query, ` WHERE`, check self.getWhereClauses(self.getKey(deleteKey)));
         sql:ExecutionResult|sql:Error e = self.dbClient->execute(query);
 
         if e is sql:Error {
@@ -182,85 +141,27 @@ public client class SQLClient {
         }
     }
 
-    # Retrieves the values of the 'many' side of an association.
-    #
-    # + 'object - The record to which the retrieved records should be appended
-    # + include - The relations to be retrieved (SQL `JOINs` to be performed)
-    # + return - `()` if the operation is performed successfully or a `persist:Error` if the operation fails
-    public isolated function getManyRelations(record {} 'object, string[] include) returns Error? {
-        foreach string joinKey in self.joinMetadata.keys() {
-            sql:ParameterizedQuery query = ``;
-            JoinMetadata joinMetadata = self.joinMetadata.get(joinKey);
-
-            map<string> whereFilter = {};
-            foreach int i in 0 ..< joinMetadata.refFields.length() {
-                whereFilter[joinMetadata.refFields[i]] = 'object[joinMetadata.joinColumns[i]].toBalString();
-            }
-
-            if include.indexOf(joinKey) != () && joinMetadata.'type == MANY {
-                query = sql:queryConcat(`SELECT `, self.getManyRelationColumnNames(joinMetadata.fieldName),
-                                        ` FROM `, stringToParameterizedQuery(joinMetadata.refTable),
-                                        ` WHERE`, check self.getWhereClauses(whereFilter, true)
-                                        );
-
-                stream<record {}, sql:Error?> joinStream = self.dbClient->query(query, joinMetadata.entity);
-                record {}[] arr = [];
-                error? e = from record {} item in joinStream
-                    do {
-                        arr.push(item);
-                    };
-
-                if e is error {
-                    return <Error>e;
-                }
-
-                'object[joinMetadata.fieldName] = convertToArray(joinMetadata.entity, arr);
-            }
-        }
-    }
-
-    # Closes the underlying `sql:Client`.
-    #
-    # + return - `()` if the client is closed successfully or a `persist:Error` if the operation fails
-    public isolated function close() returns Error? {
-        sql:Error? e = self.dbClient.close();
-        if e is sql:Error {
-            return <Error>error(e.message());
-        }
-    }
-
-    private isolated function getKey(record {} 'object) returns record {} {
+    private isolated function getKey(anydata|record {} 'object) returns record {} {
         record {} keyRecord = {};
-        foreach string key in self.keyFields {
-            keyRecord[key] = 'object[key];
+        
+        if 'object is record {} {
+            foreach string key in self.keyFields {
+                keyRecord[key] = 'object[key];
+            }
+        } else {
+            keyRecord[self.keyFields[0]] = 'object;
         }
         return keyRecord;
     }
 
     private isolated function getInsertQueryParams(record {} 'object) returns sql:ParameterizedQuery {
         sql:ParameterizedQuery params = `(`;
-        string[] keys = self.fieldMetadata.keys();
         int columnCount = 0;
-        foreach string key in keys {
-            if self.fieldMetadata.get(key).autoGenerated || self.fieldMetadata.get(key).columnName is () {
-                continue;
-            }
+        foreach string key in self.fieldMetadata.keys() {
             if columnCount > 0 {
                 params = sql:queryConcat(params, `,`);
             }
-
-            if key.includes(".") {
-                int splitPosition = <int>key.indexOf(".", 0);
-                string entity = key.substring(0, splitPosition);
-                string fieldName = key.substring(splitPosition + 1, key.length());
-                if 'object[entity] is () {
-                    params = sql:queryConcat(params, `NULL`);
-                } else {
-                    params = sql:queryConcat(params, `${<sql:Value>(<record {}>'object[entity])[fieldName]}`);
-                }
-            } else {
-                params = sql:queryConcat(params, `${<sql:Value>'object[key]}`);
-            }
+            params = sql:queryConcat(params, `${<sql:Value>'object[key]}`);
             columnCount = columnCount + 1;
         }
         params = sql:queryConcat(params, `)`);
@@ -272,13 +173,13 @@ public client class SQLClient {
         string[] keys = self.fieldMetadata.keys();
         int columnCount = 0;
         foreach string key in keys {
-            if self.fieldMetadata.get(key).autoGenerated || self.fieldMetadata.get(key).columnName is () {
-                continue;
-            }
+            FieldMetadata fieldMetadata = self.fieldMetadata.get(key);
+
             if columnCount > 0 {
                 params = sql:queryConcat(params, `, `);
             }
-            params = sql:queryConcat(params, stringToParameterizedQuery(<string>self.fieldMetadata.get(key).columnName));
+
+            params = sql:queryConcat(params, stringToParameterizedQuery("`" + fieldMetadata.columnName + "`"));
             columnCount = columnCount + 1;
         }
         return params;
@@ -289,45 +190,11 @@ public client class SQLClient {
         int columnCount = 0;
 
         foreach string key in self.fieldMetadata.keys() {
-            if self.fieldMetadata.get(key).relation is () {
-                if columnCount > 0 {
-                    params = sql:queryConcat(params, `, `);
-                }
-                params = sql:queryConcat(params, stringToParameterizedQuery(self.entityName + "." + <string>self.fieldMetadata.get(key).columnName + " AS `" + <string>self.fieldMetadata.get(key).columnName + "`"));
-                columnCount = columnCount + 1;
-            } else if include.indexOf((<RelationMetadata>self.fieldMetadata.get(key).relation).entityName) != () {
-                if !key.includes("[]") {
-                    if columnCount > 0 {
-                        params = sql:queryConcat(params, `, `);
-                    }
-                    params = sql:queryConcat(params, stringToParameterizedQuery(
-                        (<RelationMetadata>self.fieldMetadata.get(key).relation).entityName + "." +
-                        (<RelationMetadata>self.fieldMetadata.get(key).relation).refField +
-                        " AS `" + (<RelationMetadata>self.fieldMetadata.get(key).relation).entityName + "." + (<RelationMetadata>self.fieldMetadata.get(key).relation).refField + "`"
-                    ));
-                    columnCount = columnCount + 1;
-                }
-            }
-        }
-        return params;
-    }
-
-    private isolated function getManyRelationColumnNames(string prefix) returns sql:ParameterizedQuery {
-        sql:ParameterizedQuery params = ` `;
-        string[] keys = self.fieldMetadata.keys();
-        int columnCount = 0;
-        foreach string key in keys {
-            int? splitIndex = key.indexOf(prefix + "[].");
-            if splitIndex is () {
-                continue;
-            }
+            FieldMetadata fieldMetadata = self.fieldMetadata.get(key);
             if columnCount > 0 {
                 params = sql:queryConcat(params, `, `);
             }
-
-            string fieldName = key.substring((prefix + "[].").length());
-            string columnName = (<RelationMetadata>(<FieldMetadata>self.fieldMetadata[key]).relation).refField;
-            params = sql:queryConcat(params, stringToParameterizedQuery(columnName + " AS " + fieldName));
+            params = sql:queryConcat(params, stringToParameterizedQuery("`" + self.entityName + "`.`" + fieldMetadata.columnName + "` AS `" + key + "`"));
             columnCount = columnCount + 1;
         }
         return params;
@@ -345,7 +212,7 @@ public client class SQLClient {
         return check self.getWhereClauses(filter);
     }
 
-    private isolated function getWhereClauses(map<anydata> filter, boolean ignoreFieldCheck = false) returns sql:ParameterizedQuery|Error {
+    private isolated function getWhereClauses(map<anydata> filter) returns sql:ParameterizedQuery|Error {
         sql:ParameterizedQuery query = ` `;
 
         string[] keys = filter.keys();
@@ -353,57 +220,34 @@ public client class SQLClient {
             if i > 0 {
                 query = sql:queryConcat(query, ` AND `);
             }
-            if ignoreFieldCheck {
-                query = sql:queryConcat(query, stringToParameterizedQuery(keys[i]), ` = ${<sql:Value>filter[keys[i]]}`);
-            } else {
-                query = sql:queryConcat(query, stringToParameterizedQuery(self.entityName + "."), check self.getFieldParamQuery(keys[i]), ` = ${<sql:Value>filter[keys[i]]}`);
-            }
+            query = sql:queryConcat(query, stringToParameterizedQuery("`" + self.entityName + "`."), self.getFieldParamQuery(keys[i]), ` = ${<sql:Value>filter[keys[i]]}`);
         }
         return query;
     }
 
-    private isolated function getSetClauses(record {} 'object) returns sql:ParameterizedQuery|Error {
-        record {} r = flattenRecord('object);
+    private isolated function getSetClauses(record {} 'object, string[] updateAssociations = []) returns sql:ParameterizedQuery|Error {
         sql:ParameterizedQuery query = ` `;
         int count = 0;
-        foreach string key in r.keys() {
-            sql:ParameterizedQuery|InvalidInsertionError|FieldDoesNotExistError fieldName = self.getFieldParamQuery(key);
-            if fieldName is sql:ParameterizedQuery {
-                if count > 0 {
-                    query = sql:queryConcat(query, `, `);
-                }
-                query = sql:queryConcat(query, fieldName, ` = ${<sql:Value>r[key]}`);
-                count = count + 1;
-            } else if fieldName is FieldDoesNotExistError {
-                return fieldName;
+        foreach string key in 'object.keys() {
+            if !self.fieldMetadata.hasKey(key) {
+                continue;
             }
+
+            sql:ParameterizedQuery fieldName = self.getFieldParamQuery(key);
+            if count > 0 {
+                query = sql:queryConcat(query, `, `);
+            }
+            query = sql:queryConcat(query, fieldName, ` = ${<sql:Value>'object[key]}`);
+            count = count + 1;
         }
         return query;
     }
 
-    private isolated function getJoinFilters(string joinKey, string[] refFields, string[] joinColumns) returns sql:ParameterizedQuery|Error {
-        sql:ParameterizedQuery query = ` `;
-        foreach int i in 0 ..< refFields.length() {
-            if i > 0 {
-                query = sql:queryConcat(query, ` AND `);
-            }
-            sql:ParameterizedQuery filterQuery = stringToParameterizedQuery(joinKey + "." + refFields[i] + " = " + self.entityName + "." + joinColumns[i]);
-            query = sql:queryConcat(query, filterQuery);
-        }
-        return query;
+    private isolated function getFieldParamQuery(string fieldName) returns sql:ParameterizedQuery {
+        FieldMetadata fieldMetadata = self.fieldMetadata.get(fieldName);
+        return stringToParameterizedQuery("`" + fieldMetadata.columnName + "`");
     }
 
-    private isolated function getFieldParamQuery(string fieldName) returns sql:ParameterizedQuery|FieldDoesNotExistError|InvalidInsertionError {
-        FieldMetadata? fieldMetadata = self.fieldMetadata[fieldName];
-        if fieldMetadata is () {
-            return <FieldDoesNotExistError>error(
-                string `Field '${fieldName}' does not exist in entity '${self.entityName}'.`);
-        } else if (<FieldMetadata>fieldMetadata).columnName is () {
-            return <InvalidInsertionError>error(
-                string `Unable to directly insert into field ${fieldName}`);
-        }
-        return stringToParameterizedQuery(<string>(<FieldMetadata>fieldMetadata).columnName);
-    }
 }
 
 # Represents the abstract persist client. This abstract object is used in the generated client.
