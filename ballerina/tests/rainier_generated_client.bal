@@ -151,8 +151,8 @@ public client class RainierClient {
             select inserted.empNo;
     }
 
-    isolated resource function put employee/[string empNo](EmployeeUpdate value) returns Employee|Error {
-        _ = check self.persistClients.get(EMPLOYEE).runUpdateQuery(empNo, value);
+    isolated resource function put employee/[string empNo](EmployeeUpdate data) returns Employee|Error {
+        _ = check self.persistClients.get(EMPLOYEE).runUpdateQuery(empNo, data);
         return self->/employee/[empNo].get();
     }
 
@@ -181,8 +181,8 @@ public client class RainierClient {
             select inserted.workspaceId;
     }
 
-    isolated resource function put workspace/[string workspaceId](WorkspaceUpdate value) returns Workspace|Error {
-        _ = check self.persistClients.get(WORKSPACE).runUpdateQuery(workspaceId, value);
+    isolated resource function put workspace/[string workspaceId](WorkspaceUpdate data) returns Workspace|Error {
+        _ = check self.persistClients.get(WORKSPACE).runUpdateQuery(workspaceId, data);
         return self->/workspace/[workspaceId].get();
     }
 
@@ -211,8 +211,8 @@ public client class RainierClient {
             select inserted.buildingCode;
     }
 
-    isolated resource function put building/[string buildingCode](BuildingUpdate value) returns Building|Error {
-        _ = check self.persistClients.get(BUILDING).runUpdateQuery(buildingCode, value);
+    isolated resource function put building/[string buildingCode](BuildingUpdate data) returns Building|Error {
+        _ = check self.persistClients.get(BUILDING).runUpdateQuery(buildingCode, data);
         return self->/building/[buildingCode].get();
     }
 
@@ -241,8 +241,8 @@ public client class RainierClient {
             select inserted.deptNo;
     }
 
-    isolated resource function put department/[string deptNo](DepartmentUpdate value) returns Department|Error {
-        _ = check self.persistClients.get(DEPARTMENT).runUpdateQuery(deptNo, value);
+    isolated resource function put department/[string deptNo](DepartmentUpdate data) returns Department|Error {
+        _ = check self.persistClients.get(DEPARTMENT).runUpdateQuery(deptNo, data);
         return self->/department/[deptNo].get();
     }
 
@@ -265,20 +265,14 @@ public client class RainierClient {
         return result;
     }
 
-    isolated resource function get orderitemd/[string... orderId](OrderItemTargetType targetType = <>, string entity = "orderitem") returns targetType|Error = @java:Method {
-        'class: "io.ballerina.stdlib.persist.QueryProcessor",
-        name: "queryOne2"
-    } external;
-
-
     isolated resource function post orderitem(OrderItemInsert[] data) returns [string, string][]|Error {
         _ = check self.persistClients.get(ORDER_ITEM).runBatchInsertQuery(data);
         return from OrderItemInsert inserted in data
             select [inserted.orderId, inserted.itemId];
     }
 
-    isolated resource function put orderitem/[string orderId]/[string itemId](OrderItemUpdate value) returns OrderItem|Error {
-        _ = check self.persistClients.get(ORDER_ITEM).runUpdateQuery({orderId: orderId, itemId: itemId}, value);
+    isolated resource function put orderitem/[string orderId]/[string itemId](OrderItemUpdate data) returns OrderItem|Error {
+        _ = check self.persistClients.get(ORDER_ITEM).runUpdateQuery({orderId: orderId, itemId: itemId}, data);
         return self->/orderitem/[orderId]/[itemId].get();
     }
 
