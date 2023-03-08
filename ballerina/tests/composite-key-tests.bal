@@ -104,7 +104,7 @@ function compositeKeyReadOneTest() returns error? {
 }
 function compositeKeyReadOneTest2() returns error? {
     RainierClient rainierClient = check new ();
-    OrderItem orderItem = check rainierClient->/orderitemd/[orderItem1.orderId]/[orderItem1.itemId].get();    
+    OrderItem orderItem = check rainierClient->/orderitem/[orderItem1.orderId]/[orderItem1.itemId].get();    
     test:assertEquals(orderItem, orderItem1);
     check rainierClient.close();
 }
