@@ -322,15 +322,15 @@ public class CompilerPluginTest {
                         "the entity should not contain foreign key field " +
                                 "'buildingBuildingCode' for relation 'Building'",
                         "the entity should not contain foreign key field " +
-                                "'building2BuildingCode' for relation 'Building2'",
+                                "'locationBuildingCode' for relation 'Building2'",
                         "the entity should not contain foreign key field " +
-                                "'workspace3WorkspaceId' for relation 'Workspace3'",
+                                "'workspacesWorkspaceId' for relation 'Workspace3'",
                         "the entity should not contain foreign key field " +
-                                "'workspace4WorkspaceId' for relation 'Workspace4'"
+                                "'workspacesWorkspaceId' for relation 'Workspace4'"
                 },
                 new String[]{
                         "(15:4,15:32)",
-                        "(22:4,22:33)",
+                        "(22:4,22:32)",
                         "(42:4,42:33)",
                         "(66:4,66:33)"
                 }
@@ -366,7 +366,7 @@ public class CompilerPluginTest {
                         PERSIST_422.getCode()
                 },
                 new String[]{
-                        "the entity should not contain foreign key field 'buildingBuildingCode' for relation 'Building'"
+                        "the entity should not contain foreign key field 'locationBuildingCode' for relation 'Building'"
                 },
                 new String[]{
                         "(18:4,18:33)"
