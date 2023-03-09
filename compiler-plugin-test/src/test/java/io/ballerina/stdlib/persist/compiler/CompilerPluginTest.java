@@ -46,7 +46,6 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_306;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_307;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_401;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_402;
-import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_403;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_404;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_405;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_406;
@@ -304,26 +303,6 @@ public class CompilerPluginTest {
                 new String[]{
                         "(8:4,8:27)",
                         "(27:4,27:23)"
-                }
-        );
-    }
-
-    @Test
-    public void validateDuplicatedRelationField() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("duplicated-relations-field.bal", 2);
-        testDiagnostic(
-                diagnostics,
-                new String[]{
-                        PERSIST_403.getCode(),
-                        PERSIST_403.getCode()
-                },
-                new String[]{
-                        "the entity does not support duplicated relations to 'Workspace' entity",
-                        "the entity does not support duplicated relations to 'Building1' entity"
-                },
-                new String[]{
-                        "(9:4,9:28)",
-                        "(31:4,31:24)"
                 }
         );
     }

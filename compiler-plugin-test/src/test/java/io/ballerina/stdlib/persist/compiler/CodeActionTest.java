@@ -69,8 +69,6 @@ public class CodeActionTest {
                         "PERSIST_503", "REMOVE_TEXT_RANGE", "Change to non-identity field"},
                 {"self-referenced-entity.bal", LinePosition.from(8, 10), "self-referenced-entity.bal",
                         "PERSIST_401", "REMOVE_DIAGNOSTIC_LOCATION", "Remove self-referenced field"},
-                {"duplicated-relations-field.bal", LinePosition.from(9, 11), "duplicated-relations-field.bal",
-                        "PERSIST_403", "REMOVE_DIAGNOSTIC_LOCATION", "Remove duplicate relation field"},
 
                 {"field-properties.bal", LinePosition.from(22, 9), "field-properties-rest-descriptor.bal",
                         "PERSIST_301", "REMOVE_DIAGNOSTIC_LOCATION", "Remove rest descriptor field"},
