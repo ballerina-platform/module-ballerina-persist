@@ -167,13 +167,10 @@ public client class RainierClient {
         name: "query"
     } external;
 
-    isolated resource function get workspace/[string workspaceId]() returns Workspace|Error {
-        Workspace|error result = (check self.persistClients.get(WORKSPACE).runReadByKeyQuery(Workspace, workspaceId)).cloneWithType(Workspace);
-        if result is error {
-            return <Error>error(result.message());
-        }
-        return result;
-    }
+    isolated resource function get workspace/[string workspaceId](WorkspaceTargetType targetType = <>, string entity = "workspace") returns targetType|Error  = @java:Method {
+        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        name: "queryOne"
+    } external;
 
     isolated resource function post workspace(WorkspaceInsert[] data) returns string[]|Error {
         _ = check self.persistClients.get(WORKSPACE).runBatchInsertQuery(data);
@@ -197,13 +194,11 @@ public client class RainierClient {
         name: "query"
     } external;
 
-    isolated resource function get building/[string buildingCode]() returns Building|Error {
-        Building|error result = (check self.persistClients.get(BUILDING).runReadByKeyQuery(Building, buildingCode)).cloneWithType(Building);
-        if result is error {
-            return <Error>error(result.message());
-        }
-        return result;
-    }
+    isolated resource function get building/[string buildingCode](BuildingTargetType targetType = <>, string entity = "building") returns targetType|Error  = @java:Method {
+        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        name: "queryOne"
+    } external;
+
 
     isolated resource function post building(BuildingInsert[] data) returns string[]|Error {
         _ = check self.persistClients.get(BUILDING).runBatchInsertQuery(data);
@@ -227,13 +222,10 @@ public client class RainierClient {
         name: "query"
     } external;
 
-    isolated resource function get department/[string deptNo]() returns Department|Error {
-        Department|error result = (check self.persistClients.get(DEPARTMENT).runReadByKeyQuery(Department, deptNo)).cloneWithType(Department);
-        if result is error {
-            return <Error>error(result.message());
-        }
-        return result;
-    }
+    isolated resource function get department/[string deptNo](DepartmentTargetType targetType = <>, string entity = "department") returns targetType|Error = @java:Method {
+        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        name: "queryOne"
+    } external;
 
     isolated resource function post department(DepartmentInsert[] data) returns string[]|Error {
         _ = check self.persistClients.get(DEPARTMENT).runBatchInsertQuery(data);
