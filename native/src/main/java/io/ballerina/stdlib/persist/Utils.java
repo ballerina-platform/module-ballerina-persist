@@ -18,6 +18,7 @@
 
 package io.ballerina.stdlib.persist;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
@@ -51,6 +52,11 @@ public class Utils {
 
 
     private Utils() {
+    }
+
+    static BString getEntity(Environment env) {
+        String entity = env.getFunctionName().split("\\$")[2];
+        return fromString(entity);
     }
 
     static BObject getPersistClient(BObject client, BString entity) {
