@@ -289,20 +289,58 @@ public class CompilerPluginTest {
 
     @Test
     public void validateMandatoryRelationField() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("mandatory-relation-field.bal", 2);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("mandatory-relation-field.bal", 4);
         testDiagnostic(
                 diagnostics,
                 new String[]{
                         PERSIST_402.getCode(),
+                        PERSIST_402.getCode(),
+                        PERSIST_402.getCode(),
                         PERSIST_402.getCode()
                 },
                 new String[]{
-                        "the related entity 'Workspace' does not have the Building-typed relation field",
-                        "the related entity 'Building1' does not have the Workspace2-typed relation field"
+                        "the related entity 'Workspace' does not have the corresponding relation field",
+                        "the related entity 'Building1' does not have the corresponding relation field",
+                        "the related entity 'Building3' does not have the corresponding relation field",
+                        "the related entity 'Workspace4' does not have the corresponding relation field"
                 },
                 new String[]{
                         "(8:4,8:27)",
-                        "(27:4,27:23)"
+                        "(27:4,27:23)",
+                        "(58:4,58:23)",
+                        "(68:4,68:27)"
+                }
+        );
+    }
+
+    @Test
+    public void validateMandatoryDuplicateRelationField() {
+        List<Diagnostic> diagnostics = getErrorDiagnostics("mandatory-relation-duplicate-field.bal", 6);
+        testDiagnostic(
+                diagnostics,
+                new String[]{
+                        PERSIST_402.getCode(),
+                        PERSIST_402.getCode(),
+                        PERSIST_402.getCode(),
+                        PERSIST_402.getCode(),
+                        PERSIST_402.getCode(),
+                        PERSIST_402.getCode()
+                },
+                new String[]{
+                        "the related entity 'Workspace' does not have the corresponding relation field",
+                        "the related entity 'Workspace' does not have the corresponding relation field",
+                        "the related entity 'Building1' does not have the corresponding relation field",
+                        "the related entity 'Building1' does not have the corresponding relation field",
+                        "the related entity 'Building3' does not have the corresponding relation field",
+                        "the related entity 'Workspace4' does not have the corresponding relation field"
+                },
+                new String[]{
+                        "(8:4,8:27)",
+                        "(9:4,9:24)",
+                        "(28:4,28:23)",
+                        "(29:4,29:23)",
+                        "(64:4,64:27)",
+                        "(75:4,75:28)"
                 }
         );
     }
