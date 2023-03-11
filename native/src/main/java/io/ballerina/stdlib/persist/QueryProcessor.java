@@ -34,6 +34,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 
 import static io.ballerina.runtime.api.utils.StringUtils.fromString;
+import static io.ballerina.stdlib.persist.Utils.getEntity;
 import static io.ballerina.stdlib.persist.Utils.getFieldsAndIncludes;
 import static io.ballerina.stdlib.persist.Utils.getFutureResult;
 import static io.ballerina.stdlib.persist.Utils.getPersistClient;
@@ -48,7 +49,8 @@ public class QueryProcessor {
     private QueryProcessor() {
     }
 
-    public static BStream query(Environment env, BObject client, BTypedesc recordType, BString entity) {
+    public static BStream query(Environment env, BObject client, BTypedesc recordType) {
+        BString entity = getEntity(env);
         BObject persistClient = getPersistClient(client, entity);
 
         RecordType streamConstraint = (RecordType) TypeUtils.getReferredType(recordType.getDescribingType());
@@ -72,10 +74,9 @@ public class QueryProcessor {
                 PredefinedTypes.TYPE_NULL), persistStream);
     }
 
-    public static Object queryOne(Environment env, BObject client, BString key, BTypedesc recordType,
-                                  BString entity) {
+    public static Object queryOne(Environment env, BObject client, BString key, BTypedesc recordType) {
+        BString entity = getEntity(env);
         RecordType recordConstraint = (RecordType) TypeUtils.getReferredType(recordType.getDescribingType());
-
         BArray[] fieldsAndIncludes = getFieldsAndIncludes((RecordType) recordType.getDescribingType());
 
         BFuture future = env.getRuntime().invokeMethodAsyncSequentially(
