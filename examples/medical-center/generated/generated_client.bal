@@ -56,7 +56,7 @@ public client class MedicalCenterClient {
         };
     }
 
-    isolated resource function get medicalitem(MedicalItemTargetType targetType = <>, string entity = "medicalitem") returns stream<targetType, persist:Error?> = @java:Method {
+    isolated resource function get medicalitem(MedicalItemTargetType targetType = <>) returns stream<targetType, persist:Error?> = @java:Method {
         'class: "io.ballerina.stdlib.persist.QueryProcessor",
         name: "query"
     } external;
@@ -86,7 +86,7 @@ public client class MedicalCenterClient {
         return result;
     }
 
-    isolated resource function get medicalneed(MedicalNeedTargetType targetType = <>, string entity = "medicalneed") returns stream<targetType, persist:Error?> = @java:Method {
+    isolated resource function get medicalneed(MedicalNeedTargetType targetType = <>) returns stream<targetType, persist:Error?> = @java:Method {
         'class: "io.ballerina.stdlib.persist.QueryProcessor",
         name: "query"
     } external;        

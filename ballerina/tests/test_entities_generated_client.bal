@@ -141,7 +141,7 @@ public client class TestEntitiesClient {
         };
     }
 
-    isolated resource function get alltypes(AllTypesTargetType targetType = <>, string entity = "alltypes") returns stream<targetType, Error?> = @java:Method {
+    isolated resource function get alltypes(AllTypesTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
         'class: "io.ballerina.stdlib.persist.QueryProcessor",
         name: "query"
     } external;
@@ -171,7 +171,7 @@ public client class TestEntitiesClient {
         return result;
     }
 
-    isolated resource function get stringidrecord(StringIdRecordTargetType targetType = <>, string entity = "stringidrecord") returns stream<targetType, Error?> = @java:Method {
+    isolated resource function get stringidrecord(StringIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
         'class: "io.ballerina.stdlib.persist.QueryProcessor",
         name: "query"
     } external;
@@ -201,7 +201,7 @@ public client class TestEntitiesClient {
         return result;
     }
 
-    isolated resource function get intidrecord(IntIdRecordTargetType targetType = <>, string entity = "intidrecord") returns stream<targetType, Error?> = @java:Method {
+    isolated resource function get intidrecord(IntIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
         'class: "io.ballerina.stdlib.persist.QueryProcessor",
         name: "query"
     } external;
@@ -231,7 +231,7 @@ public client class TestEntitiesClient {
         return result;
     }
 
-    isolated resource function get floatidrecord(FloatIdRecordTargetType targetType = <>, string entity = "floatidrecord") returns stream<targetType, Error?> = @java:Method {
+    isolated resource function get floatidrecord(FloatIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
         'class: "io.ballerina.stdlib.persist.QueryProcessor",
         name: "query"
     } external;
@@ -261,7 +261,7 @@ public client class TestEntitiesClient {
         return result;
     }
 
-    isolated resource function get decimalidrecord(DecimalIdRecordTargetType targetType = <>, string entity = "decimalidrecord") returns stream<targetType, Error?> = @java:Method {
+    isolated resource function get decimalidrecord(DecimalIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
         'class: "io.ballerina.stdlib.persist.QueryProcessor",
         name: "query"
     } external;
@@ -291,7 +291,7 @@ public client class TestEntitiesClient {
         return result;
     }
 
-    isolated resource function get booleanidrecord(BooleanIdRecordTargetType targetType = <>, string entity = "booleanidrecord") returns stream<targetType, Error?> = @java:Method {
+    isolated resource function get booleanidrecord(BooleanIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
         'class: "io.ballerina.stdlib.persist.QueryProcessor",
         name: "query"
     } external;
@@ -321,7 +321,7 @@ public client class TestEntitiesClient {
         return result;
     }
 
-    isolated resource function get compositeassociationrecord(CompositeAssociationRecordTargetType targetType = <>, string entity = "compositeassociationrecord") returns stream<targetType, Error?> = @java:Method {
+    isolated resource function get compositeassociationrecord(CompositeAssociationRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
         'class: "io.ballerina.stdlib.persist.QueryProcessor",
         name: "query"
     } external;
@@ -351,7 +351,7 @@ public client class TestEntitiesClient {
         return result;
     }
 
-    isolated resource function get alltypesidrecord(AllTypesIdRecordTargetType targetType = <>, string entity = "alltypesidrecord") returns stream<targetType, Error?> = @java:Method {
+    isolated resource function get alltypesidrecord(AllTypesIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
         'class: "io.ballerina.stdlib.persist.QueryProcessor",
         name: "query"
     } external;
