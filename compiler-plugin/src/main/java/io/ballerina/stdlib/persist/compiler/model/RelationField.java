@@ -32,6 +32,9 @@ public class RelationField {
     private final boolean isArrayType;
     private final String containingEntity;
     private final NodeLocation location;
+    private boolean isOwnerIdentifiable = false;
+    private String owner = null;
+    private RelationType relationType;
 
     public RelationField(String name, String type, int typeEndOffset, boolean isOptionalType, int nullableStartOffset,
                          boolean isArrayType, NodeLocation location, String containingEntity) {
@@ -75,5 +78,29 @@ public class RelationField {
 
     public NodeLocation getLocation() {
         return location;
+    }
+
+    public boolean isOwnerIdentifiable() {
+        return isOwnerIdentifiable;
+    }
+
+    public void setOwnerIdentifiable(boolean ownerIdentifiable) {
+        isOwnerIdentifiable = ownerIdentifiable;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    public RelationType getRelationType() {
+        return relationType;
+    }
+
+    public void setRelationType(RelationType relationType) {
+        this.relationType = relationType;
     }
 }

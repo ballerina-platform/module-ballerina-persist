@@ -46,6 +46,7 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_306;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_307;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_401;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_402;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_403;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_404;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_405;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_406;
@@ -391,6 +392,51 @@ public class CompilerPluginTest {
                 new String[]{
                         "(2:0,2:17)",
                         "(10:4,10:13)"
+                }
+        );
+    }
+
+    @Test
+    public void validateDifferentOwners() {
+        List<Diagnostic> diagnostics = getErrorDiagnostics("different-owners.bal", 10);
+        testDiagnostic(
+                diagnostics,
+                new String[]{
+                        PERSIST_403.getCode(),
+                        PERSIST_403.getCode(),
+                        PERSIST_403.getCode(),
+                        PERSIST_403.getCode(),
+                        PERSIST_403.getCode(),
+                        PERSIST_403.getCode(),
+                        PERSIST_403.getCode(),
+                        PERSIST_403.getCode(),
+                        PERSIST_403.getCode(),
+                        PERSIST_403.getCode()
+                },
+                new String[]{
+                        "All relation between two entities should have a single owner",
+                        "All relation between two entities should have a single owner",
+                        "All relation between two entities should have a single owner",
+                        "All relation between two entities should have a single owner",
+                        "All relation between two entities should have a single owner",
+                        "All relation between two entities should have a single owner",
+                        "All relation between two entities should have a single owner",
+                        "All relation between two entities should have a single owner",
+                        "All relation between two entities should have a single owner",
+                        "All relation between two entities should have a single owner"
+                },
+                new String[]{
+                        "(15:4,15:22)",
+                        "(8:4,8:27)",
+                        "(16:4,16:23)",
+                        "(9:4,9:24)",
+                        "(33:4,33:23)",
+                        "(25:4,25:27)",
+                        "(34:4,34:25)",
+                        "(26:4,26:25)",
+                        "(35:4,35:24)",
+                        "(27:4,27:28)",
+
                 }
         );
     }

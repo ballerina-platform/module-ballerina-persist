@@ -87,6 +87,7 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_306;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_307;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_401;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_402;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_403;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_404;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_405;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_406;
@@ -96,6 +97,9 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_501;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_502;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_503;
 import static io.ballerina.stdlib.persist.compiler.Utils.stripEscapeCharacter;
+import static io.ballerina.stdlib.persist.compiler.model.RelationType.MANY_TO_MANY;
+import static io.ballerina.stdlib.persist.compiler.model.RelationType.ONE_TO_MANY;
+import static io.ballerina.stdlib.persist.compiler.model.RelationType.ONE_TO_ONE;
 
 /**
  * Persist model definition validator.
@@ -564,13 +568,15 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         String processingEntityName = processingField.getContainingEntity();
         GroupedRelationField groupedRelationField =
                 referredEntity.getGroupedRelationFields().get(processingEntityName);
+        List<RelationField> processingRelationFields = processingField.getRelationFields();
         if (groupedRelationField != null) {
-            int processingFieldSize = processingField.getRelationFields().size();
-            int relatedFieldSize = groupedRelationField.getRelationFields().size();
+            List<RelationField> referredRelationFields = groupedRelationField.getRelationFields();
+            int processingFieldSize = processingRelationFields.size();
+            int relatedFieldSize = referredRelationFields.size();
             int minCount = Math.min(processingFieldSize, relatedFieldSize);
             for (int i = 0; i < minCount; i++) {
-                RelationField processingRelationField = processingField.getRelationFields().get(i);
-                RelationField relatedRelationField = groupedRelationField.getRelationFields().get(i);
+                RelationField processingRelationField = processingRelationFields.get(i);
+                RelationField relatedRelationField = referredRelationFields.get(i);
                 validateRelationType(processingRelationField, processingEntity, relatedRelationField,
                         referredEntity, reportDiagnosticsEntity);
             }
@@ -580,13 +586,32 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             } else if (processingFieldSize > relatedFieldSize) {
                 reportMandatoryCorrespondingFieldDiagnostic(processingField, referredEntity, processingEntity,
                         reportDiagnosticsEntity, relatedFieldSize);
+            } else {
+                // processingFieldSize == relatedFieldSize
+                // Validate all relations have same owner
+                boolean isOwnerIdentifiable = processingRelationFields.stream()
+                        .allMatch((RelationField::isOwnerIdentifiable));
+                if (!isOwnerIdentifiable) {
+                    return;
+                }
+                long processingFieldOwnerCount = processingRelationFields.stream()
+                        .filter((field -> field.getOwner().equals(processingEntity.getEntityName()))).count();
+                if (processingFieldOwnerCount == 0 || processingFieldOwnerCount == processingFieldSize) {
+                    return;
+                }
+                for (int i = 0; i < processingFieldSize; i++) {
+                    reportDiagnosticsEntity.reportDiagnostic(PERSIST_403.getCode(), PERSIST_403.getMessage(),
+                            PERSIST_403.getSeverity(), processingRelationFields.get(i).getLocation());
+                    reportDiagnosticsEntity.reportDiagnostic(PERSIST_403.getCode(), PERSIST_403.getMessage(),
+                            PERSIST_403.getSeverity(), referredRelationFields.get(i).getLocation());
+                }
             }
             return;
         }
 
         RelationField referredField = referredEntity.getRelationFields().get(processingEntityName);
         if (referredField != null) {
-            validateRelationType(processingField.getRelationFields().get(0), processingEntity, referredField,
+            validateRelationType(processingRelationFields.get(0), processingEntity, referredField,
                     referredEntity, reportDiagnosticsEntity);
             reportMandatoryCorrespondingFieldDiagnostic(processingField, referredEntity, processingEntity,
                     reportDiagnosticsEntity, 1);
@@ -628,11 +653,18 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                                 new BNumericProperty(1),
                                 new BStringProperty(referredField.getContainingEntity() + "." +
                                         referredField.getName())));
-            } else if (processingField.isOptionalType()) {
-                validatePresenceOfForeignKey(referredField, referredEntity, processingEntity, reportDiagnosticsEntity);
             } else {
-                validatePresenceOfForeignKey(processingField, processingEntity, referredEntity,
-                        reportDiagnosticsEntity);
+                processingField.setRelationType(ONE_TO_ONE);
+                processingField.setOwnerIdentifiable(true);
+                processingField.setOwner(processingField.isOptionalType() ?
+                        referredEntity.getEntityName() : processingEntity.getEntityName());
+                if (processingField.isOptionalType()) {
+                    validatePresenceOfForeignKey(referredField, referredEntity, processingEntity,
+                            reportDiagnosticsEntity);
+                } else {
+                    validatePresenceOfForeignKey(processingField, processingEntity, referredEntity,
+                            reportDiagnosticsEntity);
+                }
             }
             return;
         }
@@ -642,12 +674,23 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             reportDiagnosticsEntity.reportDiagnostic(PERSIST_420.getCode(),
                     MessageFormat.format(PERSIST_420.getMessage(), referredEntity.getEntityName()),
                     PERSIST_420.getSeverity(), processingField.getLocation());
+            processingField.setOwnerIdentifiable(false);
+            processingField.setRelationType(MANY_TO_MANY);
             return;
         }
 
         // 1:n relations
-        validateNillableTypeFor1ToMany(processingField, reportDiagnosticsEntity);
-        validateNillableTypeFor1ToMany(referredField, reportDiagnosticsEntity);
+        boolean isProcessingFiledNillable = validateNillableTypeFor1ToMany(processingField, reportDiagnosticsEntity);
+        boolean isReferredFieldNillable = validateNillableTypeFor1ToMany(referredField, reportDiagnosticsEntity);
+        // This is to reduce confusion in code actions. If type is nillable how do we switch for owner change,
+        // Should nillable value also be taken or not
+        if (!isProcessingFiledNillable && !isReferredFieldNillable) {
+            processingField.setRelationType(ONE_TO_MANY);
+            processingField.setOwnerIdentifiable(true);
+            processingField.setOwner(processingField.isArrayType() ?
+                    referredEntity.getEntityName() : processingEntity.getEntityName()
+            );
+        }
         if (!processingField.isArrayType()) {
             validatePresenceOfForeignKey(processingField, processingEntity, referredEntity, reportDiagnosticsEntity);
         } else {
@@ -672,14 +715,16 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         }
     }
 
-    private void validateNillableTypeFor1ToMany(RelationField field, Entity reportDiagnosticsEntity) {
+    private boolean validateNillableTypeFor1ToMany(RelationField field, Entity reportDiagnosticsEntity) {
         if (field.isOptionalType()) {
             String type = field.isArrayType() ? field.getType() + "[]" : field.getType();
             reportDiagnosticsEntity.reportDiagnostic(PERSIST_406.getCode(), PERSIST_406.getMessage(),
                     PERSIST_406.getSeverity(), field.getLocation(),
                     List.of(new BNumericProperty(field.getNullableStartOffset()),
                             new BNumericProperty(1), new BStringProperty(type)));
+            return true;
         }
+        return false;
     }
 
     private void validatePresenceOfForeignKey(RelationField ownerRelationField, Entity owner, Entity referredEntity,
