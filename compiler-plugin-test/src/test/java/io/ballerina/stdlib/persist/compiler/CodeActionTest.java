@@ -124,6 +124,16 @@ public class CodeActionTest {
                         "PERSIST_001", "ADD_SINGLE_TEXT", "Mark field 'needId' as identity field"},
                 {"readonly-field.bal", LinePosition.from(3, 16), "readonly-field-quantity.bal",
                         "PERSIST_001", "ADD_SINGLE_TEXT", "Mark field 'quantity' as identity field"},
+
+                {"different-owners.bal", LinePosition.from(9, 9), "different-owners-building.bal",
+                        "PERSIST_004", "SWITCH_RELATION_OWNER", "Make 'Building' entity relation owner"},
+                {"different-owners.bal", LinePosition.from(15, 11), "different-owners-workspace.bal",
+                        "PERSIST_004", "SWITCH_RELATION_OWNER", "Make 'Workspace' entity relation owner"},
+                {"different-owners.bal", LinePosition.from(35, 11), "different-owners-building2.bal",
+                        "PERSIST_004", "SWITCH_RELATION_OWNER", "Make 'Building2' entity relation owner"},
+                {"different-owners.bal", LinePosition.from(27, 11), "different-owners-workspace2.bal",
+                        "PERSIST_004", "SWITCH_RELATION_OWNER", "Make 'Workspace2' entity relation owner"},
+
         };
     }
 

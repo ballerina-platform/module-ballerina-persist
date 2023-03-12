@@ -43,6 +43,7 @@ import io.ballerina.stdlib.persist.compiler.model.Entity;
 import io.ballerina.stdlib.persist.compiler.model.GroupedRelationField;
 import io.ballerina.stdlib.persist.compiler.model.IdentityField;
 import io.ballerina.stdlib.persist.compiler.model.RelationField;
+import io.ballerina.stdlib.persist.compiler.model.RelationType;
 import io.ballerina.stdlib.persist.compiler.model.SimpleTypeField;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
@@ -74,6 +75,7 @@ import static io.ballerina.stdlib.persist.compiler.Constants.TIME_MODULE;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_001;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_002;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_003;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_004;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_101;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_102;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_201;
@@ -332,7 +334,8 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                     entity.setContainsRelations(true);
                     entity.addRelationField(new RelationField(fieldName, typeName,
                             typeNode.location().textRange().endOffset(), isOptionalType, nullableStartOffset,
-                            isArrayType, recordFieldNode.location(), entity.getEntityName()));
+                            isArrayType, arrayStartOffset, arrayLength, recordFieldNode.location(),
+                            entity.getEntityName()));
                 } else {
                     // Revisit once https://github.com/ballerina-platform/ballerina-lang/issues/39441 is resolved
                     List<DiagnosticProperty<?>> properties = List.of(
@@ -599,11 +602,34 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                 if (processingFieldOwnerCount == 0 || processingFieldOwnerCount == processingFieldSize) {
                     return;
                 }
+
+                // If processing field is chosen as the owner.
+                List<DiagnosticProperty<?>> processingFieldDiagProperties = new ArrayList<>();
+                processingFieldDiagProperties.add(new BStringProperty(processingEntityName));
+
+                // If referred field is chosen as the owner.
+                List<DiagnosticProperty<?>> referredFieldDiagProperties = new ArrayList<>();
+                referredFieldDiagProperties.add(new BStringProperty(referredEntity.getEntityName()));
+
                 for (int i = 0; i < processingFieldSize; i++) {
-                    reportDiagnosticsEntity.reportDiagnostic(PERSIST_403.getCode(), PERSIST_403.getMessage(),
-                            PERSIST_403.getSeverity(), processingRelationFields.get(i).getLocation());
-                    reportDiagnosticsEntity.reportDiagnostic(PERSIST_403.getCode(), PERSIST_403.getMessage(),
-                            PERSIST_403.getSeverity(), referredRelationFields.get(i).getLocation());
+                    RelationField processingRelationField = processingRelationFields.get(i);
+                    RelationField referredRelationField = referredRelationFields.get(i);
+                    if (processingRelationField.getOwner().equals(processingEntityName)) {
+                        updateSameOwnerDiagnosticProperties(processingRelationField.getRelationType(),
+                                referredFieldDiagProperties, referredRelationField,
+                                processingRelationField);
+                    } else {
+                        updateSameOwnerDiagnosticProperties(processingRelationField.getRelationType(),
+                                processingFieldDiagProperties, processingRelationField,
+                                referredRelationField);
+                    }
+                }
+
+                for (int i = 0; i < processingFieldSize; i++) {
+                    reportDiagnosticsForDifferentOwners(reportDiagnosticsEntity, processingRelationFields.get(i),
+                            processingFieldDiagProperties, referredFieldDiagProperties);
+                    reportDiagnosticsForDifferentOwners(reportDiagnosticsEntity, referredRelationFields.get(i),
+                            processingFieldDiagProperties, referredFieldDiagProperties);
                 }
             }
             return;
@@ -620,6 +646,35 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
 
         reportMandatoryCorrespondingFieldDiagnostic(processingField, referredEntity, processingEntity,
                 reportDiagnosticsEntity, 0);
+    }
+
+    private void updateSameOwnerDiagnosticProperties(RelationType relationType,
+                                                     List<DiagnosticProperty<?>> referredFieldDiagProperties,
+                                                     RelationField removeField, RelationField addField) {
+        if (relationType.equals(ONE_TO_ONE)) {
+            referredFieldDiagProperties.add(new BNumericProperty(removeField.getNullableStartOffset()));
+            referredFieldDiagProperties.add(new BNumericProperty(1));
+            referredFieldDiagProperties.add(new BNumericProperty(addField.getTypeEndOffset()));
+            referredFieldDiagProperties.add(new BStringProperty("?"));
+        } else {
+            referredFieldDiagProperties.add(new BNumericProperty(removeField.getArrayStartOffset()));
+            referredFieldDiagProperties.add(new BNumericProperty(removeField.getArrayRangeLength()));
+            referredFieldDiagProperties.add(new BNumericProperty(addField.getTypeEndOffset()));
+            referredFieldDiagProperties.add(new BStringProperty("[]"));
+        }
+    }
+
+    private void reportDiagnosticsForDifferentOwners(Entity reportDiagnosticsEntity, RelationField relationField,
+                                                     List<DiagnosticProperty<?>> processingFieldProperties,
+                                                     List<DiagnosticProperty<?>> referredFieldProperties) {
+        reportDiagnosticsEntity.reportDiagnostic(PERSIST_403.getCode(), PERSIST_403.getMessage(),
+                PERSIST_403.getSeverity(), relationField.getLocation());
+        reportDiagnosticsEntity.reportDiagnostic(PERSIST_004.getCode(), PERSIST_004.getMessage(),
+                PERSIST_004.getSeverity(), relationField.getLocation(),
+                processingFieldProperties);
+        reportDiagnosticsEntity.reportDiagnostic(PERSIST_004.getCode(), PERSIST_004.getMessage(),
+                PERSIST_004.getSeverity(), relationField.getLocation(),
+                referredFieldProperties);
     }
 
     private void validateRelationType(RelationField processingField, Entity processingEntity,
