@@ -28,13 +28,13 @@ import static io.ballerina.tools.diagnostics.DiagnosticSeverity.INTERNAL;
  */
 public enum DiagnosticsCodes {
 
-    // Internal diagnostics used to hold details of the entity fields for entities w/o identity fields
+    // Internal diagnostics used to hold details of the entity fields for entities w/o identity fields PERSIST_501
     PERSIST_001("PERSIST_001", "", INTERNAL),
     // Internal diagnostics used to hold details of the entity fields for PERSIST_404
     PERSIST_002("PERSIST_002", "", INTERNAL),
     // Internal diagnostics used to hold details of the entity fields for PERSIST_405
     PERSIST_003("PERSIST_003", "", INTERNAL),
-    // Internal diagnostics used to hold details of the entity fields for PERSIST_405
+    // Internal diagnostics used to hold details of the entity fields for PERSIST_403
     PERSIST_004("PERSIST_004", "", INTERNAL),
 
     PERSIST_101("PERSIST_101", "persist model definition only supports record definitions", ERROR),
