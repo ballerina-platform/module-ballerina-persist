@@ -170,7 +170,7 @@ The above entities explains the following,
 
 In first record, `Car`, the `EntityType` field `owner` is taken as the owner in the 1-1 relationship and will include the foreign key of the second record, `User`.
 
-The default foreign key field name will be `userId` in the `Car` table, which refers to the identity field of the `User` table by default. (`<lowercasedRelatedEntityName><First-Letter Capitalized IdentityFieldName>`)
+The default foreign key field name will be `ownerId` in the `Car` table, which refers to the identity field of the `User` table by default. (`<lowercasedRelatedFieldName><First-LetterCapitalizedIdentityFieldName>`)
 
 #### 2.3.2. One-to-Many (1-n)
 
@@ -196,7 +196,7 @@ The above entities explains the following,
 - 
 The entity that contains the field of type `EntityType` is taken as the owner in the 1-n relationship and will include the foreign key.
 
-The default foreign key field name will be `userId` in the `Car` table, which refers to the identity field of the `User` table by default. (`<lowercasedRelatedEntityName><First-Letter Capitalized IdentityFieldName>`)
+The default foreign key field name will be `ownerId` in the `Car` table, which refers to the identity field of the `User` table by default. (`<lowercasedRelatedFieldName><First-LetterCapitalizedIdentityFieldName>`)
 
 ## 3. Derived Entity Types and Persist Clients
 

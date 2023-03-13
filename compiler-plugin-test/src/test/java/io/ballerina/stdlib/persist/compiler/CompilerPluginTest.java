@@ -46,7 +46,6 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_306;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_307;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_401;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_402;
-import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_403;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_404;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_405;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_406;
@@ -309,26 +308,6 @@ public class CompilerPluginTest {
     }
 
     @Test
-    public void validateDuplicatedRelationField() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("duplicated-relations-field.bal", 2);
-        testDiagnostic(
-                diagnostics,
-                new String[]{
-                        PERSIST_403.getCode(),
-                        PERSIST_403.getCode()
-                },
-                new String[]{
-                        "the entity does not support duplicated relations to 'Workspace' entity",
-                        "the entity does not support duplicated relations to 'Building1' entity"
-                },
-                new String[]{
-                        "(9:4,9:28)",
-                        "(31:4,31:24)"
-                }
-        );
-    }
-
-    @Test
     public void validatePresenceOfForeignKeyField() {
         List<Diagnostic> diagnostics = getErrorDiagnostics("foreign-key-present.bal", 4);
         testDiagnostic(
@@ -343,15 +322,15 @@ public class CompilerPluginTest {
                         "the entity should not contain foreign key field " +
                                 "'buildingBuildingCode' for relation 'Building'",
                         "the entity should not contain foreign key field " +
-                                "'building2BuildingCode' for relation 'Building2'",
+                                "'locationBuildingCode' for relation 'Building2'",
                         "the entity should not contain foreign key field " +
-                                "'workspace3WorkspaceId' for relation 'Workspace3'",
+                                "'workspacesWorkspaceId' for relation 'Workspace3'",
                         "the entity should not contain foreign key field " +
-                                "'workspace4WorkspaceId' for relation 'Workspace4'"
+                                "'workspacesWorkspaceId' for relation 'Workspace4'"
                 },
                 new String[]{
                         "(15:4,15:32)",
-                        "(22:4,22:33)",
+                        "(22:4,22:32)",
                         "(42:4,42:33)",
                         "(66:4,66:33)"
                 }
@@ -387,7 +366,7 @@ public class CompilerPluginTest {
                         PERSIST_422.getCode()
                 },
                 new String[]{
-                        "the entity should not contain foreign key field 'buildingBuildingCode' for relation 'Building'"
+                        "the entity should not contain foreign key field 'locationBuildingCode' for relation 'Building'"
                 },
                 new String[]{
                         "(18:4,18:33)"

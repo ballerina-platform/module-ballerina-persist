@@ -52,7 +52,6 @@ public enum DiagnosticsCodes {
     PERSIST_401("PERSIST_401", "an entity cannot reference itself in a relation field", ERROR),
     PERSIST_402("PERSIST_402",
             "the related entity ''{0}'' does not have the {1}-typed relation field", ERROR),
-    PERSIST_403("PERSIST_403", "the entity does not support duplicated relations to ''{0}'' entity", ERROR),
     PERSIST_404("PERSIST_404", "1-1 relationship should have at least one relation field nillable " +
             "to indicate non-owner of the relationship", ERROR),
     PERSIST_405("PERSIST_405", "1-1 relationship should have only one nillable relation field", ERROR),
