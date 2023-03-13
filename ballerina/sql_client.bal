@@ -162,9 +162,11 @@ public client class SQLClient {
         # Retrieves the values of the 'many' side of an association.
     #
     # + 'object - The record to which the retrieved records should be appended
+    # + fields - The fields to be retrieved
     # + include - The relations to be retrieved (SQL `JOINs` to be performed)
+    # + typeDescriptions - The type descriptions of the relations to be retrieved
     # + return - `()` if the operation is performed successfully or a `persist:Error` if the operation fails
-    public isolated function getManyRelations(anydata 'object, string[] include) returns Error? {
+    public isolated function getManyRelations(anydata 'object, string[] fields, string[] include, typedesc<record {}>[] typeDescriptions) returns Error? {
         if !('object is record {}) {
             return <Error>error("The 'object' parameter should be a record");
         }
@@ -179,12 +181,12 @@ public client class SQLClient {
                 }
 
                 query = sql:queryConcat(
-                    ` SELECT `, self.getManyRelationColumnNames(joinMetadata.fieldName),
+                    ` SELECT `, self.getManyRelationColumnNames(joinMetadata.fieldName, fields),
                     ` FROM `, stringToParameterizedQuery(joinMetadata.refTable),
                     ` WHERE`, check self.getWhereClauses(whereFilter, true)
                 );
 
-                stream<record {}, sql:Error?> joinStream = self.dbClient->query(query, joinMetadata.entity);
+                stream<record {}, sql:Error?> joinStream = self.dbClient->query(query, typeDescriptions[<int>include.indexOf(joinKey)]);
                 record {}[]|error arr = from record {} item in joinStream
                     select item;
 
@@ -192,7 +194,7 @@ public client class SQLClient {
                     return <Error>error(arr.message());
                 }
                 
-                'object[joinMetadata.fieldName] = convertToArray(joinMetadata.entity, arr);
+                'object[joinMetadata.fieldName] = convertToArray(typeDescriptions[<int>include.indexOf(joinKey)], arr);
             }
         }
     }
@@ -281,17 +283,16 @@ public client class SQLClient {
         return params;
     }
 
-    private isolated function getManyRelationColumnNames(string prefix) returns sql:ParameterizedQuery {
+    private isolated function getManyRelationColumnNames(string prefix, string[] fields) returns sql:ParameterizedQuery {
         sql:ParameterizedQuery params = ` `;
-        string[] keys = self.fieldMetadata.keys();
         int columnCount = 0;
-        foreach string key in keys {
-            FieldMetadata fieldMetadata = self.fieldMetadata.get(key);
-            if fieldMetadata is SimpleFieldMetadata {
+        foreach string key in fields {
+            if key.indexOf(prefix + "[].") is () {
                 continue;
             }
 
-            if key.indexOf(prefix + "[].") is () {
+            FieldMetadata fieldMetadata = self.fieldMetadata.get(key);
+            if fieldMetadata is SimpleFieldMetadata {
                 continue;
             }
 

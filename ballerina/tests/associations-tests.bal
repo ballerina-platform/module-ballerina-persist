@@ -77,7 +77,10 @@ function employeeRelationsTest() returns error? {
 public type DepartmentInfo record {|
     readonly string deptNo;
     string deptName;
-    Employee[] employees;
+    record {|
+        string firstName;
+        string lastName;
+    |}[] employees;
 |};
 
 @test:Config {
@@ -141,7 +144,13 @@ function departmentRelationsTest() returns error? {
     DepartmentInfo expected = {
         deptNo: "department-12",
         deptName: "Marketing",
-        employees: [employee11, employee12]
+        employees: [{
+            firstName: "Tom",
+            lastName: "Scott"
+        }, {
+            firstName: "Jane",
+            lastName: "Doe"
+        }]
     };
 
     test:assertTrue(departments.indexOf(expected) is int, "Expected DepartmentInfo not found.");

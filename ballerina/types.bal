@@ -4,13 +4,25 @@ public class PersistStream {
     
     private stream<anydata, sql:Error?>? anydataStream;
     private Error? err;
+    private string[]? fields;
     private string[]? include;
+    private typedesc<record{}>[]? typeDescriptions = ();
     private SQLClient? persistClient;
 
-    public isolated function init(stream<anydata, sql:Error?>? anydataStream, Error? err = (), string[]? include = (), SQLClient? persistClient = ()) {
+    public isolated function init(stream<anydata, sql:Error?>? anydataStream, Error? err = (), string[]? fields = (), string[]? include = (), any[]? typeDescriptions = (), SQLClient? persistClient = ()) {
         self.anydataStream = anydataStream;
         self.err = err;
+        self.fields = fields;
         self.include = include;
+
+        if typeDescriptions is any[] {
+            typedesc<record{}>[] typeDescriptionsArray = [];
+            foreach any typeDescription in typeDescriptions {
+                typeDescriptionsArray.push(<typedesc<record {}>>typeDescription);
+            }
+            self.typeDescriptions = typeDescriptionsArray;
+        } 
+        
         self.persistClient = persistClient;
     }
 
@@ -31,7 +43,7 @@ public class PersistStream {
                 }
                 record {|anydata value;|} nextRecord = {value: value};
                 if self.include is string[] {
-                    check (<SQLClient>self.persistClient).getManyRelations(nextRecord.value, <string[]>self.include);
+                    check (<SQLClient>self.persistClient).getManyRelations(nextRecord.value, <string[]> self.fields, <string[]>self.include, <typedesc<record {}>[]>self.typeDescriptions);
                 }
                 return nextRecord;
             }

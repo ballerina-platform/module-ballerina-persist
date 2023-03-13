@@ -109,6 +109,23 @@ function workspaceReadOneTest() returns error? {
     groups: ["workspace"],
     dependsOn: [workspaceCreateTest]
 }
+function workspaceReadOneDependentTest() returns error? {
+    RainierClient rainierClient = check new ();
+
+    WorkspaceInfo2 workspaceRetrieved = check rainierClient->/workspace/[workspace1.workspaceId].get();
+    test:assertEquals(workspaceRetrieved,
+        {
+            workspaceType: workspace1.workspaceType,
+            locationBuildingCode: workspace1.locationBuildingCode
+        }
+    );
+    check rainierClient.close();
+}
+
+@test:Config {
+    groups: ["workspace"],
+    dependsOn: [workspaceCreateTest]
+}
 function workspaceReadOneTestNegative() returns error? {
     RainierClient rainierClient = check new ();
 
