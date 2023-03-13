@@ -54,14 +54,14 @@ public function main() returns error? {
     _ = check mcClient->/medicalitem.post([item2, item3, item4]);
 
     io:println("\n========== type1 ==========");
-    _ = check from MedicalItem mItem in mcClient->/medicalitem.get()
+    _ = check from MedicalItem mItem in mcClient->/medicalitem.get(MedicalItem)
         where mItem.'type == "type1"
         do {
             io:println(mItem);
         };
 
     io:println("\n========== type2 ==========");
-    _ = check from MedicalItem mItem in mcClient->/medicalitem.get()
+    _ = check from MedicalItem mItem in mcClient->/medicalitem.get(MedicalItem)
         where mItem.'type == "type2"
         order by mItem.itemId
         limit 2
@@ -70,28 +70,26 @@ public function main() returns error? {
         };
 
     io:println("\n========== update type2's unit to kg ==========");
-    _ = check from MedicalItem mItem in mcClient->/medicalitem.get()
+    _ = check from MedicalItem mItem in mcClient->/medicalitem.get(MedicalItem)
         where mItem.'type == "type2"
         do {
             MedicalItemUpdate mItemUpdate = {unit: "kg"};
-            // TODO: remove comment after issue is resolved (https://github.com/ballerina-platform/ballerina-standard-library/issues/3951)
-            //_ = check mcClient->/medicalItems/[mItem.itemId].put(mItemUpdate);
+            //_ = check mcClient->/medicalitem/[mItem.itemId].put(mItemUpdate);
         };
 
-    _ = check from MedicalItem mItem in mcClient->/medicalitem.get()
+    _ = check from MedicalItem mItem in mcClient->/medicalitem.get(MedicalItem)
         do {
             io:println(mItem);
         };
 
     io:println("\n========== delete type2 ==========");
-    _ = check from MedicalItem mItem in mcClient->/medicalitem.get()
+    _ = check from MedicalItem mItem in mcClient->/medicalitem.get(MedicalItem)
         where mItem.'type == "type2"
         do {
-            // TODO: remove comment after issue is resolved (https://github.com/ballerina-platform/ballerina-standard-library/issues/3951)
             //_ = check mcClient->/medicalitem/[mItem.itemId].delete();
         };
 
-    _ = check from MedicalItem mItem in mcClient->/medicalitem.get()
+    _ = check from MedicalItem mItem in mcClient->/medicalitem.get(MedicalItem)
         do {
             io:println(mItem);
         };

@@ -25,3 +25,6 @@ public type InvalidKeyError distinct Error;
 
 # Represents an error that occurs when the user attempts to create a record which already exists in the database.
 public type DuplicateKeyError distinct Error;
+
+# Represents an error that occurs when an attempt is made to manipulate a field, which does not exist in an entity.
+public type FieldDoesNotExistError distinct Error;

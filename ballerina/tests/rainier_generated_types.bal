@@ -31,14 +31,14 @@ public type EmployeeUpdate record {|
 public type Workspace record {|
     readonly string workspaceId;
     string workspaceType;
-    string buildingBuildingCode;
+    string locationBuildingCode;
 |};
 
 public type WorkspaceInsert Workspace;
 
 public type WorkspaceUpdate record {|
     string workspaceType?;
-    string buildingBuildingCode?;
+    string locationBuildingCode?;
 |};
 
 public type Building record {|
@@ -85,3 +85,81 @@ public type OrderItemUpdate record {|
     string notes?;
 |};
 
+public type Customer record {|
+    readonly string customerId;
+    string firstName;
+    string lastName;
+    string email;
+    string phone;
+    string address;
+|};
+
+public type BuildingOptionalized record {|
+    readonly string buildingCode?;
+    string city?;
+    string state?;
+    string country?;
+    string postalCode?;
+    string 'type?;
+|};
+
+public type WorkspaceOptionalized record {|
+    readonly string workspaceId?;
+    string workspaceType?;
+    string locationBuildingCode?;
+|};
+
+public type EmployeeOptionalized record {|
+    readonly string empNo?;
+    string firstName?;
+    string lastName?;
+    time:Date birthDate?;
+    string gender?;
+    time:Date hireDate?;
+    string departmentDeptNo?;
+    string workspaceWorkspaceId?;
+|};
+
+public type DepartmentOptionalized record {|
+    readonly string deptNo?;
+    string deptName?;
+|};
+
+public type OrderItemOptionalized record {|
+    readonly string orderId?;
+    readonly string itemId?;
+    int quantity?;
+    string notes?;
+|};
+
+public type EmployeeWithRelations record {|
+    *EmployeeOptionalized;
+    DepartmentOptionalized department?;
+    WorkspaceOptionalized workspace?;
+|};
+
+public type DepartmentWithRelations record {|
+    *DepartmentOptionalized;
+    EmployeeOptionalized[] employees?;
+|};
+
+public type WorkspaceWithRelations record {|
+    *WorkspaceOptionalized;
+    BuildingOptionalized location?;
+    EmployeeOptionalized[] employees?;
+|};
+
+public type BuildingWithRelations record {|
+    *BuildingOptionalized;
+    WorkspaceOptionalized[] workspaces?;
+|};
+
+public type EmployeeTargetType typedesc<EmployeeWithRelations>;
+
+public type DepartmentTargetType typedesc<DepartmentWithRelations>;
+
+public type WorkspaceTargetType typedesc<WorkspaceWithRelations>;
+
+public type BuildingTargetType typedesc<BuildingWithRelations>;
+
+public type OrderItemTargetType typedesc<OrderItemOptionalized>;

@@ -1,6 +1,5 @@
-import ballerina/sql;
-import ballerina/time;
 import ballerinax/mysql;
+import ballerina/jballerina.java;
 
 const ALL_TYPES = "alltypes";
 const STRING_ID_RECORD = "stringidrecord";
@@ -23,24 +22,24 @@ public client class TestEntitiesClient {
             entityName: "AllTypes",
             tableName: `AllTypes`,
             fieldMetadata: {
-                id: {columnName: "id", 'type: int},
-                booleanType: {columnName: "booleanType", 'type: boolean},
-                intType: {columnName: "intType", 'type: int},
-                floatType: {columnName: "floatType", 'type: float},
-                decimalType: {columnName: "decimalType", 'type: decimal},
-                stringType: {columnName: "stringType", 'type: string},
-                byteArrayType: {columnName: "byteArrayType", 'type: byte},
-                dateType: {columnName: "dateType", 'type: time:Date},
-                timeOfDayType: {columnName: "timeOfDayType", 'type: time:TimeOfDay},
-                civilType: {columnName: "civilType", 'type: time:Civil},
-                booleanTypeOptional: {columnName: "booleanTypeOptional", 'type: boolean},
-                intTypeOptional: {columnName: "intTypeOptional", 'type: int},
-                floatTypeOptional: {columnName: "floatTypeOptional", 'type: float},
-                decimalTypeOptional: {columnName: "decimalTypeOptional", 'type: decimal},
-                stringTypeOptional: {columnName: "stringTypeOptional", 'type: string},
-                dateTypeOptional: {columnName: "dateTypeOptional", 'type: time:Date},
-                timeOfDayTypeOptional: {columnName: "timeOfDayTypeOptional", 'type: time:TimeOfDay},
-                civilTypeOptional: {columnName: "civilTypeOptional", 'type: time:Civil}
+                id: {columnName: "id"},
+                booleanType: {columnName: "booleanType"},
+                intType: {columnName: "intType"},
+                floatType: {columnName: "floatType"},
+                decimalType: {columnName: "decimalType"},
+                stringType: {columnName: "stringType"},
+                byteArrayType: {columnName: "byteArrayType"},
+                dateType: {columnName: "dateType"},
+                timeOfDayType: {columnName: "timeOfDayType"},
+                civilType: {columnName: "civilType"},
+                booleanTypeOptional: {columnName: "booleanTypeOptional"},
+                intTypeOptional: {columnName: "intTypeOptional"},
+                floatTypeOptional: {columnName: "floatTypeOptional"},
+                decimalTypeOptional: {columnName: "decimalTypeOptional"},
+                stringTypeOptional: {columnName: "stringTypeOptional"},
+                dateTypeOptional: {columnName: "dateTypeOptional"},
+                timeOfDayTypeOptional: {columnName: "timeOfDayTypeOptional"},
+                civilTypeOptional: {columnName: "civilTypeOptional"}
             },
             keyFields: ["id"]
         },
@@ -48,8 +47,8 @@ public client class TestEntitiesClient {
             entityName: "StringIdRecord",
             tableName: `StringIdRecord`,
             fieldMetadata: {
-                id: {columnName: "id", 'type: string},
-                randomField: {columnName: "randomField", 'type: string}
+                id: {columnName: "id"},
+                randomField: {columnName: "randomField"}
             },
             keyFields: ["id"]
         },
@@ -57,8 +56,8 @@ public client class TestEntitiesClient {
             entityName: "IntIdRecord",
             tableName: `IntIdRecord`,
             fieldMetadata: {
-                id: {columnName: "id", 'type: int},
-                randomField: {columnName: "randomField", 'type: string}
+                id: {columnName: "id"},
+                randomField: {columnName: "randomField"}
             },
             keyFields: ["id"]
         },
@@ -66,8 +65,8 @@ public client class TestEntitiesClient {
             entityName: "FloatIdRecord",
             tableName: `FloatIdRecord`,
             fieldMetadata: {
-                id: {columnName: "id", 'type: float},
-                randomField: {columnName: "randomField", 'type: string}
+                id: {columnName: "id"},
+                randomField: {columnName: "randomField"}
             },
             keyFields: ["id"]
         },
@@ -75,8 +74,8 @@ public client class TestEntitiesClient {
             entityName: "DecimalIdRecord",
             tableName: `DecimalIdRecord`,
             fieldMetadata: {
-                id: {columnName: "id", 'type: decimal},
-                randomField: {columnName: "randomField", 'type: string}
+                id: {columnName: "id"},
+                randomField: {columnName: "randomField"}
             },
             keyFields: ["id"]
         },
@@ -84,8 +83,8 @@ public client class TestEntitiesClient {
             entityName: "BooleanIdRecord",
             tableName: `BooleanIdRecord`,
             fieldMetadata: {
-                id: {columnName: "id", 'type: boolean},
-                randomField: {columnName: "randomField", 'type: string}
+                id: {columnName: "id"},
+                randomField: {columnName: "randomField"}
             },
             keyFields: ["id"]
         },
@@ -93,28 +92,34 @@ public client class TestEntitiesClient {
             entityName: "CompositeAssociationRecord",
             tableName: `CompositeAssociationRecord`,
             fieldMetadata: {
-                id: {columnName: "id", 'type: string},
-                randomField: {columnName: "randomField", 'type: string},
-                alltypesidrecordBooleanType: {columnName: "alltypesidrecordBooleanType", 'type: boolean},
-                alltypesidrecordIntType: {columnName: "alltypesidrecordIntType", 'type: int},
-                alltypesidrecordFloatType: {columnName: "alltypesidrecordFloatType", 'type: float},
-                alltypesidrecordDecimalType: {columnName: "alltypesidrecordDecimalType", 'type: decimal},
-                alltypesidrecordStringType: {columnName: "alltypesidrecordStringType", 'type: string}
+                id: {columnName: "id"},
+                randomField: {columnName: "randomField"},
+                alltypesidrecordBooleanType: {columnName: "alltypesidrecordBooleanType"},
+                alltypesidrecordIntType: {columnName: "alltypesidrecordIntType"},
+                alltypesidrecordFloatType: {columnName: "alltypesidrecordFloatType"},
+                alltypesidrecordDecimalType: {columnName: "alltypesidrecordDecimalType"},
+                alltypesidrecordStringType: {columnName: "alltypesidrecordStringType"}
             },
-            keyFields: ["id"]
+            keyFields: ["id"],
+            joinMetadata: {
+                alltypesidrecord: {entity: AllTypesIdRecord, fieldName: "alltypesidrecord", refTable: "AllTypesIdRecord", refColumns: ["booleanType", "intType", "floatType", "decimalType", "stringType"], joinColumns: ["alltypesidrecordBooleanType", "alltypesidrecordIntType", "alltypesidrecordFloatType", "alltypesidrecordDecimalType", "alltypesidrecordStringType"], 'type: ONE_TO_ONE}
+            }
         },
         "alltypesidrecord": {
             entityName: "AllTypesIdRecord",
             tableName: `AllTypesIdRecord`,
             fieldMetadata: {
-                booleanType: {columnName: "booleanType", 'type: boolean},
-                intType: {columnName: "intType", 'type: int},
-                floatType: {columnName: "floatType", 'type: float},
-                decimalType: {columnName: "decimalType", 'type: decimal},
-                stringType: {columnName: "stringType", 'type: string},
-                randomField: {columnName: "randomField", 'type: string}
+                booleanType: {columnName: "booleanType"},
+                intType: {columnName: "intType"},
+                floatType: {columnName: "floatType"},
+                decimalType: {columnName: "decimalType"},
+                stringType: {columnName: "stringType"},
+                randomField: {columnName: "randomField"}
             },
-            keyFields: ["booleanType", "intType", "floatType", "decimalType", "stringType"]
+            keyFields: ["booleanType", "intType", "floatType", "decimalType", "stringType"],
+            joinMetadata: {
+                compositeassociationrecord: {entity: CompositeAssociationRecord, fieldName: "compositeassociationrecord", refTable: "CompositeAssociationRecord", refColumns: ["alltypesidrecordBooleanType", "alltypesidrecordIntType", "alltypesidrecordFloatType", "alltypesidrecordDecimalType", "alltypesidrecordStringType"], joinColumns: ["booleanType", "intType", "floatType", "decimalType", "stringType"], 'type: ONE_TO_ONE}
+            }
         }
     };
 
@@ -136,14 +141,10 @@ public client class TestEntitiesClient {
         };
     }
 
-    isolated resource function get alltypes() returns stream<AllTypes, Error?> {
-        stream<record {}, sql:Error?>|Error result = self.persistClients.get(ALL_TYPES).runReadQuery(AllTypes);
-        if result is Error {
-            return new stream<AllTypes, Error?>(new AllTypesStream((), result));
-        } else {
-            return new stream<AllTypes, Error?>(new AllTypesStream(result));
-        }
-    }
+    isolated resource function get alltypes(AllTypesTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        name: "query"
+    } external;
 
     isolated resource function get alltypes/[int id]() returns AllTypes|Error {
         AllTypes|error result = (check self.persistClients.get(ALL_TYPES).runReadByKeyQuery(AllTypes, id)).cloneWithType(AllTypes);
@@ -170,14 +171,10 @@ public client class TestEntitiesClient {
         return result;
     }
 
-    isolated resource function get stringidrecord() returns stream<StringIdRecord, Error?> {
-        stream<record {}, sql:Error?>|Error result = self.persistClients.get(STRING_ID_RECORD).runReadQuery(StringIdRecord);
-        if result is Error {
-            return new stream<StringIdRecord, Error?>(new StringIdRecordStream((), result));
-        } else {
-            return new stream<StringIdRecord, Error?>(new StringIdRecordStream(result));
-        }
-    }
+    isolated resource function get stringidrecord(StringIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        name: "query"
+    } external;
 
     isolated resource function get stringidrecord/[string id]() returns StringIdRecord|Error {
         StringIdRecord|error result = (check self.persistClients.get(STRING_ID_RECORD).runReadByKeyQuery(StringIdRecord, id)).cloneWithType(StringIdRecord);
@@ -204,14 +201,10 @@ public client class TestEntitiesClient {
         return result;
     }
 
-    isolated resource function get intidrecord() returns stream<IntIdRecord, Error?> {
-        stream<record {}, sql:Error?>|Error result = self.persistClients.get(INT_ID_RECORD).runReadQuery(IntIdRecord);
-        if result is Error {
-            return new stream<IntIdRecord, Error?>(new IntIdRecordStream((), result));
-        } else {
-            return new stream<IntIdRecord, Error?>(new IntIdRecordStream(result));
-        }
-    }
+    isolated resource function get intidrecord(IntIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        name: "query"
+    } external;
 
     isolated resource function get intidrecord/[int id]() returns IntIdRecord|Error {
         IntIdRecord|error result = (check self.persistClients.get(INT_ID_RECORD).runReadByKeyQuery(IntIdRecord, id)).cloneWithType(IntIdRecord);
@@ -238,14 +231,10 @@ public client class TestEntitiesClient {
         return result;
     }
 
-    isolated resource function get floatidrecord() returns stream<FloatIdRecord, Error?> {
-        stream<record {}, sql:Error?>|Error result = self.persistClients.get(FLOAT_ID_RECORD).runReadQuery(FloatIdRecord);
-        if result is Error {
-            return new stream<FloatIdRecord, Error?>(new FloatIdRecordStream((), result));
-        } else {
-            return new stream<FloatIdRecord, Error?>(new FloatIdRecordStream(result));
-        }
-    }
+    isolated resource function get floatidrecord(FloatIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        name: "query"
+    } external;
 
     isolated resource function get floatidrecord/[float id]() returns FloatIdRecord|Error {
         FloatIdRecord|error result = (check self.persistClients.get(FLOAT_ID_RECORD).runReadByKeyQuery(FloatIdRecord, id)).cloneWithType(FloatIdRecord);
@@ -272,14 +261,10 @@ public client class TestEntitiesClient {
         return result;
     }
 
-    isolated resource function get decimalidrecord() returns stream<DecimalIdRecord, Error?> {
-        stream<record {}, sql:Error?>|Error result = self.persistClients.get(DECIMAL_ID_RECORD).runReadQuery(DecimalIdRecord);
-        if result is Error {
-            return new stream<DecimalIdRecord, Error?>(new DecimalIdRecordStream((), result));
-        } else {
-            return new stream<DecimalIdRecord, Error?>(new DecimalIdRecordStream(result));
-        }
-    }
+    isolated resource function get decimalidrecord(DecimalIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        name: "query"
+    } external;
 
     isolated resource function get decimalidrecord/[decimal id]() returns DecimalIdRecord|Error {
         DecimalIdRecord|error result = (check self.persistClients.get(DECIMAL_ID_RECORD).runReadByKeyQuery(DecimalIdRecord, id)).cloneWithType(DecimalIdRecord);
@@ -306,14 +291,10 @@ public client class TestEntitiesClient {
         return result;
     }
 
-    isolated resource function get booleanidrecord() returns stream<BooleanIdRecord, Error?> {
-        stream<record {}, sql:Error?>|Error result = self.persistClients.get(BOOLEAN_ID_RECORD).runReadQuery(BooleanIdRecord);
-        if result is Error {
-            return new stream<BooleanIdRecord, Error?>(new BooleanIdRecordStream((), result));
-        } else {
-            return new stream<BooleanIdRecord, Error?>(new BooleanIdRecordStream(result));
-        }
-    }
+    isolated resource function get booleanidrecord(BooleanIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        name: "query"
+    } external;
 
     isolated resource function get booleanidrecord/[boolean id]() returns BooleanIdRecord|Error {
         BooleanIdRecord|error result = (check self.persistClients.get(BOOLEAN_ID_RECORD).runReadByKeyQuery(BooleanIdRecord, id)).cloneWithType(BooleanIdRecord);
@@ -340,14 +321,10 @@ public client class TestEntitiesClient {
         return result;
     }
 
-    isolated resource function get compositeassociationrecord() returns stream<CompositeAssociationRecord, Error?> {
-        stream<record {}, sql:Error?>|Error result = self.persistClients.get(COMPOSITE_ASSOCIATION_RECORD).runReadQuery(CompositeAssociationRecord);
-        if result is Error {
-            return new stream<CompositeAssociationRecord, Error?>(new CompositeAssociationRecordStream((), result));
-        } else {
-            return new stream<CompositeAssociationRecord, Error?>(new CompositeAssociationRecordStream(result));
-        }
-    }
+    isolated resource function get compositeassociationrecord(CompositeAssociationRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        name: "query"
+    } external;
 
     isolated resource function get compositeassociationrecord/[string id]() returns CompositeAssociationRecord|Error {
         CompositeAssociationRecord|error result = (check self.persistClients.get(COMPOSITE_ASSOCIATION_RECORD).runReadByKeyQuery(CompositeAssociationRecord, id)).cloneWithType(CompositeAssociationRecord);
@@ -374,14 +351,10 @@ public client class TestEntitiesClient {
         return result;
     }
 
-    isolated resource function get alltypesidrecord() returns stream<AllTypesIdRecord, Error?> {
-        stream<record {}, sql:Error?>|Error result = self.persistClients.get(ALL_TYPES_ID_RECORD).runReadQuery(AllTypesIdRecord);
-        if result is Error {
-            return new stream<AllTypesIdRecord, Error?>(new AllTypesIdRecordStream((), result));
-        } else {
-            return new stream<AllTypesIdRecord, Error?>(new AllTypesIdRecordStream(result));
-        }
-    }
+    isolated resource function get alltypesidrecord(AllTypesIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        name: "query"
+    } external;
 
     isolated resource function get alltypesidrecord/[float floatType]/[decimal decimalType]/[boolean booleanType]/[int intType]/[string stringType]() returns AllTypesIdRecord|Error {
         AllTypesIdRecord|error result = (check self.persistClients.get(ALL_TYPES_ID_RECORD).runReadByKeyQuery(AllTypesIdRecord, {floatType: floatType, decimalType: decimalType, booleanType: booleanType, intType: intType, stringType: stringType})).cloneWithType(AllTypesIdRecord);
@@ -416,308 +389,3 @@ public client class TestEntitiesClient {
         return result;
     }
 }
-
-public class AllTypesStream {
-
-    private stream<anydata, sql:Error?>? anydataStream;
-    private Error? err;
-
-    public isolated function init(stream<anydata, sql:Error?>? anydataStream, Error? err = ()) {
-        self.anydataStream = anydataStream;
-        self.err = err;
-    }
-
-    public isolated function next() returns record {|AllTypes value;|}|Error? {
-        if self.err is Error {
-            return <Error>self.err;
-        } else if self.anydataStream is stream<anydata, sql:Error?> {
-            var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
-            var streamValue = anydataStream.next();
-            if streamValue is () {
-                return streamValue;
-            } else if (streamValue is sql:Error) {
-                return <Error>error(streamValue.message());
-            } else {
-                AllTypes|error value = streamValue.value.cloneWithType(AllTypes);
-                if value is error {
-                    return <Error>error(value.message());
-                }
-                record {|AllTypes value;|} nextRecord = {value: value};
-                return nextRecord;
-            }
-        } else {
-            return ();
-        }
-    }
-
-    public isolated function close() returns Error? {
-        check closeEntityStream(self.anydataStream);
-    }
-}
-
-public class StringIdRecordStream {
-
-    private stream<anydata, sql:Error?>? anydataStream;
-    private Error? err;
-
-    public isolated function init(stream<anydata, sql:Error?>? anydataStream, Error? err = ()) {
-        self.anydataStream = anydataStream;
-        self.err = err;
-    }
-
-    public isolated function next() returns record {|StringIdRecord value;|}|Error? {
-        if self.err is Error {
-            return <Error>self.err;
-        } else if self.anydataStream is stream<anydata, sql:Error?> {
-            var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
-            var streamValue = anydataStream.next();
-            if streamValue is () {
-                return streamValue;
-            } else if (streamValue is sql:Error) {
-                return <Error>error(streamValue.message());
-            } else {
-                StringIdRecord|error value = streamValue.value.cloneWithType(StringIdRecord);
-                if value is error {
-                    return <Error>error(value.message());
-                }
-                record {|StringIdRecord value;|} nextRecord = {value: value};
-                return nextRecord;
-            }
-        } else {
-            return ();
-        }
-    }
-
-    public isolated function close() returns Error? {
-        check closeEntityStream(self.anydataStream);
-    }
-}
-
-public class IntIdRecordStream {
-
-    private stream<anydata, sql:Error?>? anydataStream;
-    private Error? err;
-
-    public isolated function init(stream<anydata, sql:Error?>? anydataStream, Error? err = ()) {
-        self.anydataStream = anydataStream;
-        self.err = err;
-    }
-
-    public isolated function next() returns record {|IntIdRecord value;|}|Error? {
-        if self.err is Error {
-            return <Error>self.err;
-        } else if self.anydataStream is stream<anydata, sql:Error?> {
-            var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
-            var streamValue = anydataStream.next();
-            if streamValue is () {
-                return streamValue;
-            } else if (streamValue is sql:Error) {
-                return <Error>error(streamValue.message());
-            } else {
-                IntIdRecord|error value = streamValue.value.cloneWithType(IntIdRecord);
-                if value is error {
-                    return <Error>error(value.message());
-                }
-                record {|IntIdRecord value;|} nextRecord = {value: value};
-                return nextRecord;
-            }
-        } else {
-            return ();
-        }
-    }
-
-    public isolated function close() returns Error? {
-        check closeEntityStream(self.anydataStream);
-    }
-}
-
-public class FloatIdRecordStream {
-
-    private stream<anydata, sql:Error?>? anydataStream;
-    private Error? err;
-
-    public isolated function init(stream<anydata, sql:Error?>? anydataStream, Error? err = ()) {
-        self.anydataStream = anydataStream;
-        self.err = err;
-    }
-
-    public isolated function next() returns record {|FloatIdRecord value;|}|Error? {
-        if self.err is Error {
-            return <Error>self.err;
-        } else if self.anydataStream is stream<anydata, sql:Error?> {
-            var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
-            var streamValue = anydataStream.next();
-            if streamValue is () {
-                return streamValue;
-            } else if (streamValue is sql:Error) {
-                return <Error>error(streamValue.message());
-            } else {
-                FloatIdRecord|error value = streamValue.value.cloneWithType(FloatIdRecord);
-                if value is error {
-                    return <Error>error(value.message());
-                }
-                record {|FloatIdRecord value;|} nextRecord = {value: value};
-                return nextRecord;
-            }
-        } else {
-            return ();
-        }
-    }
-
-    public isolated function close() returns Error? {
-        check closeEntityStream(self.anydataStream);
-    }
-}
-
-public class DecimalIdRecordStream {
-
-    private stream<anydata, sql:Error?>? anydataStream;
-    private Error? err;
-
-    public isolated function init(stream<anydata, sql:Error?>? anydataStream, Error? err = ()) {
-        self.anydataStream = anydataStream;
-        self.err = err;
-    }
-
-    public isolated function next() returns record {|DecimalIdRecord value;|}|Error? {
-        if self.err is Error {
-            return <Error>self.err;
-        } else if self.anydataStream is stream<anydata, sql:Error?> {
-            var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
-            var streamValue = anydataStream.next();
-            if streamValue is () {
-                return streamValue;
-            } else if (streamValue is sql:Error) {
-                return <Error>error(streamValue.message());
-            } else {
-                DecimalIdRecord|error value = streamValue.value.cloneWithType(DecimalIdRecord);
-                if value is error {
-                    return <Error>error(value.message());
-                }
-                record {|DecimalIdRecord value;|} nextRecord = {value: value};
-                return nextRecord;
-            }
-        } else {
-            return ();
-        }
-    }
-
-    public isolated function close() returns Error? {
-        check closeEntityStream(self.anydataStream);
-    }
-}
-
-public class BooleanIdRecordStream {
-
-    private stream<anydata, sql:Error?>? anydataStream;
-    private Error? err;
-
-    public isolated function init(stream<anydata, sql:Error?>? anydataStream, Error? err = ()) {
-        self.anydataStream = anydataStream;
-        self.err = err;
-    }
-
-    public isolated function next() returns record {|BooleanIdRecord value;|}|Error? {
-        if self.err is Error {
-            return <Error>self.err;
-        } else if self.anydataStream is stream<anydata, sql:Error?> {
-            var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
-            var streamValue = anydataStream.next();
-            if streamValue is () {
-                return streamValue;
-            } else if (streamValue is sql:Error) {
-                return <Error>error(streamValue.message());
-            } else {
-                BooleanIdRecord|error value = streamValue.value.cloneWithType(BooleanIdRecord);
-                if value is error {
-                    return <Error>error(value.message());
-                }
-                record {|BooleanIdRecord value;|} nextRecord = {value: value};
-                return nextRecord;
-            }
-        } else {
-            return ();
-        }
-    }
-
-    public isolated function close() returns Error? {
-        check closeEntityStream(self.anydataStream);
-    }
-}
-
-public class CompositeAssociationRecordStream {
-
-    private stream<anydata, sql:Error?>? anydataStream;
-    private Error? err;
-
-    public isolated function init(stream<anydata, sql:Error?>? anydataStream, Error? err = ()) {
-        self.anydataStream = anydataStream;
-        self.err = err;
-    }
-
-    public isolated function next() returns record {|CompositeAssociationRecord value;|}|Error? {
-        if self.err is Error {
-            return <Error>self.err;
-        } else if self.anydataStream is stream<anydata, sql:Error?> {
-            var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
-            var streamValue = anydataStream.next();
-            if streamValue is () {
-                return streamValue;
-            } else if (streamValue is sql:Error) {
-                return <Error>error(streamValue.message());
-            } else {
-                CompositeAssociationRecord|error value = streamValue.value.cloneWithType(CompositeAssociationRecord);
-                if value is error {
-                    return <Error>error(value.message());
-                }
-                record {|CompositeAssociationRecord value;|} nextRecord = {value: value};
-                return nextRecord;
-            }
-        } else {
-            return ();
-        }
-    }
-
-    public isolated function close() returns Error? {
-        check closeEntityStream(self.anydataStream);
-    }
-}
-
-public class AllTypesIdRecordStream {
-
-    private stream<anydata, sql:Error?>? anydataStream;
-    private Error? err;
-
-    public isolated function init(stream<anydata, sql:Error?>? anydataStream, Error? err = ()) {
-        self.anydataStream = anydataStream;
-        self.err = err;
-    }
-
-    public isolated function next() returns record {|AllTypesIdRecord value;|}|Error? {
-        if self.err is Error {
-            return <Error>self.err;
-        } else if self.anydataStream is stream<anydata, sql:Error?> {
-            var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
-            var streamValue = anydataStream.next();
-            if streamValue is () {
-                return streamValue;
-            } else if (streamValue is sql:Error) {
-                return <Error>error(streamValue.message());
-            } else {
-                AllTypesIdRecord|error value = streamValue.value.cloneWithType(AllTypesIdRecord);
-                if value is error {
-                    return <Error>error(value.message());
-                }
-                record {|AllTypesIdRecord value;|} nextRecord = {value: value};
-                return nextRecord;
-            }
-        } else {
-            return ();
-        }
-    }
-
-    public isolated function close() returns Error? {
-        check closeEntityStream(self.anydataStream);
-    }
-}
-

@@ -3,10 +3,10 @@
 // This file is an auto-generated file by Ballerina persistence layer for medical_center.
 // It should not be modified by hand.
 
-import ballerina/persist;
 import ballerina/sql;
-import ballerina/time;
 import ballerinax/mysql;
+import ballerina/persist;
+import ballerina/jballerina.java;
 
 const MEDICAL_ITEM = "medicalitem";
 const MEDICAL_NEED = "medicalneed";
@@ -23,10 +23,10 @@ public client class MedicalCenterClient {
             entityName: "MedicalItem",
             tableName: `MedicalItem`,
             fieldMetadata: {
-                itemId: {columnName: "itemId", 'type: int},
-                name: {columnName: "name", 'type: string},
-                'type: {columnName: "type", 'type: string},
-                unit: {columnName: "unit", 'type: string}
+                itemId: {columnName: "itemId"},
+                name: {columnName: "name"},
+                'type: {columnName: "type"},
+                unit: {columnName: "unit"}
             },
             keyFields: ["itemId"]
         },
@@ -34,11 +34,11 @@ public client class MedicalCenterClient {
             entityName: "MedicalNeed",
             tableName: `MedicalNeed`,
             fieldMetadata: {
-                needId: {columnName: "needId", 'type: int},
-                beneficiaryId: {columnName: "beneficiaryId", 'type: int},
-                period: {columnName: "period", 'type: time:Civil},
-                urgency: {columnName: "urgency", 'type: string},
-                quantity: {columnName: "quantity", 'type: int}
+                needId: {columnName: "needId"},
+                beneficiaryId: {columnName: "beneficiaryId"},
+                period: {columnName: "period"},
+                urgency: {columnName: "urgency"},
+                quantity: {columnName: "quantity"}
             },
             keyFields: ["needId"]
         }
@@ -56,14 +56,10 @@ public client class MedicalCenterClient {
         };
     }
 
-    isolated resource function get medicalitem() returns stream<MedicalItem, persist:Error?> {
-        stream<record {}, sql:Error?>|persist:Error result = self.persistClients.get(MEDICAL_ITEM).runReadQuery(MedicalItem);
-        if result is persist:Error {
-            return new stream<MedicalItem, persist:Error?>(new MedicalItemStream((), result));
-        } else {
-            return new stream<MedicalItem, persist:Error?>(new MedicalItemStream(result));
-        }
-    }
+    isolated resource function get medicalitem(MedicalItemTargetType targetType = <>) returns stream<targetType, persist:Error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        name: "query"
+    } external;
 
     isolated resource function get medicalitem/[int itemId]() returns MedicalItem|persist:Error {
         MedicalItem|error result = (check self.persistClients.get(MEDICAL_ITEM).runReadByKeyQuery(MedicalItem, itemId)).cloneWithType(MedicalItem);
@@ -90,15 +86,11 @@ public client class MedicalCenterClient {
         return result;
     }
 
-    isolated resource function get medicalneed() returns stream<MedicalNeed, persist:Error?> {
-        stream<record {}, sql:Error?>|persist:Error result = self.persistClients.get(MEDICAL_NEED).runReadQuery(MedicalNeed);
-        if result is persist:Error {
-            return new stream<MedicalNeed, persist:Error?>(new MedicalNeedStream((), result));
-        } else {
-            return new stream<MedicalNeed, persist:Error?>(new MedicalNeedStream(result));
-        }
-    }
-
+    isolated resource function get medicalneed(MedicalNeedTargetType targetType = <>) returns stream<targetType, persist:Error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        name: "query"
+    } external;        
+    
     isolated resource function get medicalneed/[int needId]() returns MedicalNeed|persist:Error {
         MedicalNeed|error result = (check self.persistClients.get(MEDICAL_NEED).runReadByKeyQuery(MedicalNeed, needId)).cloneWithType(MedicalNeed);
         if result is error {
