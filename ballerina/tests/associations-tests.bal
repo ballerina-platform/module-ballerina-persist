@@ -165,7 +165,7 @@ public type WorkspaceInfo record {|
 |};
 
 @test:Config {
-    groups: ["associationsx"],
+    groups: ["associations"],
     dependsOn: [employeeRelationsTest]
 }
 function workspaceRelationsTest() returns error? {
@@ -289,5 +289,4 @@ function buildingRelationsTest() returns error? {
     }
 
     check rainierClient.close();
-
 }
