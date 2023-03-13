@@ -159,7 +159,7 @@ public client class SQLClient {
         }
     }
 
-        # Retrieves the values of the 'many' side of an association.
+    # Retrieves the values of the 'many' side of an association.
     #
     # + 'object - The record to which the retrieved records should be appended
     # + fields - The fields to be retrieved

@@ -289,5 +289,4 @@ function buildingRelationsTest() returns error? {
     }
 
     check rainierClient.close();
-
 }

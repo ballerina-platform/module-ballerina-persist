@@ -3,12 +3,9 @@ org = "wso2"
 name = "medical_center"
 version = "0.1.0"
 
-[persist.medical_center.storage.mysql]
-host = "localhost"
-port = 3305
-user = "root"
-password = "Test123#"
-database = "medical_center_db"
+[persist]
+datastore = "mysql"
+module = "medical_center"
 
 [[dependency]]
 org = "ballerina"

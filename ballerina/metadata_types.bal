@@ -97,5 +97,3 @@ public enum JoinType {
     ONE_TO_MANY,
     MANY_TO_ONE
 }
-
-//regex for "type" keyword following by string of characters
