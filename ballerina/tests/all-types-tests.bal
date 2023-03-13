@@ -101,7 +101,6 @@ AllTypes allTypes2Expected = {
     civilTypeOptional: allTypes2.civilTypeOptional
 };
 
-//TODO: Make time types also optional
 AllTypes allTypes3 = {
     id: 3,
     booleanType: true,

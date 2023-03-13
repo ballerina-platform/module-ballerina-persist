@@ -64,10 +64,14 @@ public class Utils {
         return (BObject) persistClients.get(entity);
     }
 
-    static BArray[] getFieldsAndIncludes(RecordType recordType) {
+    static BArray[] getFieldsIncludesAndTypeDescriptions(RecordType recordType) {
         ArrayType stringArrayType = TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING);
+
+        //TODO: use PREDEFINED TYPE.TYPE_TYPEDESC once NPE issue is resolved
+        ArrayType typeDescriptionArrayType = TypeCreator.createArrayType(PredefinedTypes.TYPE_ANY);
         BArray fieldsArray = ValueCreator.createArrayValue(stringArrayType);
         BArray includeArray = ValueCreator.createArrayValue(stringArrayType);
+        BArray typeDescriptionArray = ValueCreator.createArrayValue(typeDescriptionArrayType);
 
         Map<String, Field> fieldsMap = recordType.getFields();
         for (Field field : fieldsMap.values()) {
@@ -92,12 +96,14 @@ public class Utils {
                         fieldsArray.append(fromString(innerFieldName + "." + innerFieldsArray.get(i).toString()));
                     }
                 }
+
+                typeDescriptionArray.append(ValueCreator.createTypedescValue(type));
             } else {
                 fieldsArray.append(fromString(field.getFieldName()));
             }
         }
 
-        return new BArray[]{fieldsArray, includeArray};
+        return new BArray[]{fieldsArray, includeArray, typeDescriptionArray};
     }
 
     private static BArray getInnerFieldsArray(Type type) {
@@ -129,7 +135,7 @@ public class Utils {
         return future.getResult();
     }
 
-    private static boolean isKnownRecordType(Type ballerinaType) {
+    static boolean isKnownRecordType(Type ballerinaType) {
         return KNOWN_RECORD_TYPES.contains(getBTypeName(ballerinaType));
     }
 

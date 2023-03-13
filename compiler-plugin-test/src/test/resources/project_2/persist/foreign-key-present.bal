@@ -6,7 +6,7 @@ type Building record {|
     string state;
     string country;
     string postalCode;
-    string workspaceWorkspaceId;
+    string workspacesWorkspaceId;
     Workspace[] workspaces;
 |};
 
@@ -20,7 +20,7 @@ type Workspace record {|
 type Workspace2 record {|
     readonly string workspaceId;
     string workspaceType;
-    string building2BuildingCode;
+    string locationBuildingCode;
     Building2 location;
 |};
 
@@ -30,7 +30,7 @@ type Building2 record {|
     string state;
     string country;
     string postalCode;
-    string workspace2WorkspaceId;
+    string workspacesWorkspaceId;
     Workspace2[] workspaces;
 |};
 
@@ -40,21 +40,21 @@ type Building3 record {|
     string state;
     string country;
     string postalCode;
-    string workspace3WorkspaceId;
+    string workspacesWorkspaceId;
     Workspace3 workspaces;
 |};
 
 type Workspace3 record {|
     readonly string workspaceId;
     string workspaceType;
-    string building3BuildingCode;
+    string buildingBuildingCode;
     Building3? building;
 |};
 
 type Workspace4 record {|
     readonly string workspaceId;
     string workspaceType;
-    string building4BuildingCode;
+    string locationBuildingCode;
     Building4? location;
 |};
 
@@ -64,6 +64,6 @@ type Building4 record {|
     string state;
     string country;
     string postalCode;
-    string workspace4WorkspaceId;
+    string workspacesWorkspaceId;
     Workspace4 workspaces;
 |};

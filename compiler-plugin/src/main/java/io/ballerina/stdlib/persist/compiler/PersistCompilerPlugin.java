@@ -31,6 +31,7 @@ import io.ballerina.stdlib.persist.compiler.codeaction.ChangeTypeToInt;
 import io.ballerina.stdlib.persist.compiler.codeaction.ChangeTypeToString;
 import io.ballerina.stdlib.persist.compiler.codeaction.RemoveDiagnosticLocation;
 import io.ballerina.stdlib.persist.compiler.codeaction.RemoveTextRange;
+import io.ballerina.stdlib.persist.compiler.codeaction.SwitchRelationOwner;
 
 import java.util.List;
 
@@ -56,7 +57,8 @@ public class PersistCompilerPlugin extends CompilerPlugin {
                 new ChangeTypeToBoolean(),
                 new ChangeTypeToFloat(),
                 new ChangeTypeToDecimal(),
-                new ChangeTypeToByteArray()
+                new ChangeTypeToByteArray(),
+                new SwitchRelationOwner()
         );
     }
 }
