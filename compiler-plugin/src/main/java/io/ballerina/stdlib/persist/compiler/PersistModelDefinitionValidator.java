@@ -25,6 +25,7 @@ import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.NodeLocation;
 import io.ballerina.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
@@ -683,31 +684,15 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         // 1:1 relations
         if (!processingField.isArrayType() && !referredField.isArrayType()) {
             if (!processingField.isOptionalType() && !referredField.isOptionalType()) {
-                reportDiagnosticsEntity.reportDiagnostic(PERSIST_404.getCode(), PERSIST_404.getMessage(),
-                        PERSIST_404.getSeverity(), processingField.getLocation());
-                reportDiagnosticsEntity.reportDiagnostic(PERSIST_002.getCode(), PERSIST_002.getMessage(),
-                        PERSIST_002.getSeverity(), processingField.getLocation(),
-                        List.of(new BNumericProperty(referredField.getTypeEndOffset()),
-                                new BStringProperty(processingField.getContainingEntity())));
-                reportDiagnosticsEntity.reportDiagnostic(PERSIST_002.getCode(), PERSIST_002.getMessage(),
-                        PERSIST_002.getSeverity(), processingField.getLocation(),
-                        List.of(new BNumericProperty(processingField.getTypeEndOffset()),
-                                new BStringProperty(referredField.getContainingEntity())));
+                reportOwnerUnidentifiableDiagnotics(reportDiagnosticsEntity, processingField.getLocation(),
+                        processingField, referredField);
+                reportOwnerUnidentifiableDiagnotics(reportDiagnosticsEntity, referredField.getLocation(),
+                        processingField, referredField);
             } else if (processingField.isOptionalType() && referredField.isOptionalType()) {
-                reportDiagnosticsEntity.reportDiagnostic(PERSIST_405.getCode(), PERSIST_405.getMessage(),
-                        PERSIST_405.getSeverity(), processingField.getLocation());
-                reportDiagnosticsEntity.reportDiagnostic(PERSIST_003.getCode(), PERSIST_003.getMessage(),
-                        PERSIST_003.getSeverity(), processingField.getLocation(),
-                        List.of(new BNumericProperty(processingField.getNullableStartOffset()),
-                                new BNumericProperty(1),
-                                new BStringProperty(processingField.getContainingEntity() + "." +
-                                        processingField.getName())));
-                reportDiagnosticsEntity.reportDiagnostic(PERSIST_003.getCode(), PERSIST_003.getMessage(),
-                        PERSIST_003.getSeverity(), processingField.getLocation(),
-                        List.of(new BNumericProperty(referredField.getNullableStartOffset()),
-                                new BNumericProperty(1),
-                                new BStringProperty(referredField.getContainingEntity() + "." +
-                                        referredField.getName())));
+                reportTwoNillableFieldInOneToOneRelation(reportDiagnosticsEntity, processingField.getLocation(),
+                        processingField, referredField);
+                reportTwoNillableFieldInOneToOneRelation(reportDiagnosticsEntity, referredField.getLocation(),
+                        processingField, referredField);
             } else {
                 processingField.setRelationType(ONE_TO_ONE);
                 processingField.setOwnerIdentifiable(true);
@@ -729,6 +714,9 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             reportDiagnosticsEntity.reportDiagnostic(PERSIST_420.getCode(),
                     MessageFormat.format(PERSIST_420.getMessage(), referredEntity.getEntityName()),
                     PERSIST_420.getSeverity(), processingField.getLocation());
+            reportDiagnosticsEntity.reportDiagnostic(PERSIST_420.getCode(),
+                    MessageFormat.format(PERSIST_420.getMessage(), referredEntity.getEntityName()),
+                    PERSIST_420.getSeverity(), referredField.getLocation());
             processingField.setOwnerIdentifiable(false);
             processingField.setRelationType(MANY_TO_MANY);
             return;
@@ -751,6 +739,38 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         } else {
             validatePresenceOfForeignKey(referredField, referredEntity, processingEntity, reportDiagnosticsEntity);
         }
+    }
+
+    private void reportTwoNillableFieldInOneToOneRelation(Entity reportDiagnosticsEntity, NodeLocation location,
+            RelationField processingField, RelationField referredField) {
+        reportDiagnosticsEntity.reportDiagnostic(PERSIST_405.getCode(), PERSIST_405.getMessage(),
+                PERSIST_405.getSeverity(), location);
+        reportDiagnosticsEntity.reportDiagnostic(PERSIST_003.getCode(), PERSIST_003.getMessage(),
+                PERSIST_003.getSeverity(), location,
+                List.of(new BNumericProperty(processingField.getNullableStartOffset()),
+                        new BNumericProperty(1),
+                        new BStringProperty(processingField.getContainingEntity() + "." +
+                                processingField.getName())));
+        reportDiagnosticsEntity.reportDiagnostic(PERSIST_003.getCode(), PERSIST_003.getMessage(),
+                PERSIST_003.getSeverity(), location,
+                List.of(new BNumericProperty(referredField.getNullableStartOffset()),
+                        new BNumericProperty(1),
+                        new BStringProperty(referredField.getContainingEntity() + "." +
+                                referredField.getName())));
+    }
+
+    private void reportOwnerUnidentifiableDiagnotics(Entity reportDiagnosticsEntity, NodeLocation location,
+                                                     RelationField processingField, RelationField referredField) {
+        reportDiagnosticsEntity.reportDiagnostic(PERSIST_404.getCode(), PERSIST_404.getMessage(),
+                PERSIST_404.getSeverity(), location);
+        reportDiagnosticsEntity.reportDiagnostic(PERSIST_002.getCode(), PERSIST_002.getMessage(),
+                PERSIST_002.getSeverity(), location,
+                List.of(new BNumericProperty(referredField.getTypeEndOffset()),
+                        new BStringProperty(processingField.getContainingEntity())));
+        reportDiagnosticsEntity.reportDiagnostic(PERSIST_002.getCode(), PERSIST_002.getMessage(),
+                PERSIST_002.getSeverity(), location,
+                List.of(new BNumericProperty(processingField.getTypeEndOffset()),
+                        new BStringProperty(referredField.getContainingEntity())));
     }
 
     private void reportMandatoryCorrespondingFieldDiagnostic(GroupedRelationField groupedRelationField,

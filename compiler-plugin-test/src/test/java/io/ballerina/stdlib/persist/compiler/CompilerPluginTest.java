@@ -246,13 +246,15 @@ public class CompilerPluginTest {
 
     @Test
     public void validateNillableRelationField() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("nillable-relation-field.bal", 4);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("nillable-relation-field.bal", 6);
         testDiagnostic(
                 diagnostics,
                 new String[]{
                         PERSIST_406.getCode(),
                         PERSIST_406.getCode(),
                         PERSIST_404.getCode(),
+                        PERSIST_404.getCode(),
+                        PERSIST_405.getCode(),
                         PERSIST_405.getCode()
                 },
                 new String[]{
@@ -260,30 +262,38 @@ public class CompilerPluginTest {
                         "1-n relationship does not support nillable relation field",
                         "1-1 relationship should have at least one relation field nillable " +
                                 "to indicate non-owner of the relationship",
+                        "1-1 relationship should have at least one relation field nillable " +
+                                "to indicate non-owner of the relationship",
+                        "1-1 relationship should have only one nillable relation field",
                         "1-1 relationship should have only one nillable relation field"
                 },
                 new String[]{
                         "(14:4,14:23)",
                         "(29:4,29:29)",
                         "(44:4,44:23)",
-                        "(59:4,59:27)"
+                        "(38:4,38:26)",
+                        "(59:4,59:27)",
+                        "(50:4,50:24)"
                 }
         );
     }
 
     @Test
     public void validateManyToManyRelationship() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("many-to-many.bal", 1);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("many-to-many.bal", 2);
         testDiagnostic(
                 diagnostics,
                 new String[]{
+                        PERSIST_420.getCode(),
                         PERSIST_420.getCode()
                 },
                 new String[]{
+                        "many-to-many relation is not supported yet",
                         "many-to-many relation is not supported yet"
                 },
                 new String[]{
-                        "(14:4,14:24)"
+                        "(14:4,14:24)",
+                        "(8:4,8:27)"
                 }
         );
     }
