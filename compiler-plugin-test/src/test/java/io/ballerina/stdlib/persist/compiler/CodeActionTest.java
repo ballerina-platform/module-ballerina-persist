@@ -60,15 +60,12 @@ public class CodeActionTest {
         return new Object[][]{
                 {"valid-persist-model-path.bal", LinePosition.from(2, 1), "valid-persist-model-path.bal",
                         "PERSIST_101", "REMOVE_DIAGNOSTIC_LOCATION", "Remove unsupported member"},
+
                 {"usage-of-import-prefix.bal", LinePosition.from(0, 25), "usage-of-import-prefix.bal",
                         "PERSIST_102", "REMOVE_TEXT_RANGE", "Remove import prefix"},
-                {"identifier-field-properties.bal", LinePosition.from(4, 14), "identifier-field-properties-nil.bal",
-                        "PERSIST_502", "REMOVE_TEXT_RANGE", "Change to 'int' type"},
-                {"identifier-field-properties.bal", LinePosition.from(16, 16),
-                        "identifier-field-properties-rm-readonly.bal",
-                        "PERSIST_503", "REMOVE_TEXT_RANGE", "Change to non-identity field"},
-                {"self-referenced-entity.bal", LinePosition.from(8, 10), "self-referenced-entity.bal",
-                        "PERSIST_401", "REMOVE_DIAGNOSTIC_LOCATION", "Remove self-referenced field"},
+
+                {"record-properties.bal", LinePosition.from(14, 6), "record-properties.bal",
+                        "PERSIST_201", "CHANGE_TO_CLOSED_RECORD", "Change to closed record"},
 
                 {"field-properties.bal", LinePosition.from(22, 9), "field-properties-rest-descriptor.bal",
                         "PERSIST_301", "REMOVE_DIAGNOSTIC_LOCATION", "Remove rest descriptor field"},
@@ -78,30 +75,6 @@ public class CodeActionTest {
                         "PERSIST_302", "REMOVE_TEXT_RANGE", "Remove default value"},
                 {"field-properties.bal", LinePosition.from(13, 27), "field-properties-optional-field.bal",
                         "PERSIST_304", "REMOVE_TEXT_RANGE", "Make field mandatory"},
-                {"field-types.bal", LinePosition.from(18, 12), "field-types-unsupported-array.bal",
-                        "PERSIST_306", "REMOVE_TEXT_RANGE", "Change to 'time:Civil' type"},
-
-                {"record-properties.bal", LinePosition.from(14, 6), "record-properties.bal",
-                        "PERSIST_201", "CHANGE_TO_CLOSED_RECORD", "Change to closed record"},
-                {"mandatory-relation-field.bal", LinePosition.from(8, 21), "mandatory-relation-field.bal",
-                        "PERSIST_402", "ADD_SINGLE_TEXT", "Add 'Building'-typed field in 'Workspace' entity"},
-                {"mandatory-relation-field.bal", LinePosition.from(27, 19), "mandatory-relation-field2.bal",
-                        "PERSIST_402", "ADD_SINGLE_TEXT", "Add 'Workspace2'-typed field in 'Building1' entity"},
-                {"nillable-relation-field.bal", LinePosition.from(14, 9), "nillable-relation-field.bal",
-                        "PERSIST_406", "REMOVE_TEXT_RANGE", "Change to 'Building' type"},
-                {"nillable-relation-field.bal", LinePosition.from(59, 11),
-                        "nillable-relation-field-1-1-both-optional.bal",
-                        "PERSIST_003", "REMOVE_TEXT_RANGE", "Change 'Workspace4.location' to non-nillable field"},
-                {"nillable-relation-field.bal", LinePosition.from(59, 11),
-                        "nillable-relation-field-1-1-both-optional2.bal",
-                        "PERSIST_003", "REMOVE_TEXT_RANGE", "Change 'Building4.workspaces' to non-nillable field"},
-
-                {"nillable-relation-field.bal", LinePosition.from(44, 9),
-                        "nillable-relation-field-building3-owner.bal",
-                        "PERSIST_002", "ADD_SINGLE_TEXT", "Make 'Building3' entity relation owner"},
-                {"nillable-relation-field.bal", LinePosition.from(44, 9),
-                        "nillable-relation-field-workspace3-owner.bal",
-                        "PERSIST_002", "ADD_SINGLE_TEXT", "Make 'Workspace3' entity relation owner"},
 
                 {"field-types.bal", LinePosition.from(15, 6), "field-types-boolean.bal",
                         "PERSIST_305", "CHANGE_TYPE_TO_BOOLEAN", "Change to 'boolean' type"},
@@ -115,15 +88,63 @@ public class CodeActionTest {
                         "PERSIST_305", "CHANGE_TYPE_TO_INT", "Change to 'int' type"},
                 {"field-types.bal", LinePosition.from(15, 6), "field-types-string.bal",
                         "PERSIST_305", "CHANGE_TYPE_TO_STRING", "Change to 'string' type"},
-                {"identifier-field-properties.bal", LinePosition.from(16, 15), "identifier-field-properties.bal",
-                        "PERSIST_503", "CHANGE_TYPE_TO_STRING", "Change to 'string' type"},
 
+                {"field-types.bal", LinePosition.from(18, 12), "field-types-unsupported-array.bal",
+                        "PERSIST_306", "REMOVE_TEXT_RANGE", "Change to 'time:Civil' type"},
+
+                {"self-referenced-entity.bal", LinePosition.from(8, 10), "self-referenced-entity.bal",
+                        "PERSIST_401", "REMOVE_DIAGNOSTIC_LOCATION", "Remove self-referenced field"},
+
+                {"mandatory-relation-field.bal", LinePosition.from(8, 21), "mandatory-relation-field.bal",
+                        "PERSIST_402", "ADD_SINGLE_TEXT", "Add corresponding relation field in 'Workspace' entity"},
+                {"mandatory-relation-field.bal", LinePosition.from(27, 19), "mandatory-relation-field2.bal",
+                        "PERSIST_402", "ADD_SINGLE_TEXT", "Add corresponding relation field in 'Building1' entity"},
+
+                // PERSIST_403
+                {"different-owners.bal", LinePosition.from(9, 9), "different-owners-building.bal",
+                        "PERSIST_004", "SWITCH_RELATION_OWNER", "Make 'Building' entity relation owner"},
+                {"different-owners.bal", LinePosition.from(15, 11), "different-owners-workspace.bal",
+                        "PERSIST_004", "SWITCH_RELATION_OWNER", "Make 'Workspace' entity relation owner"},
+                {"different-owners.bal", LinePosition.from(35, 11), "different-owners-building2.bal",
+                        "PERSIST_004", "SWITCH_RELATION_OWNER", "Make 'Building2' entity relation owner"},
+                {"different-owners.bal", LinePosition.from(27, 11), "different-owners-workspace2.bal",
+                        "PERSIST_004", "SWITCH_RELATION_OWNER", "Make 'Workspace2' entity relation owner"},
+
+                // PERSIST_404
+                {"nillable-relation-field.bal", LinePosition.from(44, 9),
+                        "nillable-relation-field-building3-owner.bal",
+                        "PERSIST_002", "ADD_SINGLE_TEXT", "Make 'Building3' entity relation owner"},
+                {"nillable-relation-field.bal", LinePosition.from(44, 9),
+                        "nillable-relation-field-workspace3-owner.bal",
+                        "PERSIST_002", "ADD_SINGLE_TEXT", "Make 'Workspace3' entity relation owner"},
+
+                // PERSIST_405
+                {"nillable-relation-field.bal", LinePosition.from(59, 11),
+                        "nillable-relation-field-1-1-both-optional.bal",
+                        "PERSIST_003", "REMOVE_TEXT_RANGE", "Change 'Workspace4.location' to non-nillable field"},
+                {"nillable-relation-field.bal", LinePosition.from(59, 11),
+                        "nillable-relation-field-1-1-both-optional2.bal",
+                        "PERSIST_003", "REMOVE_TEXT_RANGE", "Change 'Building4.workspaces' to non-nillable field"},
+                {"nillable-relation-field.bal", LinePosition.from(14, 9), "nillable-relation-field.bal",
+                        "PERSIST_406", "REMOVE_TEXT_RANGE", "Change to 'Building' type"},
+
+                // PERSIST_501
                 {"readonly-field.bal", LinePosition.from(3, 16), "readonly-field-beneficiaryId.bal",
                         "PERSIST_001", "ADD_SINGLE_TEXT", "Mark field 'beneficiaryId' as identity field"},
                 {"readonly-field.bal", LinePosition.from(3, 16), "readonly-field-needId.bal",
                         "PERSIST_001", "ADD_SINGLE_TEXT", "Mark field 'needId' as identity field"},
                 {"readonly-field.bal", LinePosition.from(3, 16), "readonly-field-quantity.bal",
                         "PERSIST_001", "ADD_SINGLE_TEXT", "Mark field 'quantity' as identity field"},
+
+                {"identifier-field-properties.bal", LinePosition.from(4, 14), "identifier-field-properties-nil.bal",
+                        "PERSIST_502", "REMOVE_TEXT_RANGE", "Change to 'int' type"},
+                {"identifier-field-properties.bal", LinePosition.from(16, 16),
+                        "identifier-field-properties-rm-readonly.bal",
+                        "PERSIST_503", "REMOVE_TEXT_RANGE", "Change to non-identity field"},
+
+                {"identifier-field-properties.bal", LinePosition.from(16, 15), "identifier-field-properties.bal",
+                        "PERSIST_503", "CHANGE_TYPE_TO_STRING", "Change to 'string' type"},
+
         };
     }
 

@@ -50,9 +50,8 @@ public class AddSingleText extends AbstractAddSyntax {
         String code = diagnostic.diagnosticInfo().code();
         List<DiagnosticProperty<?>> properties = diagnostic.properties();
         if (code.equals(PERSIST_402.getCode())) {
-            String relationFieldType = getStringDiagnosticProperty(properties, 1);
             String relatedEntity = getStringDiagnosticProperty(properties, 2);
-            return MessageFormat.format("Add ''{0}''-typed field in ''{1}'' entity", relationFieldType, relatedEntity);
+            return MessageFormat.format("Add corresponding relation field in ''{0}'' entity", relatedEntity);
         } else if (code.equals(PERSIST_001.getCode())) {
             return MessageFormat.format("Mark field ''{0}'' as identity field",
                     getStringDiagnosticProperty(properties, 1));

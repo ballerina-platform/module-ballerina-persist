@@ -40,8 +40,10 @@ import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.stdlib.persist.compiler.model.Entity;
+import io.ballerina.stdlib.persist.compiler.model.GroupedRelationField;
 import io.ballerina.stdlib.persist.compiler.model.IdentityField;
 import io.ballerina.stdlib.persist.compiler.model.RelationField;
+import io.ballerina.stdlib.persist.compiler.model.RelationType;
 import io.ballerina.stdlib.persist.compiler.model.SimpleTypeField;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
@@ -73,6 +75,7 @@ import static io.ballerina.stdlib.persist.compiler.Constants.TIME_MODULE;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_001;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_002;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_003;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_004;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_101;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_102;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_201;
@@ -86,6 +89,7 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_306;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_307;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_401;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_402;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_403;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_404;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_405;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_406;
@@ -95,6 +99,9 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_501;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_502;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_503;
 import static io.ballerina.stdlib.persist.compiler.Utils.stripEscapeCharacter;
+import static io.ballerina.stdlib.persist.compiler.model.RelationType.MANY_TO_MANY;
+import static io.ballerina.stdlib.persist.compiler.model.RelationType.ONE_TO_MANY;
+import static io.ballerina.stdlib.persist.compiler.model.RelationType.ONE_TO_ONE;
 
 /**
  * Persist model definition validator.
@@ -103,6 +110,7 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
     private final Map<String, Entity> entities = new HashMap<>();
     private final List<String> entityNames = new ArrayList<>();
     private final Map<String, List<RelationField>> deferredRelationKeyEntities = new HashMap<>();
+    private final Map<String, List<GroupedRelationField>> deferredGroupedRelationKeyEntities = new HashMap<>();
 
     @Override
     public void perform(SyntaxNodeAnalysisContext ctx) {
@@ -168,9 +176,16 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             validateEntityRelations(entity);
 
             if (this.deferredRelationKeyEntities.containsKey(entityName)) {
-                List<RelationField> annotatedFields = this.deferredRelationKeyEntities.get(entityName);
-                for (RelationField field : annotatedFields) {
+                List<RelationField> relationFields = this.deferredRelationKeyEntities.get(entityName);
+                for (RelationField field : relationFields) {
                     validateRelation(field, this.entities.get(field.getContainingEntity()), entity, entity);
+                }
+            }
+            if (this.deferredGroupedRelationKeyEntities.containsKey(entityName)) {
+                List<GroupedRelationField> groupedRelationFields =
+                        this.deferredGroupedRelationKeyEntities.get(entityName);
+                for (GroupedRelationField field : groupedRelationFields) {
+                    validateGroupedRelation(field, this.entities.get(field.getContainingEntity()), entity, entity);
                 }
             }
 
@@ -319,7 +334,8 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                     entity.setContainsRelations(true);
                     entity.addRelationField(new RelationField(fieldName, typeName,
                             typeNode.location().textRange().endOffset(), isOptionalType, nullableStartOffset,
-                            isArrayType, recordFieldNode.location(), entity.getEntityName()));
+                            isArrayType, arrayStartOffset, arrayLength, recordFieldNode.location(),
+                            entity.getEntityName()));
                 } else {
                     // Revisit once https://github.com/ballerina-platform/ballerina-lang/issues/39441 is resolved
                     List<DiagnosticProperty<?>> properties = List.of(
@@ -450,10 +466,10 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             return;
         }
 
-        for (RelationField relationField : entity.getRelationFields()) {
+        for (RelationField relationField : entity.getRelationFields().values()) {
             String referredEntity = relationField.getType();
 
-            if (relationField.getType().equals(relationField.getContainingEntity())) {
+            if (referredEntity.equals(relationField.getContainingEntity())) {
                 entity.reportDiagnostic(PERSIST_401.getCode(), PERSIST_401.getMessage(),
                         PERSIST_401.getSeverity(), relationField.getLocation());
                 break;
@@ -461,49 +477,209 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
 
             if (this.entities.containsKey(referredEntity)) {
                 validateRelation(relationField, entity, this.entities.get(referredEntity), entity);
-                if (this.deferredRelationKeyEntities.containsKey(entity.getEntityName())) {
-                    List<RelationField> referredFields = this.deferredRelationKeyEntities.get(entity.getEntityName());
-                    referredFields.removeIf(field -> field.getContainingEntity().equals(referredEntity));
-                    if (referredFields.isEmpty()) {
-                        this.deferredRelationKeyEntities.remove(entity.getEntityName());
-                    }
-                }
+                removeDeferredRelationsFromFirstEntity(entity, referredEntity);
             } else {
-                if (this.deferredRelationKeyEntities.containsKey(referredEntity)) {
-                    this.deferredRelationKeyEntities.get(referredEntity).add(relationField);
-                } else {
-                    List<RelationField> references = new ArrayList<>();
-                    references.add(relationField);
-                    this.deferredRelationKeyEntities.put(referredEntity, references);
-                }
+                this.deferredRelationKeyEntities.compute(referredEntity, (key, value) -> {
+                    if (value == null) {
+                        value = new ArrayList<>();
+                    }
+                    value.add(relationField);
+                    return value;
+                });
+            }
+        }
+
+        for (GroupedRelationField relationField : entity.getGroupedRelationFields().values()) {
+            String referredEntity = relationField.getRelationFields().get(0).getType();
+            if (referredEntity.equals(relationField.getContainingEntity())) {
+                relationField.getRelationFields()
+                        .forEach((field) -> entity.reportDiagnostic(PERSIST_401.getCode(), PERSIST_401.getMessage(),
+                                PERSIST_401.getSeverity(), field.getLocation())
+                        );
+                break;
+            }
+
+            if (this.entities.containsKey(referredEntity)) {
+                validateGroupedRelation(relationField, entity, this.entities.get(referredEntity), entity);
+                removeDeferredRelationsFromFirstEntity(entity, referredEntity);
+            } else {
+                this.deferredGroupedRelationKeyEntities.compute(referredEntity, (key, value) -> {
+                    if (value == null) {
+                        value = new ArrayList<>();
+                    }
+                    value.add(relationField);
+                    return value;
+                });
+            }
+        }
+    }
+
+    private void removeDeferredRelationsFromFirstEntity(Entity entity, String referredEntity) {
+        if (this.deferredRelationKeyEntities.containsKey(entity.getEntityName())) {
+            List<RelationField> referredFields =
+                    this.deferredRelationKeyEntities.get(entity.getEntityName());
+            referredFields.removeIf(field -> field.getContainingEntity().equals(referredEntity));
+            if (referredFields.isEmpty()) {
+                this.deferredRelationKeyEntities.remove(entity.getEntityName());
+            }
+        }
+        if (this.deferredGroupedRelationKeyEntities.containsKey(entity.getEntityName())) {
+            List<GroupedRelationField> referredFields =
+                    this.deferredGroupedRelationKeyEntities.get(entity.getEntityName());
+            referredFields.removeIf(field -> field.getContainingEntity().equals(referredEntity));
+            if (referredFields.isEmpty()) {
+                this.deferredGroupedRelationKeyEntities.remove(entity.getEntityName());
             }
         }
     }
 
     private void validateRelation(RelationField processingField, Entity processingEntity, Entity referredEntity,
                                   Entity reportDiagnosticsEntity) {
-
-        RelationField referredField = null;
-        for (RelationField relationField : referredEntity.getRelationFields()) {
-            if (processingField.getContainingEntity().equals(relationField.getType())) {
-                referredField = relationField;
-                break;
-            }
-        }
-
-        if (referredField == null) {
-            NodeList<Node> fields = referredEntity.getTypeDescriptorNode().fields();
-            Node lastField = fields.get(fields.size() - 1);
-            int addFieldLocation = lastField.location().textRange().endOffset();
-            reportDiagnosticsEntity.reportDiagnostic(PERSIST_402.getCode(),
-                    MessageFormat.format(PERSIST_402.getMessage(), referredEntity.getEntityName(),
-                            processingField.getContainingEntity()), PERSIST_402.getSeverity(),
-                    processingField.getLocation(), List.of(new BNumericProperty(addFieldLocation),
-                            new BStringProperty(processingField.getContainingEntity()),
-                            new BStringProperty(referredEntity.getEntityName())));
+        String processingEntityName = processingField.getContainingEntity();
+        RelationField referredField =
+                referredEntity.getRelationFields().get(processingEntityName);
+        if (referredField != null) {
+            validateRelationType(processingField, processingEntity, referredField, referredEntity,
+                    reportDiagnosticsEntity);
             return;
         }
 
+        GroupedRelationField groupedRelationField =
+                referredEntity.getGroupedRelationFields().get(processingEntityName);
+        if (groupedRelationField != null) {
+            RelationField firstRelationMatch = groupedRelationField.getRelationFields().get(0);
+            validateRelationType(processingField, processingEntity, firstRelationMatch, referredEntity,
+                    reportDiagnosticsEntity);
+            reportMandatoryCorrespondingFieldDiagnostic(groupedRelationField, processingEntity, referredEntity,
+                    reportDiagnosticsEntity, 1);
+            return;
+        }
+
+        NodeList<Node> fields = referredEntity.getTypeDescriptorNode().fields();
+        Node lastField = fields.get(fields.size() - 1);
+        int addFieldLocation = lastField.location().textRange().endOffset();
+        reportDiagnosticsEntity.reportDiagnostic(PERSIST_402.getCode(),
+                MessageFormat.format(PERSIST_402.getMessage(), referredEntity.getEntityName()),
+                PERSIST_402.getSeverity(),
+                processingField.getLocation(), List.of(new BNumericProperty(addFieldLocation),
+                        new BStringProperty(processingEntityName),
+                        new BStringProperty(referredEntity.getEntityName())));
+    }
+
+    private void validateGroupedRelation(GroupedRelationField processingField, Entity processingEntity,
+                                         Entity referredEntity, Entity reportDiagnosticsEntity) {
+        String processingEntityName = processingField.getContainingEntity();
+        GroupedRelationField groupedRelationField =
+                referredEntity.getGroupedRelationFields().get(processingEntityName);
+        List<RelationField> processingRelationFields = processingField.getRelationFields();
+        if (groupedRelationField != null) {
+            List<RelationField> referredRelationFields = groupedRelationField.getRelationFields();
+            int processingFieldSize = processingRelationFields.size();
+            int relatedFieldSize = referredRelationFields.size();
+            int minCount = Math.min(processingFieldSize, relatedFieldSize);
+            for (int i = 0; i < minCount; i++) {
+                RelationField processingRelationField = processingRelationFields.get(i);
+                RelationField relatedRelationField = referredRelationFields.get(i);
+                validateRelationType(processingRelationField, processingEntity, relatedRelationField,
+                        referredEntity, reportDiagnosticsEntity);
+            }
+            if (processingFieldSize < relatedFieldSize) {
+                reportMandatoryCorrespondingFieldDiagnostic(groupedRelationField, processingEntity,
+                        referredEntity, reportDiagnosticsEntity, processingFieldSize);
+            } else if (processingFieldSize > relatedFieldSize) {
+                reportMandatoryCorrespondingFieldDiagnostic(processingField, referredEntity, processingEntity,
+                        reportDiagnosticsEntity, relatedFieldSize);
+            } else {
+                // processingFieldSize == relatedFieldSize
+                // Validate all relations have same owner
+                boolean isOwnerIdentifiable = processingRelationFields.stream()
+                        .allMatch((RelationField::isOwnerIdentifiable));
+                if (!isOwnerIdentifiable) {
+                    return;
+                }
+                long processingFieldOwnerCount = processingRelationFields.stream()
+                        .filter((field -> field.getOwner().equals(processingEntity.getEntityName()))).count();
+                if (processingFieldOwnerCount == 0 || processingFieldOwnerCount == processingFieldSize) {
+                    return;
+                }
+
+                // If processing field is chosen as the owner.
+                List<DiagnosticProperty<?>> processingFieldDiagProperties = new ArrayList<>();
+                processingFieldDiagProperties.add(new BStringProperty(processingEntityName));
+
+                // If referred field is chosen as the owner.
+                List<DiagnosticProperty<?>> referredFieldDiagProperties = new ArrayList<>();
+                referredFieldDiagProperties.add(new BStringProperty(referredEntity.getEntityName()));
+
+                for (int i = 0; i < processingFieldSize; i++) {
+                    RelationField processingRelationField = processingRelationFields.get(i);
+                    RelationField referredRelationField = referredRelationFields.get(i);
+                    if (processingRelationField.getOwner().equals(processingEntityName)) {
+                        updateSameOwnerDiagnosticProperties(processingRelationField.getRelationType(),
+                                referredFieldDiagProperties, referredRelationField,
+                                processingRelationField);
+                    } else {
+                        updateSameOwnerDiagnosticProperties(processingRelationField.getRelationType(),
+                                processingFieldDiagProperties, processingRelationField,
+                                referredRelationField);
+                    }
+                }
+
+                for (int i = 0; i < processingFieldSize; i++) {
+                    reportDiagnosticsForDifferentOwners(reportDiagnosticsEntity, processingRelationFields.get(i),
+                            processingFieldDiagProperties, referredFieldDiagProperties);
+                    reportDiagnosticsForDifferentOwners(reportDiagnosticsEntity, referredRelationFields.get(i),
+                            processingFieldDiagProperties, referredFieldDiagProperties);
+                }
+            }
+            return;
+        }
+
+        RelationField referredField = referredEntity.getRelationFields().get(processingEntityName);
+        if (referredField != null) {
+            validateRelationType(processingRelationFields.get(0), processingEntity, referredField,
+                    referredEntity, reportDiagnosticsEntity);
+            reportMandatoryCorrespondingFieldDiagnostic(processingField, referredEntity, processingEntity,
+                    reportDiagnosticsEntity, 1);
+            return;
+        }
+
+        reportMandatoryCorrespondingFieldDiagnostic(processingField, referredEntity, processingEntity,
+                reportDiagnosticsEntity, 0);
+    }
+
+    private void updateSameOwnerDiagnosticProperties(RelationType relationType,
+                                                     List<DiagnosticProperty<?>> referredFieldDiagProperties,
+                                                     RelationField removeField, RelationField addField) {
+        if (relationType.equals(ONE_TO_ONE)) {
+            referredFieldDiagProperties.add(new BNumericProperty(removeField.getNullableStartOffset()));
+            referredFieldDiagProperties.add(new BNumericProperty(1));
+            referredFieldDiagProperties.add(new BNumericProperty(addField.getTypeEndOffset()));
+            referredFieldDiagProperties.add(new BStringProperty("?"));
+        } else {
+            referredFieldDiagProperties.add(new BNumericProperty(removeField.getArrayStartOffset()));
+            referredFieldDiagProperties.add(new BNumericProperty(removeField.getArrayRangeLength()));
+            referredFieldDiagProperties.add(new BNumericProperty(addField.getTypeEndOffset()));
+            referredFieldDiagProperties.add(new BStringProperty("[]"));
+        }
+    }
+
+    private void reportDiagnosticsForDifferentOwners(Entity reportDiagnosticsEntity, RelationField relationField,
+                                                     List<DiagnosticProperty<?>> processingFieldProperties,
+                                                     List<DiagnosticProperty<?>> referredFieldProperties) {
+        reportDiagnosticsEntity.reportDiagnostic(PERSIST_403.getCode(), PERSIST_403.getMessage(),
+                PERSIST_403.getSeverity(), relationField.getLocation());
+        reportDiagnosticsEntity.reportDiagnostic(PERSIST_004.getCode(), PERSIST_004.getMessage(),
+                PERSIST_004.getSeverity(), relationField.getLocation(),
+                processingFieldProperties);
+        reportDiagnosticsEntity.reportDiagnostic(PERSIST_004.getCode(), PERSIST_004.getMessage(),
+                PERSIST_004.getSeverity(), relationField.getLocation(),
+                referredFieldProperties);
+    }
+
+    private void validateRelationType(RelationField processingField, Entity processingEntity,
+                                      RelationField referredField, Entity referredEntity,
+                                      Entity reportDiagnosticsEntity) {
         // 1:1 relations
         if (!processingField.isArrayType() && !referredField.isArrayType()) {
             if (!processingField.isOptionalType() && !referredField.isOptionalType()) {
@@ -532,11 +708,18 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                                 new BNumericProperty(1),
                                 new BStringProperty(referredField.getContainingEntity() + "." +
                                         referredField.getName())));
-            } else if (processingField.isOptionalType()) {
-                validatePresenceOfForeignKey(referredField, referredEntity, processingEntity, reportDiagnosticsEntity);
             } else {
-                validatePresenceOfForeignKey(processingField, processingEntity, referredEntity,
-                        reportDiagnosticsEntity);
+                processingField.setRelationType(ONE_TO_ONE);
+                processingField.setOwnerIdentifiable(true);
+                processingField.setOwner(processingField.isOptionalType() ?
+                        referredEntity.getEntityName() : processingEntity.getEntityName());
+                if (processingField.isOptionalType()) {
+                    validatePresenceOfForeignKey(referredField, referredEntity, processingEntity,
+                            reportDiagnosticsEntity);
+                } else {
+                    validatePresenceOfForeignKey(processingField, processingEntity, referredEntity,
+                            reportDiagnosticsEntity);
+                }
             }
             return;
         }
@@ -546,12 +729,23 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             reportDiagnosticsEntity.reportDiagnostic(PERSIST_420.getCode(),
                     MessageFormat.format(PERSIST_420.getMessage(), referredEntity.getEntityName()),
                     PERSIST_420.getSeverity(), processingField.getLocation());
+            processingField.setOwnerIdentifiable(false);
+            processingField.setRelationType(MANY_TO_MANY);
             return;
         }
 
         // 1:n relations
-        validateNillableTypeFor1ToMany(processingField, reportDiagnosticsEntity);
-        validateNillableTypeFor1ToMany(referredField, reportDiagnosticsEntity);
+        boolean isProcessingFiledNillable = validateNillableTypeFor1ToMany(processingField, reportDiagnosticsEntity);
+        boolean isReferredFieldNillable = validateNillableTypeFor1ToMany(referredField, reportDiagnosticsEntity);
+        // This is to reduce confusion in code actions. If type is nillable how do we switch for owner change,
+        // Should nillable value also be taken or not
+        if (!isProcessingFiledNillable && !isReferredFieldNillable) {
+            processingField.setRelationType(ONE_TO_MANY);
+            processingField.setOwnerIdentifiable(true);
+            processingField.setOwner(processingField.isArrayType() ?
+                    referredEntity.getEntityName() : processingEntity.getEntityName()
+            );
+        }
         if (!processingField.isArrayType()) {
             validatePresenceOfForeignKey(processingField, processingEntity, referredEntity, reportDiagnosticsEntity);
         } else {
@@ -559,14 +753,33 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         }
     }
 
-    private void validateNillableTypeFor1ToMany(RelationField field, Entity reportDiagnosticsEntity) {
+    private void reportMandatoryCorrespondingFieldDiagnostic(GroupedRelationField groupedRelationField,
+                                                             Entity missingFieldEntity, Entity additionalFieldEntity,
+                                                             Entity reportDiagnosticsEntity, int startIndex) {
+        for (int i = startIndex; i < groupedRelationField.getRelationFields().size(); i++) {
+            RelationField relationMatch = groupedRelationField.getRelationFields().get(i);
+            NodeList<Node> fields = missingFieldEntity.getTypeDescriptorNode().fields();
+            Node lastField = fields.get(fields.size() - 1);
+            int addFieldLocation = lastField.location().textRange().endOffset();
+            reportDiagnosticsEntity.reportDiagnostic(PERSIST_402.getCode(),
+                    MessageFormat.format(PERSIST_402.getMessage(), missingFieldEntity.getEntityName()),
+                    PERSIST_402.getSeverity(),
+                    relationMatch.getLocation(), List.of(new BNumericProperty(addFieldLocation),
+                            new BStringProperty(additionalFieldEntity.getEntityName()),
+                            new BStringProperty(missingFieldEntity.getEntityName())));
+        }
+    }
+
+    private boolean validateNillableTypeFor1ToMany(RelationField field, Entity reportDiagnosticsEntity) {
         if (field.isOptionalType()) {
             String type = field.isArrayType() ? field.getType() + "[]" : field.getType();
             reportDiagnosticsEntity.reportDiagnostic(PERSIST_406.getCode(), PERSIST_406.getMessage(),
                     PERSIST_406.getSeverity(), field.getLocation(),
                     List.of(new BNumericProperty(field.getNullableStartOffset()),
                             new BNumericProperty(1), new BStringProperty(type)));
+            return true;
         }
+        return false;
     }
 
     private void validatePresenceOfForeignKey(RelationField ownerRelationField, Entity owner, Entity referredEntity,
