@@ -101,9 +101,7 @@ public class SwitchRelationOwner implements CodeAction {
             textEdits.add(TextEdit.from(removeRange, EMPTY_STRING));
             textEdits.add(TextEdit.from(addRange, addText));
         }
-
-        // todo check with LS team, why the ordering is required.
-        //  Else getting a index out of bounds exception when executing
+        // Temporary fix for https://github.com/ballerina-platform/ballerina-lang/issues/39860
         textEdits.sort(Comparator.comparingInt(t -> t.range().startOffset()));
 
         SyntaxTree syntaxTree = context.currentDocument().syntaxTree();
