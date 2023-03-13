@@ -62,9 +62,9 @@ Building updatedBuilding1 = {
 };
 
 @test:Config {
-    groups: ["basic"]
+    groups: ["building"]
 }
-function basicCreateTest() returns error? {
+function buildingCreateTest() returns error? {
     RainierClient rainierClient = check new ();
     
     string[] buildingCodes = check rainierClient->/building.post([building1]);    
@@ -76,9 +76,9 @@ function basicCreateTest() returns error? {
 }
 
 @test:Config {
-    groups: ["basic"]
+    groups: ["building"]
 }
-function basicCreateTest2() returns error? {
+function buildingCreateTest2() returns error? {
     RainierClient rainierClient = check new ();
     
     string[] buildingCodes = check rainierClient->/building.post([building2, building3]);
@@ -95,9 +95,9 @@ function basicCreateTest2() returns error? {
 }
 
 @test:Config {
-    groups: ["basic"]
+    groups: ["building"]
 }
-function basicCreateTestNegative() returns error? {
+function buildingCreateTestNegative() returns error? {
     RainierClient rainierClient = check new ();
     
     string[]|error building = rainierClient->/building.post([invalidBuilding]);   
@@ -110,10 +110,10 @@ function basicCreateTestNegative() returns error? {
 }
 
 @test:Config {
-    groups: ["basic"],
-    dependsOn: [basicCreateTest]
+    groups: ["building"],
+    dependsOn: [buildingCreateTest]
 }
-function basicReadOneTest() returns error? {
+function buildingReadOneTest() returns error? {
     RainierClient rainierClient = check new ();
 
     Building buildingRetrieved = check rainierClient->/building/[building1.buildingCode].get();
@@ -122,10 +122,10 @@ function basicReadOneTest() returns error? {
 }
 
 @test:Config {
-    groups: ["basic"],
-    dependsOn: [basicCreateTest]
+    groups: ["building"],
+    dependsOn: [buildingCreateTest]
 }
-function basicReadOneTestNegative() returns error? {
+function buildingReadOneTestNegative() returns error? {
     RainierClient rainierClient = check new ();
 
     Building|error buildingRetrieved = rainierClient->/building/["invalid-building-code"].get();
@@ -138,10 +138,10 @@ function basicReadOneTestNegative() returns error? {
 }
 
 @test:Config {
-    groups: ["basic"],
-    dependsOn: [basicCreateTest, basicCreateTest2]
+    groups: ["building"],
+    dependsOn: [buildingCreateTest, buildingCreateTest2]
 }
-function basicReadManyTest() returns error? {
+function buildingReadManyTest() returns error? {
     RainierClient rainierClient = check new ();
 
     stream<Building, error?> buildingStream = rainierClient->/building.get();
@@ -152,11 +152,38 @@ function basicReadManyTest() returns error? {
     check rainierClient.close();
 }
 
+public type BuildingInfo2 record {|
+    string city;
+    string state;
+    string country;
+    string postalCode;
+    string 'type;
+|};
+
 @test:Config {
-    groups: ["basic"],
-    dependsOn: [basicReadOneTest, basicReadManyTest]
+    groups: ["building", "dependent"],
+    dependsOn: [buildingCreateTest, buildingCreateTest2]
 }
-function basicUpdateTest() returns error? {
+function buildingReadManyDependentTest() returns error? {
+    RainierClient rainierClient = check new ();
+
+    stream<BuildingInfo2, error?> buildingStream = rainierClient->/building.get();
+    BuildingInfo2[] buildings = check from BuildingInfo2 building in buildingStream 
+        select building;
+
+    test:assertEquals(buildings, [
+        {city: building1.city, state: building1.state, country: building1.country, postalCode: building1.postalCode, 'type: building1.'type},
+        {city: building2.city, state: building2.state, country: building2.country, postalCode: building2.postalCode, 'type: building2.'type},
+        {city: building3.city, state: building3.state, country: building3.country, postalCode: building3.postalCode, 'type: building3.'type}
+    ]);
+    check rainierClient.close();
+}
+
+@test:Config {
+    groups: ["building"],
+    dependsOn: [buildingReadOneTest, buildingReadManyTest, buildingReadManyDependentTest]
+}
+function buildingUpdateTest() returns error? {
     RainierClient rainierClient = check new ();
 
     Building building = check rainierClient->/building/[building1.buildingCode].put({
@@ -174,10 +201,10 @@ function basicUpdateTest() returns error? {
 }
 
 @test:Config {
-    groups: ["basic"],
-    dependsOn: [basicReadOneTest, basicReadManyTest]
+    groups: ["building"],
+    dependsOn: [buildingReadOneTest, buildingReadManyTest, buildingReadManyDependentTest]
 }
-function basicUpdateTestNegative1() returns error? {
+function buildingUpdateTestNegative1() returns error? {
     RainierClient rainierClient = check new ();
 
     Building|error building = rainierClient->/building/["invalid-building-code"].put({
@@ -195,10 +222,10 @@ function basicUpdateTestNegative1() returns error? {
 }
 
 @test:Config {
-    groups: ["basic"],
-    dependsOn: [basicReadOneTest, basicReadManyTest]
+    groups: ["building"],
+    dependsOn: [buildingReadOneTest, buildingReadManyTest, buildingReadManyDependentTest]
 }
-function basicUpdateTestNegative2() returns error? {
+function buildingUpdateTestNegative2() returns error? {
     RainierClient rainierClient = check new ();
 
     Building|error building = rainierClient->/building/[building1.buildingCode].put({
@@ -216,10 +243,10 @@ function basicUpdateTestNegative2() returns error? {
 }
 
 @test:Config {
-    groups: ["basic"],
-    dependsOn: [basicUpdateTest, basicUpdateTestNegative2]
+    groups: ["building"],
+    dependsOn: [buildingUpdateTest, buildingUpdateTestNegative2]
 }
-function basicDeleteTest() returns error? {
+function buildingDeleteTest() returns error? {
     RainierClient rainierClient = check new ();
 
     Building building = check rainierClient->/building/[building1.buildingCode].delete();
@@ -234,10 +261,10 @@ function basicDeleteTest() returns error? {
 }
 
 @test:Config {
-    groups: ["basic"],
-    dependsOn: [basicDeleteTest]
+    groups: ["building"],
+    dependsOn: [buildingDeleteTest]
 }
-function basicDeleteTestNegative() returns error? {
+function buildingDeleteTestNegative() returns error? {
     RainierClient rainierClient = check new ();
 
     Building|error building = rainierClient->/building/[building1.buildingCode].delete();

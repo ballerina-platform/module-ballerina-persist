@@ -47,7 +47,7 @@ function intIdFieldTest() returns error? {
     test:assertEquals(intIdRecord1, retrievedRecord1);
 
     // read
-    IntIdRecord[] intIdRecords = check from IntIdRecord intIdRecord in testEntitiesClient->/intidrecord.get()
+    IntIdRecord[] intIdRecords = check from IntIdRecord intIdRecord in testEntitiesClient->/intidrecord.get(IntIdRecord)
         select intIdRecord;
     test:assertEquals(intIdRecords, [intIdRecord1, intIdRecord2, intIdRecord3]);
 
@@ -60,7 +60,7 @@ function intIdFieldTest() returns error? {
     // delete
     IntIdRecord retrievedRecord2 = check testEntitiesClient->/intidrecord/[intIdRecord2.id].delete();
     test:assertEquals(intIdRecord2, retrievedRecord2);
-    intIdRecords = check from IntIdRecord intIdRecord in testEntitiesClient->/intidrecord.get()
+    intIdRecords = check from IntIdRecord intIdRecord in testEntitiesClient->/intidrecord.get(IntIdRecord)
         select intIdRecord;
     test:assertEquals(intIdRecords, [intIdRecord1Updated, intIdRecord3]);
 
@@ -98,7 +98,7 @@ function stringIdFieldTest() returns error? {
     test:assertEquals(stringIdRecord1, retrievedRecord1);
 
     // read
-    StringIdRecord[] stringIdRecords = check from StringIdRecord stringIdRecord in testEntitiesClient->/stringidrecord.get()
+    StringIdRecord[] stringIdRecords = check from StringIdRecord stringIdRecord in testEntitiesClient->/stringidrecord.get(StringIdRecord)
         select stringIdRecord;
     test:assertEquals(stringIdRecords, [stringIdRecord1, stringIdRecord2, stringIdRecord3]);
 
@@ -111,7 +111,7 @@ function stringIdFieldTest() returns error? {
     // delete
     StringIdRecord retrievedRecord2 = check testEntitiesClient->/stringidrecord/[stringIdRecord2.id].delete();
     test:assertEquals(stringIdRecord2, retrievedRecord2);
-    stringIdRecords = check from StringIdRecord stringIdRecord in testEntitiesClient->/stringidrecord.get()
+    stringIdRecords = check from StringIdRecord stringIdRecord in testEntitiesClient->/stringidrecord.get(StringIdRecord)
         select stringIdRecord;
     test:assertEquals(stringIdRecords, [stringIdRecord1Updated, stringIdRecord3]);
 
@@ -149,7 +149,7 @@ function floatIdFieldTest() returns error? {
     test:assertEquals(floatIdRecord1, retrievedRecord1);
 
     // read
-    FloatIdRecord[] floatIdRecords = check from FloatIdRecord floatIdRecord in testEntitiesClient->/floatidrecord.get()
+    FloatIdRecord[] floatIdRecords = check from FloatIdRecord floatIdRecord in testEntitiesClient->/floatidrecord.get(FloatIdRecord)
         select floatIdRecord;
     test:assertEquals(floatIdRecords, [floatIdRecord1, floatIdRecord2, floatIdRecord3]);
 
@@ -162,7 +162,7 @@ function floatIdFieldTest() returns error? {
     // delete
     FloatIdRecord retrievedRecord2 = check testEntitiesClient->/floatidrecord/[floatIdRecord2.id].delete();
     test:assertEquals(floatIdRecord2, retrievedRecord2);
-    floatIdRecords = check from FloatIdRecord floatIdRecord in testEntitiesClient->/floatidrecord.get()
+    floatIdRecords = check from FloatIdRecord floatIdRecord in testEntitiesClient->/floatidrecord.get(FloatIdRecord)
         select floatIdRecord;
     test:assertEquals(floatIdRecords, [floatIdRecord1Updated, floatIdRecord3]);
 }
@@ -198,7 +198,7 @@ function decimalIdFieldTest() returns error? {
     test:assertEquals(decimalIdRecord1, retrievedRecord1);
 
     // read
-    DecimalIdRecord[] decimalIdRecords = check from DecimalIdRecord decimalIdRecord in testEntitiesClient->/decimalidrecord.get()
+    DecimalIdRecord[] decimalIdRecords = check from DecimalIdRecord decimalIdRecord in testEntitiesClient->/decimalidrecord.get(DecimalIdRecord)
         select decimalIdRecord;
     test:assertEquals(decimalIdRecords, [decimalIdRecord1, decimalIdRecord2, decimalIdRecord3]);
 
@@ -211,7 +211,7 @@ function decimalIdFieldTest() returns error? {
     // delete
     DecimalIdRecord retrievedRecord2 = check testEntitiesClient->/decimalidrecord/[decimalIdRecord2.id].delete();
     test:assertEquals(decimalIdRecord2, retrievedRecord2);
-    decimalIdRecords = check from DecimalIdRecord decimalIdRecord in testEntitiesClient->/decimalidrecord.get()
+    decimalIdRecords = check from DecimalIdRecord decimalIdRecord in testEntitiesClient->/decimalidrecord.get(DecimalIdRecord)
         select decimalIdRecord;
     test:assertEquals(decimalIdRecords, [decimalIdRecord1Updated, decimalIdRecord3]);
 
@@ -245,7 +245,7 @@ function booleanIdFieldTest() returns  error? {
     test:assertEquals(booleanIdRecord1, retrievedRecord1);
 
     // read
-    BooleanIdRecord[] booleanIdRecords = check from BooleanIdRecord booleanIdRecord in testEntitiesClient->/booleanidrecord.get()
+    BooleanIdRecord[] booleanIdRecords = check from BooleanIdRecord booleanIdRecord in testEntitiesClient->/booleanidrecord.get(BooleanIdRecord)
         select booleanIdRecord;
     test:assertEquals(booleanIdRecords, [booleanIdRecord2, booleanIdRecord1]);
 
@@ -258,7 +258,7 @@ function booleanIdFieldTest() returns  error? {
     // delete
     BooleanIdRecord retrievedRecord2 = check testEntitiesClient->/booleanidrecord/[booleanIdRecord2.id].delete();
     test:assertEquals(booleanIdRecord2, retrievedRecord2);
-    booleanIdRecords = check from BooleanIdRecord booleanIdRecord in testEntitiesClient->/booleanidrecord.get()
+    booleanIdRecords = check from BooleanIdRecord booleanIdRecord in testEntitiesClient->/booleanidrecord.get(BooleanIdRecord)
         select booleanIdRecord;
     test:assertEquals(booleanIdRecords, [booleanIdRecord1Updated]);
 
@@ -305,7 +305,7 @@ function allTypesIdFieldTest() returns error? {
     test:assertEquals(allTypesIdRecord1, retrievedRecord1);
 
     // read
-    AllTypesIdRecord[] allTypesIdRecords = check from AllTypesIdRecord allTypesIdRecord in testEntitiesClient->/alltypesidrecord.get()
+    AllTypesIdRecord[] allTypesIdRecords = check from AllTypesIdRecord allTypesIdRecord in testEntitiesClient->/alltypesidrecord.get(AllTypesIdRecord)
         select allTypesIdRecord;
     test:assertEquals(allTypesIdRecords, [allTypesIdRecord2, allTypesIdRecord1]);
 
@@ -318,7 +318,7 @@ function allTypesIdFieldTest() returns error? {
     // delete
     AllTypesIdRecord retrievedRecord2 = check testEntitiesClient->/alltypesidrecord/[allTypesIdRecord2.floatType]/[allTypesIdRecord2.decimalType]/[allTypesIdRecord2.booleanType]/[allTypesIdRecord2.intType]/[allTypesIdRecord2.stringType].delete();
     test:assertEquals(allTypesIdRecord2, retrievedRecord2);
-    allTypesIdRecords = check from AllTypesIdRecord allTypesIdRecord in testEntitiesClient->/alltypesidrecord.get()
+    allTypesIdRecords = check from AllTypesIdRecord allTypesIdRecord in testEntitiesClient->/alltypesidrecord.get(AllTypesIdRecord)
         select allTypesIdRecord;
     test:assertEquals(allTypesIdRecords, [allTypesIdRecord1Updated]);
 
@@ -371,7 +371,7 @@ function compositeAssociationsTest() returns error? {
     test:assertEquals(compositeAssociationRecord1, retrievedRecord1);
 
     // read
-    CompositeAssociationRecord[] compositeAssociationRecords = check from CompositeAssociationRecord compositeAssociationRecord in testEntitiesClient->/compositeassociationrecord.get()
+    CompositeAssociationRecord[] compositeAssociationRecords = check from CompositeAssociationRecord compositeAssociationRecord in testEntitiesClient->/compositeassociationrecord.get(CompositeAssociationRecord)
         select compositeAssociationRecord;
     test:assertEquals(compositeAssociationRecords, [compositeAssociationRecord1, compositeAssociationRecord2]);
 
@@ -384,7 +384,7 @@ function compositeAssociationsTest() returns error? {
     // delete
     CompositeAssociationRecord retrievedRecord2 = check testEntitiesClient->/compositeassociationrecord/[compositeAssociationRecord2.id].delete();
     test:assertEquals(compositeAssociationRecord2, retrievedRecord2);
-    compositeAssociationRecords = check from CompositeAssociationRecord compositeAssociationRecord in testEntitiesClient->/compositeassociationrecord.get()
+    compositeAssociationRecords = check from CompositeAssociationRecord compositeAssociationRecord in testEntitiesClient->/compositeassociationrecord.get(CompositeAssociationRecord)
         select compositeAssociationRecord;
     test:assertEquals(compositeAssociationRecords, [compositeAssociationRecordUpdated1]);
     
