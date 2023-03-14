@@ -30,17 +30,25 @@ public class RelationField {
     private final boolean isOptionalType;
     private final int nullableStartOffset;
     private final boolean isArrayType;
+    private final int arrayStartOffset;
+    private final int arrayRangeLength;
     private final String containingEntity;
     private final NodeLocation location;
+    private boolean isOwnerIdentifiable = false;
+    private String owner = null;
+    private RelationType relationType;
 
     public RelationField(String name, String type, int typeEndOffset, boolean isOptionalType, int nullableStartOffset,
-                         boolean isArrayType, NodeLocation location, String containingEntity) {
+                         boolean isArrayType, int arrayStartOffset, int arrayRangeLength, NodeLocation location,
+                         String containingEntity) {
         this.name = name;
         this.type = type;
         this.typeEndOffset = typeEndOffset;
         this.isOptionalType = isOptionalType;
         this.nullableStartOffset = nullableStartOffset;
         this.isArrayType = isArrayType;
+        this.arrayStartOffset = arrayStartOffset;
+        this.arrayRangeLength = arrayRangeLength;
         this.location = location;
         this.containingEntity = containingEntity;
     }
@@ -69,11 +77,43 @@ public class RelationField {
         return isArrayType;
     }
 
+    public int getArrayStartOffset() {
+        return arrayStartOffset;
+    }
+
+    public int getArrayRangeLength() {
+        return arrayRangeLength;
+    }
+
     public String getContainingEntity() {
         return containingEntity;
     }
 
     public NodeLocation getLocation() {
         return location;
+    }
+
+    public boolean isOwnerIdentifiable() {
+        return isOwnerIdentifiable;
+    }
+
+    public void setOwnerIdentifiable(boolean ownerIdentifiable) {
+        isOwnerIdentifiable = ownerIdentifiable;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    public RelationType getRelationType() {
+        return relationType;
+    }
+
+    public void setRelationType(RelationType relationType) {
+        this.relationType = relationType;
     }
 }

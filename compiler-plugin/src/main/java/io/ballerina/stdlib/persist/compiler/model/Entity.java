@@ -27,6 +27,7 @@ import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,7 +40,8 @@ public class Entity {
     private final RecordTypeDescriptorNode typeDescriptorNode;
     private final List<IdentityField> identityFields = new ArrayList<>();
     private final List<SimpleTypeField> nonRelationFields = new ArrayList<>();
-    private final List<RelationField> relationFields = new ArrayList<>();
+    private final HashMap<String, RelationField> relationFields = new HashMap<>();
+    private final HashMap<String, GroupedRelationField> groupedRelationFields = new HashMap<>();
     private final List<Diagnostic> diagnosticList = new ArrayList<>();
     private boolean containsRelations = false;
 
@@ -89,12 +91,33 @@ public class Entity {
         this.containsRelations = containsRelations;
     }
 
-    public List<RelationField> getRelationFields() {
+    public HashMap<String, RelationField> getRelationFields() {
         return relationFields;
     }
 
+    public HashMap<String, GroupedRelationField> getGroupedRelationFields() {
+        return groupedRelationFields;
+    }
+
     public void addRelationField(RelationField relationField) {
-        this.relationFields.add(relationField);
+        if (this.relationFields.containsKey(relationField.getType())) {
+            RelationField existingRelation = this.relationFields.remove(relationField.getType());
+            this.groupedRelationFields.compute(relationField.getType(), (key, value) -> {
+                if (value == null) {
+                    value = new GroupedRelationField(this.entityName);
+                    value.addRelationField(existingRelation);
+                }
+                value.addRelationField(relationField);
+                return value;
+            });
+        } else if (this.getGroupedRelationFields().containsKey(relationField.getType())) {
+            this.getGroupedRelationFields().computeIfPresent(relationField.getType(), (key, value) -> {
+                value.addRelationField(relationField);
+                return value;
+            });
+        } else {
+            this.relationFields.put(relationField.getType(), relationField);
+        }
     }
 
     public List<Diagnostic> getDiagnostics() {
