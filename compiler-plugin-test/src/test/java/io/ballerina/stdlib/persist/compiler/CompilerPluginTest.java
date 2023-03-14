@@ -318,15 +318,15 @@ public class CompilerPluginTest {
                 new String[]{
                         "(8:4,8:27)",
                         "(27:4,27:23)",
-                        "(58:4,58:23)",
+                        "(58:4,58:24)",
                         "(68:4,68:27)"
                 }
         );
     }
 
     @Test
-    public void validateMandatoryDuplicateRelationField() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("mandatory-relation-duplicate-field.bal", 6);
+    public void validateMandatoryMultipleRelationField() {
+        List<Diagnostic> diagnostics = getErrorDiagnostics("mandatory-relation-multiple-field.bal", 6);
         testDiagnostic(
                 diagnostics,
                 new String[]{

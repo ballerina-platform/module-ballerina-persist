@@ -12,6 +12,7 @@ type Building record {|
 type Workspace record {|
     readonly string workspaceId;
     string workspaceType;
+	Building building;
 |};
 
 type Building1 record {|

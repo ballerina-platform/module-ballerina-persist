@@ -95,10 +95,15 @@ public class CodeActionTest {
                 {"self-referenced-entity.bal", LinePosition.from(8, 10), "self-referenced-entity.bal",
                         "PERSIST_401", "REMOVE_DIAGNOSTIC_LOCATION", "Remove self-referenced field"},
 
-                {"mandatory-relation-field.bal", LinePosition.from(8, 21), "mandatory-relation-field.bal",
-                        "PERSIST_402", "ADD_SINGLE_TEXT", "Add corresponding relation field in 'Workspace' entity"},
-                {"mandatory-relation-field.bal", LinePosition.from(27, 19), "mandatory-relation-field2.bal",
-                        "PERSIST_402", "ADD_SINGLE_TEXT", "Add corresponding relation field in 'Building1' entity"},
+                {"mandatory-relation-field.bal", LinePosition.from(8, 21), "mandatory-relation-entity[]-type.bal",
+                        "PERSIST_005", "ADD_SINGLE_TEXT", "Add corresponding relation field in 'Workspace' entity"},
+                {"mandatory-relation-field.bal", LinePosition.from(27, 19), "mandatory-relation-entity-type-1.bal",
+                        "PERSIST_005", "ADD_SINGLE_TEXT", "Add corresponding 1-1 relation field in 'Building1' entity"},
+                {"mandatory-relation-field.bal", LinePosition.from(27, 19), "mandatory-relation-entity-type-2.bal",
+                        "PERSIST_005", "ADD_SINGLE_TEXT", "Add corresponding 1-n relation field in 'Building1' entity"},
+                {"mandatory-relation-field.bal", LinePosition.from(58, 10),
+                        "mandatory-relation-entity-optional-type.bal",
+                        "PERSIST_005", "ADD_SINGLE_TEXT", "Add corresponding relation field in 'Building3' entity"},
 
                 // PERSIST_403
                 {"different-owners.bal", LinePosition.from(9, 9), "different-owners-building.bal",
