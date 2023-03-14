@@ -50,6 +50,7 @@ type Building3 record {|
     string country;
     string postalCode;
     Workspace3? workspace2;
+	Workspace3 workspace3;
 |};
 
 type Workspace3 record {|

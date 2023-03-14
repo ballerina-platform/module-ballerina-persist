@@ -36,6 +36,8 @@ public enum DiagnosticsCodes {
     PERSIST_003("PERSIST_003", "", INTERNAL),
     // Internal diagnostics used to hold details of the entity fields for PERSIST_403
     PERSIST_004("PERSIST_004", "", INTERNAL),
+    // Internal diagnostics used to hold details of the associated entity fields for PERSIST_402
+    PERSIST_005("PERSIST_005", "", INTERNAL),
 
     PERSIST_101("PERSIST_101", "persist model definition only supports record definitions", ERROR),
     PERSIST_102("PERSIST_102", "persist model definition does not support import prefix", ERROR),
