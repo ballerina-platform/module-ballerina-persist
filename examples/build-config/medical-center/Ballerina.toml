@@ -1,0 +1,20 @@
+[package]
+org = "wso2"
+name = "medical_center"
+version = "0.1.0"
+
+[persist]
+datastore = "mysql"
+module = "medical_center"
+
+[[dependency]]
+org = "ballerina"
+name = "persist"
+version = "@toml.version@"
+repository = "local"
+
+[[platform.java11.dependency]]
+groupId = "io.ballerina.persist"
+artifactId = "persist-native"
+version = "@toml.version@"
+path = "../../native/build/libs/persist-native-@project.version@.jar"
