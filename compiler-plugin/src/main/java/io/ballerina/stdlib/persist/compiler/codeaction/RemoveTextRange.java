@@ -37,7 +37,8 @@ import static io.ballerina.stdlib.persist.compiler.Utils.getStringDiagnosticProp
 import static io.ballerina.stdlib.persist.compiler.codeaction.PersistCodeActionName.REMOVE_TEXT_RANGE;
 
 /**
- * Remove test range code action.
+ * Remove text range code action.
+ * Diagnostic properties needed: Remove text start offset, remove text length, part of code action title if required
  */
 public class RemoveTextRange extends AbstractRemoveUnsupportedSyntax {
     @Override
