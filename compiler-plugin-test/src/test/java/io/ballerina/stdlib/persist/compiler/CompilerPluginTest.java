@@ -325,8 +325,8 @@ public class CompilerPluginTest {
     }
 
     @Test
-    public void validateMandatoryDuplicateRelationField() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("mandatory-relation-duplicate-field.bal", 6);
+    public void validateMandatoryMultipleRelationField() {
+        List<Diagnostic> diagnostics = getErrorDiagnostics("mandatory-relation-multiple-field.bal", 6);
         testDiagnostic(
                 diagnostics,
                 new String[]{

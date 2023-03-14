@@ -551,20 +551,13 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             RelationField firstRelationMatch = groupedRelationField.getRelationFields().get(0);
             validateRelationType(processingField, processingEntity, firstRelationMatch, referredEntity,
                     reportDiagnosticsEntity);
-            reportMandatoryCorrespondingFieldDiagnostic(groupedRelationField, processingEntity, referredEntity,
-                    reportDiagnosticsEntity, 1);
+            for (int i = 1; i < groupedRelationField.getRelationFields().size(); i++) {
+                reportMandatoryCorrespondingFieldDiagnostic(groupedRelationField.getRelationFields().get(i),
+                        processingEntity, reportDiagnosticsEntity);
+            }
             return;
         }
-
-        NodeList<Node> fields = referredEntity.getTypeDescriptorNode().fields();
-        Node lastField = fields.get(fields.size() - 1);
-        int addFieldLocation = lastField.location().textRange().endOffset();
-        reportDiagnosticsEntity.reportDiagnostic(PERSIST_402.getCode(),
-                MessageFormat.format(PERSIST_402.getMessage(), referredEntity.getEntityName()),
-                PERSIST_402.getSeverity(),
-                processingField.getLocation(), List.of(new BNumericProperty(addFieldLocation),
-                        new BStringProperty(processingEntityName),
-                        new BStringProperty(referredEntity.getEntityName())));
+        reportMandatoryCorrespondingFieldDiagnostic(processingField, referredEntity, reportDiagnosticsEntity);
     }
 
     private void validateGroupedRelation(GroupedRelationField processingField, Entity processingEntity,
@@ -585,11 +578,15 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                         referredEntity, reportDiagnosticsEntity);
             }
             if (processingFieldSize < relatedFieldSize) {
-                reportMandatoryCorrespondingFieldDiagnostic(groupedRelationField, processingEntity,
-                        referredEntity, reportDiagnosticsEntity, processingFieldSize);
+                for (int i = processingFieldSize; i < groupedRelationField.getRelationFields().size(); i++) {
+                    reportMandatoryCorrespondingFieldDiagnostic(groupedRelationField.getRelationFields().get(i),
+                            processingEntity, reportDiagnosticsEntity);
+                }
             } else if (processingFieldSize > relatedFieldSize) {
-                reportMandatoryCorrespondingFieldDiagnostic(processingField, referredEntity, processingEntity,
-                        reportDiagnosticsEntity, relatedFieldSize);
+                for (int i = relatedFieldSize; i < processingField.getRelationFields().size(); i++) {
+                    reportMandatoryCorrespondingFieldDiagnostic(processingField.getRelationFields().get(i),
+                            referredEntity, reportDiagnosticsEntity);
+                }
             } else {
                 // processingFieldSize == relatedFieldSize
                 // Validate all relations have same owner
@@ -640,13 +637,16 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         if (referredField != null) {
             validateRelationType(processingRelationFields.get(0), processingEntity, referredField,
                     referredEntity, reportDiagnosticsEntity);
-            reportMandatoryCorrespondingFieldDiagnostic(processingField, referredEntity, processingEntity,
-                    reportDiagnosticsEntity, 1);
+            for (int i = 1; i < processingField.getRelationFields().size(); i++) {
+                reportMandatoryCorrespondingFieldDiagnostic(processingField.getRelationFields().get(i), referredEntity,
+                        reportDiagnosticsEntity);
+            }
             return;
         }
-
-        reportMandatoryCorrespondingFieldDiagnostic(processingField, referredEntity, processingEntity,
-                reportDiagnosticsEntity, 0);
+        for (int i = 0; i < processingField.getRelationFields().size(); i++) {
+            reportMandatoryCorrespondingFieldDiagnostic(processingField.getRelationFields().get(i), referredEntity,
+                    reportDiagnosticsEntity);
+        }
     }
 
     private void updateSameOwnerDiagnosticProperties(RelationType relationType,
@@ -773,21 +773,17 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                         new BStringProperty(referredField.getContainingEntity())));
     }
 
-    private void reportMandatoryCorrespondingFieldDiagnostic(GroupedRelationField groupedRelationField,
-                                                             Entity missingFieldEntity, Entity additionalFieldEntity,
-                                                             Entity reportDiagnosticsEntity, int startIndex) {
-        for (int i = startIndex; i < groupedRelationField.getRelationFields().size(); i++) {
-            RelationField relationMatch = groupedRelationField.getRelationFields().get(i);
-            NodeList<Node> fields = missingFieldEntity.getTypeDescriptorNode().fields();
-            Node lastField = fields.get(fields.size() - 1);
-            int addFieldLocation = lastField.location().textRange().endOffset();
-            reportDiagnosticsEntity.reportDiagnostic(PERSIST_402.getCode(),
-                    MessageFormat.format(PERSIST_402.getMessage(), missingFieldEntity.getEntityName()),
-                    PERSIST_402.getSeverity(),
-                    relationMatch.getLocation(), List.of(new BNumericProperty(addFieldLocation),
-                            new BStringProperty(additionalFieldEntity.getEntityName()),
-                            new BStringProperty(missingFieldEntity.getEntityName())));
-        }
+    private void reportMandatoryCorrespondingFieldDiagnostic(RelationField relationField, Entity missingFieldEntity,
+                                                             Entity reportDiagnosticsEntity) {
+        NodeList<Node> fields = missingFieldEntity.getTypeDescriptorNode().fields();
+        Node lastField = fields.get(fields.size() - 1);
+        int addFieldLocation = lastField.location().textRange().endOffset();
+        reportDiagnosticsEntity.reportDiagnostic(PERSIST_402.getCode(),
+                MessageFormat.format(PERSIST_402.getMessage(), missingFieldEntity.getEntityName()),
+                PERSIST_402.getSeverity(),
+                relationField.getLocation(), List.of(new BNumericProperty(addFieldLocation),
+                        new BStringProperty(relationField.getContainingEntity()),
+                        new BStringProperty(missingFieldEntity.getEntityName())));
     }
 
     private boolean validateNillableTypeFor1ToMany(RelationField field, Entity reportDiagnosticsEntity) {
