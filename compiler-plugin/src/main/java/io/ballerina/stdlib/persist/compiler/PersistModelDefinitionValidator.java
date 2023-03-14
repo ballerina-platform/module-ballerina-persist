@@ -78,6 +78,7 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_001;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_002;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_003;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_004;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_005;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_101;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_102;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_201;
@@ -790,14 +791,38 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         int addFieldLocation = lastField.location().textRange().endOffset();
         reportDiagnosticsEntity.reportDiagnostic(PERSIST_402.getCode(),
                 MessageFormat.format(PERSIST_402.getMessage(), missingFieldEntity.getEntityName()),
-                PERSIST_402.getSeverity(),
-                relationField.getLocation(), List.of(
-                        new BNumericProperty(addFieldLocation),
-                        new BStringProperty(MessageFormat.format("Add corresponding relation field in ''{0}'' entity",
-                                missingFieldEntity.getEntityName())),
-                        new BStringProperty(MessageFormat.format(LS + "\t{0} {1};", relationField.getContainingEntity(),
-                                relationField.getContainingEntity().toLowerCase(Locale.ROOT))
-                        )));
+                PERSIST_402.getSeverity(), relationField.getLocation());
+
+        String codeActionTitle = "Add corresponding{0}relation field in ''" + missingFieldEntity.getEntityName()
+                + "'' entity";
+        if (!relationField.isArrayType() && !relationField.isOptionalType()) {
+            reportDiagnosticsEntity.reportDiagnostic(PERSIST_005.getCode(), PERSIST_005.getMessage(),
+                    PERSIST_005.getSeverity(), relationField.getLocation(), List.of(
+                            new BNumericProperty(addFieldLocation),
+                            new BStringProperty(MessageFormat.format(codeActionTitle, " 1-1 ")),
+                            new BStringProperty(MessageFormat.format(LS + "\t{0}? {1};",
+                                    relationField.getContainingEntity(),
+                                    relationField.getContainingEntity().toLowerCase(Locale.ROOT))
+                            )));
+            reportDiagnosticsEntity.reportDiagnostic(PERSIST_005.getCode(), PERSIST_005.getMessage(),
+                    PERSIST_005.getSeverity(), relationField.getLocation(), List.of(
+                            new BNumericProperty(addFieldLocation),
+                            new BStringProperty(MessageFormat.format(codeActionTitle, " 1-n ")),
+                            new BStringProperty(MessageFormat.format(LS + "\t{0}[] {1};",
+                                    relationField.getContainingEntity(),
+                                    relationField.getContainingEntity().toLowerCase(Locale.ROOT))
+                            )));
+        } else {
+            // Field Type: EntityType? EntityType[]
+            reportDiagnosticsEntity.reportDiagnostic(PERSIST_005.getCode(), PERSIST_005.getMessage(),
+                    PERSIST_005.getSeverity(), relationField.getLocation(), List.of(
+                            new BNumericProperty(addFieldLocation),
+                            new BStringProperty(MessageFormat.format(codeActionTitle, " ")),
+                            new BStringProperty(MessageFormat.format(LS + "\t{0} {1};",
+                                    relationField.getContainingEntity(),
+                                    relationField.getContainingEntity().toLowerCase(Locale.ROOT))
+                            )));
+        }
     }
 
     private boolean validateNillableTypeFor1ToMany(RelationField field, Entity reportDiagnosticsEntity) {

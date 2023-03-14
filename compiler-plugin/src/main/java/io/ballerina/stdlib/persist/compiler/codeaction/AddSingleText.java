@@ -25,7 +25,7 @@ import java.util.List;
 
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_001;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_002;
-import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_402;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_005;
 import static io.ballerina.stdlib.persist.compiler.Utils.getStringDiagnosticProperty;
 
 /**
@@ -37,7 +37,7 @@ public class AddSingleText extends AbstractAddSyntax {
     @Override
     protected List<String> getSupportedDiagnosticCodes() {
         return List.of(
-                PERSIST_402.getCode(),
+                PERSIST_005.getCode(),
                 PERSIST_001.getCode(),
                 PERSIST_002.getCode()
         );
