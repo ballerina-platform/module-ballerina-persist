@@ -742,7 +742,7 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
     }
 
     private void reportTwoNillableFieldInOneToOneRelation(Entity reportDiagnosticsEntity, NodeLocation location,
-            RelationField processingField, RelationField referredField) {
+                                                          RelationField processingField, RelationField referredField) {
         reportDiagnosticsEntity.reportDiagnostic(PERSIST_405.getCode(), PERSIST_405.getMessage(),
                 PERSIST_405.getSeverity(), location);
         reportDiagnosticsEntity.reportDiagnostic(PERSIST_003.getCode(), PERSIST_003.getMessage(),
