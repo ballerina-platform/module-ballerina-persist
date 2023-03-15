@@ -1,4 +1,4 @@
-name: Build
+name: Publish snapshot to Nexus
 
 on:
   workflow_dispatch:

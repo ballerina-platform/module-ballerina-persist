@@ -12,7 +12,6 @@ type Building record {|
 type Workspace record {|
     readonly string workspaceId;
     string workspaceType;
-	Building building;
 |};
 
 type Building1 record {|
@@ -21,6 +20,7 @@ type Building1 record {|
     string state;
     string country;
     string postalCode;
+	Workspace1[] workspace1;
 |};
 
 type Workspace1 record {|
@@ -57,7 +57,7 @@ type Workspace3 record {|
     readonly string workspaceId;
     string workspaceType;
     Building3 location;
-    Building3 building;
+    Building3? building;
 |};
 
 type Building4 record {|
