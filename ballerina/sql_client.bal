@@ -73,19 +73,32 @@ public client class SQLClient {
     # + rowType - The type description of the entity to be retrieved
     # + key - The value of the key (to be used as the `WHERE` clauses)
     # + fields - The fields to be retrieved
+    # + include - The relations to be retrieved (SQL `JOINs` to be performed)
+    # + typeDescriptions - The type descriptions of the relations to be retrieved
     # + return - A record in the `rowType` type or a `persist:Error` if the operation fails
-    public isolated function runReadByKeyQuery(typedesc<record {}> rowType, anydata key, string[] fields = []) returns record {}|Error {
+    public isolated function runReadByKeyQuery(typedesc<record {}> rowType, anydata key, string[] fields = [], string[] include = [], typedesc<record {}>[] typeDescriptions = []) returns record {}|Error {
         sql:ParameterizedQuery query = sql:queryConcat(
             `SELECT `, self.getSelectColumnNames(fields, []), ` FROM `, self.tableName, ` AS `, stringToParameterizedQuery(self.entityName)
         );
 
+        foreach string joinKey in self.joinMetadata.keys() {
+            JoinMetadata joinMetadata = self.joinMetadata.get(joinKey);
+            if include.indexOf(joinKey) != () && (joinMetadata.'type == ONE_TO_ONE  || joinMetadata.'type == ONE_TO_MANY) {
+                query = sql:queryConcat(query, ` LEFT JOIN `, stringToParameterizedQuery(joinMetadata.refTable + " " + joinKey),
+                                        ` ON `, check self.getJoinFilters(joinKey, joinMetadata.refColumns, <string[]>joinMetadata.joinColumns));
+            }
+        }
+
         query = sql:queryConcat(query, ` WHERE `, check self.getGetKeyWhereClauses(key));
         record {}|sql:Error result = self.dbClient->queryRow(query, rowType);
-
 
         if result is sql:NoRowsError {
             return <InvalidKeyError>error(
                 string `A record does not exist for '${self.entityName}' for key ${key.toBalString()}.`);
+        }
+
+        if result is record {} {
+            check self.getManyRelations(result, fields, include, typeDescriptions);
         }
 
         if result is sql:Error {
@@ -267,7 +280,7 @@ public client class SQLClient {
                 }
                 params = sql:queryConcat(params, stringToParameterizedQuery(self.entityName + "." + fieldMetadata.columnName + " AS `" + key + "`"));
                 columnCount = columnCount + 1;
-            } else if include.indexOf(fieldName) != () {
+            } else if fields.indexOf(key) != () {
                 if !key.includes("[]") {
                     if columnCount > 0 {
                         params = sql:queryConcat(params, `, `);

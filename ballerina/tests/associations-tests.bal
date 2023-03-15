@@ -1,6 +1,7 @@
 import ballerina/test;
 
 public type EmployeeInfo record {|
+    readonly string empNo;
     string firstName;
     string lastName;
     record {|
@@ -52,12 +53,14 @@ function employeeRelationsTest() returns error? {
     _ = check rainierClient->/workspace.post([workspace22]);    
     _ = check rainierClient->/employee.post([employee21]);    
 
-
     stream<EmployeeInfo, Error?> employeeStream = rainierClient->/employee.get();
     EmployeeInfo[] employees = check from EmployeeInfo employee in employeeStream 
         select employee;
 
+    EmployeeInfo retrieved = check rainierClient->/employee/["employee-21"].get();
+    
     EmployeeInfo expected = {
+        empNo: "employee-21",
         firstName: "Tom",
         lastName: "Scott",
         department: {
@@ -71,6 +74,7 @@ function employeeRelationsTest() returns error? {
     };
 
     test:assertTrue(employees.indexOf(expected) is int, "Expected EmployeeInfo not found.");
+    test:assertEquals(retrieved, expected);
     check rainierClient.close();
 }
 
@@ -141,6 +145,8 @@ function departmentRelationsTest() returns error? {
     DepartmentInfo[] departments = check from DepartmentInfo department in departmentStream 
         select department;
 
+    DepartmentInfo retrieved = check rainierClient->/department/["department-12"].get();
+
     DepartmentInfo expected = {
         deptNo: "department-12",
         deptName: "Marketing",
@@ -154,6 +160,7 @@ function departmentRelationsTest() returns error? {
     };
 
     test:assertTrue(departments.indexOf(expected) is int, "Expected DepartmentInfo not found.");
+    test:assertEquals(retrieved, expected);
     check rainierClient.close();
 }
 
@@ -186,6 +193,8 @@ function workspaceRelationsTest() returns error? {
     stream<WorkspaceInfo, error?> workspaceStream = rainierClient->/workspace.get();
     WorkspaceInfo[] workspaces = check from WorkspaceInfo workspace in workspaceStream 
         select workspace;
+
+    WorkspaceInfo retrieved = check rainierClient->/workspace/["workspace-22"].get();
 
     WorkspaceInfo expected = {
         workspaceId: "workspace-22",
@@ -235,6 +244,8 @@ function workspaceRelationsTest() returns error? {
         test:assertFail("Expected WorkspaceInfo not found.");
     }
 
+    test:assertEquals(retrieved, expected);
+
     check rainierClient.close();
 }
 
@@ -258,6 +269,8 @@ function buildingRelationsTest() returns error? {
     stream<BuildingInfo, error?> buildingStream = rainierClient->/building.get();
     BuildingInfo[] buildings = check from BuildingInfo building in buildingStream 
         select building;
+
+    BuildingInfo retrieved = check rainierClient->/building/["building-22"].get();
 
     BuildingInfo expected = {
         buildingCode: "building-22",
@@ -287,6 +300,8 @@ function buildingRelationsTest() returns error? {
     if !found {
         test:assertFail("Expected BuildingInfo not found.");
     }
+
+    test:assertEquals(retrieved, expected);
 
     check rainierClient.close();
 }

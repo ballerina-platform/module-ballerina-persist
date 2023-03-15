@@ -10,11 +10,11 @@ module = "medical_center"
 [[dependency]]
 org = "ballerina"
 name = "persist"
-version = "0.2.1"
+version = "0.2.2"
 repository = "local"
 
 [[platform.java11.dependency]]
 groupId = "io.ballerina.persist"
 artifactId = "persist-native"
-version = "0.2.1"
-path = "../../native/build/libs/persist-native-0.2.1-SNAPSHOT.jar"
+version = "0.2.2"
+path = "../../native/build/libs/persist-native-0.2.2.jar"

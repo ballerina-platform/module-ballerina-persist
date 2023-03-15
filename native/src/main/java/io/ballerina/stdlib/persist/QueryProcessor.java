@@ -77,11 +77,15 @@ public class QueryProcessor {
         BString entity = getEntity(env);
         RecordType recordConstraint = (RecordType) TypeUtils.getReferredType(recordType.getDescribingType());
         BArray[] fieldsAndIncludes = getFieldsIncludesAndTypeDescriptions((RecordType) recordType.getDescribingType());
+        BArray fields = fieldsAndIncludes[0];
+        BArray includes = fieldsAndIncludes[1];
+        BArray typeDescriptions = fieldsAndIncludes[2];
 
         BFuture future = env.getRuntime().invokeMethodAsyncSequentially(
                 getPersistClient(client, entity), Constants.RUN_READ_BY_KEY_QUERY_METHOD,
                 null, null, null, null, recordConstraint,
-                recordType, true, key, true, fieldsAndIncludes[0], true
+                recordType, true, key, true, fields, true, includes, true, 
+                typeDescriptions, true
         );
 
         return getFutureResult(future);
