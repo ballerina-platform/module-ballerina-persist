@@ -29,4 +29,4 @@ jobs:
           nexusUser: ${{ secrets.NEXUS_USERNAME }}
           nexusPassword: ${{ secrets.NEXUS_PASSWORD }}
         run: |
-          ./gradlew publishMavenJavaPublicationToWSO2NexusRepository --scan --no-daemon
+          ./gradlew build publishMavenJavaPublicationToWSO2NexusRepository --scan --no-daemon
