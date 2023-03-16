@@ -22,8 +22,10 @@ import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.ErrorType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.StreamType;
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFuture;
@@ -32,11 +34,14 @@ import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 
+import static io.ballerina.stdlib.persist.Constants.ERROR;
+import static io.ballerina.stdlib.persist.Constants.KEY_FIELDS;
 import static io.ballerina.stdlib.persist.Utils.getEntity;
 import static io.ballerina.stdlib.persist.Utils.getFutureResult;
 import static io.ballerina.stdlib.persist.Utils.getKey;
 import static io.ballerina.stdlib.persist.Utils.getMetadata;
 import static io.ballerina.stdlib.persist.Utils.getPersistClient;
+import static io.ballerina.stdlib.persist.Utils.getRecordTypeWithKeyFields;
 
 /**
  * This class provides the query processing implementations for persistence.
@@ -48,36 +53,50 @@ public class QueryProcessor {
     private QueryProcessor() {
     }
 
-    public static BStream query(Environment env, BObject client, BTypedesc recordType) {
+    public static BStream query(Environment env, BObject client, BTypedesc targetType) {
         BString entity = getEntity(env);
         BObject persistClient = getPersistClient(client, entity);
+        BArray keyFields = (BArray) persistClient.get(KEY_FIELDS);
+        RecordType recordType = (RecordType) targetType.getDescribingType();
 
-        RecordType streamConstraint = (RecordType) TypeUtils.getReferredType(recordType.getDescribingType());
-        StreamType streamType = TypeCreator.createStreamType(streamConstraint, PredefinedTypes.TYPE_NULL);
+        RecordType recordTypeWithIdFields = getRecordTypeWithKeyFields(keyFields, recordType);
+        BTypedesc targetTypeWithIdFields = ValueCreator.createTypedescValue(recordTypeWithIdFields);
+        StreamType streamTypeWithIdFields = TypeCreator.createStreamType(recordTypeWithIdFields,
+                PredefinedTypes.TYPE_NULL);
 
-        BArray[] metadata = getMetadata((RecordType) recordType.getDescribingType());
+        BArray[] metadata = getMetadata(recordType);
         BArray fields = metadata[0];
         BArray includes = metadata[1];
         BArray typeDescriptions = metadata[2];
 
         BFuture future = env.getRuntime().invokeMethodAsyncSequentially(
                 persistClient, Constants.RUN_READ_QUERY_METHOD,
-                null, null, null, null, streamType,
-                recordType, true, fields, true, includes, true
+                null, null, null, null, streamTypeWithIdFields,
+                targetTypeWithIdFields, true, fields, true, includes, true
         );
 
         BStream sqlStream = (BStream) getFutureResult(future);
         BObject persistStream = ValueCreator.createObjectValue(ModuleUtils.getModule(),
-                Constants.PERSIST_STREAM, sqlStream, null, fields, includes, typeDescriptions, persistClient);
+                Constants.PERSIST_STREAM, sqlStream, targetType, fields, includes, typeDescriptions,
+                persistClient, null);
 
+        RecordType streamConstraint = (RecordType) TypeUtils.getReferredType(targetType.getDescribingType());
         return ValueCreator.createStreamValue(TypeCreator.createStreamType(streamConstraint,
                 PredefinedTypes.TYPE_NULL), persistStream);
     }
 
-    public static Object queryOne(Environment env, BObject client, BArray path, BTypedesc recordType) {
+    public static Object queryOne(Environment env, BObject client, BArray path, BTypedesc targetType) {
         BString entity = getEntity(env);
-        RecordType recordConstraint = (RecordType) TypeUtils.getReferredType(recordType.getDescribingType());
-        BArray[] metadata = getMetadata((RecordType) recordType.getDescribingType());
+        BObject persistClient = getPersistClient(client, entity);
+        BArray keyFields = (BArray) persistClient.get(KEY_FIELDS);
+        RecordType recordType = (RecordType) targetType.getDescribingType();
+
+        RecordType recordTypeWithIdFields = getRecordTypeWithKeyFields(keyFields, recordType);
+        BTypedesc targetTypeWithIdFields = ValueCreator.createTypedescValue(recordTypeWithIdFields);
+        ErrorType persistErrorType = TypeCreator.createErrorType(ERROR, ModuleUtils.getModule());
+        Type unionType = TypeCreator.createUnionType(recordTypeWithIdFields, persistErrorType);
+
+        BArray[] metadata = getMetadata(recordType);
         BArray fields = metadata[0];
         BArray includes = metadata[1];
         BArray typeDescriptions = metadata[2];
@@ -86,8 +105,8 @@ public class QueryProcessor {
 
         BFuture future = env.getRuntime().invokeMethodAsyncSequentially(
                 getPersistClient(client, entity), Constants.RUN_READ_BY_KEY_QUERY_METHOD,
-                null, null, null, null, recordConstraint,
-                recordType, true, key, true, fields, true, includes, true,
+                null, null, null, null, unionType,
+                targetType, true, targetTypeWithIdFields, true, key, true, fields, true, includes, true,
                 typeDescriptions, true
         );
 

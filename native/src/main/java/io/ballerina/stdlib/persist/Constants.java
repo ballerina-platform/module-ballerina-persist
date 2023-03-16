@@ -18,10 +18,10 @@
 
 package io.ballerina.stdlib.persist;
 
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.values.BString;
 
 import static io.ballerina.runtime.api.utils.StringUtils.fromString;
-
 /**
  * Constants for Persist module.
  *
@@ -33,8 +33,13 @@ public final class Constants {
 
     public static final BString PERSIST_CLIENTS = fromString("persistClients");
     public static final String PERSIST_STREAM = "PersistStream";
+    public static final BString KEY_FIELDS = fromString("keyFields");
+    public static final String ERROR = "Error";
+
     public static final String RUN_READ_QUERY_METHOD = "runReadQuery";
     public static final String RUN_READ_BY_KEY_QUERY_METHOD = "runReadByKeyQuery";
+    public static final Module BALLERINA_ANNOTATIONS_MODULE = new Module("ballerina", "lang.annotations", "0.0.0");
+    public static final String DEFAULT_STREAM_CONSTRAINT_NAME = "$stream$anon$constraint$";
 
     /**
      * Constant related to the Ballerina time types.

@@ -78,7 +78,7 @@ public type StringIdRecordUpdate record {|
 |};
 
 public type StringIdRecordOptionalized record {|
-    readonly string id?;
+    readonly string id;
     string randomField?;
 |};
 

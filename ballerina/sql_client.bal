@@ -71,14 +71,15 @@ public client class SQLClient {
     # Performs an SQL `SELECT` operation to read a single entity record from the database.
     #
     # + rowType - The type description of the entity to be retrieved
+    # + rowTypeWithIdFields - The type description of the entity to be retrieved with the key fields included
     # + key - The value of the key (to be used as the `WHERE` clauses)
     # + fields - The fields to be retrieved
     # + include - The relations to be retrieved (SQL `JOINs` to be performed)
     # + typeDescriptions - The type descriptions of the relations to be retrieved
     # + return - A record in the `rowType` type or a `persist:Error` if the operation fails
-    public isolated function runReadByKeyQuery(typedesc<record {}> rowType, anydata key, string[] fields = [], string[] include = [], typedesc<record {}>[] typeDescriptions = []) returns record {}|Error {
+    public isolated function runReadByKeyQuery(typedesc<record {}> rowType, typedesc<record {}> rowTypeWithIdFields, anydata key, string[] fields = [], string[] include = [], typedesc<record {}>[] typeDescriptions = []) returns record {}|Error {
         sql:ParameterizedQuery query = sql:queryConcat(
-            `SELECT `, self.getSelectColumnNames(fields, []), ` FROM `, self.tableName, ` AS `, stringToParameterizedQuery(self.entityName)
+            `SELECT `, self.getSelectColumnNames(fields, include), ` FROM `, self.tableName, ` AS `, stringToParameterizedQuery(self.entityName)
         );
 
         foreach string joinKey in self.joinMetadata.keys() {
@@ -90,7 +91,7 @@ public client class SQLClient {
         }
 
         query = sql:queryConcat(query, ` WHERE `, check self.getGetKeyWhereClauses(key));
-        record {}|sql:Error result = self.dbClient->queryRow(query, rowType);
+        record {}|error result = self.dbClient->queryRow(query, rowTypeWithIdFields);
 
         if result is sql:NoRowsError {
             return <InvalidKeyError>error(
@@ -99,11 +100,20 @@ public client class SQLClient {
 
         if result is record {} {
             check self.getManyRelations(result, fields, include, typeDescriptions);
+
+            foreach string keyField in self.keyFields {
+                if fields.indexOf(keyField) is () {
+                    _ = (<record {}>result).remove(keyField);
+                }
+            }
+
+            result = result.cloneWithType(rowType);
         }
 
-        if result is sql:Error {
+        if result is error {
             return <Error>error(result.message());
         }
+
         return result;
     }
 
@@ -212,6 +222,10 @@ public client class SQLClient {
         }
     }
 
+    public isolated function getKeyFields() returns string[] {
+        return self.keyFields;
+    }
+
     private isolated function getKey(anydata|record {} 'object) returns record {} {
         record {} keyRecord = {};
         
@@ -268,7 +282,7 @@ public client class SQLClient {
         int columnCount = 0;
 
         foreach string key in self.fieldMetadata.keys() {
-            if fields != [] && fields.indexOf(key) == () {
+            if fields != [] && fields.indexOf(key) is () && self.keyFields.indexOf(key) is () {
                 continue;
             }
             string fieldName = self.getFieldFromKey(key);
