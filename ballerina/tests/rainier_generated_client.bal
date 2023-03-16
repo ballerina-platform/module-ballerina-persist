@@ -14,7 +14,6 @@ public client class RainierClient {
 
     private final map<SQLClient> persistClients;
 
-
     private final record {|Metadata...;|} metadata = {
         "employee": {
             entityName: "Employee",
