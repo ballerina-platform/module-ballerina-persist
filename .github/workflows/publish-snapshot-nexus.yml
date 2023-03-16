@@ -1,15 +1,7 @@
-name: Publish snapshot to Nexus
+name: Publish Snapshot to Nexus
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-      - 2201.[0-9]+.x
-    paths-ignore:
-      - 'load-tests/**'
-      - '*.md'
-      - 'docs/**'
 
 jobs:
   build:
@@ -29,4 +21,4 @@ jobs:
           nexusUser: ${{ secrets.NEXUS_USERNAME }}
           nexusPassword: ${{ secrets.NEXUS_PASSWORD }}
         run: |
-          ./gradlew publishMavenJavaPublicationToWSO2NexusRepository --scan --no-daemon
+          ./gradlew build publishMavenJavaPublicationToWSO2NexusRepository --scan --no-daemon
