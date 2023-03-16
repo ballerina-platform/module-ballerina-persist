@@ -142,7 +142,8 @@ public client class RainierClient {
 
     isolated resource function get employee/[string empNo](EmployeeTargetType targetType = <>) returns targetType|Error = @java:Method {
         'class: "io.ballerina.stdlib.persist.QueryProcessor",
-        name: "queryOne"
+        name: "queryOne",
+        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
     } external;
 
     isolated resource function post employee(EmployeeInsert[] data) returns string[]|Error {
@@ -169,7 +170,8 @@ public client class RainierClient {
 
     isolated resource function get workspace/[string workspaceId](WorkspaceTargetType targetType = <>) returns targetType|Error  = @java:Method {
         'class: "io.ballerina.stdlib.persist.QueryProcessor",
-        name: "queryOne"
+        name: "queryOne",
+        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
     } external;
 
     isolated resource function post workspace(WorkspaceInsert[] data) returns string[]|Error {
@@ -196,7 +198,8 @@ public client class RainierClient {
 
     isolated resource function get building/[string buildingCode](BuildingTargetType targetType = <>) returns targetType|Error  = @java:Method {
         'class: "io.ballerina.stdlib.persist.QueryProcessor",
-        name: "queryOne"
+        name: "queryOne",
+        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
     } external;
 
 
@@ -224,7 +227,8 @@ public client class RainierClient {
 
     isolated resource function get department/[string deptNo](DepartmentTargetType targetType = <>) returns targetType|Error = @java:Method {
         'class: "io.ballerina.stdlib.persist.QueryProcessor",
-        name: "queryOne"
+        name: "queryOne",
+        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
     } external;
 
     isolated resource function post department(DepartmentInsert[] data) returns string[]|Error {
@@ -249,13 +253,11 @@ public client class RainierClient {
         name: "query"
     } external;
 
-    isolated resource function get orderitem/[string orderId]/[string itemId]() returns OrderItem|Error {
-        OrderItem|error result = (check self.persistClients.get(ORDER_ITEM).runReadByKeyQuery(OrderItem, {orderId: orderId, itemId: itemId})).cloneWithType(OrderItem);
-        if result is error {
-            return <Error>error(result.message());
-        }
-        return result;
-    }
+    isolated resource function get orderitem/[string orderId]/[string itemId](OrderItemTargetType targetType = <>) returns targetType|Error = @java:Method {
+        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        name: "queryOne",
+        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
+    } external;
 
     isolated resource function post orderitem(OrderItemInsert[] data) returns [string, string][]|Error {
         _ = check self.persistClients.get(ORDER_ITEM).runBatchInsertQuery(data);

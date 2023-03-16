@@ -61,13 +61,12 @@ public client class MedicalCenterClient {
         name: "query"
     } external;
 
-    isolated resource function get medicalitem/[int itemId]() returns MedicalItem|persist:Error {
-        MedicalItem|error result = (check self.persistClients.get(MEDICAL_ITEM).runReadByKeyQuery(MedicalItem, itemId)).cloneWithType(MedicalItem);
-        if result is error {
-            return <persist:Error>error(result.message());
-        }
-        return result;
-    }
+    isolated resource function get medicalitem/[int itemId](MedicalItemTargetType targetType = <>) returns targetType|persist:Error = @java:Method {
+        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        name: "queryOne",
+        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
+    } external;
+
 
     isolated resource function post medicalitem(MedicalItemInsert[] data) returns int[]|persist:Error {
         _ = check self.persistClients.get(MEDICAL_ITEM).runBatchInsertQuery(data);
@@ -91,14 +90,12 @@ public client class MedicalCenterClient {
         name: "query"
     } external;        
     
-    isolated resource function get medicalneed/[int needId]() returns MedicalNeed|persist:Error {
-        MedicalNeed|error result = (check self.persistClients.get(MEDICAL_NEED).runReadByKeyQuery(MedicalNeed, needId)).cloneWithType(MedicalNeed);
-        if result is error {
-            return <persist:Error>error(result.message());
-        }
-        return result;
-    }
-
+    isolated resource function get medicalneed/[int needId](MedicalNeedTargetType targetType = <>) returns targetType|persist:Error = @java:Method {
+        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        name: "queryOne",
+        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
+    } external;
+        
     isolated resource function post medicalneed(MedicalNeedInsert[] data) returns int[]|persist:Error {
         _ = check self.persistClients.get(MEDICAL_NEED).runBatchInsertQuery(data);
         return from MedicalNeedInsert inserted in data

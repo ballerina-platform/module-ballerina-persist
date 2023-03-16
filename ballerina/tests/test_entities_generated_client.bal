@@ -146,13 +146,11 @@ public client class TestEntitiesClient {
         name: "query"
     } external;
 
-    isolated resource function get alltypes/[int id]() returns AllTypes|Error {
-        AllTypes|error result = (check self.persistClients.get(ALL_TYPES).runReadByKeyQuery(AllTypes, id)).cloneWithType(AllTypes);
-        if result is error {
-            return <Error>error(result.message());
-        }
-        return result;
-    }
+    isolated resource function get alltypes/[int id](AllTypesTargetType targetType = <>) returns targetType|Error = @java:Method {
+        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        name: "queryOne",
+        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
+    } external;
 
     isolated resource function post alltypes(AllTypesInsert[] data) returns int[]|Error {
         _ = check self.persistClients.get(ALL_TYPES).runBatchInsertQuery(data);
@@ -176,13 +174,11 @@ public client class TestEntitiesClient {
         name: "query"
     } external;
 
-    isolated resource function get stringidrecord/[string id]() returns StringIdRecord|Error {
-        StringIdRecord|error result = (check self.persistClients.get(STRING_ID_RECORD).runReadByKeyQuery(StringIdRecord, id)).cloneWithType(StringIdRecord);
-        if result is error {
-            return <Error>error(result.message());
-        }
-        return result;
-    }
+    isolated resource function get stringidrecord/[string id](StringIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
+        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        name: "queryOne",
+        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
+    } external;
 
     isolated resource function post stringidrecord(StringIdRecordInsert[] data) returns string[]|Error {
         _ = check self.persistClients.get(STRING_ID_RECORD).runBatchInsertQuery(data);
@@ -206,13 +202,11 @@ public client class TestEntitiesClient {
         name: "query"
     } external;
 
-    isolated resource function get intidrecord/[int id]() returns IntIdRecord|Error {
-        IntIdRecord|error result = (check self.persistClients.get(INT_ID_RECORD).runReadByKeyQuery(IntIdRecord, id)).cloneWithType(IntIdRecord);
-        if result is error {
-            return <Error>error(result.message());
-        }
-        return result;
-    }
+    isolated resource function get intidrecord/[int id](IntIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
+        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        name: "queryOne",
+        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
+    } external;
 
     isolated resource function post intidrecord(IntIdRecordInsert[] data) returns int[]|Error {
         _ = check self.persistClients.get(INT_ID_RECORD).runBatchInsertQuery(data);
@@ -236,13 +230,11 @@ public client class TestEntitiesClient {
         name: "query"
     } external;
 
-    isolated resource function get floatidrecord/[float id]() returns FloatIdRecord|Error {
-        FloatIdRecord|error result = (check self.persistClients.get(FLOAT_ID_RECORD).runReadByKeyQuery(FloatIdRecord, id)).cloneWithType(FloatIdRecord);
-        if result is error {
-            return <Error>error(result.message());
-        }
-        return result;
-    }
+    isolated resource function get floatidrecord/[float id](FloatIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
+        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        name: "queryOne",
+        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
+    } external;
 
     isolated resource function post floatidrecord(FloatIdRecordInsert[] data) returns float[]|Error {
         _ = check self.persistClients.get(FLOAT_ID_RECORD).runBatchInsertQuery(data);
@@ -266,13 +258,11 @@ public client class TestEntitiesClient {
         name: "query"
     } external;
 
-    isolated resource function get decimalidrecord/[decimal id]() returns DecimalIdRecord|Error {
-        DecimalIdRecord|error result = (check self.persistClients.get(DECIMAL_ID_RECORD).runReadByKeyQuery(DecimalIdRecord, id)).cloneWithType(DecimalIdRecord);
-        if result is error {
-            return <Error>error(result.message());
-        }
-        return result;
-    }
+    isolated resource function get decimalidrecord/[decimal id](DecimalIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
+        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        name: "queryOne",
+        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
+    } external;
 
     isolated resource function post decimalidrecord(DecimalIdRecordInsert[] data) returns decimal[]|Error {
         _ = check self.persistClients.get(DECIMAL_ID_RECORD).runBatchInsertQuery(data);
@@ -296,13 +286,11 @@ public client class TestEntitiesClient {
         name: "query"
     } external;
 
-    isolated resource function get booleanidrecord/[boolean id]() returns BooleanIdRecord|Error {
-        BooleanIdRecord|error result = (check self.persistClients.get(BOOLEAN_ID_RECORD).runReadByKeyQuery(BooleanIdRecord, id)).cloneWithType(BooleanIdRecord);
-        if result is error {
-            return <Error>error(result.message());
-        }
-        return result;
-    }
+    isolated resource function get booleanidrecord/[boolean id](BooleanIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
+        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        name: "queryOne",
+        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
+    } external;
 
     isolated resource function post booleanidrecord(BooleanIdRecordInsert[] data) returns boolean[]|Error {
         _ = check self.persistClients.get(BOOLEAN_ID_RECORD).runBatchInsertQuery(data);
@@ -326,13 +314,11 @@ public client class TestEntitiesClient {
         name: "query"
     } external;
 
-    isolated resource function get compositeassociationrecord/[string id]() returns CompositeAssociationRecord|Error {
-        CompositeAssociationRecord|error result = (check self.persistClients.get(COMPOSITE_ASSOCIATION_RECORD).runReadByKeyQuery(CompositeAssociationRecord, id)).cloneWithType(CompositeAssociationRecord);
-        if result is error {
-            return <Error>error(result.message());
-        }
-        return result;
-    }
+    isolated resource function get compositeassociationrecord/[string id](CompositeAssociationRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
+        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        name: "queryOne",
+        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
+    } external;
 
     isolated resource function post compositeassociationrecord(CompositeAssociationRecordInsert[] data) returns string[]|Error {
         _ = check self.persistClients.get(COMPOSITE_ASSOCIATION_RECORD).runBatchInsertQuery(data);
@@ -356,13 +342,11 @@ public client class TestEntitiesClient {
         name: "query"
     } external;
 
-    isolated resource function get alltypesidrecord/[float floatType]/[decimal decimalType]/[boolean booleanType]/[int intType]/[string stringType]() returns AllTypesIdRecord|Error {
-        AllTypesIdRecord|error result = (check self.persistClients.get(ALL_TYPES_ID_RECORD).runReadByKeyQuery(AllTypesIdRecord, {floatType: floatType, decimalType: decimalType, booleanType: booleanType, intType: intType, stringType: stringType})).cloneWithType(AllTypesIdRecord);
-        if result is error {
-            return <Error>error(result.message());
-        }
-        return result;
-    }
+    isolated resource function get alltypesidrecord/[float floatType]/[decimal decimalType]/[boolean booleanType]/[int intType]/[string stringType](AllTypesIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
+        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        name: "queryOne",
+        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
+    } external;
 
     isolated resource function post alltypesidrecord(AllTypesIdRecordInsert[] data) returns [boolean, int, float, decimal, string][]|Error {
         _ = check self.persistClients.get(ALL_TYPES_ID_RECORD).runBatchInsertQuery(data);
