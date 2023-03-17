@@ -148,8 +148,7 @@ public client class TestEntitiesClient {
 
     isolated resource function get alltypes/[int id](AllTypesTargetType targetType = <>) returns targetType|Error = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
-        name: "queryOne",
-        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
+        name: "queryOne"
     } external;
 
     isolated resource function post alltypes(AllTypesInsert[] data) returns int[]|Error {
@@ -176,8 +175,7 @@ public client class TestEntitiesClient {
 
     isolated resource function get stringidrecord/[string id](StringIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
-        name: "queryOne",
-        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
+        name: "queryOne"
     } external;
 
     isolated resource function post stringidrecord(StringIdRecordInsert[] data) returns string[]|Error {
@@ -204,8 +202,7 @@ public client class TestEntitiesClient {
 
     isolated resource function get intidrecord/[int id](IntIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
-        name: "queryOne",
-        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
+        name: "queryOne"
     } external;
 
     isolated resource function post intidrecord(IntIdRecordInsert[] data) returns int[]|Error {
@@ -232,8 +229,7 @@ public client class TestEntitiesClient {
 
     isolated resource function get floatidrecord/[float id](FloatIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
-        name: "queryOne",
-        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
+        name: "queryOne"
     } external;
 
     isolated resource function post floatidrecord(FloatIdRecordInsert[] data) returns float[]|Error {
@@ -260,8 +256,7 @@ public client class TestEntitiesClient {
 
     isolated resource function get decimalidrecord/[decimal id](DecimalIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
-        name: "queryOne",
-        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
+        name: "queryOne"
     } external;
 
     isolated resource function post decimalidrecord(DecimalIdRecordInsert[] data) returns decimal[]|Error {
@@ -288,8 +283,7 @@ public client class TestEntitiesClient {
 
     isolated resource function get booleanidrecord/[boolean id](BooleanIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
-        name: "queryOne",
-        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
+        name: "queryOne"
     } external;
 
     isolated resource function post booleanidrecord(BooleanIdRecordInsert[] data) returns boolean[]|Error {
@@ -316,8 +310,7 @@ public client class TestEntitiesClient {
 
     isolated resource function get compositeassociationrecord/[string id](CompositeAssociationRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
-        name: "queryOne",
-        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
+        name: "queryOne"
     } external;
 
     isolated resource function post compositeassociationrecord(CompositeAssociationRecordInsert[] data) returns string[]|Error {
@@ -344,8 +337,7 @@ public client class TestEntitiesClient {
 
     isolated resource function get alltypesidrecord/[float floatType]/[decimal decimalType]/[boolean booleanType]/[int intType]/[string stringType](AllTypesIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
-        name: "queryOne",
-        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
+        name: "queryOne"
     } external;
 
     isolated resource function post alltypesidrecord(AllTypesIdRecordInsert[] data) returns [boolean, int, float, decimal, string][]|Error {
