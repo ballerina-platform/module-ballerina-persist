@@ -151,14 +151,13 @@ public client class TestEntitiesClient {
     }
 
     isolated resource function get alltypes(AllTypesTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
-        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "query"
     } external;
 
     isolated resource function get alltypes/[int id](AllTypesTargetType targetType = <>) returns targetType|Error = @java:Method {
-        'class: "io.ballerina.stdlib.persist.QueryProcessor",
-        name: "queryOne",
-        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
+        'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
+        name: "queryOne"
     } external;
 
     isolated resource function post alltypes(AllTypesInsert[] data) returns int[]|Error {
@@ -179,14 +178,13 @@ public client class TestEntitiesClient {
     }
 
     isolated resource function get stringidrecord(StringIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
-        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "query"
     } external;
 
     isolated resource function get stringidrecord/[string id](StringIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
-        'class: "io.ballerina.stdlib.persist.QueryProcessor",
-        name: "queryOne",
-        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
+        'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
+        name: "queryOne"
     } external;
 
     isolated resource function post stringidrecord(StringIdRecordInsert[] data) returns string[]|Error {
@@ -207,12 +205,12 @@ public client class TestEntitiesClient {
     }
 
     isolated resource function get intidrecord(IntIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
-        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "query"
     } external;
 
     isolated resource function get intidrecord/[int id](IntIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
-        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "queryOne"
     } external;
 
@@ -234,12 +232,12 @@ public client class TestEntitiesClient {
     }
 
     isolated resource function get floatidrecord(FloatIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
-        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "query"
     } external;
 
     isolated resource function get floatidrecord/[float id](FloatIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
-        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "queryOne"
     } external;
 
@@ -261,14 +259,13 @@ public client class TestEntitiesClient {
     }
 
     isolated resource function get decimalidrecord(DecimalIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
-        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "query"
     } external;
 
     isolated resource function get decimalidrecord/[decimal id](DecimalIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
-        'class: "io.ballerina.stdlib.persist.QueryProcessor",
-        name: "queryOne",
-        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
+        'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
+        name: "queryOne"
     } external;
 
     isolated resource function post decimalidrecord(DecimalIdRecordInsert[] data) returns decimal[]|Error {
@@ -289,14 +286,13 @@ public client class TestEntitiesClient {
     }
 
     isolated resource function get booleanidrecord(BooleanIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
-        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "query"
     } external;
 
     isolated resource function get booleanidrecord/[boolean id](BooleanIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
-        'class: "io.ballerina.stdlib.persist.QueryProcessor",
-        name: "queryOne",
-        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
+        'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
+        name: "queryOne"
     } external;
 
     isolated resource function post booleanidrecord(BooleanIdRecordInsert[] data) returns boolean[]|Error {
@@ -317,12 +313,12 @@ public client class TestEntitiesClient {
     }
 
     isolated resource function get compositeassociationrecord(CompositeAssociationRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
-        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "query"
     } external;
 
     isolated resource function get compositeassociationrecord/[string id](CompositeAssociationRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
-        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "queryOne"
     } external;
 
@@ -344,12 +340,12 @@ public client class TestEntitiesClient {
     }
 
     isolated resource function get alltypesidrecord(AllTypesIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
-        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "query"
     } external;
 
     isolated resource function get alltypesidrecord/[float floatType]/[decimal decimalType]/[boolean booleanType]/[int intType]/[string stringType](AllTypesIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
-        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "queryOne"
     } external;
 

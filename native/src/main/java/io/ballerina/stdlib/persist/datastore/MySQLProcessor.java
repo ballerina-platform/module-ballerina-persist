@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package io.ballerina.stdlib.persist;
+package io.ballerina.stdlib.persist.datastore;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.PredefinedTypes;
@@ -33,6 +33,8 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.stdlib.persist.Constants;
+import io.ballerina.stdlib.persist.ModuleUtils;
 
 import static io.ballerina.stdlib.persist.Constants.ERROR;
 import static io.ballerina.stdlib.persist.Constants.KEY_FIELDS;
@@ -48,9 +50,9 @@ import static io.ballerina.stdlib.persist.Utils.getRecordTypeWithKeyFields;
  *
  * @since 0.5.6
  */
-public class QueryProcessor {
+public class MySQLProcessor {
 
-    private QueryProcessor() {
+    private MySQLProcessor() {
     }
 
     public static BStream query(Environment env, BObject client, BTypedesc targetType) {

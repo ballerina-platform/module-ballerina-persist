@@ -3,7 +3,6 @@
 // This file is an auto-generated file by Ballerina persistence layer for medical_center.
 // It should not be modified by hand.
 
-import ballerina/sql;
 import ballerinax/mysql;
 import ballerina/persist;
 import ballerina/jballerina.java;
@@ -57,14 +56,13 @@ public client class MedicalCenterClient {
     }
 
     isolated resource function get medicalitem(MedicalItemTargetType targetType = <>) returns stream<targetType, persist:Error?> = @java:Method {
-        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "query"
     } external;
 
     isolated resource function get medicalitem/[int itemId](MedicalItemTargetType targetType = <>) returns targetType|persist:Error = @java:Method {
-        'class: "io.ballerina.stdlib.persist.QueryProcessor",
-        name: "queryOne",
-        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
+        'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
+        name: "queryOne"
     } external;
 
 
@@ -86,14 +84,13 @@ public client class MedicalCenterClient {
     }
 
     isolated resource function get medicalneed(MedicalNeedTargetType targetType = <>) returns stream<targetType, persist:Error?> = @java:Method {
-        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "query"
     } external;        
     
     isolated resource function get medicalneed/[int needId](MedicalNeedTargetType targetType = <>) returns targetType|persist:Error = @java:Method {
-        'class: "io.ballerina.stdlib.persist.QueryProcessor",
-        name: "queryOne",
-        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
+        'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
+        name: "queryOne"
     } external;
         
     isolated resource function post medicalneed(MedicalNeedInsert[] data) returns int[]|persist:Error {
@@ -121,80 +118,3 @@ public client class MedicalCenterClient {
         return result;
     }
 }
-
-public class MedicalItemStream {
-
-    private stream<anydata, sql:Error?>? anydataStream;
-    private persist:Error? err;
-
-    public isolated function init(stream<anydata, sql:Error?>? anydataStream, persist:Error? err = ()) {
-        self.anydataStream = anydataStream;
-        self.err = err;
-    }
-
-    public isolated function next() returns record {|MedicalItem value;|}|persist:Error? {
-        if self.err is persist:Error {
-            return <persist:Error>self.err;
-        } else if self.anydataStream is stream<anydata, sql:Error?> {
-            var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
-            var streamValue = anydataStream.next();
-            if streamValue is () {
-                return streamValue;
-            } else if (streamValue is sql:Error) {
-                return <persist:Error>error(streamValue.message());
-            } else {
-                MedicalItem|error value = streamValue.value.cloneWithType(MedicalItem);
-                if value is error {
-                    return <persist:Error>error(value.message());
-                }
-                record {|MedicalItem value;|} nextRecord = {value: value};
-                return nextRecord;
-            }
-        } else {
-            return ();
-        }
-    }
-
-    public isolated function close() returns persist:Error? {
-        check persist:closeEntityStream(self.anydataStream);
-    }
-}
-
-public class MedicalNeedStream {
-
-    private stream<anydata, sql:Error?>? anydataStream;
-    private persist:Error? err;
-
-    public isolated function init(stream<anydata, sql:Error?>? anydataStream, persist:Error? err = ()) {
-        self.anydataStream = anydataStream;
-        self.err = err;
-    }
-
-    public isolated function next() returns record {|MedicalNeed value;|}|persist:Error? {
-        if self.err is persist:Error {
-            return <persist:Error>self.err;
-        } else if self.anydataStream is stream<anydata, sql:Error?> {
-            var anydataStream = <stream<anydata, sql:Error?>>self.anydataStream;
-            var streamValue = anydataStream.next();
-            if streamValue is () {
-                return streamValue;
-            } else if (streamValue is sql:Error) {
-                return <persist:Error>error(streamValue.message());
-            } else {
-                MedicalNeed|error value = streamValue.value.cloneWithType(MedicalNeed);
-                if value is error {
-                    return <persist:Error>error(value.message());
-                }
-                record {|MedicalNeed value;|} nextRecord = {value: value};
-                return nextRecord;
-            }
-        } else {
-            return ();
-        }
-    }
-
-    public isolated function close() returns persist:Error? {
-        check persist:closeEntityStream(self.anydataStream);
-    }
-}
-
