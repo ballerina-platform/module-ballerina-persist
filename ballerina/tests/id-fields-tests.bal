@@ -412,7 +412,7 @@ public type CompositeAssociationRecordDependent record {|
         string stringType;
         boolean booleanType;
         string randomField;
-    |} alltypesidrecord;
+    |} allTypesIdRecord;
 |};
 
 @test:Config {
@@ -475,7 +475,7 @@ function compositeAssociationsTest() returns error? {
         randomField: compositeAssociationRecord1.randomField, 
         alltypesidrecordIntType: compositeAssociationRecord1.alltypesidrecordIntType, 
         alltypesidrecordDecimalType: compositeAssociationRecord1.alltypesidrecordDecimalType,
-        alltypesidrecord: {intType: allTypesIdRecord1.intType, stringType: allTypesIdRecord1.stringType, booleanType: allTypesIdRecord1.booleanType, randomField: allTypesIdRecord1.randomField}
+        allTypesIdRecord: {intType: allTypesIdRecord1.intType, stringType: allTypesIdRecord1.stringType, booleanType: allTypesIdRecord1.booleanType, randomField: allTypesIdRecord1.randomField}
     }, retrievedRecord1Dependent);
 
     // read
@@ -487,8 +487,8 @@ function compositeAssociationsTest() returns error? {
     CompositeAssociationRecordDependent[] compositeAssociationRecordsDependent = check from CompositeAssociationRecordDependent compositeAssociationRecord in testEntitiesClient->/compositeassociationrecord.get(CompositeAssociationRecordDependent)
         select compositeAssociationRecord;
     test:assertEquals(compositeAssociationRecordsDependent, [
-        {randomField: compositeAssociationRecord1.randomField, alltypesidrecordIntType: compositeAssociationRecord1.alltypesidrecordIntType, alltypesidrecordDecimalType: compositeAssociationRecord1.alltypesidrecordDecimalType, alltypesidrecord: {intType: allTypesIdRecord1.intType, stringType: allTypesIdRecord1.stringType, booleanType: allTypesIdRecord1.booleanType, randomField: allTypesIdRecord1.randomField}}, 
-        {randomField: compositeAssociationRecord2.randomField, alltypesidrecordIntType: compositeAssociationRecord2.alltypesidrecordIntType, alltypesidrecordDecimalType: compositeAssociationRecord2.alltypesidrecordDecimalType, alltypesidrecord: {intType: allTypesIdRecord1.intType, stringType: allTypesIdRecord1.stringType, booleanType: allTypesIdRecord1.booleanType, randomField: allTypesIdRecord1.randomField}}
+        {randomField: compositeAssociationRecord1.randomField, alltypesidrecordIntType: compositeAssociationRecord1.alltypesidrecordIntType, alltypesidrecordDecimalType: compositeAssociationRecord1.alltypesidrecordDecimalType, allTypesIdRecord: {intType: allTypesIdRecord1.intType, stringType: allTypesIdRecord1.stringType, booleanType: allTypesIdRecord1.booleanType, randomField: allTypesIdRecord1.randomField}}, 
+        {randomField: compositeAssociationRecord2.randomField, alltypesidrecordIntType: compositeAssociationRecord2.alltypesidrecordIntType, alltypesidrecordDecimalType: compositeAssociationRecord2.alltypesidrecordDecimalType, allTypesIdRecord: {intType: allTypesIdRecord1.intType, stringType: allTypesIdRecord1.stringType, booleanType: allTypesIdRecord1.booleanType, randomField: allTypesIdRecord1.randomField}}
     ]);
 
     // update

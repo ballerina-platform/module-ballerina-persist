@@ -223,7 +223,7 @@ There are six types of derived entity types:
     public type Workspace record {|
         readonly string workspaceId;
         string workspaceType;
-        string buildingBuildingCode;
+        string locationBuildingCode;
     |};
     ```
     
@@ -238,7 +238,7 @@ There are six types of derived entity types:
     ```ballerina
     public type WorkspaceUpdate record {|
         string workspaceType?;
-        string buildingBuildingCode?;
+        string locationBuildingCode?;
     |};
     ```
    

@@ -1,5 +1,5 @@
-import ballerinax/mysql;
 import ballerina/jballerina.java;
+import ballerinax/mysql;
 
 const ALL_TYPES = "alltypes";
 const STRING_ID_RECORD = "stringidrecord";
@@ -99,17 +99,15 @@ public client class TestEntitiesClient {
                 alltypesidrecordFloatType: {columnName: "alltypesidrecordFloatType"},
                 alltypesidrecordDecimalType: {columnName: "alltypesidrecordDecimalType"},
                 alltypesidrecordStringType: {columnName: "alltypesidrecordStringType"},
-                "alltypesidrecord.booleanType": {relation: {entityName: "alltypesidrecord", refField: "booleanType"}},
-                "alltypesidrecord.intType": {relation: {entityName: "alltypesidrecord", refField: "intType"}},
-                "alltypesidrecord.floatType": {relation: {entityName: "alltypesidrecord", refField: "floatType"}},
-                "alltypesidrecord.decimalType": {relation: {entityName: "alltypesidrecord", refField: "decimalType"}},
-                "alltypesidrecord.stringType": {relation: {entityName: "alltypesidrecord", refField: "stringType"}},
-                "alltypesidrecord.randomField": {relation: {entityName: "alltypesidrecord", refField: "randomField"}}
+                "allTypesIdRecord.booleanType": {relation: {entityName: "allTypesIdRecord", refField: "booleanType"}},
+                "allTypesIdRecord.intType": {relation: {entityName: "allTypesIdRecord", refField: "intType"}},
+                "allTypesIdRecord.floatType": {relation: {entityName: "allTypesIdRecord", refField: "floatType"}},
+                "allTypesIdRecord.decimalType": {relation: {entityName: "allTypesIdRecord", refField: "decimalType"}},
+                "allTypesIdRecord.stringType": {relation: {entityName: "allTypesIdRecord", refField: "stringType"}},
+                "allTypesIdRecord.randomField": {relation: {entityName: "allTypesIdRecord", refField: "randomField"}}
             },
             keyFields: ["id"],
-            joinMetadata: {
-                alltypesidrecord: {entity: AllTypesIdRecord, fieldName: "alltypesidrecord", refTable: "AllTypesIdRecord", refColumns: ["booleanType", "intType", "floatType", "decimalType", "stringType"], joinColumns: ["alltypesidrecordBooleanType", "alltypesidrecordIntType", "alltypesidrecordFloatType", "alltypesidrecordDecimalType", "alltypesidrecordStringType"], 'type: ONE_TO_ONE}
-            }
+            joinMetadata: {allTypesIdRecord: {entity: AllTypesIdRecord, fieldName: "allTypesIdRecord", refTable: "AllTypesIdRecord", refColumns: ["booleanType", "intType", "floatType", "decimalType", "stringType"], joinColumns: ["alltypesidrecordBooleanType", "alltypesidrecordIntType", "alltypesidrecordFloatType", "alltypesidrecordDecimalType", "alltypesidrecordStringType"], 'type: ONE_TO_ONE}}
         },
         "alltypesidrecord": {
             entityName: "AllTypesIdRecord",
@@ -121,18 +119,16 @@ public client class TestEntitiesClient {
                 decimalType: {columnName: "decimalType"},
                 stringType: {columnName: "stringType"},
                 randomField: {columnName: "randomField"},
-                "compositeassociationrecord.id": {relation: {entityName: "compositeassociationrecord", refField: "id"}},
-                "compositeassociationrecord.randomField": {relation: {entityName: "compositeassociationrecord", refField: "randomField"}},
-                "compositeassociationrecord.alltypesidrecordBooleanType": {relation: {entityName: "compositeassociationrecord", refField: "alltypesidrecordBooleanType"}},
-                "compositeassociationrecord.alltypesidrecordIntType": {relation: {entityName: "compositeassociationrecord", refField: "alltypesidrecordIntType"}},
-                "compositeassociationrecord.alltypesidrecordFloatType": {relation: {entityName: "compositeassociationrecord", refField: "alltypesidrecordFloatType"}},
-                "compositeassociationrecord.alltypesidrecordDecimalType": {relation: {entityName: "compositeassociationrecord", refField: "alltypesidrecordDecimalType"}},
-                "compositeassociationrecord.alltypesidrecordStringType": {relation: {entityName: "compositeassociationrecord", refField: "alltypesidrecordStringType"}}
+                "compositeAssociationRecord.id": {relation: {entityName: "compositeAssociationRecord", refField: "id"}},
+                "compositeAssociationRecord.randomField": {relation: {entityName: "compositeAssociationRecord", refField: "randomField"}},
+                "compositeAssociationRecord.alltypesidrecordBooleanType": {relation: {entityName: "allTypesIdRecord", refField: "alltypesidrecordBooleanType"}},
+                "compositeAssociationRecord.alltypesidrecordIntType": {relation: {entityName: "allTypesIdRecord", refField: "alltypesidrecordIntType"}},
+                "compositeAssociationRecord.alltypesidrecordFloatType": {relation: {entityName: "allTypesIdRecord", refField: "alltypesidrecordFloatType"}},
+                "compositeAssociationRecord.alltypesidrecordDecimalType": {relation: {entityName: "allTypesIdRecord", refField: "alltypesidrecordDecimalType"}},
+                "compositeAssociationRecord.alltypesidrecordStringType": {relation: {entityName: "allTypesIdRecord", refField: "alltypesidrecordStringType"}}
             },
             keyFields: ["booleanType", "intType", "floatType", "decimalType", "stringType"],
-            joinMetadata: {
-                compositeassociationrecord: {entity: CompositeAssociationRecord, fieldName: "compositeassociationrecord", refTable: "CompositeAssociationRecord", refColumns: ["alltypesidrecordBooleanType", "alltypesidrecordIntType", "alltypesidrecordFloatType", "alltypesidrecordDecimalType", "alltypesidrecordStringType"], joinColumns: ["booleanType", "intType", "floatType", "decimalType", "stringType"], 'type: ONE_TO_ONE}
-            }
+            joinMetadata: {compositeAssociationRecord: {entity: CompositeAssociationRecord, fieldName: "compositeAssociationRecord", refTable: "CompositeAssociationRecord", refColumns: ["alltypesidrecordBooleanType", "alltypesidrecordIntType", "alltypesidrecordFloatType", "alltypesidrecordDecimalType", "alltypesidrecordStringType"], joinColumns: ["booleanType", "intType", "floatType", "decimalType", "stringType"], 'type: ONE_TO_ONE}}
         }
     };
 
@@ -217,8 +213,7 @@ public client class TestEntitiesClient {
 
     isolated resource function get intidrecord/[int id](IntIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
         'class: "io.ballerina.stdlib.persist.QueryProcessor",
-        name: "queryOne",
-        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
+        name: "queryOne"
     } external;
 
     isolated resource function post intidrecord(IntIdRecordInsert[] data) returns int[]|Error {
@@ -245,8 +240,7 @@ public client class TestEntitiesClient {
 
     isolated resource function get floatidrecord/[float id](FloatIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
         'class: "io.ballerina.stdlib.persist.QueryProcessor",
-        name: "queryOne",
-        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
+        name: "queryOne"
     } external;
 
     isolated resource function post floatidrecord(FloatIdRecordInsert[] data) returns float[]|Error {
@@ -329,8 +323,7 @@ public client class TestEntitiesClient {
 
     isolated resource function get compositeassociationrecord/[string id](CompositeAssociationRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
         'class: "io.ballerina.stdlib.persist.QueryProcessor",
-        name: "queryOne",
-        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
+        name: "queryOne"
     } external;
 
     isolated resource function post compositeassociationrecord(CompositeAssociationRecordInsert[] data) returns string[]|Error {
@@ -357,8 +350,7 @@ public client class TestEntitiesClient {
 
     isolated resource function get alltypesidrecord/[float floatType]/[decimal decimalType]/[boolean booleanType]/[int intType]/[string stringType](AllTypesIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
         'class: "io.ballerina.stdlib.persist.QueryProcessor",
-        name: "queryOne",
-        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BTypedesc"]
+        name: "queryOne"
     } external;
 
     isolated resource function post alltypesidrecord(AllTypesIdRecordInsert[] data) returns [boolean, int, float, decimal, string][]|Error {
