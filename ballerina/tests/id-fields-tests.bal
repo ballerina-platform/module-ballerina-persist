@@ -429,7 +429,7 @@ function compositeAssociationsTest() returns error? {
         alltypesidrecordStringType: "id-1",
         alltypesidrecordFloatType: 1.0,
         alltypesidrecordBooleanType: true,
-        alltypesidrecordDecimalType: 1.1d        
+        alltypesidrecordDecimalType: 1.10        
     };
 
     CompositeAssociationRecord compositeAssociationRecord2 = {
@@ -439,7 +439,7 @@ function compositeAssociationsTest() returns error? {
         alltypesidrecordStringType: "id-1",
         alltypesidrecordFloatType: 1.0,
         alltypesidrecordBooleanType: true,
-        alltypesidrecordDecimalType: 1.1d        
+        alltypesidrecordDecimalType: 1.10       
     };
 
     CompositeAssociationRecord compositeAssociationRecordUpdated1 = {
@@ -449,7 +449,7 @@ function compositeAssociationsTest() returns error? {
         alltypesidrecordStringType: "id-1",
         alltypesidrecordFloatType: 1.0,
         alltypesidrecordBooleanType: true,
-        alltypesidrecordDecimalType: 1.1d
+        alltypesidrecordDecimalType: 1.10
     };
 
     AllTypesIdRecordOptionalized allTypesIdRecord1 = {
@@ -457,7 +457,7 @@ function compositeAssociationsTest() returns error? {
         stringType: "id-1",
         floatType: 1.0,
         booleanType: true,
-        decimalType: 1.1d,
+        decimalType: 1.10,
         randomField: "test1Updated"
     };
 
@@ -483,13 +483,13 @@ function compositeAssociationsTest() returns error? {
         select compositeAssociationRecord;
     test:assertEquals(compositeAssociationRecords, [compositeAssociationRecord1, compositeAssociationRecord2]);
 
-    // // read dependent
-    // CompositeAssociationRecordDependent[] compositeAssociationRecordsDependent = check from CompositeAssociationRecordDependent compositeAssociationRecord in testEntitiesClient->/compositeassociationrecord.get(CompositeAssociationRecordDependent)
-    //     select compositeAssociationRecord;
-    // test:assertEquals(compositeAssociationRecordsDependent, [
-    //     {randomField: compositeAssociationRecord1.randomField, alltypesidrecordIntType: compositeAssociationRecord1.alltypesidrecordIntType, alltypesidrecordDecimalType: compositeAssociationRecord1.alltypesidrecordDecimalType, allTypesIdRecord: {intType: allTypesIdRecord1.intType, stringType: allTypesIdRecord1.stringType, booleanType: allTypesIdRecord1.booleanType, randomField: allTypesIdRecord1.randomField}}, 
-    //     {randomField: compositeAssociationRecord2.randomField, alltypesidrecordIntType: compositeAssociationRecord2.alltypesidrecordIntType, alltypesidrecordDecimalType: compositeAssociationRecord2.alltypesidrecordDecimalType, allTypesIdRecord: {intType: allTypesIdRecord1.intType, stringType: allTypesIdRecord1.stringType, booleanType: allTypesIdRecord1.booleanType, randomField: allTypesIdRecord1.randomField}}
-    // ]);
+    // read dependent
+    CompositeAssociationRecordDependent[] compositeAssociationRecordsDependent = check from CompositeAssociationRecordDependent compositeAssociationRecord in testEntitiesClient->/compositeassociationrecord.get(CompositeAssociationRecordDependent)
+        select compositeAssociationRecord;
+    test:assertEquals(compositeAssociationRecordsDependent, [
+        {randomField: compositeAssociationRecord1.randomField, alltypesidrecordIntType: compositeAssociationRecord1.alltypesidrecordIntType, alltypesidrecordDecimalType: compositeAssociationRecord1.alltypesidrecordDecimalType, alltypesidrecord: {intType: allTypesIdRecord1.intType, stringType: allTypesIdRecord1.stringType, booleanType: allTypesIdRecord1.booleanType, randomField: allTypesIdRecord1.randomField}}, 
+        {randomField: compositeAssociationRecord2.randomField, alltypesidrecordIntType: compositeAssociationRecord2.alltypesidrecordIntType, alltypesidrecordDecimalType: compositeAssociationRecord2.alltypesidrecordDecimalType, alltypesidrecord: {intType: allTypesIdRecord1.intType, stringType: allTypesIdRecord1.stringType, booleanType: allTypesIdRecord1.booleanType, randomField: allTypesIdRecord1.randomField}}
+    ]);
 
     // update
     retrievedRecord1 = check testEntitiesClient->/compositeassociationrecord/[compositeAssociationRecord1.id].put({randomField: "test1Updated"});

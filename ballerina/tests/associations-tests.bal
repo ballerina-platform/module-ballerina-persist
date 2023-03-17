@@ -1,7 +1,6 @@
 import ballerina/test;
 
 public type EmployeeInfo record {|
-    readonly string empNo;
     string firstName;
     string lastName;
     record {|
@@ -60,7 +59,6 @@ function employeeRelationsTest() returns error? {
     EmployeeInfo retrieved = check rainierClient->/employee/["employee-21"].get();
     
     EmployeeInfo expected = {
-        empNo: "employee-21",
         firstName: "Tom",
         lastName: "Scott",
         department: {
@@ -79,7 +77,7 @@ function employeeRelationsTest() returns error? {
 }
 
 public type DepartmentInfo record {|
-    readonly string deptNo;
+    string deptNo;
     string deptName;
     record {|
         string firstName;
@@ -247,7 +245,7 @@ function workspaceRelationsTest() returns error? {
 }
 
 public type BuildingInfo record {|
-    readonly string buildingCode;
+    string buildingCode;
     string city;
     string state;
     string country;

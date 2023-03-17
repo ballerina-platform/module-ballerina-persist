@@ -95,7 +95,7 @@ public type Customer record {|
 |};
 
 public type BuildingOptionalized record {|
-    readonly string buildingCode?;
+    string buildingCode?;
     string city?;
     string state?;
     string country?;
