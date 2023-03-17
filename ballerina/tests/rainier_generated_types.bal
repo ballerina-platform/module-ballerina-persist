@@ -104,13 +104,13 @@ public type BuildingOptionalized record {|
 |};
 
 public type WorkspaceOptionalized record {|
-    readonly string workspaceId?;
+    string workspaceId?;
     string workspaceType?;
     string locationBuildingCode?;
 |};
 
 public type EmployeeOptionalized record {|
-    readonly string empNo?;
+    string empNo?;
     string firstName?;
     string lastName?;
     time:Date birthDate?;
@@ -121,13 +121,13 @@ public type EmployeeOptionalized record {|
 |};
 
 public type DepartmentOptionalized record {|
-    readonly string deptNo?;
+    string deptNo?;
     string deptName?;
 |};
 
 public type OrderItemOptionalized record {|
-    readonly string orderId?;
-    readonly string itemId?;
+    string orderId?;
+    string itemId?;
     int quantity?;
     string notes?;
 |};

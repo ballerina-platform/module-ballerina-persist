@@ -44,7 +44,7 @@ public type AllTypesUpdate record {|
 |};
 
 public type AllTypesOptionalized record {|
-    readonly int id?;
+    int id?;
     boolean booleanType?;
     int intType?;
     float floatType?;
@@ -78,7 +78,7 @@ public type StringIdRecordUpdate record {|
 |};
 
 public type StringIdRecordOptionalized record {|
-    readonly string id;
+    string id?;
     string randomField?;
 |};
 
@@ -96,7 +96,7 @@ public type IntIdRecordUpdate record {|
 |};
 
 public type IntIdRecordOptionalized record {|
-    readonly int id?;
+    int id?;
     string randomField?;
 |};
 
@@ -114,7 +114,7 @@ public type FloatIdRecordUpdate record {|
 |};
 
 public type FloatIdRecordOptionalized record {|
-    readonly float id?;
+    float id?;
     string randomField?;
 |};
 
@@ -132,7 +132,7 @@ public type DecimalIdRecordUpdate record {|
 |};
 
 public type DecimalIdRecordOptionalized record {|
-    readonly decimal id?;
+    decimal id?;
     string randomField?;
 |};
 
@@ -150,7 +150,7 @@ public type BooleanIdRecordUpdate record {|
 |};
 
 public type BooleanIdRecordOptionalized record {|
-    readonly boolean id?;
+    boolean id?;
     string randomField?;
 |};
 
@@ -178,7 +178,7 @@ public type CompositeAssociationRecordUpdate record {|
 |};
 
 public type CompositeAssociationRecordOptionalized record {|
-    readonly string id?;
+    string id?;
     string randomField?;
     boolean alltypesidrecordBooleanType?;
     int alltypesidrecordIntType?;
@@ -189,7 +189,7 @@ public type CompositeAssociationRecordOptionalized record {|
 
 public type CompositeAssociationRecordWithRelations record {|
     *CompositeAssociationRecordOptionalized;
-    AllTypesIdRecord alltypesidrecord?;
+    AllTypesIdRecordOptionalized alltypesidrecord?;
 |};
 
 public type CompositeAssociationRecordTargetType typedesc<CompositeAssociationRecordWithRelations>;
@@ -210,17 +210,17 @@ public type AllTypesIdRecordUpdate record {|
 |};
 
 public type AllTypesIdRecordOptionalized record {|
-    readonly boolean booleanType?;
-    readonly int intType?;
-    readonly float floatType?;
-    readonly decimal decimalType?;
-    readonly string stringType?;
+    boolean booleanType?;
+    int intType?;
+    float floatType?;
+    decimal decimalType?;
+    string stringType?;
     string randomField?;
 |};
 
 public type AllTypesIdRecordWithRelations record {|
     *AllTypesIdRecordOptionalized;
-    CompositeAssociationRecord compositeassociationrecord?;
+    CompositeAssociationRecordOptionalized compositeassociationrecord?;
 |};
 
 public type AllTypesIdRecordTargetType typedesc<AllTypesIdRecordWithRelations>;
