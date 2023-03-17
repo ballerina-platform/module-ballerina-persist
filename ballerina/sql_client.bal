@@ -79,7 +79,7 @@ public client class SQLClient {
     # + return - A record in the `rowType` type or a `persist:Error` if the operation fails
     public isolated function runReadByKeyQuery(typedesc<record {}> rowType, typedesc<record {}> rowTypeWithIdFields, anydata key, string[] fields = [], string[] include = [], typedesc<record {}>[] typeDescriptions = []) returns record {}|Error {
         sql:ParameterizedQuery query = sql:queryConcat(
-            `SELECT `, self.getSelectColumnNames(fields, include), ` FROM `, self.tableName, ` AS `, stringToParameterizedQuery(self.entityName)
+            `SELECT `, self.getSelectColumnNames(fields), ` FROM `, self.tableName, ` AS `, stringToParameterizedQuery(self.entityName)
         );
 
         foreach string joinKey in self.joinMetadata.keys() {
@@ -126,7 +126,7 @@ public client class SQLClient {
     public isolated function runReadQuery(typedesc<record {}> rowType, string[] fields = [], string[] include = [])
     returns stream<record {}, sql:Error?>|Error {
         sql:ParameterizedQuery query = sql:queryConcat(
-            `SELECT `, self.getSelectColumnNames(fields, include), ` FROM `, self.tableName, ` `, stringToParameterizedQuery(self.entityName)
+            `SELECT `, self.getSelectColumnNames(fields), ` FROM `, self.tableName, ` `, stringToParameterizedQuery(self.entityName)
         );
 
         string[] joinKeys = self.joinMetadata.keys();
@@ -277,7 +277,7 @@ public client class SQLClient {
         return params;
     }
 
-    private isolated function getSelectColumnNames(string[] fields, string[] include) returns sql:ParameterizedQuery {
+    private isolated function getSelectColumnNames(string[] fields) returns sql:ParameterizedQuery {
         sql:ParameterizedQuery params = ` `;
         int columnCount = 0;
 

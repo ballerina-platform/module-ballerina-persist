@@ -98,7 +98,13 @@ public client class TestEntitiesClient {
                 alltypesidrecordIntType: {columnName: "alltypesidrecordIntType"},
                 alltypesidrecordFloatType: {columnName: "alltypesidrecordFloatType"},
                 alltypesidrecordDecimalType: {columnName: "alltypesidrecordDecimalType"},
-                alltypesidrecordStringType: {columnName: "alltypesidrecordStringType"}
+                alltypesidrecordStringType: {columnName: "alltypesidrecordStringType"},
+                "alltypesidrecord.booleanType": {relation: {entityName: "alltypesidrecord", refField: "booleanType"}},
+                "alltypesidrecord.intType": {relation: {entityName: "alltypesidrecord", refField: "intType"}},
+                "alltypesidrecord.floatType": {relation: {entityName: "alltypesidrecord", refField: "floatType"}},
+                "alltypesidrecord.decimalType": {relation: {entityName: "alltypesidrecord", refField: "decimalType"}},
+                "alltypesidrecord.stringType": {relation: {entityName: "alltypesidrecord", refField: "stringType"}},
+                "alltypesidrecord.randomField": {relation: {entityName: "alltypesidrecord", refField: "randomField"}}
             },
             keyFields: ["id"],
             joinMetadata: {
@@ -114,7 +120,14 @@ public client class TestEntitiesClient {
                 floatType: {columnName: "floatType"},
                 decimalType: {columnName: "decimalType"},
                 stringType: {columnName: "stringType"},
-                randomField: {columnName: "randomField"}
+                randomField: {columnName: "randomField"},
+                "compositeassociationrecord.id": {relation: {entityName: "compositeassociationrecord", refField: "id"}},
+                "compositeassociationrecord.randomField": {relation: {entityName: "compositeassociationrecord", refField: "randomField"}},
+                "compositeassociationrecord.alltypesidrecordBooleanType": {relation: {entityName: "compositeassociationrecord", refField: "alltypesidrecordBooleanType"}},
+                "compositeassociationrecord.alltypesidrecordIntType": {relation: {entityName: "compositeassociationrecord", refField: "alltypesidrecordIntType"}},
+                "compositeassociationrecord.alltypesidrecordFloatType": {relation: {entityName: "compositeassociationrecord", refField: "alltypesidrecordFloatType"}},
+                "compositeassociationrecord.alltypesidrecordDecimalType": {relation: {entityName: "compositeassociationrecord", refField: "alltypesidrecordDecimalType"}},
+                "compositeassociationrecord.alltypesidrecordStringType": {relation: {entityName: "compositeassociationrecord", refField: "alltypesidrecordStringType"}}
             },
             keyFields: ["booleanType", "intType", "floatType", "decimalType", "stringType"],
             joinMetadata: {

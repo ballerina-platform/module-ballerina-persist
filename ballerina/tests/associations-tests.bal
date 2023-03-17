@@ -165,7 +165,6 @@ function departmentRelationsTest() returns error? {
 }
 
 public type WorkspaceInfo record {|
-    readonly string workspaceId;
     string workspaceType;
     Building location;
     Employee[] employees;
@@ -197,7 +196,6 @@ function workspaceRelationsTest() returns error? {
     WorkspaceInfo retrieved = check rainierClient->/workspace/["workspace-22"].get();
 
     WorkspaceInfo expected = {
-        workspaceId: "workspace-22",
         workspaceType: "medium",
         location: {
             buildingCode: "building-22",
@@ -234,9 +232,8 @@ function workspaceRelationsTest() returns error? {
     boolean found = false;
     _ = from WorkspaceInfo workspace in workspaces
         do {
-            if (workspace.workspaceId == "workspace-22") {
+            if workspace == expected {
                 found = true;
-                test:assertEquals(workspace, expected);
             }
         };
 
