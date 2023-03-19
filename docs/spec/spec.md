@@ -312,7 +312,6 @@ The conventions used in deriving the Persist client are as follows:
 7. Resource method with path parameters will support composite identity field by having multiple path parameters.
 
 The implementation of the client is as follows:
-//TOOD: update after dependent support for get by identity is supported.
 ```ballerina
 import ballerina/persist;
 import ballerinax/mysql;
@@ -322,6 +321,7 @@ const EMPLOYEE = "employee";
 const WORKSPACE = "workspace";
 const BUILDING = "building";
 const DEPARTMENT = "department";
+const ORDER_ITEM = "orderitem";
 
 public client class RainierClient {
     *persist:AbstractPersistClient;
@@ -329,7 +329,6 @@ public client class RainierClient {
     private final mysql:Client dbClient;
 
     private final map<persist:SQLClient> persistClients;
-
 
     private final record {|persist:Metadata...;|} metadata = {
         "employee": {
@@ -422,6 +421,17 @@ public client class RainierClient {
             joinMetadata: {
                 employees: {entity: Employee, fieldName: "employees", refTable: "Employee", refColumns: ["departmentDeptNo"], joinColumns: ["deptNo"], 'type: MANY_TO_ONE}
             }
+        },
+        "orderitem": {
+            entityName: "OrderItem",
+            tableName: `OrderItem`,
+            fieldMetadata: {
+                orderId: {columnName: "orderId"},
+                itemId: {columnName: "itemId"},
+                quantity: {columnName: "quantity"},
+                notes: {columnName: "notes"}
+            },
+            keyFields: ["orderId", "itemId"]
         }
     };
 
@@ -435,18 +445,18 @@ public client class RainierClient {
             employee: check new (self.dbClient, self.metadata.get(EMPLOYEE)),
             workspace: check new (self.dbClient, self.metadata.get(WORKSPACE)),
             building: check new (self.dbClient, self.metadata.get(BUILDING)),
-            department: check new (self.dbClient, self.metadata.get(DEPARTMENT))
+            department: check new (self.dbClient, self.metadata.get(DEPARTMENT)),
+            orderitem: check new (self.dbClient, self.metadata.get(ORDER_ITEM))
         };
     }
 
     isolated resource function get employee(EmployeeTargetType targetType = <>) returns stream<targetType, persist:Error?> = @java:Method {
-        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "query"
     } external;
 
-    //TOOD: update after dependent support for get by identity is supported.
-    isolated resource function get employee/[string empNo](EmployeeTargetType targetType = <>, string entity = "employee") returns targetType|Error = @java:Method {
-        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+    isolated resource function get employee/[string empNo](EmployeeTargetType targetType = <>) returns targetType|persist:Error = @java:Method {
+        'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "queryOne"
     } external;
 
@@ -468,18 +478,14 @@ public client class RainierClient {
     }
 
     isolated resource function get workspace(WorkspaceTargetType targetType = <>) returns stream<targetType, persist:Error?> = @java:Method {
-        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "query"
     } external;
 
-    //TOOD: update after dependent support for get by identity is supported.
-    isolated resource function get workspace/[string workspaceId]() returns Workspace|persist:Error {
-        Workspace|error result = (check self.persistClients.get(WORKSPACE).runReadByKeyQuery(Workspace, workspaceId)).cloneWithType(Workspace);
-        if result is error {
-            return <persist:Error>error(result.message());
-        }
-        return result;
-    }
+    isolated resource function get workspace/[string workspaceId](WorkspaceTargetType targetType = <>) returns targetType|persist:Error  = @java:Method {
+        'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
+        name: "queryOne"
+    } external;
 
     isolated resource function post workspace(WorkspaceInsert[] data) returns string[]|persist:Error {
         _ = check self.persistClients.get(WORKSPACE).runBatchInsertQuery(data);
@@ -499,18 +505,15 @@ public client class RainierClient {
     }
 
     isolated resource function get building(BuildingTargetType targetType = <>) returns stream<targetType, persist:Error?> = @java:Method {
-        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "query"
     } external;
 
-    //TOOD: update after dependent support for get by identity is supported.
-    isolated resource function get building/[string buildingCode]() returns Building|persist:Error {
-        Building|error result = (check self.persistClients.get(BUILDING).runReadByKeyQuery(Building, buildingCode)).cloneWithType(Building);
-        if result is error {
-            return <persist:Error>error(result.message());
-        }
-        return result;
-    }
+    isolated resource function get building/[string buildingCode](BuildingTargetType targetType = <>) returns targetType|persist:Error  = @java:Method {
+        'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
+        name: "queryOne"
+    } external;
+
 
     isolated resource function post building(BuildingInsert[] data) returns string[]|persist:Error {
         _ = check self.persistClients.get(BUILDING).runBatchInsertQuery(data);
@@ -530,18 +533,14 @@ public client class RainierClient {
     }
 
     isolated resource function get department(DepartmentTargetType targetType = <>) returns stream<targetType, persist:Error?> = @java:Method {
-        'class: "io.ballerina.stdlib.persist.QueryProcessor",
+        'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "query"
     } external;
 
-    //TOOD: update after dependent support for get by identity is supported.
-    isolated resource function get department/[string deptNo]() returns Department|persist:Error {
-        Department|error result = (check self.persistClients.get(DEPARTMENT).runReadByKeyQuery(Department, deptNo)).cloneWithType(Department);
-        if result is error {
-            return <persist:Error>error(result.message());
-        }
-        return result;
-    }
+    isolated resource function get department/[string deptNo](DepartmentTargetType targetType = <>) returns targetType|persist:Error = @java:Method {
+        'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
+        name: "queryOne"
+    } external;
 
     isolated resource function post department(DepartmentInsert[] data) returns string[]|persist:Error {
         _ = check self.persistClients.get(DEPARTMENT).runBatchInsertQuery(data);
@@ -557,6 +556,33 @@ public client class RainierClient {
     isolated resource function delete department/[string deptNo]() returns Department|persist:Error {
         Department result = check self->/department/[deptNo].get();
         _ = check self.persistClients.get(DEPARTMENT).runDeleteQuery(deptNo);
+        return result;
+    }
+
+    isolated resource function get orderitem(OrderItemTargetType targetType = <>) returns stream<targetType, persist:Error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
+        name: "query"
+    } external;
+
+    isolated resource function get orderitem/[string orderId]/[string itemId](OrderItemTargetType targetType = <>) returns targetType|persist:Error = @java:Method {
+        'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
+        name: "queryOne"
+    } external;
+
+    isolated resource function post orderitem(OrderItemInsert[] data) returns [string, string][]|persist:Error {
+        _ = check self.persistClients.get(ORDER_ITEM).runBatchInsertQuery(data);
+        return from OrderItemInsert inserted in data
+            select [inserted.orderId, inserted.itemId];
+    }
+
+    isolated resource function put orderitem/[string orderId]/[string itemId](OrderItemUpdate data) returns OrderItem|persist:Error {
+        _ = check self.persistClients.get(ORDER_ITEM).runUpdateQuery({orderId: orderId, itemId: itemId}, data);
+        return self->/orderitem/[orderId]/[itemId].get();
+    }
+
+    isolated resource function delete orderitem/[string orderId]/[string itemId]() returns OrderItem|persist:Error {
+        OrderItem result = check self->/orderitem/[orderId]/[itemId].get();
+        _ = check self.persistClients.get(ORDER_ITEM).runDeleteQuery({orderId: orderId, itemId: itemId});
         return result;
     }
 

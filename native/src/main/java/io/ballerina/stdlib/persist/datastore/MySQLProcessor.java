@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package io.ballerina.stdlib.persist;
+package io.ballerina.stdlib.persist.datastore;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.PredefinedTypes;
@@ -31,10 +31,13 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.stdlib.persist.Constants;
+import io.ballerina.stdlib.persist.ModuleUtils;
 
 import static io.ballerina.stdlib.persist.Utils.getEntity;
-import static io.ballerina.stdlib.persist.Utils.getFieldsIncludesAndTypeDescriptions;
 import static io.ballerina.stdlib.persist.Utils.getFutureResult;
+import static io.ballerina.stdlib.persist.Utils.getKey;
+import static io.ballerina.stdlib.persist.Utils.getMetadata;
 import static io.ballerina.stdlib.persist.Utils.getPersistClient;
 
 /**
@@ -42,9 +45,9 @@ import static io.ballerina.stdlib.persist.Utils.getPersistClient;
  *
  * @since 0.5.6
  */
-public class QueryProcessor {
+public class MySQLProcessor {
 
-    private QueryProcessor() {
+    private MySQLProcessor() {
     }
 
     public static BStream query(Environment env, BObject client, BTypedesc recordType) {
@@ -54,10 +57,10 @@ public class QueryProcessor {
         RecordType streamConstraint = (RecordType) TypeUtils.getReferredType(recordType.getDescribingType());
         StreamType streamType = TypeCreator.createStreamType(streamConstraint, PredefinedTypes.TYPE_NULL);
 
-        BArray[] fieldsAndIncludes = getFieldsIncludesAndTypeDescriptions((RecordType) recordType.getDescribingType());
-        BArray fields = fieldsAndIncludes[0];
-        BArray includes = fieldsAndIncludes[1];
-        BArray typeDescriptions = fieldsAndIncludes[2];
+        BArray[] metadata = getMetadata((RecordType) recordType.getDescribingType());
+        BArray fields = metadata[0];
+        BArray includes = metadata[1];
+        BArray typeDescriptions = metadata[2];
 
         BFuture future = env.getRuntime().invokeMethodAsyncSequentially(
                 persistClient, Constants.RUN_READ_QUERY_METHOD,
@@ -73,18 +76,20 @@ public class QueryProcessor {
                 PredefinedTypes.TYPE_NULL), persistStream);
     }
 
-    public static Object queryOne(Environment env, BObject client, BString key, BTypedesc recordType) {
+    public static Object queryOne(Environment env, BObject client, BArray path, BTypedesc recordType) {
         BString entity = getEntity(env);
         RecordType recordConstraint = (RecordType) TypeUtils.getReferredType(recordType.getDescribingType());
-        BArray[] fieldsAndIncludes = getFieldsIncludesAndTypeDescriptions((RecordType) recordType.getDescribingType());
-        BArray fields = fieldsAndIncludes[0];
-        BArray includes = fieldsAndIncludes[1];
-        BArray typeDescriptions = fieldsAndIncludes[2];
+        BArray[] metadata = getMetadata((RecordType) recordType.getDescribingType());
+        BArray fields = metadata[0];
+        BArray includes = metadata[1];
+        BArray typeDescriptions = metadata[2];
+
+        Object key = getKey(env, path);
 
         BFuture future = env.getRuntime().invokeMethodAsyncSequentially(
                 getPersistClient(client, entity), Constants.RUN_READ_BY_KEY_QUERY_METHOD,
                 null, null, null, null, recordConstraint,
-                recordType, true, key, true, fields, true, includes, true, 
+                recordType, true, key, true, fields, true, includes, true,
                 typeDescriptions, true
         );
 

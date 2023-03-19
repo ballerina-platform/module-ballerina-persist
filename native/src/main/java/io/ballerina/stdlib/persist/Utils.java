@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
@@ -54,17 +55,17 @@ public class Utils {
     private Utils() {
     }
 
-    static BString getEntity(Environment env) {
+    public static BString getEntity(Environment env) {
         String entity = env.getFunctionName().split("\\$")[2];
         return fromString(entity);
     }
 
-    static BObject getPersistClient(BObject client, BString entity) {
+    public static BObject getPersistClient(BObject client, BString entity) {
         BMap<?, ?> persistClients = (BMap<?, ?>) client.get(Constants.PERSIST_CLIENTS);
         return (BObject) persistClients.get(entity);
     }
 
-    static BArray[] getFieldsIncludesAndTypeDescriptions(RecordType recordType) {
+    public static BArray[] getMetadata(RecordType recordType) {
         ArrayType stringArrayType = TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING);
 
         //TODO: use PREDEFINED TYPE.TYPE_TYPEDESC once NPE issue is resolved
@@ -124,7 +125,7 @@ public class Utils {
         return fieldsArray;
     }
 
-    static Object getFutureResult(BFuture future) {
+    public static Object getFutureResult(BFuture future) {
         while (!future.isDone()) {
             try {
                 Thread.sleep(100);
@@ -156,6 +157,19 @@ public class Utils {
             returnArray.append(element);
         }
         return returnArray;
+    }
+
+    public static Object getKey(Environment env, BArray path) {
+        Parameter[] pathParams = env.getFunctionPathParameters();
+        if (pathParams.length == 1) {
+            return path.get(0);
+        } else {
+            BMap<BString, Object> keyMap = ValueCreator.createMapValue();
+            for (int i = 0; i < pathParams.length; i++) {
+                keyMap.put(fromString(pathParams[i].name), path.get(i));
+            }
+            return keyMap;
+        }
     }
 
 }
