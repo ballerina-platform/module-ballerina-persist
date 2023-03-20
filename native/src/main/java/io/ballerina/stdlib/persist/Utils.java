@@ -174,7 +174,7 @@ public class Utils {
         }
     }
 
-    static RecordType getRecordTypeWithKeyFields(BArray keyFields, RecordType recordType) {
+    public static RecordType getRecordTypeWithKeyFields(BArray keyFields, RecordType recordType) {
         Map<String, Field> fieldsMap = new HashMap<>();
         for (Field field : recordType.getFields().values()) {
             fieldsMap.put(field.getFieldName(), field);
