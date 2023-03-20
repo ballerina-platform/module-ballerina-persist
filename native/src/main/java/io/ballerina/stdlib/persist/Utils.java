@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Parameter;
@@ -37,6 +38,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -68,7 +70,7 @@ public class Utils {
     public static BArray[] getMetadata(RecordType recordType) {
         ArrayType stringArrayType = TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING);
 
-        //TODO: use PREDEFINED TYPE.TYPE_TYPEDESC once NPE issue is resolved
+        //TODO: use PredefinedTypes.TYPE_TYPEDESC once NPE issue is resolved
         ArrayType typeDescriptionArrayType = TypeCreator.createArrayType(PredefinedTypes.TYPE_ANY);
         BArray fieldsArray = ValueCreator.createArrayValue(stringArrayType);
         BArray includeArray = ValueCreator.createArrayValue(stringArrayType);
@@ -172,4 +174,22 @@ public class Utils {
         }
     }
 
+    public static RecordType getRecordTypeWithKeyFields(BArray keyFields, RecordType recordType) {
+        Map<String, Field> fieldsMap = new HashMap<>();
+        for (Field field : recordType.getFields().values()) {
+            fieldsMap.put(field.getFieldName(), field);
+        }
+        for (int i = 0; i < keyFields.size(); i++) {
+            String key = keyFields.get(i).toString();
+            if (!fieldsMap.containsKey(key)) {
+                fieldsMap.put(key, TypeCreator.createField(PredefinedTypes.TYPE_STRING, key, 0));
+            }
+        }
+
+        return TypeCreator.createRecordType(
+                Constants.DEFAULT_STREAM_CONSTRAINT_NAME, Constants.BALLERINA_ANNOTATIONS_MODULE, 1,
+                fieldsMap, null, true,
+                TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE)
+        );
+    }
 }

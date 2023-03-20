@@ -16,6 +16,10 @@
 
 import ballerina/test;
 
+public type IntIdRecordDependent record {|
+    string randomField;
+|};
+
 @test:Config {
     groups: ["id-fields"]
 }
@@ -46,10 +50,19 @@ function intIdFieldTest() returns error? {
     IntIdRecord retrievedRecord1 = check testEntitiesClient->/intidrecord/[intIdRecord1.id].get();
     test:assertEquals(intIdRecord1, retrievedRecord1);
 
+    // read one dependent
+    IntIdRecordDependent retrievedRecord1Dependent = check testEntitiesClient->/intidrecord/[intIdRecord1.id].get();
+    test:assertEquals({randomField: intIdRecord1.randomField}, retrievedRecord1Dependent);
+
     // read
     IntIdRecord[] intIdRecords = check from IntIdRecord intIdRecord in testEntitiesClient->/intidrecord.get(IntIdRecord)
         select intIdRecord;
     test:assertEquals(intIdRecords, [intIdRecord1, intIdRecord2, intIdRecord3]);
+
+    // read dependent
+    IntIdRecordDependent[] intIdRecordsDependent = check from IntIdRecordDependent intIdRecord in testEntitiesClient->/intidrecord.get(IntIdRecordDependent)
+        select intIdRecord;
+    test:assertEquals(intIdRecordsDependent, [{randomField: intIdRecord1.randomField}, {randomField: intIdRecord2.randomField}, {randomField: intIdRecord3.randomField}]);
 
     // update
     retrievedRecord1 = check testEntitiesClient->/intidrecord/[intIdRecord1.id].put({randomField: intIdRecord1Updated.randomField});
@@ -66,6 +79,10 @@ function intIdFieldTest() returns error? {
 
     check testEntitiesClient.close();
 }
+
+public type StringIdRecordDependent record {|
+    string randomField;
+|};
 
 @test:Config {
     groups: ["id-fields"]
@@ -97,10 +114,19 @@ function stringIdFieldTest() returns error? {
     StringIdRecord retrievedRecord1 = check testEntitiesClient->/stringidrecord/[stringIdRecord1.id].get();
     test:assertEquals(stringIdRecord1, retrievedRecord1);
 
+    // read one dependent
+    StringIdRecordDependent retrievedRecord1Dependent = check testEntitiesClient->/stringidrecord/[stringIdRecord1.id].get();
+    test:assertEquals({randomField: stringIdRecord1.randomField}, retrievedRecord1Dependent);
+
     // read
     StringIdRecord[] stringIdRecords = check from StringIdRecord stringIdRecord in testEntitiesClient->/stringidrecord.get(StringIdRecord)
         select stringIdRecord;
     test:assertEquals(stringIdRecords, [stringIdRecord1, stringIdRecord2, stringIdRecord3]);
+
+    // read dependent
+    StringIdRecordDependent[] stringIdRecordsDependent = check from StringIdRecordDependent stringIdRecord in testEntitiesClient->/stringidrecord.get(StringIdRecordDependent)
+        select stringIdRecord;
+    test:assertEquals(stringIdRecordsDependent, [{randomField: stringIdRecord1.randomField}, {randomField: stringIdRecord2.randomField}, {randomField: stringIdRecord3.randomField}]);
 
     // update
     retrievedRecord1 = check testEntitiesClient->/stringidrecord/[stringIdRecord1.id].put({randomField: stringIdRecord1Updated.randomField});
@@ -117,6 +143,10 @@ function stringIdFieldTest() returns error? {
 
     check testEntitiesClient.close();
 }
+
+public type FloatIdRecordDependent record {|
+    string randomField;
+|};
 
 @test:Config {
     groups: ["id-fields"]
@@ -148,10 +178,19 @@ function floatIdFieldTest() returns error? {
     FloatIdRecord retrievedRecord1 = check testEntitiesClient->/floatidrecord/[floatIdRecord1.id].get();
     test:assertEquals(floatIdRecord1, retrievedRecord1);
 
+    // read one dependent
+    FloatIdRecordDependent retrievedRecord1Dependent = check testEntitiesClient->/floatidrecord/[floatIdRecord1.id].get();
+    test:assertEquals({randomField: floatIdRecord1.randomField}, retrievedRecord1Dependent);
+
     // read
     FloatIdRecord[] floatIdRecords = check from FloatIdRecord floatIdRecord in testEntitiesClient->/floatidrecord.get(FloatIdRecord)
         select floatIdRecord;
     test:assertEquals(floatIdRecords, [floatIdRecord1, floatIdRecord2, floatIdRecord3]);
+
+    // read dependent
+    FloatIdRecordDependent[] floatIdRecordsDependent = check from FloatIdRecordDependent floatIdRecord in testEntitiesClient->/floatidrecord.get(FloatIdRecordDependent)
+        select floatIdRecord;
+    test:assertEquals(floatIdRecordsDependent, [{randomField: floatIdRecord1.randomField}, {randomField: floatIdRecord2.randomField}, {randomField: floatIdRecord3.randomField}]);
 
     // update
     retrievedRecord1 = check testEntitiesClient->/floatidrecord/[floatIdRecord1.id].put({randomField: floatIdRecord1Updated.randomField});
@@ -166,6 +205,10 @@ function floatIdFieldTest() returns error? {
         select floatIdRecord;
     test:assertEquals(floatIdRecords, [floatIdRecord1Updated, floatIdRecord3]);
 }
+
+public type DecimalIdRecordDependent record {|
+    string randomField;
+|};
 
 @test:Config {
     groups: ["id-fields"]
@@ -197,10 +240,19 @@ function decimalIdFieldTest() returns error? {
     DecimalIdRecord retrievedRecord1 = check testEntitiesClient->/decimalidrecord/[decimalIdRecord1.id].get();
     test:assertEquals(decimalIdRecord1, retrievedRecord1);
 
+    // read one dependent
+    DecimalIdRecordDependent retrievedRecord1Dependent = check testEntitiesClient->/decimalidrecord/[decimalIdRecord1.id].get();
+    test:assertEquals({randomField: decimalIdRecord1.randomField}, retrievedRecord1Dependent);
+
     // read
     DecimalIdRecord[] decimalIdRecords = check from DecimalIdRecord decimalIdRecord in testEntitiesClient->/decimalidrecord.get(DecimalIdRecord)
         select decimalIdRecord;
     test:assertEquals(decimalIdRecords, [decimalIdRecord1, decimalIdRecord2, decimalIdRecord3]);
+
+    // read dependent
+    DecimalIdRecordDependent[] decimalIdRecordsDependent = check from DecimalIdRecordDependent decimalIdRecord in testEntitiesClient->/decimalidrecord.get(DecimalIdRecordDependent)
+        select decimalIdRecord;
+    test:assertEquals(decimalIdRecordsDependent, [{randomField: decimalIdRecord1.randomField}, {randomField: decimalIdRecord2.randomField}, {randomField: decimalIdRecord3.randomField}]);
 
     // update
     retrievedRecord1 = check testEntitiesClient->/decimalidrecord/[decimalIdRecord1.id].put({randomField: decimalIdRecord1Updated.randomField});
@@ -217,6 +269,10 @@ function decimalIdFieldTest() returns error? {
 
     check testEntitiesClient.close();
 }
+
+public type BooleanIdRecordDependent record {|
+    string randomField;
+|};
 
 @test:Config {
     groups: ["id-fields"]
@@ -244,10 +300,19 @@ function booleanIdFieldTest() returns  error? {
     BooleanIdRecord retrievedRecord1 = check testEntitiesClient->/booleanidrecord/[booleanIdRecord1.id].get();
     test:assertEquals(booleanIdRecord1, retrievedRecord1);
 
+    // read one dependent
+    BooleanIdRecordDependent retrievedRecord1Dependent = check testEntitiesClient->/booleanidrecord/[booleanIdRecord1.id].get();
+    test:assertEquals({randomField: booleanIdRecord1.randomField}, retrievedRecord1Dependent);
+
     // read
     BooleanIdRecord[] booleanIdRecords = check from BooleanIdRecord booleanIdRecord in testEntitiesClient->/booleanidrecord.get(BooleanIdRecord)
         select booleanIdRecord;
     test:assertEquals(booleanIdRecords, [booleanIdRecord2, booleanIdRecord1]);
+
+    // read dependent
+    BooleanIdRecordDependent[] booleanIdRecordsDependent = check from BooleanIdRecordDependent booleanIdRecord in testEntitiesClient->/booleanidrecord.get(BooleanIdRecordDependent)
+        select booleanIdRecord;
+    test:assertEquals(booleanIdRecordsDependent, [{randomField: booleanIdRecord2.randomField}, {randomField: booleanIdRecord1.randomField}]);
 
     // update
     retrievedRecord1 = check testEntitiesClient->/booleanidrecord/[booleanIdRecord1.id].put({randomField: booleanIdRecord1Updated.randomField});
@@ -264,6 +329,10 @@ function booleanIdFieldTest() returns  error? {
 
     check testEntitiesClient.close();
 }
+
+public type AllTypesIdRecordDependent record {|
+    string randomField;
+|};
 
 @test:Config {
     groups: ["id-fields"]
@@ -304,10 +373,19 @@ function allTypesIdFieldTest() returns error? {
     AllTypesIdRecord retrievedRecord1 = check testEntitiesClient->/alltypesidrecord/[allTypesIdRecord1.floatType]/[allTypesIdRecord1.decimalType]/[allTypesIdRecord1.booleanType]/[allTypesIdRecord1.intType]/[allTypesIdRecord1.stringType].get();
     test:assertEquals(allTypesIdRecord1, retrievedRecord1);
 
+    // read one dependent
+    AllTypesIdRecordDependent retrievedRecord1Dependent = check testEntitiesClient->/alltypesidrecord/[allTypesIdRecord1.floatType]/[allTypesIdRecord1.decimalType]/[allTypesIdRecord1.booleanType]/[allTypesIdRecord1.intType]/[allTypesIdRecord1.stringType].get();
+    test:assertEquals({randomField: allTypesIdRecord1.randomField}, retrievedRecord1Dependent);
+
     // read
     AllTypesIdRecord[] allTypesIdRecords = check from AllTypesIdRecord allTypesIdRecord in testEntitiesClient->/alltypesidrecord.get(AllTypesIdRecord)
         select allTypesIdRecord;
     test:assertEquals(allTypesIdRecords, [allTypesIdRecord2, allTypesIdRecord1]);
+
+    // read dependent
+    AllTypesIdRecordDependent[] allTypesIdRecordsDependent = check from AllTypesIdRecordDependent allTypesIdRecord in testEntitiesClient->/alltypesidrecord.get(AllTypesIdRecordDependent)
+        select allTypesIdRecord;
+    test:assertEquals(allTypesIdRecordsDependent, [{randomField: allTypesIdRecord2.randomField}, {randomField: allTypesIdRecord1.randomField}]);
 
     // update
     retrievedRecord1 = check testEntitiesClient->/alltypesidrecord/[allTypesIdRecord1.floatType]/[allTypesIdRecord1.decimalType]/[allTypesIdRecord1.booleanType]/[allTypesIdRecord1.intType]/[allTypesIdRecord1.stringType].put({randomField: allTypesIdRecord1Updated.randomField});
@@ -325,8 +403,20 @@ function allTypesIdFieldTest() returns error? {
     check testEntitiesClient.close();
 }
 
+public type CompositeAssociationRecordDependent record {|
+    string randomField;
+    int alltypesidrecordIntType;
+    decimal alltypesidrecordDecimalType;
+    record {|
+        int intType;
+        string stringType;
+        boolean booleanType;
+        string randomField;
+    |} allTypesIdRecord;
+|};
+
 @test:Config {
-    groups: ["id-fields", "associations"],
+    groups: ["id-fieldsx", "associations"],
     dependsOn : [allTypesIdFieldTest]
 }
 function compositeAssociationsTest() returns error? {
@@ -339,7 +429,7 @@ function compositeAssociationsTest() returns error? {
         alltypesidrecordStringType: "id-1",
         alltypesidrecordFloatType: 1.0,
         alltypesidrecordBooleanType: true,
-        alltypesidrecordDecimalType: 1.1d        
+        alltypesidrecordDecimalType: 1.10        
     };
 
     CompositeAssociationRecord compositeAssociationRecord2 = {
@@ -349,7 +439,7 @@ function compositeAssociationsTest() returns error? {
         alltypesidrecordStringType: "id-1",
         alltypesidrecordFloatType: 1.0,
         alltypesidrecordBooleanType: true,
-        alltypesidrecordDecimalType: 1.1d        
+        alltypesidrecordDecimalType: 1.10       
     };
 
     CompositeAssociationRecord compositeAssociationRecordUpdated1 = {
@@ -359,7 +449,16 @@ function compositeAssociationsTest() returns error? {
         alltypesidrecordStringType: "id-1",
         alltypesidrecordFloatType: 1.0,
         alltypesidrecordBooleanType: true,
-        alltypesidrecordDecimalType: 1.1d
+        alltypesidrecordDecimalType: 1.10
+    };
+
+    AllTypesIdRecordOptionalized allTypesIdRecord1 = {
+        intType: 1,
+        stringType: "id-1",
+        floatType: 1.0,
+        booleanType: true,
+        decimalType: 1.10,
+        randomField: "test1Updated"
     };
 
     // create
@@ -370,10 +469,27 @@ function compositeAssociationsTest() returns error? {
     CompositeAssociationRecord retrievedRecord1 = check testEntitiesClient->/compositeassociationrecord/[compositeAssociationRecord1.id].get();
     test:assertEquals(compositeAssociationRecord1, retrievedRecord1);
 
+    // read one dependent
+    CompositeAssociationRecordDependent retrievedRecord1Dependent = check testEntitiesClient->/compositeassociationrecord/[compositeAssociationRecord1.id].get();
+    test:assertEquals({
+        randomField: compositeAssociationRecord1.randomField, 
+        alltypesidrecordIntType: compositeAssociationRecord1.alltypesidrecordIntType, 
+        alltypesidrecordDecimalType: compositeAssociationRecord1.alltypesidrecordDecimalType,
+        allTypesIdRecord: {intType: allTypesIdRecord1.intType, stringType: allTypesIdRecord1.stringType, booleanType: allTypesIdRecord1.booleanType, randomField: allTypesIdRecord1.randomField}
+    }, retrievedRecord1Dependent);
+
     // read
     CompositeAssociationRecord[] compositeAssociationRecords = check from CompositeAssociationRecord compositeAssociationRecord in testEntitiesClient->/compositeassociationrecord.get(CompositeAssociationRecord)
         select compositeAssociationRecord;
     test:assertEquals(compositeAssociationRecords, [compositeAssociationRecord1, compositeAssociationRecord2]);
+
+    // read dependent
+    CompositeAssociationRecordDependent[] compositeAssociationRecordsDependent = check from CompositeAssociationRecordDependent compositeAssociationRecord in testEntitiesClient->/compositeassociationrecord.get(CompositeAssociationRecordDependent)
+        select compositeAssociationRecord;
+    test:assertEquals(compositeAssociationRecordsDependent, [
+        {randomField: compositeAssociationRecord1.randomField, alltypesidrecordIntType: compositeAssociationRecord1.alltypesidrecordIntType, alltypesidrecordDecimalType: compositeAssociationRecord1.alltypesidrecordDecimalType, allTypesIdRecord: {intType: allTypesIdRecord1.intType, stringType: allTypesIdRecord1.stringType, booleanType: allTypesIdRecord1.booleanType, randomField: allTypesIdRecord1.randomField}}, 
+        {randomField: compositeAssociationRecord2.randomField, alltypesidrecordIntType: compositeAssociationRecord2.alltypesidrecordIntType, alltypesidrecordDecimalType: compositeAssociationRecord2.alltypesidrecordDecimalType, allTypesIdRecord: {intType: allTypesIdRecord1.intType, stringType: allTypesIdRecord1.stringType, booleanType: allTypesIdRecord1.booleanType, randomField: allTypesIdRecord1.randomField}}
+    ]);
 
     // update
     retrievedRecord1 = check testEntitiesClient->/compositeassociationrecord/[compositeAssociationRecord1.id].put({randomField: "test1Updated"});

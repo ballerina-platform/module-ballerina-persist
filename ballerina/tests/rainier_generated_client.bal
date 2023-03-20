@@ -1,5 +1,5 @@
-import ballerinax/mysql;
 import ballerina/jballerina.java;
+import ballerinax/mysql;
 
 const EMPLOYEE = "employee";
 const WORKSPACE = "workspace";
@@ -46,20 +46,20 @@ public client class RainierClient {
                 workspaceId: {columnName: "workspaceId"},
                 workspaceType: {columnName: "workspaceType"},
                 locationBuildingCode: {columnName: "locationBuildingCode"},
-                "location.buildingCode": {relation: {entityName: "building", refField: "buildingCode"}},
-                "location.city": {relation: {entityName: "building", refField: "city"}},
-                "location.state": {relation: {entityName: "building", refField: "state"}},
-                "location.country": {relation: {entityName: "building", refField: "country"}},
-                "location.postalCode": {relation: {entityName: "building", refField: "postalCode"}},
-                "location.type": {relation: {entityName: "building", refField: "type"}},
-                "employees[].empNo": {relation: {entityName: "employee", refField: "empNo"}},
-                "employees[].firstName": {relation: {entityName: "employee", refField: "firstName"}},
-                "employees[].lastName": {relation: {entityName: "employee", refField: "lastName"}},
-                "employees[].birthDate": {relation: {entityName: "employee", refField: "birthDate"}},
-                "employees[].gender": {relation: {entityName: "employee", refField: "gender"}},
-                "employees[].hireDate": {relation: {entityName: "employee", refField: "hireDate"}},
-                "employees[].departmentDeptNo": {relation: {entityName: "employee", refField: "departmentDeptNo"}},
-                "employees[].workspaceWorkspaceId": {relation: {entityName: "employee", refField: "workspaceWorkspaceId"}}
+                "location.buildingCode": {relation: {entityName: "location", refField: "buildingCode"}},
+                "location.city": {relation: {entityName: "location", refField: "city"}},
+                "location.state": {relation: {entityName: "location", refField: "state"}},
+                "location.country": {relation: {entityName: "location", refField: "country"}},
+                "location.postalCode": {relation: {entityName: "location", refField: "postalCode"}},
+                "location.type": {relation: {entityName: "location", refField: "type"}},
+                "employees[].empNo": {relation: {entityName: "employees", refField: "empNo"}},
+                "employees[].firstName": {relation: {entityName: "employees", refField: "firstName"}},
+                "employees[].lastName": {relation: {entityName: "employees", refField: "lastName"}},
+                "employees[].birthDate": {relation: {entityName: "employees", refField: "birthDate"}},
+                "employees[].gender": {relation: {entityName: "employees", refField: "gender"}},
+                "employees[].hireDate": {relation: {entityName: "employees", refField: "hireDate"}},
+                "employees[].departmentDeptNo": {relation: {entityName: "employees", refField: "departmentDeptNo"}},
+                "employees[].workspaceWorkspaceId": {relation: {entityName: "employees", refField: "workspaceWorkspaceId"}}
             },
             keyFields: ["workspaceId"],
             joinMetadata: {
@@ -77,14 +77,12 @@ public client class RainierClient {
                 country: {columnName: "country"},
                 postalCode: {columnName: "postalCode"},
                 'type: {columnName: "type"},
-                "workspaces[].workspaceId": {relation: {entityName: "workspace", refField: "workspaceId"}},
-                "workspaces[].workspaceType": {relation: {entityName: "workspace", refField: "workspaceType"}},
-                "workspaces[].locationBuildingCode": {relation: {entityName: "workspace", refField: "locationBuildingCode"}}
+                "workspaces[].workspaceId": {relation: {entityName: "workspaces", refField: "workspaceId"}},
+                "workspaces[].workspaceType": {relation: {entityName: "workspaces", refField: "workspaceType"}},
+                "workspaces[].locationBuildingCode": {relation: {entityName: "location", refField: "locationBuildingCode"}}
             },
             keyFields: ["buildingCode"],
-            joinMetadata: {
-                workspaces: {entity: Workspace, fieldName: "workspaces", refTable: "Workspace", refColumns: ["locationBuildingCode"], joinColumns: ["buildingCode"], 'type: MANY_TO_ONE}
-            }
+            joinMetadata: {workspaces: {entity: Workspace, fieldName: "workspaces", refTable: "Workspace", refColumns: ["locationBuildingCode"], joinColumns: ["buildingCode"], 'type: MANY_TO_ONE}}
         },
         "department": {
             entityName: "Department",
@@ -92,19 +90,17 @@ public client class RainierClient {
             fieldMetadata: {
                 deptNo: {columnName: "deptNo"},
                 deptName: {columnName: "deptName"},
-                "employees[].empNo": {relation: {entityName: "employee", refField: "empNo"}},
-                "employees[].firstName": {relation: {entityName: "employee", refField: "firstName"}},
-                "employees[].lastName": {relation: {entityName: "employee", refField: "lastName"}},
-                "employees[].birthDate": {relation: {entityName: "employee", refField: "birthDate"}},
-                "employees[].gender": {relation: {entityName: "employee", refField: "gender"}},
-                "employees[].hireDate": {relation: {entityName: "employee", refField: "hireDate"}},
-                "employees[].departmentDeptNo": {relation: {entityName: "employee", refField: "departmentDeptNo"}},
-                "employees[].workspaceWorkspaceId": {relation: {entityName: "employee", refField: "workspaceWorkspaceId"}}
+                "employees[].empNo": {relation: {entityName: "employees", refField: "empNo"}},
+                "employees[].firstName": {relation: {entityName: "employees", refField: "firstName"}},
+                "employees[].lastName": {relation: {entityName: "employees", refField: "lastName"}},
+                "employees[].birthDate": {relation: {entityName: "employees", refField: "birthDate"}},
+                "employees[].gender": {relation: {entityName: "employees", refField: "gender"}},
+                "employees[].hireDate": {relation: {entityName: "employees", refField: "hireDate"}},
+                "employees[].departmentDeptNo": {relation: {entityName: "employees", refField: "departmentDeptNo"}},
+                "employees[].workspaceWorkspaceId": {relation: {entityName: "employees", refField: "workspaceWorkspaceId"}}
             },
             keyFields: ["deptNo"],
-            joinMetadata: {
-                employees: {entity: Employee, fieldName: "employees", refTable: "Employee", refColumns: ["departmentDeptNo"], joinColumns: ["deptNo"], 'type: MANY_TO_ONE}
-            }
+            joinMetadata: {employees: {entity: Employee, fieldName: "employees", refTable: "Employee", refColumns: ["departmentDeptNo"], joinColumns: ["deptNo"], 'type: MANY_TO_ONE}}
         },
         "orderitem": {
             entityName: "OrderItem",
@@ -150,8 +146,8 @@ public client class RainierClient {
             select inserted.empNo;
     }
 
-    isolated resource function put employee/[string empNo](EmployeeUpdate data) returns Employee|Error {
-        _ = check self.persistClients.get(EMPLOYEE).runUpdateQuery(empNo, data);
+    isolated resource function put employee/[string empNo](EmployeeUpdate value) returns Employee|Error {
+        _ = check self.persistClients.get(EMPLOYEE).runUpdateQuery(empNo, value);
         return self->/employee/[empNo].get();
     }
 
@@ -177,8 +173,8 @@ public client class RainierClient {
             select inserted.workspaceId;
     }
 
-    isolated resource function put workspace/[string workspaceId](WorkspaceUpdate data) returns Workspace|Error {
-        _ = check self.persistClients.get(WORKSPACE).runUpdateQuery(workspaceId, data);
+    isolated resource function put workspace/[string workspaceId](WorkspaceUpdate value) returns Workspace|Error {
+        _ = check self.persistClients.get(WORKSPACE).runUpdateQuery(workspaceId, value);
         return self->/workspace/[workspaceId].get();
     }
 
@@ -193,7 +189,7 @@ public client class RainierClient {
         name: "query"
     } external;
 
-    isolated resource function get building/[string buildingCode](BuildingTargetType targetType = <>) returns targetType|Error  = @java:Method {
+    isolated resource function get building/[string buildingCode](BuildingTargetType targetType = <>) returns targetType|Error = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "queryOne"
     } external;
@@ -204,8 +200,8 @@ public client class RainierClient {
             select inserted.buildingCode;
     }
 
-    isolated resource function put building/[string buildingCode](BuildingUpdate data) returns Building|Error {
-        _ = check self.persistClients.get(BUILDING).runUpdateQuery(buildingCode, data);
+    isolated resource function put building/[string buildingCode](BuildingUpdate value) returns Building|Error {
+        _ = check self.persistClients.get(BUILDING).runUpdateQuery(buildingCode, value);
         return self->/building/[buildingCode].get();
     }
 
@@ -231,8 +227,8 @@ public client class RainierClient {
             select inserted.deptNo;
     }
 
-    isolated resource function put department/[string deptNo](DepartmentUpdate data) returns Department|Error {
-        _ = check self.persistClients.get(DEPARTMENT).runUpdateQuery(deptNo, data);
+    isolated resource function put department/[string deptNo](DepartmentUpdate value) returns Department|Error {
+        _ = check self.persistClients.get(DEPARTMENT).runUpdateQuery(deptNo, value);
         return self->/department/[deptNo].get();
     }
 
@@ -258,14 +254,14 @@ public client class RainierClient {
             select [inserted.orderId, inserted.itemId];
     }
 
-    isolated resource function put orderitem/[string orderId]/[string itemId](OrderItemUpdate data) returns OrderItem|Error {
-        _ = check self.persistClients.get(ORDER_ITEM).runUpdateQuery({orderId: orderId, itemId: itemId}, data);
+    isolated resource function put orderitem/[string orderId]/[string itemId](OrderItemUpdate value) returns OrderItem|Error {
+        _ = check self.persistClients.get(ORDER_ITEM).runUpdateQuery({"orderId": orderId, "itemId": itemId}, value);
         return self->/orderitem/[orderId]/[itemId].get();
     }
 
     isolated resource function delete orderitem/[string orderId]/[string itemId]() returns OrderItem|Error {
         OrderItem result = check self->/orderitem/[orderId]/[itemId].get();
-        _ = check self.persistClients.get(ORDER_ITEM).runDeleteQuery({orderId: orderId, itemId: itemId});
+        _ = check self.persistClients.get(ORDER_ITEM).runDeleteQuery({"orderId": orderId, "itemId": itemId});
         return result;
     }
 

@@ -1,7 +1,6 @@
 import ballerina/test;
 
 public type EmployeeInfo record {|
-    readonly string empNo;
     string firstName;
     string lastName;
     record {|
@@ -60,7 +59,6 @@ function employeeRelationsTest() returns error? {
     EmployeeInfo retrieved = check rainierClient->/employee/["employee-21"].get();
     
     EmployeeInfo expected = {
-        empNo: "employee-21",
         firstName: "Tom",
         lastName: "Scott",
         department: {
@@ -79,7 +77,7 @@ function employeeRelationsTest() returns error? {
 }
 
 public type DepartmentInfo record {|
-    readonly string deptNo;
+    string deptNo;
     string deptName;
     record {|
         string firstName;
@@ -165,7 +163,6 @@ function departmentRelationsTest() returns error? {
 }
 
 public type WorkspaceInfo record {|
-    readonly string workspaceId;
     string workspaceType;
     Building location;
     Employee[] employees;
@@ -197,7 +194,6 @@ function workspaceRelationsTest() returns error? {
     WorkspaceInfo retrieved = check rainierClient->/workspace/["workspace-22"].get();
 
     WorkspaceInfo expected = {
-        workspaceId: "workspace-22",
         workspaceType: "medium",
         location: {
             buildingCode: "building-22",
@@ -234,9 +230,8 @@ function workspaceRelationsTest() returns error? {
     boolean found = false;
     _ = from WorkspaceInfo workspace in workspaces
         do {
-            if (workspace.workspaceId == "workspace-22") {
+            if workspace == expected {
                 found = true;
-                test:assertEquals(workspace, expected);
             }
         };
 
@@ -250,7 +245,7 @@ function workspaceRelationsTest() returns error? {
 }
 
 public type BuildingInfo record {|
-    readonly string buildingCode;
+    string buildingCode;
     string city;
     string state;
     string country;
