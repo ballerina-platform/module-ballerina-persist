@@ -2,13 +2,13 @@ import ballerina/jballerina.java;
 import ballerinax/mysql;
 
 const ALL_TYPES = "alltypes";
-const STRING_ID_RECORD = "stringidrecord";
-const INT_ID_RECORD = "intidrecord";
-const FLOAT_ID_RECORD = "floatidrecord";
-const DECIMAL_ID_RECORD = "decimalidrecord";
-const BOOLEAN_ID_RECORD = "booleanidrecord";
-const COMPOSITE_ASSOCIATION_RECORD = "compositeassociationrecord";
-const ALL_TYPES_ID_RECORD = "alltypesidrecord";
+const STRING_ID_RECORD = "stringidrecords";
+const INT_ID_RECORD = "intidrecords";
+const FLOAT_ID_RECORD = "floatidrecords";
+const DECIMAL_ID_RECORD = "decimalidrecords";
+const BOOLEAN_ID_RECORD = "booleanidrecords";
+const COMPOSITE_ASSOCIATION_RECORD = "compositeassociationrecords";
+const ALL_TYPES_ID_RECORD = "alltypesidrecords";
 
 public client class TestEntitiesClient {
     *AbstractPersistClient;
@@ -18,7 +18,7 @@ public client class TestEntitiesClient {
     private final map<SQLClient> persistClients;
 
     private final record {|Metadata...;|} metadata = {
-        "alltypes": {
+        [ALL_TYPES]: {
             entityName: "AllTypes",
             tableName: `AllTypes`,
             fieldMetadata: {
@@ -43,7 +43,7 @@ public client class TestEntitiesClient {
             },
             keyFields: ["id"]
         },
-        "stringidrecord": {
+        [STRING_ID_RECORD]: {
             entityName: "StringIdRecord",
             tableName: `StringIdRecord`,
             fieldMetadata: {
@@ -52,7 +52,7 @@ public client class TestEntitiesClient {
             },
             keyFields: ["id"]
         },
-        "intidrecord": {
+        [INT_ID_RECORD]: {
             entityName: "IntIdRecord",
             tableName: `IntIdRecord`,
             fieldMetadata: {
@@ -61,7 +61,7 @@ public client class TestEntitiesClient {
             },
             keyFields: ["id"]
         },
-        "floatidrecord": {
+        [FLOAT_ID_RECORD]: {
             entityName: "FloatIdRecord",
             tableName: `FloatIdRecord`,
             fieldMetadata: {
@@ -70,7 +70,7 @@ public client class TestEntitiesClient {
             },
             keyFields: ["id"]
         },
-        "decimalidrecord": {
+        [DECIMAL_ID_RECORD]: {
             entityName: "DecimalIdRecord",
             tableName: `DecimalIdRecord`,
             fieldMetadata: {
@@ -79,7 +79,7 @@ public client class TestEntitiesClient {
             },
             keyFields: ["id"]
         },
-        "booleanidrecord": {
+        [BOOLEAN_ID_RECORD]: {
             entityName: "BooleanIdRecord",
             tableName: `BooleanIdRecord`,
             fieldMetadata: {
@@ -88,7 +88,7 @@ public client class TestEntitiesClient {
             },
             keyFields: ["id"]
         },
-        "compositeassociationrecord": {
+        [COMPOSITE_ASSOCIATION_RECORD]: {
             entityName: "CompositeAssociationRecord",
             tableName: `CompositeAssociationRecord`,
             fieldMetadata: {
@@ -109,7 +109,7 @@ public client class TestEntitiesClient {
             keyFields: ["id"],
             joinMetadata: {allTypesIdRecord: {entity: AllTypesIdRecord, fieldName: "allTypesIdRecord", refTable: "AllTypesIdRecord", refColumns: ["booleanType", "intType", "floatType", "decimalType", "stringType"], joinColumns: ["alltypesidrecordBooleanType", "alltypesidrecordIntType", "alltypesidrecordFloatType", "alltypesidrecordDecimalType", "alltypesidrecordStringType"], 'type: ONE_TO_ONE}}
         },
-        "alltypesidrecord": {
+        [ALL_TYPES_ID_RECORD]: {
             entityName: "AllTypesIdRecord",
             tableName: `AllTypesIdRecord`,
             fieldMetadata: {
@@ -121,11 +121,11 @@ public client class TestEntitiesClient {
                 randomField: {columnName: "randomField"},
                 "compositeAssociationRecord.id": {relation: {entityName: "compositeAssociationRecord", refField: "id"}},
                 "compositeAssociationRecord.randomField": {relation: {entityName: "compositeAssociationRecord", refField: "randomField"}},
-                "compositeAssociationRecord.alltypesidrecordBooleanType": {relation: {entityName: "allTypesIdRecord", refField: "alltypesidrecordBooleanType"}},
-                "compositeAssociationRecord.alltypesidrecordIntType": {relation: {entityName: "allTypesIdRecord", refField: "alltypesidrecordIntType"}},
-                "compositeAssociationRecord.alltypesidrecordFloatType": {relation: {entityName: "allTypesIdRecord", refField: "alltypesidrecordFloatType"}},
-                "compositeAssociationRecord.alltypesidrecordDecimalType": {relation: {entityName: "allTypesIdRecord", refField: "alltypesidrecordDecimalType"}},
-                "compositeAssociationRecord.alltypesidrecordStringType": {relation: {entityName: "allTypesIdRecord", refField: "alltypesidrecordStringType"}}
+                "compositeAssociationRecord.alltypesidrecordBooleanType": {relation: {entityName: "compositeAssociationRecord", refField: "alltypesidrecordBooleanType"}},
+                "compositeAssociationRecord.alltypesidrecordIntType": {relation: {entityName: "compositeAssociationRecord", refField: "alltypesidrecordIntType"}},
+                "compositeAssociationRecord.alltypesidrecordFloatType": {relation: {entityName: "compositeAssociationRecord", refField: "alltypesidrecordFloatType"}},
+                "compositeAssociationRecord.alltypesidrecordDecimalType": {relation: {entityName: "compositeAssociationRecord", refField: "alltypesidrecordDecimalType"}},
+                "compositeAssociationRecord.alltypesidrecordStringType": {relation: {entityName: "compositeAssociationRecord", refField: "alltypesidrecordStringType"}}
             },
             keyFields: ["booleanType", "intType", "floatType", "decimalType", "stringType"],
             joinMetadata: {compositeAssociationRecord: {entity: CompositeAssociationRecord, fieldName: "compositeAssociationRecord", refTable: "CompositeAssociationRecord", refColumns: ["alltypesidrecordBooleanType", "alltypesidrecordIntType", "alltypesidrecordFloatType", "alltypesidrecordDecimalType", "alltypesidrecordStringType"], joinColumns: ["booleanType", "intType", "floatType", "decimalType", "stringType"], 'type: ONE_TO_ONE}}
@@ -139,14 +139,14 @@ public client class TestEntitiesClient {
         }
         self.dbClient = dbClient;
         self.persistClients = {
-            alltypes: check new (self.dbClient, self.metadata.get(ALL_TYPES)),
-            stringidrecord: check new (self.dbClient, self.metadata.get(STRING_ID_RECORD)),
-            intidrecord: check new (self.dbClient, self.metadata.get(INT_ID_RECORD)),
-            floatidrecord: check new (self.dbClient, self.metadata.get(FLOAT_ID_RECORD)),
-            decimalidrecord: check new (self.dbClient, self.metadata.get(DECIMAL_ID_RECORD)),
-            booleanidrecord: check new (self.dbClient, self.metadata.get(BOOLEAN_ID_RECORD)),
-            compositeassociationrecord: check new (self.dbClient, self.metadata.get(COMPOSITE_ASSOCIATION_RECORD)),
-            alltypesidrecord: check new (self.dbClient, self.metadata.get(ALL_TYPES_ID_RECORD))
+            [ALL_TYPES]: check new (self.dbClient, self.metadata.get(ALL_TYPES)),
+            [STRING_ID_RECORD]: check new (self.dbClient, self.metadata.get(STRING_ID_RECORD)),
+            [INT_ID_RECORD]: check new (self.dbClient, self.metadata.get(INT_ID_RECORD)),
+            [FLOAT_ID_RECORD]: check new (self.dbClient, self.metadata.get(FLOAT_ID_RECORD)),
+            [DECIMAL_ID_RECORD]: check new (self.dbClient, self.metadata.get(DECIMAL_ID_RECORD)),
+            [BOOLEAN_ID_RECORD]: check new (self.dbClient, self.metadata.get(BOOLEAN_ID_RECORD)),
+            [COMPOSITE_ASSOCIATION_RECORD]: check new (self.dbClient, self.metadata.get(COMPOSITE_ASSOCIATION_RECORD)),
+            [ALL_TYPES_ID_RECORD]: check new (self.dbClient, self.metadata.get(ALL_TYPES_ID_RECORD))
         };
     }
 
@@ -177,192 +177,192 @@ public client class TestEntitiesClient {
         return result;
     }
 
-    isolated resource function get stringidrecord(StringIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
+    isolated resource function get stringidrecords(StringIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "query"
     } external;
 
-    isolated resource function get stringidrecord/[string id](StringIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
+    isolated resource function get stringidrecords/[string id](StringIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "queryOne"
     } external;
 
-    isolated resource function post stringidrecord(StringIdRecordInsert[] data) returns string[]|Error {
+    isolated resource function post stringidrecords(StringIdRecordInsert[] data) returns string[]|Error {
         _ = check self.persistClients.get(STRING_ID_RECORD).runBatchInsertQuery(data);
         return from StringIdRecordInsert inserted in data
             select inserted.id;
     }
 
-    isolated resource function put stringidrecord/[string id](StringIdRecordUpdate value) returns StringIdRecord|Error {
+    isolated resource function put stringidrecords/[string id](StringIdRecordUpdate value) returns StringIdRecord|Error {
         _ = check self.persistClients.get(STRING_ID_RECORD).runUpdateQuery(id, value);
-        return self->/stringidrecord/[id].get();
+        return self->/stringidrecords/[id].get();
     }
 
-    isolated resource function delete stringidrecord/[string id]() returns StringIdRecord|Error {
-        StringIdRecord result = check self->/stringidrecord/[id].get();
+    isolated resource function delete stringidrecords/[string id]() returns StringIdRecord|Error {
+        StringIdRecord result = check self->/stringidrecords/[id].get();
         _ = check self.persistClients.get(STRING_ID_RECORD).runDeleteQuery(id);
         return result;
     }
 
-    isolated resource function get intidrecord(IntIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
+    isolated resource function get intidrecords(IntIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "query"
     } external;
 
-    isolated resource function get intidrecord/[int id](IntIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
+    isolated resource function get intidrecords/[int id](IntIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "queryOne"
     } external;
 
-    isolated resource function post intidrecord(IntIdRecordInsert[] data) returns int[]|Error {
+    isolated resource function post intidrecords(IntIdRecordInsert[] data) returns int[]|Error {
         _ = check self.persistClients.get(INT_ID_RECORD).runBatchInsertQuery(data);
         return from IntIdRecordInsert inserted in data
             select inserted.id;
     }
 
-    isolated resource function put intidrecord/[int id](IntIdRecordUpdate value) returns IntIdRecord|Error {
+    isolated resource function put intidrecords/[int id](IntIdRecordUpdate value) returns IntIdRecord|Error {
         _ = check self.persistClients.get(INT_ID_RECORD).runUpdateQuery(id, value);
-        return self->/intidrecord/[id].get();
+        return self->/intidrecords/[id].get();
     }
 
-    isolated resource function delete intidrecord/[int id]() returns IntIdRecord|Error {
-        IntIdRecord result = check self->/intidrecord/[id].get();
+    isolated resource function delete intidrecords/[int id]() returns IntIdRecord|Error {
+        IntIdRecord result = check self->/intidrecords/[id].get();
         _ = check self.persistClients.get(INT_ID_RECORD).runDeleteQuery(id);
         return result;
     }
 
-    isolated resource function get floatidrecord(FloatIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
+    isolated resource function get floatidrecords(FloatIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "query"
     } external;
 
-    isolated resource function get floatidrecord/[float id](FloatIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
+    isolated resource function get floatidrecords/[float id](FloatIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "queryOne"
     } external;
 
-    isolated resource function post floatidrecord(FloatIdRecordInsert[] data) returns float[]|Error {
+    isolated resource function post floatidrecords(FloatIdRecordInsert[] data) returns float[]|Error {
         _ = check self.persistClients.get(FLOAT_ID_RECORD).runBatchInsertQuery(data);
         return from FloatIdRecordInsert inserted in data
             select inserted.id;
     }
 
-    isolated resource function put floatidrecord/[float id](FloatIdRecordUpdate value) returns FloatIdRecord|Error {
+    isolated resource function put floatidrecords/[float id](FloatIdRecordUpdate value) returns FloatIdRecord|Error {
         _ = check self.persistClients.get(FLOAT_ID_RECORD).runUpdateQuery(id, value);
-        return self->/floatidrecord/[id].get();
+        return self->/floatidrecords/[id].get();
     }
 
-    isolated resource function delete floatidrecord/[float id]() returns FloatIdRecord|Error {
-        FloatIdRecord result = check self->/floatidrecord/[id].get();
+    isolated resource function delete floatidrecords/[float id]() returns FloatIdRecord|Error {
+        FloatIdRecord result = check self->/floatidrecords/[id].get();
         _ = check self.persistClients.get(FLOAT_ID_RECORD).runDeleteQuery(id);
         return result;
     }
 
-    isolated resource function get decimalidrecord(DecimalIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
+    isolated resource function get decimalidrecords(DecimalIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "query"
     } external;
 
-    isolated resource function get decimalidrecord/[decimal id](DecimalIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
+    isolated resource function get decimalidrecords/[decimal id](DecimalIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "queryOne"
     } external;
 
-    isolated resource function post decimalidrecord(DecimalIdRecordInsert[] data) returns decimal[]|Error {
+    isolated resource function post decimalidrecords(DecimalIdRecordInsert[] data) returns decimal[]|Error {
         _ = check self.persistClients.get(DECIMAL_ID_RECORD).runBatchInsertQuery(data);
         return from DecimalIdRecordInsert inserted in data
             select inserted.id;
     }
 
-    isolated resource function put decimalidrecord/[decimal id](DecimalIdRecordUpdate value) returns DecimalIdRecord|Error {
+    isolated resource function put decimalidrecords/[decimal id](DecimalIdRecordUpdate value) returns DecimalIdRecord|Error {
         _ = check self.persistClients.get(DECIMAL_ID_RECORD).runUpdateQuery(id, value);
-        return self->/decimalidrecord/[id].get();
+        return self->/decimalidrecords/[id].get();
     }
 
-    isolated resource function delete decimalidrecord/[decimal id]() returns DecimalIdRecord|Error {
-        DecimalIdRecord result = check self->/decimalidrecord/[id].get();
+    isolated resource function delete decimalidrecords/[decimal id]() returns DecimalIdRecord|Error {
+        DecimalIdRecord result = check self->/decimalidrecords/[id].get();
         _ = check self.persistClients.get(DECIMAL_ID_RECORD).runDeleteQuery(id);
         return result;
     }
 
-    isolated resource function get booleanidrecord(BooleanIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
+    isolated resource function get booleanidrecords(BooleanIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "query"
     } external;
 
-    isolated resource function get booleanidrecord/[boolean id](BooleanIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
+    isolated resource function get booleanidrecords/[boolean id](BooleanIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "queryOne"
     } external;
 
-    isolated resource function post booleanidrecord(BooleanIdRecordInsert[] data) returns boolean[]|Error {
+    isolated resource function post booleanidrecords(BooleanIdRecordInsert[] data) returns boolean[]|Error {
         _ = check self.persistClients.get(BOOLEAN_ID_RECORD).runBatchInsertQuery(data);
         return from BooleanIdRecordInsert inserted in data
             select inserted.id;
     }
 
-    isolated resource function put booleanidrecord/[boolean id](BooleanIdRecordUpdate value) returns BooleanIdRecord|Error {
+    isolated resource function put booleanidrecords/[boolean id](BooleanIdRecordUpdate value) returns BooleanIdRecord|Error {
         _ = check self.persistClients.get(BOOLEAN_ID_RECORD).runUpdateQuery(id, value);
-        return self->/booleanidrecord/[id].get();
+        return self->/booleanidrecords/[id].get();
     }
 
-    isolated resource function delete booleanidrecord/[boolean id]() returns BooleanIdRecord|Error {
-        BooleanIdRecord result = check self->/booleanidrecord/[id].get();
+    isolated resource function delete booleanidrecords/[boolean id]() returns BooleanIdRecord|Error {
+        BooleanIdRecord result = check self->/booleanidrecords/[id].get();
         _ = check self.persistClients.get(BOOLEAN_ID_RECORD).runDeleteQuery(id);
         return result;
     }
 
-    isolated resource function get compositeassociationrecord(CompositeAssociationRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
+    isolated resource function get compositeassociationrecords(CompositeAssociationRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "query"
     } external;
 
-    isolated resource function get compositeassociationrecord/[string id](CompositeAssociationRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
+    isolated resource function get compositeassociationrecords/[string id](CompositeAssociationRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "queryOne"
     } external;
 
-    isolated resource function post compositeassociationrecord(CompositeAssociationRecordInsert[] data) returns string[]|Error {
+    isolated resource function post compositeassociationrecords(CompositeAssociationRecordInsert[] data) returns string[]|Error {
         _ = check self.persistClients.get(COMPOSITE_ASSOCIATION_RECORD).runBatchInsertQuery(data);
         return from CompositeAssociationRecordInsert inserted in data
             select inserted.id;
     }
 
-    isolated resource function put compositeassociationrecord/[string id](CompositeAssociationRecordUpdate value) returns CompositeAssociationRecord|Error {
+    isolated resource function put compositeassociationrecords/[string id](CompositeAssociationRecordUpdate value) returns CompositeAssociationRecord|Error {
         _ = check self.persistClients.get(COMPOSITE_ASSOCIATION_RECORD).runUpdateQuery(id, value);
-        return self->/compositeassociationrecord/[id].get();
+        return self->/compositeassociationrecords/[id].get();
     }
 
-    isolated resource function delete compositeassociationrecord/[string id]() returns CompositeAssociationRecord|Error {
-        CompositeAssociationRecord result = check self->/compositeassociationrecord/[id].get();
+    isolated resource function delete compositeassociationrecords/[string id]() returns CompositeAssociationRecord|Error {
+        CompositeAssociationRecord result = check self->/compositeassociationrecords/[id].get();
         _ = check self.persistClients.get(COMPOSITE_ASSOCIATION_RECORD).runDeleteQuery(id);
         return result;
     }
 
-    isolated resource function get alltypesidrecord(AllTypesIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
+    isolated resource function get alltypesidrecords(AllTypesIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "query"
     } external;
 
-    isolated resource function get alltypesidrecord/[float floatType]/[decimal decimalType]/[boolean booleanType]/[int intType]/[string stringType](AllTypesIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
+    isolated resource function get alltypesidrecords/[boolean booleanType]/[int intType]/[float floatType]/[decimal decimalType]/[string stringType](AllTypesIdRecordTargetType targetType = <>) returns targetType|Error = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "queryOne"
     } external;
 
-    isolated resource function post alltypesidrecord(AllTypesIdRecordInsert[] data) returns [boolean, int, float, decimal, string][]|Error {
+    isolated resource function post alltypesidrecords(AllTypesIdRecordInsert[] data) returns [boolean, int, float, decimal, string][]|Error {
         _ = check self.persistClients.get(ALL_TYPES_ID_RECORD).runBatchInsertQuery(data);
         return from AllTypesIdRecordInsert inserted in data
             select [inserted.booleanType, inserted.intType, inserted.floatType, inserted.decimalType, inserted.stringType];
     }
 
-    isolated resource function put alltypesidrecord/[float floatType]/[decimal decimalType]/[boolean booleanType]/[int intType]/[string stringType](AllTypesIdRecordUpdate value) returns AllTypesIdRecord|Error {
-        _ = check self.persistClients.get(ALL_TYPES_ID_RECORD).runUpdateQuery({"floatType": floatType, "decimalType": decimalType, "booleanType": booleanType, "intType": intType, "stringType": stringType}, value);
-        return self->/alltypesidrecord/[floatType]/[decimalType]/[booleanType]/[intType]/[stringType].get();
+    isolated resource function put alltypesidrecords/[boolean booleanType]/[int intType]/[float floatType]/[decimal decimalType]/[string stringType](AllTypesIdRecordUpdate value) returns AllTypesIdRecord|Error {
+        _ = check self.persistClients.get(ALL_TYPES_ID_RECORD).runUpdateQuery({"booleanType": booleanType, "intType": intType, "floatType": floatType, "decimalType": decimalType, "stringType": stringType}, value);
+        return self->/alltypesidrecords/[booleanType]/[intType]/[floatType]/[decimalType]/[stringType].get();
     }
 
-    isolated resource function delete alltypesidrecord/[float floatType]/[decimal decimalType]/[boolean booleanType]/[int intType]/[string stringType]() returns AllTypesIdRecord|Error {
-        AllTypesIdRecord result = check self->/alltypesidrecord/[floatType]/[decimalType]/[booleanType]/[intType]/[stringType].get();
-        _ = check self.persistClients.get(ALL_TYPES_ID_RECORD).runDeleteQuery({"floatType": floatType, "decimalType": decimalType, "booleanType": booleanType, "intType": intType, "stringType": stringType});
+    isolated resource function delete alltypesidrecords/[boolean booleanType]/[int intType]/[float floatType]/[decimal decimalType]/[string stringType]() returns AllTypesIdRecord|Error {
+        AllTypesIdRecord result = check self->/alltypesidrecords/[booleanType]/[intType]/[floatType]/[decimalType]/[stringType].get();
+        _ = check self.persistClients.get(ALL_TYPES_ID_RECORD).runDeleteQuery({"booleanType": booleanType, "intType": intType, "floatType": floatType, "decimalType": decimalType, "stringType": stringType});
         return result;
     }
 
@@ -374,3 +374,4 @@ public client class TestEntitiesClient {
         return result;
     }
 }
+

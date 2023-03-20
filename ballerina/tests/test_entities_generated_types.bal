@@ -224,3 +224,4 @@ public type AllTypesIdRecordInsert AllTypesIdRecord;
 public type AllTypesIdRecordUpdate record {|
     string randomField?;
 |};
+
