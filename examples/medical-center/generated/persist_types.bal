@@ -12,14 +12,6 @@ public type MedicalItem record {|
     string unit;
 |};
 
-public type MedicalItemInsert MedicalItem;
-
-public type MedicalItemUpdate record {|
-    string name?;
-    string 'type?;
-    string unit?;
-|};
-
 public type MedicalItemOptionalized record {|
     int itemId?;
     string name?;
@@ -29,21 +21,20 @@ public type MedicalItemOptionalized record {|
 
 public type MedicalItemTargetType typedesc<MedicalItemOptionalized>;
 
+public type MedicalItemInsert MedicalItem;
+
+public type MedicalItemUpdate record {|
+    string name?;
+    string 'type?;
+    string unit?;
+|};
+
 public type MedicalNeed record {|
     readonly int needId;
     int beneficiaryId;
     time:Civil period;
     string urgency;
     int quantity;
-|};
-
-public type MedicalNeedInsert MedicalNeed;
-
-public type MedicalNeedUpdate record {|
-    int beneficiaryId?;
-    time:Civil period?;
-    string urgency?;
-    int quantity?;
 |};
 
 public type MedicalNeedOptionalized record {|
@@ -55,4 +46,13 @@ public type MedicalNeedOptionalized record {|
 |};
 
 public type MedicalNeedTargetType typedesc<MedicalNeedOptionalized>;
+
+public type MedicalNeedInsert MedicalNeed;
+
+public type MedicalNeedUpdate record {|
+    int beneficiaryId?;
+    time:Civil period?;
+    string urgency?;
+    int quantity?;
+|};
 

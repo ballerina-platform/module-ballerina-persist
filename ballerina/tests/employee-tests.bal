@@ -79,10 +79,10 @@ Employee updatedEmployee1 = {
 function employeeCreateTest() returns error? {
     RainierClient rainierClient = check new ();
     
-    string[] empNos = check rainierClient->/employee.post([employee1]);    
+    string[] empNos = check rainierClient->/employees.post([employee1]);    
     test:assertEquals(empNos, [employee1.empNo]);
 
-    Employee employeeRetrieved = check rainierClient->/employee/[employee1.empNo].get();
+    Employee employeeRetrieved = check rainierClient->/employees/[employee1.empNo].get();
     test:assertEquals(employeeRetrieved, employee1);
     check rainierClient.close();
 }
@@ -94,14 +94,14 @@ function employeeCreateTest() returns error? {
 function employeeCreateTest2() returns error? {
     RainierClient rainierClient = check new ();
     
-    string[] empNos = check rainierClient->/employee.post([employee2, employee3]);
+    string[] empNos = check rainierClient->/employees.post([employee2, employee3]);
 
     test:assertEquals(empNos, [employee2.empNo, employee3.empNo]);
 
-    Employee employeeRetrieved = check rainierClient->/employee/[employee2.empNo].get();
+    Employee employeeRetrieved = check rainierClient->/employees/[employee2.empNo].get();
     test:assertEquals(employeeRetrieved, employee2);
 
-    employeeRetrieved = check rainierClient->/employee/[employee3.empNo].get();
+    employeeRetrieved = check rainierClient->/employees/[employee3.empNo].get();
     test:assertEquals(employeeRetrieved, employee3);
     check rainierClient.close();
 }
@@ -113,7 +113,7 @@ function employeeCreateTest2() returns error? {
 function employeeCreateTestNegative() returns error? {
     RainierClient rainierClient = check new ();
     
-    string[]|error employee = rainierClient->/employee.post([invalidEmployee]);   
+    string[]|error employee = rainierClient->/employees.post([invalidEmployee]);   
     if employee is Error {
         test:assertTrue(employee.message().includes("Data truncation: Data too long for column 'empNo' at row 1."));
     } else {
@@ -129,7 +129,7 @@ function employeeCreateTestNegative() returns error? {
 function employeeReadOneTest() returns error? {
     RainierClient rainierClient = check new ();
 
-    Employee employeeRetrieved = check rainierClient->/employee/[employee1.empNo].get();
+    Employee employeeRetrieved = check rainierClient->/employees/[employee1.empNo].get();
     test:assertEquals(employeeRetrieved, employee1);
     check rainierClient.close();
 }
@@ -141,7 +141,7 @@ function employeeReadOneTest() returns error? {
 function employeeReadOneTestNegative() returns error? {
     RainierClient rainierClient = check new ();
 
-    Employee|error employeeRetrieved = rainierClient->/employee/["invalid-employee-id"].get();
+    Employee|error employeeRetrieved = rainierClient->/employees/["invalid-employee-id"].get();
     if employeeRetrieved is InvalidKeyError {
         test:assertEquals(employeeRetrieved.message(), "A record does not exist for 'Employee' for key \"invalid-employee-id\".");
     } else {
@@ -157,7 +157,7 @@ function employeeReadOneTestNegative() returns error? {
 function employeeReadManyTest() returns error? {
     RainierClient rainierClient = check new ();
 
-    stream<Employee, Error?> employeeStream = rainierClient->/employee.get();
+    stream<Employee, Error?> employeeStream = rainierClient->/employees.get();
     Employee[] employees = check from Employee employee in employeeStream 
         select employee;
 
@@ -177,7 +177,7 @@ public type EmployeeName record {|
 function employeeReadManyDependentTest1() returns error? {
     RainierClient rainierClient = check new ();
 
-    stream<EmployeeName, Error?> employeeStream = rainierClient->/employee.get();
+    stream<EmployeeName, Error?> employeeStream = rainierClient->/employees.get();
     EmployeeName[] employees = check from EmployeeName employee in employeeStream 
         select employee;
 
@@ -203,7 +203,7 @@ public type EmployeeInfo2 record {|
 function employeeReadManyDependentTest2() returns error? {
     RainierClient rainierClient = check new ();
 
-    stream<EmployeeInfo2, Error?> employeeStream = rainierClient->/employee.get();
+    stream<EmployeeInfo2, Error?> employeeStream = rainierClient->/employees.get();
     EmployeeInfo2[] employees = check from EmployeeInfo2 employee in employeeStream 
         select employee;
 
@@ -222,7 +222,7 @@ function employeeReadManyDependentTest2() returns error? {
 function employeeUpdateTest() returns error? {
     RainierClient rainierClient = check new ();
 
-    Employee employee = check rainierClient->/employee/[employee1.empNo].put({
+    Employee employee = check rainierClient->/employees/[employee1.empNo].put({
         lastName: "Jones",
         departmentDeptNo: "department-3",
         birthDate: {year: 1994, month: 11, day:13}
@@ -230,7 +230,7 @@ function employeeUpdateTest() returns error? {
 
     test:assertEquals(employee, updatedEmployee1);
 
-    Employee employeeRetrieved = check rainierClient->/employee/[employee1.empNo].get();
+    Employee employeeRetrieved = check rainierClient->/employees/[employee1.empNo].get();
     test:assertEquals(employeeRetrieved, updatedEmployee1);
     check rainierClient.close();
 }
@@ -242,7 +242,7 @@ function employeeUpdateTest() returns error? {
 function employeeUpdateTestNegative1() returns error? {
     RainierClient rainierClient = check new ();
 
-    Employee|error employee = rainierClient->/employee/["invalid-employee-id"].put({
+    Employee|error employee = rainierClient->/employees/["invalid-employee-id"].put({
         lastName: "Jones"   
     });
 
@@ -261,7 +261,7 @@ function employeeUpdateTestNegative1() returns error? {
 function employeeUpdateTestNegative2() returns error? {
     RainierClient rainierClient = check new ();
 
-    Employee|error employee = rainierClient->/employee/[employee1.empNo].put({
+    Employee|error employee = rainierClient->/employees/[employee1.empNo].put({
         firstName: "unncessarily-long-employee-name-to-force-error-on-update"
     });
 
@@ -280,7 +280,7 @@ function employeeUpdateTestNegative2() returns error? {
 function employeeUpdateTestNegative3() returns error? {
     RainierClient rainierClient = check new ();
 
-    Employee|error employee = rainierClient->/employee/[employee1.empNo].put({
+    Employee|error employee = rainierClient->/employees/[employee1.empNo].put({
         workspaceWorkspaceId: "invalid-workspaceWorkspaceId"
     });
 
@@ -300,10 +300,10 @@ function employeeUpdateTestNegative3() returns error? {
 function employeeDeleteTest() returns error? {
     RainierClient rainierClient = check new ();
 
-    Employee employee = check rainierClient->/employee/[employee1.empNo].delete();
+    Employee employee = check rainierClient->/employees/[employee1.empNo].delete();
     test:assertEquals(employee, updatedEmployee1);
 
-    stream<Employee, error?> employeeStream = rainierClient->/employee.get();
+    stream<Employee, error?> employeeStream = rainierClient->/employees.get();
     Employee[] employees = check from Employee employee2 in employeeStream 
         select employee2;
 
@@ -318,7 +318,7 @@ function employeeDeleteTest() returns error? {
 function employeeDeleteTestNegative() returns error? {
     RainierClient rainierClient = check new ();
 
-    Employee|error employee = rainierClient->/employee/[employee1.empNo].delete();
+    Employee|error employee = rainierClient->/employees/[employee1.empNo].delete();
 
     if employee is InvalidKeyError {
         test:assertEquals(employee.message(), string `A record does not exist for 'Employee' for key "${employee1.empNo}".`);

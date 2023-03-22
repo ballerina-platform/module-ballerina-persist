@@ -43,37 +43,37 @@ function intIdFieldTest() returns error? {
     };
 
     // create
-    int[] ids = check testEntitiesClient->/intidrecord.post([intIdRecord1, intIdRecord2, intIdRecord3]);
+    int[] ids = check testEntitiesClient->/intidrecords.post([intIdRecord1, intIdRecord2, intIdRecord3]);
     test:assertEquals(ids, [intIdRecord1.id, intIdRecord2.id, intIdRecord3.id]);
 
     // read one
-    IntIdRecord retrievedRecord1 = check testEntitiesClient->/intidrecord/[intIdRecord1.id].get();
+    IntIdRecord retrievedRecord1 = check testEntitiesClient->/intidrecords/[intIdRecord1.id].get();
     test:assertEquals(intIdRecord1, retrievedRecord1);
 
     // read one dependent
-    IntIdRecordDependent retrievedRecord1Dependent = check testEntitiesClient->/intidrecord/[intIdRecord1.id].get();
+    IntIdRecordDependent retrievedRecord1Dependent = check testEntitiesClient->/intidrecords/[intIdRecord1.id].get();
     test:assertEquals({randomField: intIdRecord1.randomField}, retrievedRecord1Dependent);
 
     // read
-    IntIdRecord[] intIdRecords = check from IntIdRecord intIdRecord in testEntitiesClient->/intidrecord.get(IntIdRecord)
+    IntIdRecord[] intIdRecords = check from IntIdRecord intIdRecord in testEntitiesClient->/intidrecords.get(IntIdRecord)
         select intIdRecord;
     test:assertEquals(intIdRecords, [intIdRecord1, intIdRecord2, intIdRecord3]);
 
     // read dependent
-    IntIdRecordDependent[] intIdRecordsDependent = check from IntIdRecordDependent intIdRecord in testEntitiesClient->/intidrecord.get(IntIdRecordDependent)
+    IntIdRecordDependent[] intIdRecordsDependent = check from IntIdRecordDependent intIdRecord in testEntitiesClient->/intidrecords.get(IntIdRecordDependent)
         select intIdRecord;
     test:assertEquals(intIdRecordsDependent, [{randomField: intIdRecord1.randomField}, {randomField: intIdRecord2.randomField}, {randomField: intIdRecord3.randomField}]);
 
     // update
-    retrievedRecord1 = check testEntitiesClient->/intidrecord/[intIdRecord1.id].put({randomField: intIdRecord1Updated.randomField});
+    retrievedRecord1 = check testEntitiesClient->/intidrecords/[intIdRecord1.id].put({randomField: intIdRecord1Updated.randomField});
     test:assertEquals(intIdRecord1Updated, retrievedRecord1);
-    retrievedRecord1 = check testEntitiesClient->/intidrecord/[intIdRecord1.id].get();
+    retrievedRecord1 = check testEntitiesClient->/intidrecords/[intIdRecord1.id].get();
     test:assertEquals(intIdRecord1Updated, retrievedRecord1);
 
     // delete
-    IntIdRecord retrievedRecord2 = check testEntitiesClient->/intidrecord/[intIdRecord2.id].delete();
+    IntIdRecord retrievedRecord2 = check testEntitiesClient->/intidrecords/[intIdRecord2.id].delete();
     test:assertEquals(intIdRecord2, retrievedRecord2);
-    intIdRecords = check from IntIdRecord intIdRecord in testEntitiesClient->/intidrecord.get(IntIdRecord)
+    intIdRecords = check from IntIdRecord intIdRecord in testEntitiesClient->/intidrecords.get(IntIdRecord)
         select intIdRecord;
     test:assertEquals(intIdRecords, [intIdRecord1Updated, intIdRecord3]);
 
@@ -107,37 +107,37 @@ function stringIdFieldTest() returns error? {
     };
 
     // create
-    string[] ids = check testEntitiesClient->/stringidrecord.post([stringIdRecord1, stringIdRecord2, stringIdRecord3]);
+    string[] ids = check testEntitiesClient->/stringidrecords.post([stringIdRecord1, stringIdRecord2, stringIdRecord3]);
     test:assertEquals(ids, [stringIdRecord1.id, stringIdRecord2.id, stringIdRecord3.id]);
 
     // read one
-    StringIdRecord retrievedRecord1 = check testEntitiesClient->/stringidrecord/[stringIdRecord1.id].get();
+    StringIdRecord retrievedRecord1 = check testEntitiesClient->/stringidrecords/[stringIdRecord1.id].get();
     test:assertEquals(stringIdRecord1, retrievedRecord1);
 
     // read one dependent
-    StringIdRecordDependent retrievedRecord1Dependent = check testEntitiesClient->/stringidrecord/[stringIdRecord1.id].get();
+    StringIdRecordDependent retrievedRecord1Dependent = check testEntitiesClient->/stringidrecords/[stringIdRecord1.id].get();
     test:assertEquals({randomField: stringIdRecord1.randomField}, retrievedRecord1Dependent);
 
     // read
-    StringIdRecord[] stringIdRecords = check from StringIdRecord stringIdRecord in testEntitiesClient->/stringidrecord.get(StringIdRecord)
+    StringIdRecord[] stringIdRecords = check from StringIdRecord stringIdRecord in testEntitiesClient->/stringidrecords.get(StringIdRecord)
         select stringIdRecord;
     test:assertEquals(stringIdRecords, [stringIdRecord1, stringIdRecord2, stringIdRecord3]);
 
     // read dependent
-    StringIdRecordDependent[] stringIdRecordsDependent = check from StringIdRecordDependent stringIdRecord in testEntitiesClient->/stringidrecord.get(StringIdRecordDependent)
+    StringIdRecordDependent[] stringIdRecordsDependent = check from StringIdRecordDependent stringIdRecord in testEntitiesClient->/stringidrecords.get(StringIdRecordDependent)
         select stringIdRecord;
     test:assertEquals(stringIdRecordsDependent, [{randomField: stringIdRecord1.randomField}, {randomField: stringIdRecord2.randomField}, {randomField: stringIdRecord3.randomField}]);
 
     // update
-    retrievedRecord1 = check testEntitiesClient->/stringidrecord/[stringIdRecord1.id].put({randomField: stringIdRecord1Updated.randomField});
+    retrievedRecord1 = check testEntitiesClient->/stringidrecords/[stringIdRecord1.id].put({randomField: stringIdRecord1Updated.randomField});
     test:assertEquals(stringIdRecord1Updated, retrievedRecord1);
-    retrievedRecord1 = check testEntitiesClient->/stringidrecord/[stringIdRecord1.id].get();
+    retrievedRecord1 = check testEntitiesClient->/stringidrecords/[stringIdRecord1.id].get();
     test:assertEquals(stringIdRecord1Updated, retrievedRecord1);
 
     // delete
-    StringIdRecord retrievedRecord2 = check testEntitiesClient->/stringidrecord/[stringIdRecord2.id].delete();
+    StringIdRecord retrievedRecord2 = check testEntitiesClient->/stringidrecords/[stringIdRecord2.id].delete();
     test:assertEquals(stringIdRecord2, retrievedRecord2);
-    stringIdRecords = check from StringIdRecord stringIdRecord in testEntitiesClient->/stringidrecord.get(StringIdRecord)
+    stringIdRecords = check from StringIdRecord stringIdRecord in testEntitiesClient->/stringidrecords.get(StringIdRecord)
         select stringIdRecord;
     test:assertEquals(stringIdRecords, [stringIdRecord1Updated, stringIdRecord3]);
 
@@ -171,37 +171,37 @@ function floatIdFieldTest() returns error? {
     };
 
     // create
-    float[] ids = check testEntitiesClient->/floatidrecord.post([floatIdRecord1, floatIdRecord2, floatIdRecord3]);
+    float[] ids = check testEntitiesClient->/floatidrecords.post([floatIdRecord1, floatIdRecord2, floatIdRecord3]);
     test:assertEquals(ids, [floatIdRecord1.id, floatIdRecord2.id, floatIdRecord3.id]);
 
     // read one
-    FloatIdRecord retrievedRecord1 = check testEntitiesClient->/floatidrecord/[floatIdRecord1.id].get();
+    FloatIdRecord retrievedRecord1 = check testEntitiesClient->/floatidrecords/[floatIdRecord1.id].get();
     test:assertEquals(floatIdRecord1, retrievedRecord1);
 
     // read one dependent
-    FloatIdRecordDependent retrievedRecord1Dependent = check testEntitiesClient->/floatidrecord/[floatIdRecord1.id].get();
+    FloatIdRecordDependent retrievedRecord1Dependent = check testEntitiesClient->/floatidrecords/[floatIdRecord1.id].get();
     test:assertEquals({randomField: floatIdRecord1.randomField}, retrievedRecord1Dependent);
 
     // read
-    FloatIdRecord[] floatIdRecords = check from FloatIdRecord floatIdRecord in testEntitiesClient->/floatidrecord.get(FloatIdRecord)
+    FloatIdRecord[] floatIdRecords = check from FloatIdRecord floatIdRecord in testEntitiesClient->/floatidrecords.get(FloatIdRecord)
         select floatIdRecord;
     test:assertEquals(floatIdRecords, [floatIdRecord1, floatIdRecord2, floatIdRecord3]);
 
     // read dependent
-    FloatIdRecordDependent[] floatIdRecordsDependent = check from FloatIdRecordDependent floatIdRecord in testEntitiesClient->/floatidrecord.get(FloatIdRecordDependent)
+    FloatIdRecordDependent[] floatIdRecordsDependent = check from FloatIdRecordDependent floatIdRecord in testEntitiesClient->/floatidrecords.get(FloatIdRecordDependent)
         select floatIdRecord;
     test:assertEquals(floatIdRecordsDependent, [{randomField: floatIdRecord1.randomField}, {randomField: floatIdRecord2.randomField}, {randomField: floatIdRecord3.randomField}]);
 
     // update
-    retrievedRecord1 = check testEntitiesClient->/floatidrecord/[floatIdRecord1.id].put({randomField: floatIdRecord1Updated.randomField});
+    retrievedRecord1 = check testEntitiesClient->/floatidrecords/[floatIdRecord1.id].put({randomField: floatIdRecord1Updated.randomField});
     test:assertEquals(floatIdRecord1Updated, retrievedRecord1);
-    retrievedRecord1 = check testEntitiesClient->/floatidrecord/[floatIdRecord1.id].get();
+    retrievedRecord1 = check testEntitiesClient->/floatidrecords/[floatIdRecord1.id].get();
     test:assertEquals(floatIdRecord1Updated, retrievedRecord1);
 
     // delete
-    FloatIdRecord retrievedRecord2 = check testEntitiesClient->/floatidrecord/[floatIdRecord2.id].delete();
+    FloatIdRecord retrievedRecord2 = check testEntitiesClient->/floatidrecords/[floatIdRecord2.id].delete();
     test:assertEquals(floatIdRecord2, retrievedRecord2);
-    floatIdRecords = check from FloatIdRecord floatIdRecord in testEntitiesClient->/floatidrecord.get(FloatIdRecord)
+    floatIdRecords = check from FloatIdRecord floatIdRecord in testEntitiesClient->/floatidrecords.get(FloatIdRecord)
         select floatIdRecord;
     test:assertEquals(floatIdRecords, [floatIdRecord1Updated, floatIdRecord3]);
 }
@@ -233,37 +233,37 @@ function decimalIdFieldTest() returns error? {
     };
     
     // create
-    decimal[] ids = check testEntitiesClient->/decimalidrecord.post([decimalIdRecord1, decimalIdRecord2, decimalIdRecord3]);
+    decimal[] ids = check testEntitiesClient->/decimalidrecords.post([decimalIdRecord1, decimalIdRecord2, decimalIdRecord3]);
     test:assertEquals(ids, [decimalIdRecord1.id, decimalIdRecord2.id, decimalIdRecord3.id]);
 
     // read one
-    DecimalIdRecord retrievedRecord1 = check testEntitiesClient->/decimalidrecord/[decimalIdRecord1.id].get();
+    DecimalIdRecord retrievedRecord1 = check testEntitiesClient->/decimalidrecords/[decimalIdRecord1.id].get();
     test:assertEquals(decimalIdRecord1, retrievedRecord1);
 
     // read one dependent
-    DecimalIdRecordDependent retrievedRecord1Dependent = check testEntitiesClient->/decimalidrecord/[decimalIdRecord1.id].get();
+    DecimalIdRecordDependent retrievedRecord1Dependent = check testEntitiesClient->/decimalidrecords/[decimalIdRecord1.id].get();
     test:assertEquals({randomField: decimalIdRecord1.randomField}, retrievedRecord1Dependent);
 
     // read
-    DecimalIdRecord[] decimalIdRecords = check from DecimalIdRecord decimalIdRecord in testEntitiesClient->/decimalidrecord.get(DecimalIdRecord)
+    DecimalIdRecord[] decimalIdRecords = check from DecimalIdRecord decimalIdRecord in testEntitiesClient->/decimalidrecords.get(DecimalIdRecord)
         select decimalIdRecord;
     test:assertEquals(decimalIdRecords, [decimalIdRecord1, decimalIdRecord2, decimalIdRecord3]);
 
     // read dependent
-    DecimalIdRecordDependent[] decimalIdRecordsDependent = check from DecimalIdRecordDependent decimalIdRecord in testEntitiesClient->/decimalidrecord.get(DecimalIdRecordDependent)
+    DecimalIdRecordDependent[] decimalIdRecordsDependent = check from DecimalIdRecordDependent decimalIdRecord in testEntitiesClient->/decimalidrecords.get(DecimalIdRecordDependent)
         select decimalIdRecord;
     test:assertEquals(decimalIdRecordsDependent, [{randomField: decimalIdRecord1.randomField}, {randomField: decimalIdRecord2.randomField}, {randomField: decimalIdRecord3.randomField}]);
 
     // update
-    retrievedRecord1 = check testEntitiesClient->/decimalidrecord/[decimalIdRecord1.id].put({randomField: decimalIdRecord1Updated.randomField});
+    retrievedRecord1 = check testEntitiesClient->/decimalidrecords/[decimalIdRecord1.id].put({randomField: decimalIdRecord1Updated.randomField});
     test:assertEquals(decimalIdRecord1Updated, retrievedRecord1);
-    retrievedRecord1 = check testEntitiesClient->/decimalidrecord/[decimalIdRecord1.id].get();
+    retrievedRecord1 = check testEntitiesClient->/decimalidrecords/[decimalIdRecord1.id].get();
     test:assertEquals(decimalIdRecord1Updated, retrievedRecord1);
 
     // delete
-    DecimalIdRecord retrievedRecord2 = check testEntitiesClient->/decimalidrecord/[decimalIdRecord2.id].delete();
+    DecimalIdRecord retrievedRecord2 = check testEntitiesClient->/decimalidrecords/[decimalIdRecord2.id].delete();
     test:assertEquals(decimalIdRecord2, retrievedRecord2);
-    decimalIdRecords = check from DecimalIdRecord decimalIdRecord in testEntitiesClient->/decimalidrecord.get(DecimalIdRecord)
+    decimalIdRecords = check from DecimalIdRecord decimalIdRecord in testEntitiesClient->/decimalidrecords.get(DecimalIdRecord)
         select decimalIdRecord;
     test:assertEquals(decimalIdRecords, [decimalIdRecord1Updated, decimalIdRecord3]);
 
@@ -293,37 +293,37 @@ function booleanIdFieldTest() returns  error? {
     };
 
     // create
-    boolean[] ids = check testEntitiesClient->/booleanidrecord.post([booleanIdRecord1, booleanIdRecord2]);
+    boolean[] ids = check testEntitiesClient->/booleanidrecords.post([booleanIdRecord1, booleanIdRecord2]);
     test:assertEquals(ids, [booleanIdRecord1.id, booleanIdRecord2.id]);
 
     // read one
-    BooleanIdRecord retrievedRecord1 = check testEntitiesClient->/booleanidrecord/[booleanIdRecord1.id].get();
+    BooleanIdRecord retrievedRecord1 = check testEntitiesClient->/booleanidrecords/[booleanIdRecord1.id].get();
     test:assertEquals(booleanIdRecord1, retrievedRecord1);
 
     // read one dependent
-    BooleanIdRecordDependent retrievedRecord1Dependent = check testEntitiesClient->/booleanidrecord/[booleanIdRecord1.id].get();
+    BooleanIdRecordDependent retrievedRecord1Dependent = check testEntitiesClient->/booleanidrecords/[booleanIdRecord1.id].get();
     test:assertEquals({randomField: booleanIdRecord1.randomField}, retrievedRecord1Dependent);
 
     // read
-    BooleanIdRecord[] booleanIdRecords = check from BooleanIdRecord booleanIdRecord in testEntitiesClient->/booleanidrecord.get(BooleanIdRecord)
+    BooleanIdRecord[] booleanIdRecords = check from BooleanIdRecord booleanIdRecord in testEntitiesClient->/booleanidrecords.get(BooleanIdRecord)
         select booleanIdRecord;
     test:assertEquals(booleanIdRecords, [booleanIdRecord2, booleanIdRecord1]);
 
     // read dependent
-    BooleanIdRecordDependent[] booleanIdRecordsDependent = check from BooleanIdRecordDependent booleanIdRecord in testEntitiesClient->/booleanidrecord.get(BooleanIdRecordDependent)
+    BooleanIdRecordDependent[] booleanIdRecordsDependent = check from BooleanIdRecordDependent booleanIdRecord in testEntitiesClient->/booleanidrecords.get(BooleanIdRecordDependent)
         select booleanIdRecord;
     test:assertEquals(booleanIdRecordsDependent, [{randomField: booleanIdRecord2.randomField}, {randomField: booleanIdRecord1.randomField}]);
 
     // update
-    retrievedRecord1 = check testEntitiesClient->/booleanidrecord/[booleanIdRecord1.id].put({randomField: booleanIdRecord1Updated.randomField});
+    retrievedRecord1 = check testEntitiesClient->/booleanidrecords/[booleanIdRecord1.id].put({randomField: booleanIdRecord1Updated.randomField});
     test:assertEquals(booleanIdRecord1Updated, retrievedRecord1);
-    retrievedRecord1 = check testEntitiesClient->/booleanidrecord/[booleanIdRecord1.id].get();
+    retrievedRecord1 = check testEntitiesClient->/booleanidrecords/[booleanIdRecord1.id].get();
     test:assertEquals(booleanIdRecord1Updated, retrievedRecord1);
 
     // delete
-    BooleanIdRecord retrievedRecord2 = check testEntitiesClient->/booleanidrecord/[booleanIdRecord2.id].delete();
+    BooleanIdRecord retrievedRecord2 = check testEntitiesClient->/booleanidrecords/[booleanIdRecord2.id].delete();
     test:assertEquals(booleanIdRecord2, retrievedRecord2);
-    booleanIdRecords = check from BooleanIdRecord booleanIdRecord in testEntitiesClient->/booleanidrecord.get(BooleanIdRecord)
+    booleanIdRecords = check from BooleanIdRecord booleanIdRecord in testEntitiesClient->/booleanidrecords.get(BooleanIdRecord)
         select booleanIdRecord;
     test:assertEquals(booleanIdRecords, [booleanIdRecord1Updated]);
 
@@ -365,38 +365,38 @@ function allTypesIdFieldTest() returns error? {
     };
 
     // create
-    [boolean, int, float, decimal, string][] ids = check testEntitiesClient->/alltypesidrecord.post([allTypesIdRecord1, allTypesIdRecord2]);
+    [boolean, int, float, decimal, string][] ids = check testEntitiesClient->/alltypesidrecords.post([allTypesIdRecord1, allTypesIdRecord2]);
     test:assertEquals(ids, [[allTypesIdRecord1.booleanType, allTypesIdRecord1.intType, allTypesIdRecord1.floatType, allTypesIdRecord1.decimalType, allTypesIdRecord1.stringType], 
         [allTypesIdRecord2.booleanType, allTypesIdRecord2.intType, allTypesIdRecord2.floatType, allTypesIdRecord2.decimalType, allTypesIdRecord2.stringType]]);
 
     // read one
-    AllTypesIdRecord retrievedRecord1 = check testEntitiesClient->/alltypesidrecord/[allTypesIdRecord1.floatType]/[allTypesIdRecord1.decimalType]/[allTypesIdRecord1.booleanType]/[allTypesIdRecord1.intType]/[allTypesIdRecord1.stringType].get();
+    AllTypesIdRecord retrievedRecord1 = check testEntitiesClient->/alltypesidrecords/[allTypesIdRecord1.booleanType]/[allTypesIdRecord1.intType]/[allTypesIdRecord1.floatType]/[allTypesIdRecord1.decimalType]/[allTypesIdRecord1.stringType].get();
     test:assertEquals(allTypesIdRecord1, retrievedRecord1);
 
     // read one dependent
-    AllTypesIdRecordDependent retrievedRecord1Dependent = check testEntitiesClient->/alltypesidrecord/[allTypesIdRecord1.floatType]/[allTypesIdRecord1.decimalType]/[allTypesIdRecord1.booleanType]/[allTypesIdRecord1.intType]/[allTypesIdRecord1.stringType].get();
+    AllTypesIdRecordDependent retrievedRecord1Dependent = check testEntitiesClient->/alltypesidrecords/[allTypesIdRecord1.booleanType]/[allTypesIdRecord1.intType]/[allTypesIdRecord1.floatType]/[allTypesIdRecord1.decimalType]/[allTypesIdRecord1.stringType].get();
     test:assertEquals({randomField: allTypesIdRecord1.randomField}, retrievedRecord1Dependent);
 
     // read
-    AllTypesIdRecord[] allTypesIdRecords = check from AllTypesIdRecord allTypesIdRecord in testEntitiesClient->/alltypesidrecord.get(AllTypesIdRecord)
+    AllTypesIdRecord[] allTypesIdRecords = check from AllTypesIdRecord allTypesIdRecord in testEntitiesClient->/alltypesidrecords.get(AllTypesIdRecord)
         select allTypesIdRecord;
     test:assertEquals(allTypesIdRecords, [allTypesIdRecord2, allTypesIdRecord1]);
 
     // read dependent
-    AllTypesIdRecordDependent[] allTypesIdRecordsDependent = check from AllTypesIdRecordDependent allTypesIdRecord in testEntitiesClient->/alltypesidrecord.get(AllTypesIdRecordDependent)
+    AllTypesIdRecordDependent[] allTypesIdRecordsDependent = check from AllTypesIdRecordDependent allTypesIdRecord in testEntitiesClient->/alltypesidrecords.get(AllTypesIdRecordDependent)
         select allTypesIdRecord;
     test:assertEquals(allTypesIdRecordsDependent, [{randomField: allTypesIdRecord2.randomField}, {randomField: allTypesIdRecord1.randomField}]);
 
     // update
-    retrievedRecord1 = check testEntitiesClient->/alltypesidrecord/[allTypesIdRecord1.floatType]/[allTypesIdRecord1.decimalType]/[allTypesIdRecord1.booleanType]/[allTypesIdRecord1.intType]/[allTypesIdRecord1.stringType].put({randomField: allTypesIdRecord1Updated.randomField});
+    retrievedRecord1 = check testEntitiesClient->/alltypesidrecords/[allTypesIdRecord1.booleanType]/[allTypesIdRecord1.intType]/[allTypesIdRecord1.floatType]/[allTypesIdRecord1.decimalType]/[allTypesIdRecord1.stringType].put({randomField: allTypesIdRecord1Updated.randomField});
     test:assertEquals(allTypesIdRecord1Updated, retrievedRecord1);
-    retrievedRecord1 = check testEntitiesClient->/alltypesidrecord/[allTypesIdRecord1.floatType]/[allTypesIdRecord1.decimalType]/[allTypesIdRecord1.booleanType]/[allTypesIdRecord1.intType]/[allTypesIdRecord1.stringType].get();
+    retrievedRecord1 = check testEntitiesClient->/alltypesidrecords/[allTypesIdRecord1.booleanType]/[allTypesIdRecord1.intType]/[allTypesIdRecord1.floatType]/[allTypesIdRecord1.decimalType]/[allTypesIdRecord1.stringType].get();
     test:assertEquals(allTypesIdRecord1Updated, retrievedRecord1);
 
     // delete
-    AllTypesIdRecord retrievedRecord2 = check testEntitiesClient->/alltypesidrecord/[allTypesIdRecord2.floatType]/[allTypesIdRecord2.decimalType]/[allTypesIdRecord2.booleanType]/[allTypesIdRecord2.intType]/[allTypesIdRecord2.stringType].delete();
+    AllTypesIdRecord retrievedRecord2 = check testEntitiesClient->/alltypesidrecords/[allTypesIdRecord2.booleanType]/[allTypesIdRecord2.intType]/[allTypesIdRecord2.floatType]/[allTypesIdRecord2.decimalType]/[allTypesIdRecord2.stringType].delete();
     test:assertEquals(allTypesIdRecord2, retrievedRecord2);
-    allTypesIdRecords = check from AllTypesIdRecord allTypesIdRecord in testEntitiesClient->/alltypesidrecord.get(AllTypesIdRecord)
+    allTypesIdRecords = check from AllTypesIdRecord allTypesIdRecord in testEntitiesClient->/alltypesidrecords.get(AllTypesIdRecord)
         select allTypesIdRecord;
     test:assertEquals(allTypesIdRecords, [allTypesIdRecord1Updated]);
 
@@ -462,15 +462,15 @@ function compositeAssociationsTest() returns error? {
     };
 
     // create
-    string[] ids = check testEntitiesClient->/compositeassociationrecord.post([compositeAssociationRecord1, compositeAssociationRecord2]);
+    string[] ids = check testEntitiesClient->/compositeassociationrecords.post([compositeAssociationRecord1, compositeAssociationRecord2]);
     test:assertEquals(ids, [compositeAssociationRecord1.id, compositeAssociationRecord2.id]);
 
     // read one
-    CompositeAssociationRecord retrievedRecord1 = check testEntitiesClient->/compositeassociationrecord/[compositeAssociationRecord1.id].get();
+    CompositeAssociationRecord retrievedRecord1 = check testEntitiesClient->/compositeassociationrecords/[compositeAssociationRecord1.id].get();
     test:assertEquals(compositeAssociationRecord1, retrievedRecord1);
 
     // read one dependent
-    CompositeAssociationRecordDependent retrievedRecord1Dependent = check testEntitiesClient->/compositeassociationrecord/[compositeAssociationRecord1.id].get();
+    CompositeAssociationRecordDependent retrievedRecord1Dependent = check testEntitiesClient->/compositeassociationrecords/[compositeAssociationRecord1.id].get();
     test:assertEquals({
         randomField: compositeAssociationRecord1.randomField, 
         alltypesidrecordIntType: compositeAssociationRecord1.alltypesidrecordIntType, 
@@ -479,12 +479,12 @@ function compositeAssociationsTest() returns error? {
     }, retrievedRecord1Dependent);
 
     // read
-    CompositeAssociationRecord[] compositeAssociationRecords = check from CompositeAssociationRecord compositeAssociationRecord in testEntitiesClient->/compositeassociationrecord.get(CompositeAssociationRecord)
+    CompositeAssociationRecord[] compositeAssociationRecords = check from CompositeAssociationRecord compositeAssociationRecord in testEntitiesClient->/compositeassociationrecords.get(CompositeAssociationRecord)
         select compositeAssociationRecord;
     test:assertEquals(compositeAssociationRecords, [compositeAssociationRecord1, compositeAssociationRecord2]);
 
     // read dependent
-    CompositeAssociationRecordDependent[] compositeAssociationRecordsDependent = check from CompositeAssociationRecordDependent compositeAssociationRecord in testEntitiesClient->/compositeassociationrecord.get(CompositeAssociationRecordDependent)
+    CompositeAssociationRecordDependent[] compositeAssociationRecordsDependent = check from CompositeAssociationRecordDependent compositeAssociationRecord in testEntitiesClient->/compositeassociationrecords.get(CompositeAssociationRecordDependent)
         select compositeAssociationRecord;
     test:assertEquals(compositeAssociationRecordsDependent, [
         {randomField: compositeAssociationRecord1.randomField, alltypesidrecordIntType: compositeAssociationRecord1.alltypesidrecordIntType, alltypesidrecordDecimalType: compositeAssociationRecord1.alltypesidrecordDecimalType, allTypesIdRecord: {intType: allTypesIdRecord1.intType, stringType: allTypesIdRecord1.stringType, booleanType: allTypesIdRecord1.booleanType, randomField: allTypesIdRecord1.randomField}}, 
@@ -492,15 +492,15 @@ function compositeAssociationsTest() returns error? {
     ]);
 
     // update
-    retrievedRecord1 = check testEntitiesClient->/compositeassociationrecord/[compositeAssociationRecord1.id].put({randomField: "test1Updated"});
+    retrievedRecord1 = check testEntitiesClient->/compositeassociationrecords/[compositeAssociationRecord1.id].put({randomField: "test1Updated"});
     test:assertEquals(compositeAssociationRecordUpdated1, retrievedRecord1);
-    retrievedRecord1 = check testEntitiesClient->/compositeassociationrecord/[compositeAssociationRecord1.id].get();
+    retrievedRecord1 = check testEntitiesClient->/compositeassociationrecords/[compositeAssociationRecord1.id].get();
     test:assertEquals(compositeAssociationRecordUpdated1, retrievedRecord1);
 
     // delete
-    CompositeAssociationRecord retrievedRecord2 = check testEntitiesClient->/compositeassociationrecord/[compositeAssociationRecord2.id].delete();
+    CompositeAssociationRecord retrievedRecord2 = check testEntitiesClient->/compositeassociationrecords/[compositeAssociationRecord2.id].delete();
     test:assertEquals(compositeAssociationRecord2, retrievedRecord2);
-    compositeAssociationRecords = check from CompositeAssociationRecord compositeAssociationRecord in testEntitiesClient->/compositeassociationrecord.get(CompositeAssociationRecord)
+    compositeAssociationRecords = check from CompositeAssociationRecord compositeAssociationRecord in testEntitiesClient->/compositeassociationrecords.get(CompositeAssociationRecord)
         select compositeAssociationRecord;
     test:assertEquals(compositeAssociationRecords, [compositeAssociationRecordUpdated1]);
     

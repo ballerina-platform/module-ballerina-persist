@@ -43,13 +43,13 @@ OrderItem orderItem2Updated = {
 function compositeKeyCreateTest() returns error? {
     RainierClient rainierClient = check new ();
 
-    [string, string][] ids = check rainierClient->/orderitem.post([orderItem1, orderItem2]);
+    [string, string][] ids = check rainierClient->/orderitems.post([orderItem1, orderItem2]);
     test:assertEquals(ids, [[orderItem1.orderId, orderItem1.itemId], [orderItem2.orderId, orderItem2.itemId]]);
 
-    OrderItem orderItemRetrieved = check rainierClient->/orderitem/[orderItem1.orderId]/[orderItem1.itemId].get();
+    OrderItem orderItemRetrieved = check rainierClient->/orderitems/[orderItem1.orderId]/[orderItem1.itemId].get();
     test:assertEquals(orderItemRetrieved, orderItem1);
 
-    orderItemRetrieved = check rainierClient->/orderitem/[orderItem2.orderId]/[orderItem2.itemId].get();
+    orderItemRetrieved = check rainierClient->/orderitems/[orderItem2.orderId]/[orderItem2.itemId].get();
     test:assertEquals(orderItemRetrieved, orderItem2);
 
     check rainierClient.close();
@@ -62,7 +62,7 @@ function compositeKeyCreateTest() returns error? {
 function compositeKeyCreateTestNegative() returns error? {
     RainierClient rainierClient = check new ();
 
-    [string, string][]|error ids = rainierClient->/orderitem.post([orderItem1]);
+    [string, string][]|error ids = rainierClient->/orderitems.post([orderItem1]);
     if ids is DuplicateKeyError {
         test:assertEquals(ids.message(), "A OrderItem entity with the key 'order-1-item-1' already exists.");
     } else {
@@ -79,7 +79,7 @@ function compositeKeyCreateTestNegative() returns error? {
 function compositeKeyReadManyTest() returns error? {
     RainierClient rainierClient = check new ();
 
-    stream<OrderItem, error?> orderItemStream = rainierClient->/orderitem.get();
+    stream<OrderItem, error?> orderItemStream = rainierClient->/orderitems.get();
     OrderItem[] orderitem = check from OrderItem orderItem in orderItemStream
         select orderItem;
     
@@ -93,7 +93,7 @@ function compositeKeyReadManyTest() returns error? {
 }
 function compositeKeyReadOneTest() returns error? {
     RainierClient rainierClient = check new ();
-    OrderItem orderItem = check rainierClient->/orderitem/[orderItem1.orderId]/[orderItem1.itemId].get();    
+    OrderItem orderItem = check rainierClient->/orderitems/[orderItem1.orderId]/[orderItem1.itemId].get();    
     test:assertEquals(orderItem, orderItem1);
     check rainierClient.close();
 }
@@ -104,7 +104,7 @@ function compositeKeyReadOneTest() returns error? {
 }
 function compositeKeyReadOneTest2() returns error? {
     RainierClient rainierClient = check new ();
-    OrderItem orderItem = check rainierClient->/orderitem/[orderItem1.orderId]/[orderItem1.itemId].get();    
+    OrderItem orderItem = check rainierClient->/orderitems/[orderItem1.orderId]/[orderItem1.itemId].get();    
     test:assertEquals(orderItem, orderItem1);
     check rainierClient.close();
 }
@@ -115,7 +115,7 @@ function compositeKeyReadOneTest2() returns error? {
 }
 function compositeKeyReadOneTestNegative1() returns error? {
     RainierClient rainierClient = check new ();
-    OrderItem|error orderItem = rainierClient->/orderitem/["invalid-order-id"]/[orderItem1.itemId].get();
+    OrderItem|error orderItem = rainierClient->/orderitems/["invalid-order-id"]/[orderItem1.itemId].get();
 
     if orderItem is InvalidKeyError {
         test:assertEquals(orderItem.message(), "A record does not exist for 'OrderItem' for key {\"orderId\":\"invalid-order-id\",\"itemId\":\"item-1\"}.");
@@ -132,7 +132,7 @@ function compositeKeyReadOneTestNegative1() returns error? {
 }
 function compositeKeyReadOneTestNegative2() returns error? {
     RainierClient rainierClient = check new ();
-    OrderItem|error orderItem = rainierClient->/orderitem/[orderItem1.orderId]/["invalid-item-id"].get();
+    OrderItem|error orderItem = rainierClient->/orderitems/[orderItem1.orderId]/["invalid-item-id"].get();
 
     if orderItem is InvalidKeyError {
         test:assertEquals(orderItem.message(), "A record does not exist for 'OrderItem' for key {\"orderId\":\"order-1\",\"itemId\":\"invalid-item-id\"}.");
@@ -150,13 +150,13 @@ function compositeKeyReadOneTestNegative2() returns error? {
 function compositeKeyUpdateTest() returns error? {
     RainierClient rainierClient = check new ();
 
-    OrderItem orderItem = check rainierClient->/orderitem/[orderItem2.orderId]/[orderItem2.itemId].put({
+    OrderItem orderItem = check rainierClient->/orderitems/[orderItem2.orderId]/[orderItem2.itemId].put({
         quantity: orderItem2Updated.quantity,
         notes: orderItem2Updated.notes
     });
     test:assertEquals(orderItem, orderItem2Updated);
 
-    orderItem = check rainierClient->/orderitem/[orderItem2.orderId]/[orderItem2.itemId].get();    
+    orderItem = check rainierClient->/orderitems/[orderItem2.orderId]/[orderItem2.itemId].get();    
     test:assertEquals(orderItem, orderItem2Updated);
 
     check rainierClient.close();
@@ -169,7 +169,7 @@ function compositeKeyUpdateTest() returns error? {
 function compositeKeyUpdateTestNegative() returns error? {
     RainierClient rainierClient = check new ();
 
-    OrderItem|error orderItem = rainierClient->/orderitem/[orderItem1.orderId]/[orderItem2.itemId].put({
+    OrderItem|error orderItem = rainierClient->/orderitems/[orderItem1.orderId]/[orderItem2.itemId].put({
         quantity: 239,
         notes: "updated notes"
     });
@@ -189,10 +189,10 @@ function compositeKeyUpdateTestNegative() returns error? {
 function compositeKeyDeleteTest() returns error? {
     RainierClient rainierClient = check new ();
 
-    OrderItem orderItem = check rainierClient->/orderitem/[orderItem2.orderId]/[orderItem2.itemId].delete();
+    OrderItem orderItem = check rainierClient->/orderitems/[orderItem2.orderId]/[orderItem2.itemId].delete();
     test:assertEquals(orderItem, orderItem2Updated);
 
-    OrderItem|error orderItemRetrieved =  rainierClient->/orderitem/[orderItem2.orderId]/[orderItem2.itemId].get();    
+    OrderItem|error orderItemRetrieved =  rainierClient->/orderitems/[orderItem2.orderId]/[orderItem2.itemId].get();    
     test:assertTrue(orderItemRetrieved is InvalidKeyError);
 
     check rainierClient.close();
@@ -205,7 +205,7 @@ function compositeKeyDeleteTest() returns error? {
 function compositeKeyDeleteTestNegative() returns error? {
     RainierClient rainierClient = check new ();
 
-    OrderItem|error orderItem = rainierClient->/orderitem/["invalid-order-id"]/[orderItem2.itemId].delete();
+    OrderItem|error orderItem = rainierClient->/orderitems/["invalid-order-id"]/[orderItem2.itemId].delete();
     if orderItem is InvalidKeyError {
         test:assertEquals(orderItem.message(), "A record does not exist for 'OrderItem' for key {\"orderId\":\"invalid-order-id\",\"itemId\":\"item-2\"}.");
     } else {

@@ -47,16 +47,16 @@ function employeeRelationsTest() returns error? {
         deptName: "Marketing"
     };
 
-    _ = check rainierClient->/building.post([building22]);    
-    _ = check rainierClient->/department.post([department22]);    
-    _ = check rainierClient->/workspace.post([workspace22]);    
-    _ = check rainierClient->/employee.post([employee21]);    
+    _ = check rainierClient->/buildings.post([building22]);    
+    _ = check rainierClient->/departments.post([department22]);    
+    _ = check rainierClient->/workspaces.post([workspace22]);    
+    _ = check rainierClient->/employees.post([employee21]);    
 
-    stream<EmployeeInfo, Error?> employeeStream = rainierClient->/employee.get();
+    stream<EmployeeInfo, Error?> employeeStream = rainierClient->/employees.get();
     EmployeeInfo[] employees = check from EmployeeInfo employee in employeeStream 
         select employee;
 
-    EmployeeInfo retrieved = check rainierClient->/employee/["employee-21"].get();
+    EmployeeInfo retrieved = check rainierClient->/employees/["employee-21"].get();
     
     EmployeeInfo expected = {
         firstName: "Tom",
@@ -134,16 +134,16 @@ function departmentRelationsTest() returns error? {
         deptName: "Marketing"
     };
 
-    _ = check rainierClient->/building.post([building12]);    
-    _ = check rainierClient->/department.post([department12]);    
-    _ = check rainierClient->/workspace.post([workspace12]);    
-    _ = check rainierClient->/employee.post([employee11, employee12]);    
+    _ = check rainierClient->/buildings.post([building12]);    
+    _ = check rainierClient->/departments.post([department12]);    
+    _ = check rainierClient->/workspaces.post([workspace12]);    
+    _ = check rainierClient->/employees.post([employee11, employee12]);    
 
-    stream<DepartmentInfo, error?> departmentStream = rainierClient->/department.get();
+    stream<DepartmentInfo, error?> departmentStream = rainierClient->/departments.get();
     DepartmentInfo[] departments = check from DepartmentInfo department in departmentStream 
         select department;
 
-    DepartmentInfo retrieved = check rainierClient->/department/["department-12"].get();
+    DepartmentInfo retrieved = check rainierClient->/departments/["department-12"].get();
 
     DepartmentInfo expected = {
         deptNo: "department-12",
@@ -185,13 +185,13 @@ function workspaceRelationsTest() returns error? {
         departmentDeptNo: "department-22",
         workspaceWorkspaceId: "workspace-22"
     };
-    _ = check rainierClient->/employee.post([employee22]);    
+    _ = check rainierClient->/employees.post([employee22]);    
 
-    stream<WorkspaceInfo, error?> workspaceStream = rainierClient->/workspace.get();
+    stream<WorkspaceInfo, error?> workspaceStream = rainierClient->/workspaces.get();
     WorkspaceInfo[] workspaces = check from WorkspaceInfo workspace in workspaceStream 
         select workspace;
 
-    WorkspaceInfo retrieved = check rainierClient->/workspace/["workspace-22"].get();
+    WorkspaceInfo retrieved = check rainierClient->/workspaces/["workspace-22"].get();
 
     WorkspaceInfo expected = {
         workspaceType: "medium",
@@ -261,11 +261,11 @@ public type BuildingInfo record {|
 function buildingRelationsTest() returns error? {
     RainierClient rainierClient = check new ();
 
-    stream<BuildingInfo, error?> buildingStream = rainierClient->/building.get();
+    stream<BuildingInfo, error?> buildingStream = rainierClient->/buildings.get();
     BuildingInfo[] buildings = check from BuildingInfo building in buildingStream 
         select building;
 
-    BuildingInfo retrieved = check rainierClient->/building/["building-22"].get();
+    BuildingInfo retrieved = check rainierClient->/buildings/["building-22"].get();
 
     BuildingInfo expected = {
         buildingCode: "building-22",

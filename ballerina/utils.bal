@@ -23,19 +23,6 @@ isolated function stringToParameterizedQuery(string queryStr) returns sql:Parame
     return query;
 }
 
-# Closes the entity stream.
-#
-# + customStream - Stream that needs to be closed
-# + return - `()` if the operation is performed successfully or a `persist:Error` if the operation fails
-public isolated function closeEntityStream(stream<anydata, sql:Error?>? customStream) returns Error? {
-    if customStream is stream<anydata, sql:Error?> {
-        sql:Error? e = customStream.close();
-        if e is sql:Error {
-            return <Error>error(e.message());
-        }
-    }
-}
-
 isolated function getKeyFromDuplicateKeyErrorMessage(string errorMessage) returns string|Error {
     int? startIndex = errorMessage.indexOf(".Duplicate entry '");
     int? endIndex = errorMessage.indexOf("' for key");
@@ -48,13 +35,27 @@ isolated function getKeyFromDuplicateKeyErrorMessage(string errorMessage) return
     return key;
 }
 
-isolated function isInsertableField(FieldMetadata fieldMetadata) returns boolean {
-    if fieldMetadata is SimpleFieldMetadata {
-        return true;
-    }
-    return false;
-}
-
 isolated function convertToArray(typedesc<record {}> elementType, record {}[] arr) returns elementType[] = @java:Method {
     'class: "io.ballerina.stdlib.persist.Utils"
 } external;
+
+isolated function arrayToParameterizedQuery(string[] arr, sql:ParameterizedQuery delimiter = `,`) returns sql:ParameterizedQuery {
+    sql:ParameterizedQuery query = stringToParameterizedQuery(arr[0]);
+    foreach int i in 1..<arr.length() {
+        query = sql:queryConcat(query, delimiter, stringToParameterizedQuery(arr[i]));
+    }
+    return query;
+}
+
+# Closes the entity stream.
+#
+# + customStream - Stream that needs to be closed
+# + return - `()` if the operation is performed successfully or a `persist:Error` if the operation fails
+public isolated function closeEntityStream(stream<anydata, sql:Error?>? customStream) returns Error? {
+    if customStream is stream<anydata, sql:Error?> {
+        sql:Error? e = customStream.close();
+        if e is sql:Error {
+            return <Error>error(e.message());
+        }
+    }
+}
