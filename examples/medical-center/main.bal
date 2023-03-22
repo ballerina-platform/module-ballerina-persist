@@ -17,7 +17,7 @@
 import ballerina/io;
 
 public function main() returns error? {
-    MedicalCenterClient mcClient = check new ();
+    Client mcClient = check new ();
     MedicalItem item = {
         itemId: 1,
         name: "item name",

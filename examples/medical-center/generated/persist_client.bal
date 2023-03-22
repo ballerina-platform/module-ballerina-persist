@@ -3,14 +3,14 @@
 // This file is an auto-generated file by Ballerina persistence layer for medical_center.
 // It should not be modified by hand.
 
-import ballerinax/mysql;
 import ballerina/persist;
 import ballerina/jballerina.java;
+import ballerinax/mysql;
 
-const MEDICAL_ITEM = "medicalitem";
-const MEDICAL_NEED = "medicalneed";
+const MEDICAL_ITEM = "medicalitems";
+const MEDICAL_NEED = "medicalneeds";
 
-public client class MedicalCenterClient {
+public client class Client {
     *persist:AbstractPersistClient;
 
     private final mysql:Client dbClient;
@@ -18,7 +18,7 @@ public client class MedicalCenterClient {
     private final map<persist:SQLClient> persistClients;
 
     private final record {|persist:Metadata...;|} metadata = {
-        [MEDICAL_ITEM]: {
+        "medicalitems": {
             entityName: "MedicalItem",
             tableName: `MedicalItem`,
             fieldMetadata: {
@@ -29,7 +29,7 @@ public client class MedicalCenterClient {
             },
             keyFields: ["itemId"]
         },
-        [MEDICAL_NEED]: {
+        "medicalneeds": {
             entityName: "MedicalNeed",
             tableName: `MedicalNeed`,
             fieldMetadata: {
@@ -50,62 +50,61 @@ public client class MedicalCenterClient {
         }
         self.dbClient = dbClient;
         self.persistClients = {
-            [MEDICAL_ITEM]: check new (self.dbClient, self.metadata.get(MEDICAL_ITEM)),
-            [MEDICAL_NEED]: check new (self.dbClient, self.metadata.get(MEDICAL_NEED))
+            medicalitems: check new (self.dbClient, self.metadata.get(MEDICAL_ITEM)),
+            medicalneeds: check new (self.dbClient, self.metadata.get(MEDICAL_NEED))
         };
     }
 
-    isolated resource function get medicalitem(MedicalItemTargetType targetType = <>) returns stream<targetType, persist:Error?> = @java:Method {
+    isolated resource function get medicalitems(MedicalItemTargetType targetType = <>) returns stream<targetType, persist:Error?> = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "query"
     } external;
 
-    isolated resource function get medicalitem/[int itemId](MedicalItemTargetType targetType = <>) returns targetType|persist:Error = @java:Method {
+    isolated resource function get medicalitems/[int itemId](MedicalItemTargetType targetType = <>) returns targetType|persist:Error = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "queryOne"
     } external;
 
-
-    isolated resource function post medicalitem(MedicalItemInsert[] data) returns int[]|persist:Error {
+    isolated resource function post medicalitems(MedicalItemInsert[] data) returns int[]|persist:Error {
         _ = check self.persistClients.get(MEDICAL_ITEM).runBatchInsertQuery(data);
         return from MedicalItemInsert inserted in data
             select inserted.itemId;
     }
 
-    isolated resource function put medicalitem/[int itemId](MedicalItemUpdate value) returns MedicalItem|persist:Error {
+    isolated resource function put medicalitems/[int itemId](MedicalItemUpdate value) returns MedicalItem|persist:Error {
         _ = check self.persistClients.get(MEDICAL_ITEM).runUpdateQuery(itemId, value);
-        return self->/medicalitem/[itemId].get();
+        return self->/medicalitems/[itemId].get();
     }
 
-    isolated resource function delete medicalitem/[int itemId]() returns MedicalItem|persist:Error {
-        MedicalItem result = check self->/medicalitem/[itemId].get();
+    isolated resource function delete medicalitems/[int itemId]() returns MedicalItem|persist:Error {
+        MedicalItem result = check self->/medicalitems/[itemId].get();
         _ = check self.persistClients.get(MEDICAL_ITEM).runDeleteQuery(itemId);
         return result;
     }
 
-    isolated resource function get medicalneed(MedicalNeedTargetType targetType = <>) returns stream<targetType, persist:Error?> = @java:Method {
+    isolated resource function get medicalneeds(MedicalNeedTargetType targetType = <>) returns stream<targetType, persist:Error?> = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "query"
-    } external;        
-    
-    isolated resource function get medicalneed/[int needId](MedicalNeedTargetType targetType = <>) returns targetType|persist:Error = @java:Method {
+    } external;
+
+    isolated resource function get medicalneeds/[int needId](MedicalNeedTargetType targetType = <>) returns targetType|persist:Error = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.MySQLProcessor",
         name: "queryOne"
     } external;
-        
-    isolated resource function post medicalneed(MedicalNeedInsert[] data) returns int[]|persist:Error {
+
+    isolated resource function post medicalneeds(MedicalNeedInsert[] data) returns int[]|persist:Error {
         _ = check self.persistClients.get(MEDICAL_NEED).runBatchInsertQuery(data);
         return from MedicalNeedInsert inserted in data
             select inserted.needId;
     }
 
-    isolated resource function put medicalneed/[int needId](MedicalNeedUpdate value) returns MedicalNeed|persist:Error {
+    isolated resource function put medicalneeds/[int needId](MedicalNeedUpdate value) returns MedicalNeed|persist:Error {
         _ = check self.persistClients.get(MEDICAL_NEED).runUpdateQuery(needId, value);
-        return self->/medicalneed/[needId].get();
+        return self->/medicalneeds/[needId].get();
     }
 
-    isolated resource function delete medicalneed/[int needId]() returns MedicalNeed|persist:Error {
-        MedicalNeed result = check self->/medicalneed/[needId].get();
+    isolated resource function delete medicalneeds/[int needId]() returns MedicalNeed|persist:Error {
+        MedicalNeed result = check self->/medicalneeds/[needId].get();
         _ = check self.persistClients.get(MEDICAL_NEED).runDeleteQuery(needId);
         return result;
     }
@@ -118,3 +117,4 @@ public client class MedicalCenterClient {
         return result;
     }
 }
+
