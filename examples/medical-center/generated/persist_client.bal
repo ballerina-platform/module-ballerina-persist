@@ -18,7 +18,7 @@ public client class Client {
     private final map<persist:SQLClient> persistClients;
 
     private final record {|persist:Metadata...;|} metadata = {
-        "medicalitems": {
+        [MEDICAL_ITEM]: {
             entityName: "MedicalItem",
             tableName: `MedicalItem`,
             fieldMetadata: {
@@ -29,7 +29,7 @@ public client class Client {
             },
             keyFields: ["itemId"]
         },
-        "medicalneeds": {
+        [MEDICAL_NEED]: {
             entityName: "MedicalNeed",
             tableName: `MedicalNeed`,
             fieldMetadata: {
@@ -50,8 +50,8 @@ public client class Client {
         }
         self.dbClient = dbClient;
         self.persistClients = {
-            medicalitems: check new (self.dbClient, self.metadata.get(MEDICAL_ITEM)),
-            medicalneeds: check new (self.dbClient, self.metadata.get(MEDICAL_NEED))
+            [MEDICAL_ITEM]: check new (self.dbClient, self.metadata.get(MEDICAL_ITEM)),
+            [MEDICAL_NEED]: check new (self.dbClient, self.metadata.get(MEDICAL_NEED))
         };
     }
 
