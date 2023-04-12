@@ -24,7 +24,7 @@ public type IntIdRecordDependent record {|
     groups: ["id-fields"]
 }
 function intIdFieldTest() returns error? {
-    TestEntitiesClient testEntitiesClient = check new ();
+    SQLTestEntitiesClient testEntitiesClient = check new ();
     IntIdRecord intIdRecord1 = {
         id: 1,
         randomField: "test1"
@@ -88,7 +88,7 @@ public type StringIdRecordDependent record {|
     groups: ["id-fields"]
 }
 function stringIdFieldTest() returns error? {
-    TestEntitiesClient testEntitiesClient = check new ();
+    SQLTestEntitiesClient testEntitiesClient = check new ();
     StringIdRecord stringIdRecord1 = {
         id: "id-1",
         randomField: "test1"
@@ -152,7 +152,7 @@ public type FloatIdRecordDependent record {|
     groups: ["id-fields"]
 }
 function floatIdFieldTest() returns error? {
-    TestEntitiesClient testEntitiesClient = check new ();
+    SQLTestEntitiesClient testEntitiesClient = check new ();
     FloatIdRecord floatIdRecord1 = {
         id: 1.0,
         randomField: "test1"
@@ -214,7 +214,7 @@ public type DecimalIdRecordDependent record {|
     groups: ["id-fields"]
 }
 function decimalIdFieldTest() returns error? {
-    TestEntitiesClient testEntitiesClient = check new ();
+    SQLTestEntitiesClient testEntitiesClient = check new ();
     DecimalIdRecord decimalIdRecord1 = {
         id: 1.1d,
         randomField: "test1"
@@ -278,7 +278,7 @@ public type BooleanIdRecordDependent record {|
     groups: ["id-fields"]
 }
 function booleanIdFieldTest() returns  error? {
-    TestEntitiesClient testEntitiesClient = check new ();
+    SQLTestEntitiesClient testEntitiesClient = check new ();
     BooleanIdRecord booleanIdRecord1 = {
         id: true,
         randomField: "test1"
@@ -338,7 +338,7 @@ public type AllTypesIdRecordDependent record {|
     groups: ["id-fields"]
 }
 function allTypesIdFieldTest() returns error? {
-    TestEntitiesClient testEntitiesClient = check new ();
+    SQLTestEntitiesClient testEntitiesClient = check new ();
     AllTypesIdRecord allTypesIdRecord1 = {
         intType: 1,
         stringType: "id-1",
@@ -420,7 +420,7 @@ public type CompositeAssociationRecordDependent record {|
     dependsOn : [allTypesIdFieldTest]
 }
 function compositeAssociationsTest() returns error? {
-    TestEntitiesClient testEntitiesClient = check new ();
+    SQLTestEntitiesClient testEntitiesClient = check new ();
 
     CompositeAssociationRecord compositeAssociationRecord1 = {
         id: "id-1",
