@@ -31,7 +31,6 @@ import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -126,17 +125,6 @@ public class Utils {
         }
 
         return fieldsArray;
-    }
-
-    public static Object getFutureResult(BFuture future) {
-        while (!future.isDone()) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                // ignore
-            }
-        }
-        return future.getResult();
     }
 
     static boolean isKnownRecordType(Type ballerinaType) {
