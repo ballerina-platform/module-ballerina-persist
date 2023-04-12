@@ -1,6 +1,6 @@
-// Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2023 WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
 //
-// WSO2 Inc. licenses this file to you under the Apache License,
+// WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
 // in compliance with the License.
 // You may obtain a copy of the License at
@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/test;
 
 Building building31 = {
@@ -22,15 +21,6 @@ Building building31 = {
     city: "Colombo",
     state: "Western Province",
     country: "Sri Lanka",
-    postalCode: "10370",
-    'type: "rented"
-};
-
-Building building31Updated = {
-    buildingCode: "building-31",
-    city: "ColomboUpdated",
-    state: "Western ProvinceUpdated",
-    country: "Sri LankaUpdated",
     postalCode: "10370",
     'type: "rented"
 };
@@ -53,13 +43,21 @@ BuildingInsert building33 = {
     'type: "owned"
 };
 
+Building building33Updated = {
+    buildingCode: "building-33",
+    city: "ColomboUpdated",
+    state: "Western ProvinceUpdated",
+    country: "Sri LankaUpdated",
+    postalCode: "10570",
+    'type: "owned"
+};
+
+
 @test:Config {
     groups: ["transactions"]
 }
 function transactionTest() returns error? {
     RainierClient rainierClient = check new ();
-    
-    _ = check rainierClient->/buildings.post([building33]);
 
     transaction {
         string[] buildingCodes = check rainierClient->/buildings.post([building31, building32]);
@@ -81,43 +79,33 @@ function transactionTest() returns error? {
 }
 
 @test:Config {
-    groups: ["transactionsx"]
+    groups: ["transactions"]
 }
 function transactionTest2() returns error? {
     RainierClient rainierClient = check new ();
     
-    _ = check rainierClient->/buildings.post([building31]);
-    Building buildingRetrieved = check rainierClient->/buildings/[building31.buildingCode].get();
-    io:println("============= TEST 00 ==============");
-    io:println(buildingRetrieved);
-    test:assertEquals(buildingRetrieved, building31);
+    _ = check rainierClient->/buildings.post([building33]);
+    Building buildingRetrieved = check rainierClient->/buildings/[building33.buildingCode].get();
+    test:assertEquals(buildingRetrieved, building33);
 
     transaction {
-        Building building = check rainierClient->/buildings/[building31.buildingCode].put({
+        Building building = check rainierClient->/buildings/[building33.buildingCode].put({
             city: "ColomboUpdated",
             state: "Western ProvinceUpdated",
             country: "Sri LankaUpdated"
         });
 
-        io:println("============= TEST 01 ==============");
-        io:println(building);
-        // test:assertEquals(building, building31Updated);
+        test:assertEquals(building, building33Updated);
 
         // below should retrieve the updated building record
-        buildingRetrieved = check rainierClient->/buildings/[building31.buildingCode].get();
-        io:println("============= TEST 02 ==============");
-        io:println(buildingRetrieved);
-        // test:assertEquals(buildingRetrieved, building31Updated);
+        buildingRetrieved = check rainierClient->/buildings/[building33.buildingCode].get();
+        test:assertEquals(buildingRetrieved, building33Updated);
 
         check commit;   
-    } on fail error e {
-        io:println(e);
-        test:assertTrue(e is DuplicateKeyError, "DuplicateKeyError expected");
     }
 
-    buildingRetrieved = check rainierClient->/buildings/[building31.buildingCode].get();
-    io:println("============= TEST 03 ==============");
-    io:println(buildingRetrieved);
+    buildingRetrieved = check rainierClient->/buildings/[building33.buildingCode].get();
+    test:assertEquals(buildingRetrieved, building33Updated);
 
     check rainierClient.close();
 }
