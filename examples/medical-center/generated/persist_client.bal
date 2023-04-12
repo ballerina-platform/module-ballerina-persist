@@ -11,7 +11,7 @@ const MEDICAL_ITEM = "medicalitems";
 const MEDICAL_NEED = "medicalneeds";
 
 public client class Client {
-    *persist:AbstractPersistSQLClient;
+    *persist:AbstractPersistClient;
 
     private final mysql:Client dbClient;
 
