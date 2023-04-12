@@ -24,7 +24,7 @@ const DEPARTMENT = "departments";
 const ORDER_ITEM = "orderitems";
 
 public client class SQLRainierClient {
-    *AbstractPersistSQLClient;
+    *AbstractPersistClient;
 
     private final mysql:Client dbClient;
 

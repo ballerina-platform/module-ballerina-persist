@@ -27,7 +27,7 @@ const COMPOSITE_ASSOCIATION_RECORD = "compositeassociationrecords";
 const ALL_TYPES_ID_RECORD = "alltypesidrecords";
 
 public client class SQLTestEntitiesClient {
-    *AbstractPersistSQLClient;
+    *AbstractPersistClient;
 
     private final mysql:Client dbClient;
 

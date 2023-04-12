@@ -30,7 +30,7 @@ table<Employee> key(empNo) employees = table[];
 table<OrderItem> key(orderId, itemId) orderItems = table[];
 
 public client class InMemoryRainierClient {
-    *AbstractPersistInMemoryClient;
+    *AbstractPersistClient;
 
     private final map<InMemoryClient> persistClients;
 
