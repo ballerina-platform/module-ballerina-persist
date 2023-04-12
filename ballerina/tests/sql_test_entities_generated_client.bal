@@ -10,8 +10,8 @@ const BOOLEAN_ID_RECORD = "booleanidrecords";
 const COMPOSITE_ASSOCIATION_RECORD = "compositeassociationrecords";
 const ALL_TYPES_ID_RECORD = "alltypesidrecords";
 
-public client class TestEntitiesClient {
-    *AbstractPersistClient;
+public client class SQLTestEntitiesClient {
+    *AbstractPersistSQLClient;
 
     private final mysql:Client dbClient;
 

@@ -65,7 +65,7 @@ Building updatedBuilding1 = {
     groups: ["building"]
 }
 function buildingCreateTest() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
     
     string[] buildingCodes = check rainierClient->/buildings.post([building1]);    
     test:assertEquals(buildingCodes, [building1.buildingCode]);
@@ -79,7 +79,7 @@ function buildingCreateTest() returns error? {
     groups: ["building"]
 }
 function buildingCreateTest2() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
     
     string[] buildingCodes = check rainierClient->/buildings.post([building2, building3]);
 
@@ -98,7 +98,7 @@ function buildingCreateTest2() returns error? {
     groups: ["building"]
 }
 function buildingCreateTestNegative() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
     
     string[]|error building = rainierClient->/buildings.post([invalidBuilding]);   
     if building is Error {
@@ -114,7 +114,7 @@ function buildingCreateTestNegative() returns error? {
     dependsOn: [buildingCreateTest]
 }
 function buildingReadOneTest() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     Building buildingRetrieved = check rainierClient->/buildings/[building1.buildingCode].get();
     test:assertEquals(buildingRetrieved, building1);
@@ -126,7 +126,7 @@ function buildingReadOneTest() returns error? {
     dependsOn: [buildingCreateTest]
 }
 function buildingReadOneTestNegative() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     Building|error buildingRetrieved = rainierClient->/buildings/["invalid-building-code"].get();
     if buildingRetrieved is InvalidKeyError {
@@ -142,7 +142,7 @@ function buildingReadOneTestNegative() returns error? {
     dependsOn: [buildingCreateTest, buildingCreateTest2]
 }
 function buildingReadManyTest() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     stream<Building, error?> buildingStream = rainierClient->/buildings.get();
     Building[] buildings = check from Building building in buildingStream 
@@ -165,7 +165,7 @@ public type BuildingInfo2 record {|
     dependsOn: [buildingCreateTest, buildingCreateTest2]
 }
 function buildingReadManyDependentTest() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     stream<BuildingInfo2, error?> buildingStream = rainierClient->/buildings.get();
     BuildingInfo2[] buildings = check from BuildingInfo2 building in buildingStream 
@@ -184,7 +184,7 @@ function buildingReadManyDependentTest() returns error? {
     dependsOn: [buildingReadOneTest, buildingReadManyTest, buildingReadManyDependentTest]
 }
 function buildingUpdateTest() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     Building building = check rainierClient->/buildings/[building1.buildingCode].put({
         city: "Galle",
@@ -205,7 +205,7 @@ function buildingUpdateTest() returns error? {
     dependsOn: [buildingReadOneTest, buildingReadManyTest, buildingReadManyDependentTest]
 }
 function buildingUpdateTestNegative1() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     Building|error building = rainierClient->/buildings/["invalid-building-code"].put({
         city: "Galle",
@@ -226,7 +226,7 @@ function buildingUpdateTestNegative1() returns error? {
     dependsOn: [buildingReadOneTest, buildingReadManyTest, buildingReadManyDependentTest]
 }
 function buildingUpdateTestNegative2() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     Building|error building = rainierClient->/buildings/[building1.buildingCode].put({
         city: "unncessarily-long-city-name-to-force-error-on-update",
@@ -247,7 +247,7 @@ function buildingUpdateTestNegative2() returns error? {
     dependsOn: [buildingUpdateTest, buildingUpdateTestNegative2]
 }
 function buildingDeleteTest() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     Building building = check rainierClient->/buildings/[building1.buildingCode].delete();
     test:assertEquals(building, updatedBuilding1);
@@ -265,7 +265,7 @@ function buildingDeleteTest() returns error? {
     dependsOn: [buildingDeleteTest]
 }
 function buildingDeleteTestNegative() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     Building|error building = rainierClient->/buildings/[building1.buildingCode].delete();
 

@@ -7,8 +7,8 @@ const BUILDING = "buildings";
 const DEPARTMENT = "departments";
 const ORDER_ITEM = "orderitems";
 
-public client class RainierClient {
-    *AbstractPersistClient;
+public client class SQLRainierClient {
+    *AbstractPersistSQLClient;
 
     private final mysql:Client dbClient;
 

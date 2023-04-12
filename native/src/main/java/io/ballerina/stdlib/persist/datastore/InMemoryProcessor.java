@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package io.ballerina.stdlib.persist.datastore;
+ package io.ballerina.stdlib.persist.datastore;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Future;
@@ -46,24 +46,23 @@ import static io.ballerina.stdlib.persist.Utils.getMetadata;
 import static io.ballerina.stdlib.persist.Utils.getPersistClient;
 import static io.ballerina.stdlib.persist.Utils.getRecordTypeWithKeyFields;
 
-/**
- * This class provides the MySQL query processing implementations for persistence.
- *
- * @since 0.3.0
- */
-public class MySQLProcessor {
-
-    private MySQLProcessor() {
-    }
-
-    public static BStream query(Environment env, BObject client, BTypedesc targetType) {
+  /**
+  * This class provides the in-memory query processing implementations for persistence.
+  *
+  * @since 0.3.1
+  */
+ public class InMemoryProcessor {
+ 
+     private InMemoryProcessor() {
+     }
+ 
+     public static BStream query(Environment env, BObject client, BTypedesc targetType) {
         BString entity = getEntity(env);
         BObject persistClient = getPersistClient(client, entity);
         BArray keyFields = (BArray) persistClient.get(KEY_FIELDS);
         RecordType recordType = (RecordType) targetType.getDescribingType();
 
         RecordType recordTypeWithIdFields = getRecordTypeWithKeyFields(keyFields, recordType);
-        BTypedesc targetTypeWithIdFields = ValueCreator.createTypedescValue(recordTypeWithIdFields);
         StreamType streamTypeWithIdFields = TypeCreator.createStreamType(recordTypeWithIdFields,
                 PredefinedTypes.TYPE_NULL);
 
@@ -80,7 +79,7 @@ public class MySQLProcessor {
                     public void notifySuccess(Object o) {
                         BStream sqlStream = (BStream) o;
                         BObject persistStream = ValueCreator.createObjectValue(
-                                ModuleUtils.getModule(), Constants.PERSIST_SQL_STREAM, sqlStream, targetType,
+                                ModuleUtils.getModule(), Constants.PERSIST_IN_MEMORY_STREAM, sqlStream, targetType,
                                 fields, includes, typeDescriptions, persistClient, null
                         );
 
@@ -96,8 +95,7 @@ public class MySQLProcessor {
                     public void notifyFailure(BError bError) {
                         balFuture.complete(bError);
                     }
-                }, null, streamTypeWithIdFields,
-                targetTypeWithIdFields, true, fields, true, includes, true
+                }, null, streamTypeWithIdFields, fields, true
         );
 
         return null;
@@ -110,7 +108,6 @@ public class MySQLProcessor {
         RecordType recordType = (RecordType) targetType.getDescribingType();
 
         RecordType recordTypeWithIdFields = getRecordTypeWithKeyFields(keyFields, recordType);
-        BTypedesc targetTypeWithIdFields = ValueCreator.createTypedescValue(recordTypeWithIdFields);
         ErrorType persistErrorType = TypeCreator.createErrorType(ERROR, ModuleUtils.getModule());
         Type unionType = TypeCreator.createUnionType(recordTypeWithIdFields, persistErrorType);
 
@@ -135,7 +132,7 @@ public class MySQLProcessor {
                         balFuture.complete(bError);
                     }
                 },  null, unionType,
-                targetType, true, targetTypeWithIdFields, true, key, true, fields, true, includes, true,
+                targetType, true, key, true, fields, true, includes, true,
                 typeDescriptions, true
         );
 

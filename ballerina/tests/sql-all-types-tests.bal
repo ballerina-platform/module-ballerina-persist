@@ -189,7 +189,7 @@ AllTypes allTypes1UpdatedExpected = {
     groups: ["all-types"]
 }
 function allTypesCreateTest() returns error? {
-    TestEntitiesClient testEntitiesClient = check new ();
+    SQLTestEntitiesClient testEntitiesClient = check new ();
 
     int[] ids = check testEntitiesClient->/alltypes.post([allTypes1, allTypes2]);
     test:assertEquals(ids, [allTypes1.id, allTypes2.id]);
@@ -207,7 +207,7 @@ function allTypesCreateTest() returns error? {
     groups: ["all-types"]
 }
 function allTypesCreateOptionalTest() returns error? {
-    TestEntitiesClient testEntitiesClient = check new ();
+    SQLTestEntitiesClient testEntitiesClient = check new ();
 
     int[] ids = check testEntitiesClient->/alltypes.post([allTypes3]);
     test:assertEquals(ids, [allTypes3.id]);
@@ -223,7 +223,7 @@ function allTypesCreateOptionalTest() returns error? {
     dependsOn: [allTypesCreateTest, allTypesCreateOptionalTest]
 }
 function allTypesReadTest() returns error? {
-    TestEntitiesClient testEntitiesClient = check new ();
+    SQLTestEntitiesClient testEntitiesClient = check new ();
 
     stream<AllTypes, error?> allTypesStream = testEntitiesClient->/alltypes.get();
     AllTypes[] allTypes = check from AllTypes allTypesRecord in allTypesStream
@@ -258,7 +258,7 @@ public type AllTypesDependent record {|
     dependsOn: [allTypesCreateTest, allTypesCreateOptionalTest]
 }
 function allTypesReadDependentTest() returns error? {
-    TestEntitiesClient testEntitiesClient = check new ();
+    SQLTestEntitiesClient testEntitiesClient = check new ();
 
     stream<AllTypesDependent, error?> allTypesStream = testEntitiesClient->/alltypes.get();
     AllTypesDependent[] allTypes = check from AllTypesDependent allTypesRecord in allTypesStream
@@ -301,7 +301,7 @@ function allTypesReadDependentTest() returns error? {
     dependsOn: [allTypesCreateTest, allTypesCreateOptionalTest]
 }
 function allTypesReadOneTest() returns error? {
-    TestEntitiesClient testEntitiesClient = check new ();
+    SQLTestEntitiesClient testEntitiesClient = check new ();
 
     AllTypes allTypesRetrieved = check testEntitiesClient->/alltypes/[allTypes1.id].get();
     test:assertEquals(allTypesRetrieved, allTypes1Expected);
@@ -319,7 +319,7 @@ function allTypesReadOneTest() returns error? {
     groups: ["all-types"]
 }
 function allTypesReadOneTestNegative() returns error? {
-    TestEntitiesClient testEntitiesClient = check new ();
+    SQLTestEntitiesClient testEntitiesClient = check new ();
 
     AllTypes|Error allTypesRetrieved = testEntitiesClient->/alltypes/[4].get();
     if allTypesRetrieved is InvalidKeyError {
@@ -337,7 +337,7 @@ function allTypesReadOneTestNegative() returns error? {
     dependsOn: [allTypesReadOneTest, allTypesReadTest, allTypesReadDependentTest]
 }
 function allTypesUpdateTest() returns error? {
-    TestEntitiesClient testEntitiesClient = check new ();
+    SQLTestEntitiesClient testEntitiesClient = check new ();
 
     AllTypes allTypes = check testEntitiesClient->/alltypes/[allTypes1.id].put({
         booleanType: allTypes3.booleanType,
@@ -370,7 +370,7 @@ function allTypesUpdateTest() returns error? {
     dependsOn: [allTypesUpdateTest]
 }
 function allTypesDeleteTest() returns error? {
-    TestEntitiesClient testEntitiesClient = check new ();
+    SQLTestEntitiesClient testEntitiesClient = check new ();
 
     AllTypes allTypes = check testEntitiesClient->/alltypes/[allTypes2.id].delete();
     test:assertEquals(allTypes, allTypes2Expected);

@@ -45,7 +45,7 @@ Department updatedDepartment1 = {
     groups: ["department"]
 }
 function departmentCreateTest() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
     
     string[] deptNos = check rainierClient->/departments.post([department1]);    
     test:assertEquals(deptNos, [department1.deptNo]);
@@ -59,7 +59,7 @@ function departmentCreateTest() returns error? {
     groups: ["department"]
 }
 function departmentCreateTest2() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
     
     string[] deptNos = check rainierClient->/departments.post([department2, department3]);
 
@@ -77,7 +77,7 @@ function departmentCreateTest2() returns error? {
     groups: ["department"]
 }
 function departmentCreateTestNegative() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
     
     string[]|error department = rainierClient->/departments.post([invalidDepartment]);   
     if department is Error {
@@ -93,7 +93,7 @@ function departmentCreateTestNegative() returns error? {
     dependsOn: [departmentCreateTest]
 }
 function departmentReadOneTest() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     Department departmentRetrieved = check rainierClient->/departments/[department1.deptNo].get();
     test:assertEquals(departmentRetrieved, department1);
@@ -105,7 +105,7 @@ function departmentReadOneTest() returns error? {
     dependsOn: [departmentCreateTest]
 }
 function departmentReadOneTestNegative() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     Department|error departmentRetrieved = rainierClient->/departments/["invalid-department-id"].get();
     if departmentRetrieved is InvalidKeyError {
@@ -121,7 +121,7 @@ function departmentReadOneTestNegative() returns error? {
     dependsOn: [departmentCreateTest, departmentCreateTest2]
 }
 function departmentReadManyTest() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
     stream<Department, error?> departmentStream = rainierClient->/departments.get();
     Department[] departments = check from Department department in departmentStream 
         select department;
@@ -139,7 +139,7 @@ public type DepartmentInfo2 record {|
     dependsOn: [departmentCreateTest, departmentCreateTest2]
 }
 function departmentReadManyTestDependent() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     stream<DepartmentInfo2, Error?> departmentStream = rainierClient->/departments.get();
     DepartmentInfo2[] departments = check from DepartmentInfo2 department in departmentStream 
@@ -158,7 +158,7 @@ function departmentReadManyTestDependent() returns error? {
     dependsOn: [departmentReadOneTest, departmentReadManyTest, departmentReadManyTestDependent]
 }
 function departmentUpdateTest() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     Department department = check rainierClient->/departments/[department1.deptNo].put({
         deptName: "Finance & Legalities"   
@@ -176,7 +176,7 @@ function departmentUpdateTest() returns error? {
     dependsOn: [departmentReadOneTest, departmentReadManyTest, departmentReadManyTestDependent]
 }
 function departmentUpdateTestNegative1() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     Department|error department = rainierClient->/departments/["invalid-department-id"].put({
         deptName: "Human Resources"   
@@ -195,7 +195,7 @@ function departmentUpdateTestNegative1() returns error? {
     dependsOn: [departmentReadOneTest, departmentReadManyTest, departmentReadManyTestDependent]
 }
 function departmentUpdateTestNegative2() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     Department|error department = rainierClient->/departments/[department1.deptNo].put({
         deptName: "unncessarily-long-department-name-to-force-error-on-update"
@@ -214,7 +214,7 @@ function departmentUpdateTestNegative2() returns error? {
     dependsOn: [departmentUpdateTest, departmentUpdateTestNegative2]
 }
 function departmentDeleteTest() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     Department department = check rainierClient->/departments/[department1.deptNo].delete();
     test:assertEquals(department, updatedDepartment1);
@@ -232,7 +232,7 @@ function departmentDeleteTest() returns error? {
     dependsOn: [departmentDeleteTest]
 }
 function departmentDeleteTestNegative() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     Department|error department = rainierClient->/departments/[department1.deptNo].delete();
 

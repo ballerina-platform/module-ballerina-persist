@@ -14,7 +14,7 @@ public type EmployeeInfo record {|
     dependsOn: [employeeDeleteTestNegative]
 }
 function employeeRelationsTest() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     Employee employee21 = {
         empNo: "employee-21",
@@ -90,7 +90,7 @@ public type DepartmentInfo record {|
     dependsOn: [employeeDeleteTestNegative]
 }
 function departmentRelationsTest() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     Employee employee11 = {
         empNo: "employee-11",
@@ -173,7 +173,7 @@ public type WorkspaceInfo record {|
     dependsOn: [employeeRelationsTest]
 }
 function workspaceRelationsTest() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     Employee employee22 = {
         empNo: "employee-22",
@@ -259,7 +259,7 @@ public type BuildingInfo record {|
     dependsOn: [employeeRelationsTest]
 }
 function buildingRelationsTest() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     stream<BuildingInfo, error?> buildingStream = rainierClient->/buildings.get();
     BuildingInfo[] buildings = check from BuildingInfo building in buildingStream 
