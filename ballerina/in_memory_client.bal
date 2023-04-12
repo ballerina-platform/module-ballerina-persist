@@ -104,7 +104,6 @@ public client class InMemoryClient {
         }
     }
 
-
 }
 
 # Represents the abstract persist client. This abstract object is used in the generated client.
