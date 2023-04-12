@@ -60,7 +60,7 @@ public isolated function closeEntityStream(stream<anydata, error?>? customStream
     }
 }
 
-isolated function filterRecord(record {} 'object, string[] fields) returns record {} {
+public isolated function filterRecord(record {} 'object, string[] fields) returns record {} {
     record {} retrieved = {};
 
     foreach string 'field in fields {
