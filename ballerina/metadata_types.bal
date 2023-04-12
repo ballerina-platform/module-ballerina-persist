@@ -23,7 +23,7 @@ import ballerina/sql;
 # + fieldMetadata - Metadata of all the fields of the entity
 # + keyFields - Names of the identity fields
 # + joinMetadata - Metadata of the fields that are used for `JOIN` operations
-public type Metadata record {|
+public type SQLMetadata record {|
     string entityName;
     sql:ParameterizedQuery tableName;
     map<FieldMetadata> fieldMetadata;

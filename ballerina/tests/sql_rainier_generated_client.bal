@@ -14,7 +14,7 @@ public client class SQLRainierClient {
 
     private final map<SQLClient> persistClients;
 
-    private final record {|Metadata...;|} metadata = {
+    private final record {|SQLMetadata...;|} metadata = {
         [EMPLOYEE]: {
             entityName: "Employee",
             tableName: `Employee`,

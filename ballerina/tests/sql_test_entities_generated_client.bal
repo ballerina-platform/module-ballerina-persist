@@ -17,7 +17,7 @@ public client class SQLTestEntitiesClient {
 
     private final map<SQLClient> persistClients;
 
-    private final record {|Metadata...;|} metadata = {
+    private final record {|SQLMetadata...;|} metadata = {
         [ALL_TYPES]: {
             entityName: "AllTypes",
             tableName: `AllTypes`,
