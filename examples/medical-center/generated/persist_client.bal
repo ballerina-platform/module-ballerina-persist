@@ -11,13 +11,13 @@ const MEDICAL_ITEM = "medicalitems";
 const MEDICAL_NEED = "medicalneeds";
 
 public client class Client {
-    *persist:AbstractPersistClient;
+    *persist:AbstractPersistSQLClient;
 
     private final mysql:Client dbClient;
 
     private final map<persist:SQLClient> persistClients;
 
-    private final record {|persist:Metadata...;|} metadata = {
+    private final record {|persist:SQLMetadata...;|} metadata = {
         [MEDICAL_ITEM]: {
             entityName: "MedicalItem",
             tableName: `MedicalItem`,
