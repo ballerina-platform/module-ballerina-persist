@@ -40,7 +40,6 @@ public client class InMemoryRainierClient {
     table<Employee> key(empNo) employees = employees;
     table<OrderItem> key(orderId, itemId) orderItems = orderItems;
 
-
     public function init() returns Error? {
         final map<TableMetadata> metadata = {
             [BUILDING]: {
@@ -114,6 +113,7 @@ public client class InMemoryRainierClient {
         if !self.buildings.hasKey(buildingCode) {
             return <InvalidKeyError>error("Not found: " + buildingCode);
         }
+
         Building building = self.buildings.get(buildingCode);
         if value.city != () { building.city = <string>value.city;}
         if value.state != () { building.state = <string>value.state;}
