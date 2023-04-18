@@ -1,20 +1,26 @@
+// Copyright (c) 2023 WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 LLC. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerina/test;
 
-public type EmployeeInfo record {|
-    string firstName;
-    string lastName;
-    record {|
-        string deptName;
-    |} department;
-    Workspace workspace;
-|};
-
 @test:Config {
-    groups:  ["associations"],
-    dependsOn: [employeeDeleteTestNegative]
+    groups:  ["associations", "in-memory"]
 }
-function employeeRelationsTest() returns error? {
-    RainierClient rainierClient = check new ();
+function inMemoryEmployeeRelationsTest() returns error? {
+    InMemoryRainierClient rainierClient = check new ();
 
     Employee employee21 = {
         empNo: "employee-21",
@@ -76,21 +82,11 @@ function employeeRelationsTest() returns error? {
     check rainierClient.close();
 }
 
-public type DepartmentInfo record {|
-    string deptNo;
-    string deptName;
-    record {|
-        string firstName;
-        string lastName;
-    |}[] employees;
-|};
-
 @test:Config {
-    groups: ["associations"],
-    dependsOn: [employeeDeleteTestNegative]
+    groups:  ["associations", "in-memory"]
 }
-function departmentRelationsTest() returns error? {
-    RainierClient rainierClient = check new ();
+function inMemoryDepartmentRelationsTest() returns error? {
+    InMemoryRainierClient rainierClient = check new ();
 
     Employee employee11 = {
         empNo: "employee-11",
@@ -162,18 +158,12 @@ function departmentRelationsTest() returns error? {
     check rainierClient.close();
 }
 
-public type WorkspaceInfo record {|
-    string workspaceType;
-    Building location;
-    Employee[] employees;
-|};
-
 @test:Config {
-    groups: ["associations"],
-    dependsOn: [employeeRelationsTest]
+    groups:  ["associations", "in-memory"],
+    dependsOn: [inMemoryEmployeeRelationsTest]
 }
-function workspaceRelationsTest() returns error? {
-    RainierClient rainierClient = check new ();
+function inMemoryWorkspaceRelationsTest() returns error? {
+    InMemoryRainierClient rainierClient = check new ();
 
     Employee employee22 = {
         empNo: "employee-22",
@@ -244,22 +234,12 @@ function workspaceRelationsTest() returns error? {
     check rainierClient.close();
 }
 
-public type BuildingInfo record {|
-    string buildingCode;
-    string city;
-    string state;
-    string country;
-    string postalCode;
-    string 'type;
-    Workspace[] workspaces;
-|};
-
 @test:Config {
-    groups: ["associations"],
-    dependsOn: [employeeRelationsTest]
+    groups:  ["associations", "in-memory"],
+    dependsOn: [inMemoryEmployeeRelationsTest]
 }
-function buildingRelationsTest() returns error? {
-    RainierClient rainierClient = check new ();
+function inMemoryBuildingRelationsTest() returns error? {
+    InMemoryRainierClient rainierClient = check new ();
 
     stream<BuildingInfo, error?> buildingStream = rainierClient->/buildings.get();
     BuildingInfo[] buildings = check from BuildingInfo building in buildingStream 
