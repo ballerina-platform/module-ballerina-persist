@@ -17,7 +17,8 @@
 import ballerina/test;
 
 @test:Config {
-    groups:  ["associations", "in-memory"]
+    groups:  ["associations", "in-memory"],
+    dependsOn: [inMemoryEmployeeDeleteTestNegative]
 }
 function inMemoryEmployeeRelationsTest() returns error? {
     InMemoryRainierClient rainierClient = check new ();
@@ -83,7 +84,8 @@ function inMemoryEmployeeRelationsTest() returns error? {
 }
 
 @test:Config {
-    groups:  ["associations", "in-memory"]
+    groups:  ["associations", "in-memory"],
+    dependsOn: [inMemoryEmployeeDeleteTestNegative]
 }
 function inMemoryDepartmentRelationsTest() returns error? {
     InMemoryRainierClient rainierClient = check new ();

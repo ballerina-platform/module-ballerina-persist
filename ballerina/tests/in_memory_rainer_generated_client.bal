@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/jballerina.java;
-import ballerina/time;
 
 const EMPLOYEE = "employees";
 const WORKSPACE = "workspaces";
@@ -103,7 +102,7 @@ public client class InMemoryRainierClient {
             if self.buildings.hasKey(value.buildingCode) {
                 return <DuplicateKeyError>error("Duplicate key: " + value.buildingCode);
             }
-            self.buildings.put(value);
+            self.buildings.put(value.clone());
             keys.push(value.buildingCode);
         }
         return keys;
@@ -115,11 +114,10 @@ public client class InMemoryRainierClient {
         }
 
         Building building = self.buildings.get(buildingCode);
-        if value.city != () { building.city = <string>value.city;}
-        if value.state != () { building.state = <string>value.state;}
-        if value.country != () { building.country = <string>value.country;}
-        if value.postalCode != () { building.postalCode = <string>value.postalCode;}
-        if value.'type != () { building.'type = <string>value.'type;}
+        foreach var [k, v] in value.entries() {
+            building[k] = v;
+        }
+
         self.buildings.put(building);
         return building;
     }
@@ -147,7 +145,7 @@ public client class InMemoryRainierClient {
             if self.departments.hasKey(value.deptNo) {
                 return <DuplicateKeyError>error("Duplicate key: " + value.deptNo);
             }
-            self.departments.put(value);
+            self.departments.put(value.clone());
             keys.push(value.deptNo);
         }
         return keys;
@@ -158,7 +156,10 @@ public client class InMemoryRainierClient {
             return <InvalidKeyError>error("Not found: " + deptNo);
         }
         Department department = self.departments.get(deptNo);
-        if value.deptName != () { department.deptName = <string>value.deptName;}
+        foreach var [k, v] in value.entries() {
+            department[k] = v;
+        }
+
         self.departments.put(department);
         return department;
     }
@@ -186,7 +187,8 @@ public client class InMemoryRainierClient {
             if self.workspaces.hasKey(value.workspaceId) {
                 return <DuplicateKeyError>error("Duplicate key: " + value.workspaceId);
             }
-            self.workspaces.put(value);
+            // TODO: add .clone() to the generated code
+            self.workspaces.put(value.clone());
             keys.push(value.workspaceId);
         }
         return keys;
@@ -197,8 +199,10 @@ public client class InMemoryRainierClient {
             return <InvalidKeyError>error("Not found: " + workspaceId);
         }
         Workspace workspace = self.workspaces.get(workspaceId);
-        if value.locationBuildingCode != () { workspace.locationBuildingCode = <string>value.locationBuildingCode;}
-        if value.workspaceType != () { workspace.workspaceType = <string>value.workspaceType;}
+        foreach var [k, v] in value.entries() {
+            workspace[k] = v;
+        }
+
         self.workspaces.put(workspace);
         return workspace;
     }
@@ -226,7 +230,7 @@ public client class InMemoryRainierClient {
             if self.employees.hasKey(value.empNo) {
                 return <DuplicateKeyError>error("Duplicate key: " + value.empNo);
             }
-            self.employees.put(value);
+            self.employees.put(value.clone());
             keys.push(value.empNo);
         }
         return keys;
@@ -237,12 +241,10 @@ public client class InMemoryRainierClient {
             return <InvalidKeyError>error("Not found: " + empNo);
         }
         Employee employee = self.employees.get(empNo);
-        if value.firstName != () { employee.firstName = <string>value.firstName;}
-        if value.lastName != () { employee.lastName = <string>value.lastName;}
-        if value.birthDate != () { employee.birthDate = <time:Date>value.birthDate;}
-        if value.departmentDeptNo != () { employee.departmentDeptNo = <string>value.departmentDeptNo;}
-        if value.gender != () { employee.gender = <string>value.gender;}
-        if value.hireDate != () { employee.hireDate = <time:Date>value.hireDate;}
+        foreach var [k, v] in value.entries() {
+            employee[k] = v;
+        }
+
         self.employees.put(employee);
         return employee;   
     }
@@ -274,7 +276,7 @@ public client class InMemoryRainierClient {
             if self.orderItems.hasKey([value.orderId, value.itemId]) {
                 return <DuplicateKeyError>error("Duplicate key: " + [value.orderId, value.itemId].toString());
             }
-            self.orderItems.put(value);
+            self.orderItems.put(value.clone());
             keys.push([value.orderId, value.itemId]);
         }
         return keys;
@@ -285,9 +287,10 @@ public client class InMemoryRainierClient {
             return <InvalidKeyError>error("Not found: " + [orderId, itemId].toString());
         }
         OrderItem orderItem = self.orderItems.get([orderId, itemId]);
-        if value.quantity != () { orderItem.quantity = <int>value.quantity;}
-        if value.notes != () { orderItem.notes = <string>value.notes;}
-        self.orderItems.put(orderItem);
+        foreach var [k, v] in value.entries() {
+            orderItem[k] = v;
+        }
+
         return orderItem;
     }
 
@@ -313,7 +316,7 @@ public client class InMemoryRainierClient {
                 }, fields);
     }
 
-    public isolated function queryOneEmployees(anydata key) returns record {}|InvalidKeyError {
+    private isolated function queryOneEmployees(anydata key) returns record {}|InvalidKeyError {
         from record{} 'object in self.employees
             where self.persistClients.get(EMPLOYEE).getKey('object) == key
             outer join var department in self.departments
@@ -330,14 +333,14 @@ public client class InMemoryRainierClient {
         return <InvalidKeyError>error("Invalid key: " + key.toString());
     }
 
-    public isolated function queryBuildings(string[] fields) returns stream<record{}, Error?> {
+    private isolated function queryBuildings(string[] fields) returns stream<record{}, Error?> {
         return from record{} 'object in self.buildings
             select filterRecord({
                 ...'object
             }, fields);
     }
 
-    public isolated function queryOneBuildings(anydata key) returns record{}|InvalidKeyError {
+    private isolated function queryOneBuildings(anydata key) returns record{}|InvalidKeyError {
         from record{} 'object in self.buildings
             where self.persistClients.get(BUILDING).getKey('object) == key
             do {
@@ -348,7 +351,7 @@ public client class InMemoryRainierClient {
         return <InvalidKeyError>error("Invalid key: " + key.toString());
     }
 
-    public isolated function queryBuildingsWorkspaces(record {} value, string[] fields) returns record{}[] {
+    private isolated function queryBuildingsWorkspaces(record {} value, string[] fields) returns record{}[] {
         return from record{} 'object in self.workspaces
             where 'object.locationBuildingCode == value["buildingCode"]
             select filterRecord({
@@ -356,14 +359,14 @@ public client class InMemoryRainierClient {
             }, fields);
     }
 
-    public isolated function queryDepartments(string[] fields) returns stream<record{}, Error?> {
+    private isolated function queryDepartments(string[] fields) returns stream<record{}, Error?> {
         return from record{} 'object in self.departments
             select filterRecord({
                 ...'object
             }, fields);
     }
 
-    public isolated function queryOneDepartments(anydata key) returns record{}|InvalidKeyError {
+    private isolated function queryOneDepartments(anydata key) returns record{}|InvalidKeyError {
         from record{} 'object in self.departments
             where self.persistClients.get(DEPARTMENT).getKey('object) == key
             do {
@@ -374,7 +377,7 @@ public client class InMemoryRainierClient {
         return <InvalidKeyError>error("Invalid key: " + key.toString());
     }
 
-    public isolated function queryDepartmentsEmployees(record {} value, string[] fields) returns record{}[] {
+    private isolated function queryDepartmentsEmployees(record {} value, string[] fields) returns record{}[] {
         return from record{} 'object in self.employees
             where 'object.departmentDeptNo == value["deptNo"]
             select filterRecord({
@@ -382,7 +385,7 @@ public client class InMemoryRainierClient {
             }, fields);
     }
     
-    public isolated function queryWorkspaces(string[] fields) returns stream<record{}, Error?> {
+    private isolated function queryWorkspaces(string[] fields) returns stream<record{}, Error?> {
         return from record{} 'object in self.workspaces
             outer join var location in self.buildings
             on 'object.locationBuildingCode equals location?.buildingCode
@@ -392,7 +395,7 @@ public client class InMemoryRainierClient {
             }, fields);
     }
 
-    public isolated function queryOneWorkspaces(anydata key) returns record{}|InvalidKeyError {
+    private isolated function queryOneWorkspaces(anydata key) returns record{}|InvalidKeyError {
         from record{} 'object in self.workspaces
             where self.persistClients.get(WORKSPACE).getKey('object) == key
             outer join var location in self.buildings
@@ -406,7 +409,7 @@ public client class InMemoryRainierClient {
         return <InvalidKeyError>error("Invalid key: " + key.toString());
     }
 
-    public isolated function queryWorkspacesEmployees(record {} value, string[] fields) returns record{}[] {
+    private isolated function queryWorkspacesEmployees(record {} value, string[] fields) returns record{}[] {
         return from record{} 'object in self.employees
             where 'object.workspaceWorkspaceId == value["workspaceId"]
             select filterRecord({
@@ -414,14 +417,14 @@ public client class InMemoryRainierClient {
             }, fields);
     }
 
-    public isolated function queryOrderItems(string[] fields) returns stream<record{}, Error?> {
+    private isolated function queryOrderItems(string[] fields) returns stream<record{}, Error?> {
         return from record{} 'object in self.orderItems
             select filterRecord({
                 ...'object
             }, fields);
     }
 
-    public isolated function queryOneOrderItems(anydata key) returns record{}|InvalidKeyError {
+    private isolated function queryOneOrderItems(anydata key) returns record{}|InvalidKeyError {
         from record{} 'object in self.orderItems
             where self.persistClients.get(ORDER_ITEM).getKey('object) == key
             do {

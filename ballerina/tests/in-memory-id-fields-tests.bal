@@ -16,15 +16,11 @@
 
 import ballerina/test;
 
-public type IntIdRecordDependent record {|
-    string randomField;
-|};
-
 @test:Config {
-    groups: ["id-fields"]
+    groups: ["id-fields", "in-memory"]
 }
-function intIdFieldTest() returns error? {
-    SQLTestEntitiesClient testEntitiesClient = check new ();
+function inMemoryIntIdFieldTest() returns error? {
+    InMemoryTestEntitiesClient testEntitiesClient = check new ();
     IntIdRecord intIdRecord1 = {
         id: 1,
         randomField: "test1"
@@ -80,15 +76,11 @@ function intIdFieldTest() returns error? {
     check testEntitiesClient.close();
 }
 
-public type StringIdRecordDependent record {|
-    string randomField;
-|};
-
 @test:Config {
-    groups: ["id-fields"]
+    groups: ["id-fields", "in-memory"]
 }
-function stringIdFieldTest() returns error? {
-    SQLTestEntitiesClient testEntitiesClient = check new ();
+function inMemoryStringIdFieldTest() returns error? {
+    InMemoryTestEntitiesClient testEntitiesClient = check new ();
     StringIdRecord stringIdRecord1 = {
         id: "id-1",
         randomField: "test1"
@@ -144,15 +136,11 @@ function stringIdFieldTest() returns error? {
     check testEntitiesClient.close();
 }
 
-public type FloatIdRecordDependent record {|
-    string randomField;
-|};
-
 @test:Config {
-    groups: ["id-fields"]
+    groups: ["id-fields", "in-memory"]
 }
-function floatIdFieldTest() returns error? {
-    SQLTestEntitiesClient testEntitiesClient = check new ();
+function inMemoryFloatIdFieldTest() returns error? {
+    InMemoryTestEntitiesClient testEntitiesClient = check new ();
     FloatIdRecord floatIdRecord1 = {
         id: 1.0,
         randomField: "test1"
@@ -206,15 +194,11 @@ function floatIdFieldTest() returns error? {
     test:assertEquals(floatIdRecords, [floatIdRecord1Updated, floatIdRecord3]);
 }
 
-public type DecimalIdRecordDependent record {|
-    string randomField;
-|};
-
 @test:Config {
-    groups: ["id-fields"]
+    groups: ["id-fields", "in-memory"]
 }
-function decimalIdFieldTest() returns error? {
-    SQLTestEntitiesClient testEntitiesClient = check new ();
+function inMemoryDecimalIdFieldTest() returns error? {
+    InMemoryTestEntitiesClient testEntitiesClient = check new ();
     DecimalIdRecord decimalIdRecord1 = {
         id: 1.1d,
         randomField: "test1"
@@ -270,15 +254,11 @@ function decimalIdFieldTest() returns error? {
     check testEntitiesClient.close();
 }
 
-public type BooleanIdRecordDependent record {|
-    string randomField;
-|};
-
 @test:Config {
-    groups: ["id-fields"]
+    groups: ["id-fields", "in-memory"]
 }
-function booleanIdFieldTest() returns  error? {
-    SQLTestEntitiesClient testEntitiesClient = check new ();
+function inMemoryBooleanIdFieldTest() returns  error? {
+    InMemoryTestEntitiesClient testEntitiesClient = check new ();
     BooleanIdRecord booleanIdRecord1 = {
         id: true,
         randomField: "test1"
@@ -307,12 +287,12 @@ function booleanIdFieldTest() returns  error? {
     // read
     BooleanIdRecord[] booleanIdRecords = check from BooleanIdRecord booleanIdRecord in testEntitiesClient->/booleanidrecords.get(BooleanIdRecord)
         select booleanIdRecord;
-    test:assertEquals(booleanIdRecords, [booleanIdRecord2, booleanIdRecord1]);
+    test:assertEquals(booleanIdRecords, [booleanIdRecord1, booleanIdRecord2]);
 
     // read dependent
     BooleanIdRecordDependent[] booleanIdRecordsDependent = check from BooleanIdRecordDependent booleanIdRecord in testEntitiesClient->/booleanidrecords.get(BooleanIdRecordDependent)
         select booleanIdRecord;
-    test:assertEquals(booleanIdRecordsDependent, [{randomField: booleanIdRecord2.randomField}, {randomField: booleanIdRecord1.randomField}]);
+    test:assertEquals(booleanIdRecordsDependent, [{randomField: booleanIdRecord1.randomField}, {randomField: booleanIdRecord2.randomField}]);
 
     // update
     retrievedRecord1 = check testEntitiesClient->/booleanidrecords/[booleanIdRecord1.id].put({randomField: booleanIdRecord1Updated.randomField});
@@ -330,15 +310,11 @@ function booleanIdFieldTest() returns  error? {
     check testEntitiesClient.close();
 }
 
-public type AllTypesIdRecordDependent record {|
-    string randomField;
-|};
-
 @test:Config {
-    groups: ["id-fields"]
+    groups: ["id-fields", "in-memory"]
 }
-function allTypesIdFieldTest() returns error? {
-    SQLTestEntitiesClient testEntitiesClient = check new ();
+function inMemoryAllTypesIdFieldTest() returns error? {
+    InMemoryTestEntitiesClient testEntitiesClient = check new ();
     AllTypesIdRecord allTypesIdRecord1 = {
         intType: 1,
         stringType: "id-1",
@@ -380,12 +356,12 @@ function allTypesIdFieldTest() returns error? {
     // read
     AllTypesIdRecord[] allTypesIdRecords = check from AllTypesIdRecord allTypesIdRecord in testEntitiesClient->/alltypesidrecords.get(AllTypesIdRecord)
         select allTypesIdRecord;
-    test:assertEquals(allTypesIdRecords, [allTypesIdRecord2, allTypesIdRecord1]);
+    test:assertEquals(allTypesIdRecords, [allTypesIdRecord1, allTypesIdRecord2]);
 
     // read dependent
     AllTypesIdRecordDependent[] allTypesIdRecordsDependent = check from AllTypesIdRecordDependent allTypesIdRecord in testEntitiesClient->/alltypesidrecords.get(AllTypesIdRecordDependent)
         select allTypesIdRecord;
-    test:assertEquals(allTypesIdRecordsDependent, [{randomField: allTypesIdRecord2.randomField}, {randomField: allTypesIdRecord1.randomField}]);
+    test:assertEquals(allTypesIdRecordsDependent, [{randomField: allTypesIdRecord1.randomField}, {randomField: allTypesIdRecord2.randomField}]);
 
     // update
     retrievedRecord1 = check testEntitiesClient->/alltypesidrecords/[allTypesIdRecord1.booleanType]/[allTypesIdRecord1.intType]/[allTypesIdRecord1.floatType]/[allTypesIdRecord1.decimalType]/[allTypesIdRecord1.stringType].put({randomField: allTypesIdRecord1Updated.randomField});
@@ -403,24 +379,12 @@ function allTypesIdFieldTest() returns error? {
     check testEntitiesClient.close();
 }
 
-public type CompositeAssociationRecordDependent record {|
-    string randomField;
-    int alltypesidrecordIntType;
-    decimal alltypesidrecordDecimalType;
-    record {|
-        int intType;
-        string stringType;
-        boolean booleanType;
-        string randomField;
-    |} allTypesIdRecord;
-|};
-
 @test:Config {
-    groups: ["id-fields", "associations"],
-    dependsOn : [allTypesIdFieldTest]
+    groups: ["id-fields", "associations", "in-memoryx"],
+    dependsOn : [inMemoryAllTypesIdFieldTest]
 }
-function compositeAssociationsTest() returns error? {
-    SQLTestEntitiesClient testEntitiesClient = check new ();
+function inMemoryCompositeAssociationsTest() returns error? {
+    InMemoryTestEntitiesClient testEntitiesClient = check new ();
 
     CompositeAssociationRecord compositeAssociationRecord1 = {
         id: "id-1",
@@ -429,7 +393,7 @@ function compositeAssociationsTest() returns error? {
         alltypesidrecordStringType: "id-1",
         alltypesidrecordFloatType: 1.0,
         alltypesidrecordBooleanType: true,
-        alltypesidrecordDecimalType: 1.10        
+        alltypesidrecordDecimalType: 1.1        
     };
 
     CompositeAssociationRecord compositeAssociationRecord2 = {
@@ -439,7 +403,7 @@ function compositeAssociationsTest() returns error? {
         alltypesidrecordStringType: "id-1",
         alltypesidrecordFloatType: 1.0,
         alltypesidrecordBooleanType: true,
-        alltypesidrecordDecimalType: 1.10       
+        alltypesidrecordDecimalType: 1.1       
     };
 
     CompositeAssociationRecord compositeAssociationRecordUpdated1 = {
@@ -449,7 +413,7 @@ function compositeAssociationsTest() returns error? {
         alltypesidrecordStringType: "id-1",
         alltypesidrecordFloatType: 1.0,
         alltypesidrecordBooleanType: true,
-        alltypesidrecordDecimalType: 1.10
+        alltypesidrecordDecimalType: 1.1
     };
 
     AllTypesIdRecordOptionalized allTypesIdRecord1 = {
@@ -457,7 +421,7 @@ function compositeAssociationsTest() returns error? {
         stringType: "id-1",
         floatType: 1.0,
         booleanType: true,
-        decimalType: 1.10,
+        decimalType: 1.1,
         randomField: "test1Updated"
     };
 
