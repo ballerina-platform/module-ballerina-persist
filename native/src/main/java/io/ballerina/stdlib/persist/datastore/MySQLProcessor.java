@@ -19,7 +19,9 @@
 package io.ballerina.stdlib.persist.datastore;
 
 import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.Future;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ErrorType;
@@ -28,7 +30,7 @@ import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BFuture;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BString;
@@ -39,7 +41,6 @@ import io.ballerina.stdlib.persist.ModuleUtils;
 import static io.ballerina.stdlib.persist.Constants.ERROR;
 import static io.ballerina.stdlib.persist.Constants.KEY_FIELDS;
 import static io.ballerina.stdlib.persist.Utils.getEntity;
-import static io.ballerina.stdlib.persist.Utils.getFutureResult;
 import static io.ballerina.stdlib.persist.Utils.getKey;
 import static io.ballerina.stdlib.persist.Utils.getMetadata;
 import static io.ballerina.stdlib.persist.Utils.getPersistClient;
@@ -71,20 +72,35 @@ public class MySQLProcessor {
         BArray includes = metadata[1];
         BArray typeDescriptions = metadata[2];
 
-        BFuture future = env.getRuntime().invokeMethodAsyncSequentially(
+        Future balFuture = env.markAsync();
+        env.getRuntime().invokeMethodAsyncSequentially(
                 persistClient, Constants.RUN_READ_QUERY_METHOD,
-                null, null, null, null, streamTypeWithIdFields,
+                null, null, new Callback() {
+                    @Override
+                    public void notifySuccess(Object o) {
+                        BStream sqlStream = (BStream) o;
+                        BObject persistStream = ValueCreator.createObjectValue(
+                                ModuleUtils.getModule(), Constants.PERSIST_STREAM, sqlStream, targetType,
+                                fields, includes, typeDescriptions, persistClient, null
+                        );
+
+                        RecordType streamConstraint =
+                                (RecordType) TypeUtils.getReferredType(targetType.getDescribingType());
+                        balFuture.complete(
+                                ValueCreator.createStreamValue(TypeCreator.createStreamType(streamConstraint,
+                                        PredefinedTypes.TYPE_NULL), persistStream)
+                        );
+                    }
+
+                    @Override
+                    public void notifyFailure(BError bError) {
+                        balFuture.complete(bError);
+                    }
+                }, null, streamTypeWithIdFields,
                 targetTypeWithIdFields, true, fields, true, includes, true
         );
 
-        BStream sqlStream = (BStream) getFutureResult(future);
-        BObject persistStream = ValueCreator.createObjectValue(ModuleUtils.getModule(),
-                Constants.PERSIST_STREAM, sqlStream, targetType, fields, includes, typeDescriptions,
-                persistClient, null);
-
-        RecordType streamConstraint = (RecordType) TypeUtils.getReferredType(targetType.getDescribingType());
-        return ValueCreator.createStreamValue(TypeCreator.createStreamType(streamConstraint,
-                PredefinedTypes.TYPE_NULL), persistStream);
+        return null;
     }
 
     public static Object queryOne(Environment env, BObject client, BArray path, BTypedesc targetType) {
@@ -105,13 +121,24 @@ public class MySQLProcessor {
 
         Object key = getKey(env, path);
 
-        BFuture future = env.getRuntime().invokeMethodAsyncSequentially(
+        Future balFuture = env.markAsync();
+        env.getRuntime().invokeMethodAsyncSequentially(
                 getPersistClient(client, entity), Constants.RUN_READ_BY_KEY_QUERY_METHOD,
-                null, null, null, null, unionType,
+                null, null, new Callback() {
+                    @Override
+                    public void notifySuccess(Object o) {
+                        balFuture.complete(o);
+                    }
+
+                    @Override
+                    public void notifyFailure(BError bError) {
+                        balFuture.complete(bError);
+                    }
+                },  null, unionType,
                 targetType, true, targetTypeWithIdFields, true, key, true, fields, true, includes, true,
                 typeDescriptions, true
         );
 
-        return getFutureResult(future);
+        return null;
     }
 }
