@@ -1,6 +1,6 @@
-// Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2023 WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
 //
-// WSO2 Inc. licenses this file to you under the Apache License,
+// WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
 // in compliance with the License.
 // You may obtain a copy of the License at
@@ -77,7 +77,7 @@ Employee updatedEmployee1 = {
     dependsOn: [workspaceDeleteTestNegative, departmentDeleteTestNegative]
 }
 function employeeCreateTest() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
     
     string[] empNos = check rainierClient->/employees.post([employee1]);    
     test:assertEquals(empNos, [employee1.empNo]);
@@ -92,7 +92,7 @@ function employeeCreateTest() returns error? {
     dependsOn: [workspaceDeleteTestNegative, departmentDeleteTestNegative]
 }
 function employeeCreateTest2() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
     
     string[] empNos = check rainierClient->/employees.post([employee2, employee3]);
 
@@ -111,7 +111,7 @@ function employeeCreateTest2() returns error? {
     groups: ["employee"]
 }
 function employeeCreateTestNegative() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
     
     string[]|error employee = rainierClient->/employees.post([invalidEmployee]);   
     if employee is Error {
@@ -127,7 +127,7 @@ function employeeCreateTestNegative() returns error? {
     dependsOn: [employeeCreateTest]
 }
 function employeeReadOneTest() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     Employee employeeRetrieved = check rainierClient->/employees/[employee1.empNo].get();
     test:assertEquals(employeeRetrieved, employee1);
@@ -139,7 +139,7 @@ function employeeReadOneTest() returns error? {
     dependsOn: [employeeCreateTest]
 }
 function employeeReadOneTestNegative() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     Employee|error employeeRetrieved = rainierClient->/employees/["invalid-employee-id"].get();
     if employeeRetrieved is InvalidKeyError {
@@ -155,7 +155,7 @@ function employeeReadOneTestNegative() returns error? {
     dependsOn: [employeeCreateTest, employeeCreateTest2]
 }
 function employeeReadManyTest() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     stream<Employee, Error?> employeeStream = rainierClient->/employees.get();
     Employee[] employees = check from Employee employee in employeeStream 
@@ -175,7 +175,7 @@ public type EmployeeName record {|
     dependsOn: [employeeCreateTest, employeeCreateTest2]
 }
 function employeeReadManyDependentTest1() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     stream<EmployeeName, Error?> employeeStream = rainierClient->/employees.get();
     EmployeeName[] employees = check from EmployeeName employee in employeeStream 
@@ -201,7 +201,7 @@ public type EmployeeInfo2 record {|
     dependsOn: [employeeCreateTest, employeeCreateTest2]
 }
 function employeeReadManyDependentTest2() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     stream<EmployeeInfo2, Error?> employeeStream = rainierClient->/employees.get();
     EmployeeInfo2[] employees = check from EmployeeInfo2 employee in employeeStream 
@@ -220,7 +220,7 @@ function employeeReadManyDependentTest2() returns error? {
     dependsOn: [employeeReadOneTest, employeeReadManyTest, employeeReadManyDependentTest1, employeeReadManyDependentTest2]
 }
 function employeeUpdateTest() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     Employee employee = check rainierClient->/employees/[employee1.empNo].put({
         lastName: "Jones",
@@ -240,7 +240,7 @@ function employeeUpdateTest() returns error? {
     dependsOn: [employeeReadOneTest, employeeReadManyTest, employeeReadManyDependentTest1, employeeReadManyDependentTest2]
 }
 function employeeUpdateTestNegative1() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     Employee|error employee = rainierClient->/employees/["invalid-employee-id"].put({
         lastName: "Jones"   
@@ -259,7 +259,7 @@ function employeeUpdateTestNegative1() returns error? {
     dependsOn: [employeeReadOneTest, employeeReadManyTest, employeeReadManyDependentTest1, employeeReadManyDependentTest2]
 }
 function employeeUpdateTestNegative2() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     Employee|error employee = rainierClient->/employees/[employee1.empNo].put({
         firstName: "unncessarily-long-employee-name-to-force-error-on-update"
@@ -278,7 +278,7 @@ function employeeUpdateTestNegative2() returns error? {
     dependsOn: [employeeReadOneTest, employeeReadManyTest, employeeReadManyDependentTest1, employeeReadManyDependentTest2]
 }
 function employeeUpdateTestNegative3() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     Employee|error employee = rainierClient->/employees/[employee1.empNo].put({
         workspaceWorkspaceId: "invalid-workspaceWorkspaceId"
@@ -298,7 +298,7 @@ function employeeUpdateTestNegative3() returns error? {
     dependsOn: [employeeUpdateTest, employeeUpdateTestNegative2, employeeUpdateTestNegative3]
 }
 function employeeDeleteTest() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     Employee employee = check rainierClient->/employees/[employee1.empNo].delete();
     test:assertEquals(employee, updatedEmployee1);
@@ -316,7 +316,7 @@ function employeeDeleteTest() returns error? {
     dependsOn: [employeeDeleteTest]
 }
 function employeeDeleteTestNegative() returns error? {
-    RainierClient rainierClient = check new ();
+    SQLRainierClient rainierClient = check new ();
 
     Employee|error employee = rainierClient->/employees/[employee1.empNo].delete();
 

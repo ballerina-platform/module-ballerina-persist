@@ -17,7 +17,7 @@ public client class Client {
 
     private final map<persist:SQLClient> persistClients;
 
-    private final record {|persist:Metadata...;|} metadata = {
+    private final record {|persist:SQLMetadata...;|} metadata = {
         [MEDICAL_ITEM]: {
             entityName: "MedicalItem",
             tableName: `MedicalItem`,
