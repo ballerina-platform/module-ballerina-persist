@@ -15,68 +15,12 @@
 // under the License.
 
 import ballerina/test;
-import ballerina/time;
-
-Employee employee1 = {
-    empNo: "employee-1",
-    firstName: "Tom",
-    lastName: "Scott",
-    birthDate: {year: 1992, month: 11, day:13},
-    gender: "M",
-    hireDate: {year: 2022, month: 8, day: 1},
-    departmentDeptNo: "department-2",
-    workspaceWorkspaceId: "workspace-2"
-};
-
-Employee invalidEmployee = {
-    empNo: "invalid-employee-no-extra-characters-to-force-failure",
-    firstName: "Tom",
-    lastName: "Scott",
-    birthDate: {year: 1992, month: 11, day:13},
-    gender: "M",
-    hireDate: {year: 2022, month: 8, day: 1},
-    departmentDeptNo: "department-2",
-    workspaceWorkspaceId: "workspace-2"
-};
-
-Employee employee2 = {
-    empNo: "employee-2",
-    firstName: "Jane",
-    lastName: "Doe",
-    birthDate: {year: 1996, month: 9, day:15},
-    gender: "F",
-    hireDate: {year: 2022, month: 6, day: 1},
-    departmentDeptNo: "department-2",
-    workspaceWorkspaceId: "workspace-2"
-};
-
-Employee employee3 = {
-    empNo: "employee-3",
-    firstName: "Hugh",
-    lastName: "Smith",
-    birthDate: {year: 1986, month: 9, day:15},
-    gender: "F",
-    hireDate: {year: 2021, month: 6, day: 1},
-    departmentDeptNo: "department-3",
-    workspaceWorkspaceId: "workspace-3"
-};
-
-Employee updatedEmployee1 = {
-    empNo: "employee-1",
-    firstName: "Tom",
-    lastName: "Jones",
-    birthDate: {year: 1994, month: 11, day:13},
-    gender: "M",
-    hireDate: {year: 2022, month: 8, day: 1},
-    departmentDeptNo: "department-3",
-    workspaceWorkspaceId: "workspace-2"
-};
 
 @test:Config {
-    groups: ["employee"],
-    dependsOn: [workspaceDeleteTestNegative, departmentDeleteTestNegative]
+    groups: ["employee", "sql"],
+    dependsOn: [sqlWorkspaceDeleteTestNegative, sqlDepartmentDeleteTestNegative]
 }
-function employeeCreateTest() returns error? {
+function sqlEmployeeCreateTest() returns error? {
     SQLRainierClient rainierClient = check new ();
     
     string[] empNos = check rainierClient->/employees.post([employee1]);    
@@ -88,10 +32,10 @@ function employeeCreateTest() returns error? {
 }
 
 @test:Config {
-    groups: ["employee"],
-    dependsOn: [workspaceDeleteTestNegative, departmentDeleteTestNegative]
+    groups: ["employee", "sql"],
+    dependsOn: [sqlWorkspaceDeleteTestNegative, sqlDepartmentDeleteTestNegative]
 }
-function employeeCreateTest2() returns error? {
+function sqlEmployeeCreateTest2() returns error? {
     SQLRainierClient rainierClient = check new ();
     
     string[] empNos = check rainierClient->/employees.post([employee2, employee3]);
@@ -108,9 +52,9 @@ function employeeCreateTest2() returns error? {
 
 
 @test:Config {
-    groups: ["employee"]
+    groups: ["employee", "sql"]
 }
-function employeeCreateTestNegative() returns error? {
+function sqlEmployeeCreateTestNegative() returns error? {
     SQLRainierClient rainierClient = check new ();
     
     string[]|error employee = rainierClient->/employees.post([invalidEmployee]);   
@@ -123,10 +67,10 @@ function employeeCreateTestNegative() returns error? {
 }
 
 @test:Config {
-    groups: ["employee"],
-    dependsOn: [employeeCreateTest]
+    groups: ["employee", "sql"],
+    dependsOn: [sqlEmployeeCreateTest]
 }
-function employeeReadOneTest() returns error? {
+function sqlEmployeeReadOneTest() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     Employee employeeRetrieved = check rainierClient->/employees/[employee1.empNo].get();
@@ -135,10 +79,10 @@ function employeeReadOneTest() returns error? {
 }
 
 @test:Config {
-    groups: ["employee"],
-    dependsOn: [employeeCreateTest]
+    groups: ["employee", "sql"],
+    dependsOn: [sqlEmployeeCreateTest]
 }
-function employeeReadOneTestNegative() returns error? {
+function sqlEmployeeReadOneTestNegative() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     Employee|error employeeRetrieved = rainierClient->/employees/["invalid-employee-id"].get();
@@ -151,10 +95,10 @@ function employeeReadOneTestNegative() returns error? {
 }
 
 @test:Config {
-    groups: ["employee"],
-    dependsOn: [employeeCreateTest, employeeCreateTest2]
+    groups: ["employee", "sql"],
+    dependsOn: [sqlEmployeeCreateTest, sqlEmployeeCreateTest2]
 }
-function employeeReadManyTest() returns error? {
+function sqlEmployeeReadManyTest() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     stream<Employee, Error?> employeeStream = rainierClient->/employees.get();
@@ -165,16 +109,11 @@ function employeeReadManyTest() returns error? {
     check rainierClient.close();
 }
 
-public type EmployeeName record {|
-    string firstName;
-    string lastName;
-|};
-
 @test:Config {
     groups:  ["dependent", "employee"],
-    dependsOn: [employeeCreateTest, employeeCreateTest2]
+    dependsOn: [sqlEmployeeCreateTest, sqlEmployeeCreateTest2]
 }
-function employeeReadManyDependentTest1() returns error? {
+function sqlEmployeeReadManyDependentTest1() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     stream<EmployeeName, Error?> employeeStream = rainierClient->/employees.get();
@@ -189,18 +128,11 @@ function employeeReadManyDependentTest1() returns error? {
     check rainierClient.close();
 }
 
-public type EmployeeInfo2 record {|
-    readonly string empNo;
-    time:Date birthDate;
-    string departmentDeptNo;
-    string workspaceWorkspaceId;
-|};
-
 @test:Config {
     groups:  ["dependent", "employee"],
-    dependsOn: [employeeCreateTest, employeeCreateTest2]
+    dependsOn: [sqlEmployeeCreateTest, sqlEmployeeCreateTest2]
 }
-function employeeReadManyDependentTest2() returns error? {
+function sqlEmployeeReadManyDependentTest2() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     stream<EmployeeInfo2, Error?> employeeStream = rainierClient->/employees.get();
@@ -216,10 +148,10 @@ function employeeReadManyDependentTest2() returns error? {
 }
 
 @test:Config {
-    groups: ["employee"],
-    dependsOn: [employeeReadOneTest, employeeReadManyTest, employeeReadManyDependentTest1, employeeReadManyDependentTest2]
+    groups: ["employee", "sql"],
+    dependsOn: [sqlEmployeeReadOneTest, sqlEmployeeReadManyTest, sqlEmployeeReadManyDependentTest1, sqlEmployeeReadManyDependentTest2]
 }
-function employeeUpdateTest() returns error? {
+function sqlEmployeeUpdateTest() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     Employee employee = check rainierClient->/employees/[employee1.empNo].put({
@@ -236,10 +168,10 @@ function employeeUpdateTest() returns error? {
 }
 
 @test:Config {
-    groups: ["employee"],
-    dependsOn: [employeeReadOneTest, employeeReadManyTest, employeeReadManyDependentTest1, employeeReadManyDependentTest2]
+    groups: ["employee", "sql"],
+    dependsOn: [sqlEmployeeReadOneTest, sqlEmployeeReadManyTest, sqlEmployeeReadManyDependentTest1, sqlEmployeeReadManyDependentTest2]
 }
-function employeeUpdateTestNegative1() returns error? {
+function sqlEmployeeUpdateTestNegative1() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     Employee|error employee = rainierClient->/employees/["invalid-employee-id"].put({
@@ -255,10 +187,10 @@ function employeeUpdateTestNegative1() returns error? {
 }
 
 @test:Config {
-    groups: ["employee"],
-    dependsOn: [employeeReadOneTest, employeeReadManyTest, employeeReadManyDependentTest1, employeeReadManyDependentTest2]
+    groups: ["employee", "sql"],
+    dependsOn: [sqlEmployeeReadOneTest, sqlEmployeeReadManyTest, sqlEmployeeReadManyDependentTest1, sqlEmployeeReadManyDependentTest2]
 }
-function employeeUpdateTestNegative2() returns error? {
+function sqlEmployeeUpdateTestNegative2() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     Employee|error employee = rainierClient->/employees/[employee1.empNo].put({
@@ -274,10 +206,10 @@ function employeeUpdateTestNegative2() returns error? {
 }
 
 @test:Config {
-    groups: ["employee"],
-    dependsOn: [employeeReadOneTest, employeeReadManyTest, employeeReadManyDependentTest1, employeeReadManyDependentTest2]
+    groups: ["employee", "sql"],
+    dependsOn: [sqlEmployeeReadOneTest, sqlEmployeeReadManyTest, sqlEmployeeReadManyDependentTest1, sqlEmployeeReadManyDependentTest2]
 }
-function employeeUpdateTestNegative3() returns error? {
+function sqlEmployeeUpdateTestNegative3() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     Employee|error employee = rainierClient->/employees/[employee1.empNo].put({
@@ -294,10 +226,10 @@ function employeeUpdateTestNegative3() returns error? {
 }
 
 @test:Config {
-    groups: ["employee"],
-    dependsOn: [employeeUpdateTest, employeeUpdateTestNegative2, employeeUpdateTestNegative3]
+    groups: ["employee", "sql"],
+    dependsOn: [sqlEmployeeUpdateTest, sqlEmployeeUpdateTestNegative2, sqlEmployeeUpdateTestNegative3]
 }
-function employeeDeleteTest() returns error? {
+function sqlEmployeeDeleteTest() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     Employee employee = check rainierClient->/employees/[employee1.empNo].delete();
@@ -312,10 +244,10 @@ function employeeDeleteTest() returns error? {
 }
 
 @test:Config {
-    groups: ["employee"],
-    dependsOn: [employeeDeleteTest]
+    groups: ["employee", "sql"],
+    dependsOn: [sqlEmployeeDeleteTest]
 }
-function employeeDeleteTestNegative() returns error? {
+function sqlEmployeeDeleteTestNegative() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     Employee|error employee = rainierClient->/employees/[employee1.empNo].delete();

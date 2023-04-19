@@ -16,20 +16,11 @@
 
 import ballerina/test;
 
-public type EmployeeInfo record {|
-    string firstName;
-    string lastName;
-    record {|
-        string deptName;
-    |} department;
-    Workspace workspace;
-|};
-
 @test:Config {
-    groups:  ["associations"],
-    dependsOn: [employeeDeleteTestNegative]
+    groups:  ["associations", "sql"],
+    dependsOn: [sqlEmployeeDeleteTestNegative]
 }
-function employeeRelationsTest() returns error? {
+function sqlEmployeeRelationsTest() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     Employee employee21 = {
@@ -92,18 +83,9 @@ function employeeRelationsTest() returns error? {
     check rainierClient.close();
 }
 
-public type DepartmentInfo record {|
-    string deptNo;
-    string deptName;
-    record {|
-        string firstName;
-        string lastName;
-    |}[] employees;
-|};
-
 @test:Config {
-    groups: ["associations"],
-    dependsOn: [employeeDeleteTestNegative]
+    groups: ["associations", "sql"],
+    dependsOn: [sqlEmployeeDeleteTestNegative]
 }
 function departmentRelationsTest() returns error? {
     SQLRainierClient rainierClient = check new ();
@@ -178,15 +160,9 @@ function departmentRelationsTest() returns error? {
     check rainierClient.close();
 }
 
-public type WorkspaceInfo record {|
-    string workspaceType;
-    Building location;
-    Employee[] employees;
-|};
-
 @test:Config {
-    groups: ["associations"],
-    dependsOn: [employeeRelationsTest]
+    groups: ["associations", "sql"],
+    dependsOn: [sqlEmployeeRelationsTest]
 }
 function workspaceRelationsTest() returns error? {
     SQLRainierClient rainierClient = check new ();
@@ -260,19 +236,9 @@ function workspaceRelationsTest() returns error? {
     check rainierClient.close();
 }
 
-public type BuildingInfo record {|
-    string buildingCode;
-    string city;
-    string state;
-    string country;
-    string postalCode;
-    string 'type;
-    Workspace[] workspaces;
-|};
-
 @test:Config {
-    groups: ["associations"],
-    dependsOn: [employeeRelationsTest]
+    groups: ["associations", "sql"],
+    dependsOn: [sqlEmployeeRelationsTest]
 }
 function buildingRelationsTest() returns error? {
     SQLRainierClient rainierClient = check new ();

@@ -16,35 +16,10 @@
 
 import ballerina/test;
 
-Department department1 = {
-    deptNo: "department-1",
-    deptName: "Finance"
-};
-
-Department invalidDepartment = {
-    deptNo: "invalid-department-extra-characters-to-force-failure",
-    deptName: "Finance"
-};
-
-Department department2 = {
-    deptNo: "department-2",
-    deptName: "Marketing"
-};
-
-Department department3 = {
-    deptNo: "department-3",
-    deptName: "Engineering"
-};
-
-Department updatedDepartment1 = {
-    deptNo: "department-1",
-    deptName: "Finance & Legalities"
-};
-
 @test:Config {
-    groups: ["department"]
+    groups: ["department", "sql"]
 }
-function departmentCreateTest() returns error? {
+function sqlDepartmentCreateTest() returns error? {
     SQLRainierClient rainierClient = check new ();
     
     string[] deptNos = check rainierClient->/departments.post([department1]);    
@@ -56,9 +31,9 @@ function departmentCreateTest() returns error? {
 }
 
 @test:Config {
-    groups: ["department"]
+    groups: ["department", "sql"]
 }
-function departmentCreateTest2() returns error? {
+function sqlDepartmentCreateTest2() returns error? {
     SQLRainierClient rainierClient = check new ();
     
     string[] deptNos = check rainierClient->/departments.post([department2, department3]);
@@ -74,9 +49,9 @@ function departmentCreateTest2() returns error? {
 }
 
 @test:Config {
-    groups: ["department"]
+    groups: ["department", "sql"]
 }
-function departmentCreateTestNegative() returns error? {
+function sqlDepartmentCreateTestNegative() returns error? {
     SQLRainierClient rainierClient = check new ();
     
     string[]|error department = rainierClient->/departments.post([invalidDepartment]);   
@@ -89,10 +64,10 @@ function departmentCreateTestNegative() returns error? {
 }
 
 @test:Config {
-    groups: ["department"],
-    dependsOn: [departmentCreateTest]
+    groups: ["department", "sql"],
+    dependsOn: [sqlDepartmentCreateTest]
 }
-function departmentReadOneTest() returns error? {
+function sqlDepartmentReadOneTest() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     Department departmentRetrieved = check rainierClient->/departments/[department1.deptNo].get();
@@ -101,10 +76,10 @@ function departmentReadOneTest() returns error? {
 }
 
 @test:Config {
-    groups: ["department"],
-    dependsOn: [departmentCreateTest]
+    groups: ["department", "sql"],
+    dependsOn: [sqlDepartmentCreateTest]
 }
-function departmentReadOneTestNegative() returns error? {
+function sqlDepartmentReadOneTestNegative() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     Department|error departmentRetrieved = rainierClient->/departments/["invalid-department-id"].get();
@@ -117,10 +92,10 @@ function departmentReadOneTestNegative() returns error? {
 }
 
 @test:Config {
-    groups: ["department"],
-    dependsOn: [departmentCreateTest, departmentCreateTest2]
+    groups: ["department", "sql"],
+    dependsOn: [sqlDepartmentCreateTest, sqlDepartmentCreateTest2]
 }
-function departmentReadManyTest() returns error? {
+function sqlDepartmentReadManyTest() returns error? {
     SQLRainierClient rainierClient = check new ();
     stream<Department, error?> departmentStream = rainierClient->/departments.get();
     Department[] departments = check from Department department in departmentStream 
@@ -130,15 +105,11 @@ function departmentReadManyTest() returns error? {
     check rainierClient.close();
 }
 
-public type DepartmentInfo2 record {|
-    string deptName;
-|};
-
 @test:Config {
-    groups: ["department", "dependent"],
-    dependsOn: [departmentCreateTest, departmentCreateTest2]
+    groups: ["department", "sql", "dependent"],
+    dependsOn: [sqlDepartmentCreateTest, sqlDepartmentCreateTest2]
 }
-function departmentReadManyTestDependent() returns error? {
+function sqlDepartmentReadManyTestDependent() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     stream<DepartmentInfo2, Error?> departmentStream = rainierClient->/departments.get();
@@ -154,10 +125,10 @@ function departmentReadManyTestDependent() returns error? {
 }
 
 @test:Config {
-    groups: ["department"],
-    dependsOn: [departmentReadOneTest, departmentReadManyTest, departmentReadManyTestDependent]
+    groups: ["department", "sql"],
+    dependsOn: [sqlDepartmentReadOneTest, sqlDepartmentReadManyTest, sqlDepartmentReadManyTestDependent]
 }
-function departmentUpdateTest() returns error? {
+function sqlDepartmentUpdateTest() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     Department department = check rainierClient->/departments/[department1.deptNo].put({
@@ -172,10 +143,10 @@ function departmentUpdateTest() returns error? {
 }
 
 @test:Config {
-    groups: ["department"],
-    dependsOn: [departmentReadOneTest, departmentReadManyTest, departmentReadManyTestDependent]
+    groups: ["department", "sql"],
+    dependsOn: [sqlDepartmentReadOneTest, sqlDepartmentReadManyTest, sqlDepartmentReadManyTestDependent]
 }
-function departmentUpdateTestNegative1() returns error? {
+function sqlDepartmentUpdateTestNegative1() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     Department|error department = rainierClient->/departments/["invalid-department-id"].put({
@@ -191,10 +162,10 @@ function departmentUpdateTestNegative1() returns error? {
 }
 
 @test:Config {
-    groups: ["department"],
-    dependsOn: [departmentReadOneTest, departmentReadManyTest, departmentReadManyTestDependent]
+    groups: ["department", "sql"],
+    dependsOn: [sqlDepartmentReadOneTest, sqlDepartmentReadManyTest, sqlDepartmentReadManyTestDependent]
 }
-function departmentUpdateTestNegative2() returns error? {
+function sqlDepartmentUpdateTestNegative2() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     Department|error department = rainierClient->/departments/[department1.deptNo].put({
@@ -210,10 +181,10 @@ function departmentUpdateTestNegative2() returns error? {
 }
 
 @test:Config {
-    groups: ["department"],
-    dependsOn: [departmentUpdateTest, departmentUpdateTestNegative2]
+    groups: ["department", "sql"],
+    dependsOn: [sqlDepartmentUpdateTest, sqlDepartmentUpdateTestNegative2]
 }
-function departmentDeleteTest() returns error? {
+function sqlDepartmentDeleteTest() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     Department department = check rainierClient->/departments/[department1.deptNo].delete();
@@ -228,10 +199,10 @@ function departmentDeleteTest() returns error? {
 }
 
 @test:Config {
-    groups: ["department"],
-    dependsOn: [departmentDeleteTest]
+    groups: ["department", "sql"],
+    dependsOn: [sqlDepartmentDeleteTest]
 }
-function departmentDeleteTestNegative() returns error? {
+function sqlDepartmentDeleteTestNegative() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     Department|error department = rainierClient->/departments/[department1.deptNo].delete();

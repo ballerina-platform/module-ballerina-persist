@@ -16,14 +16,10 @@
 
 import ballerina/test;
 
-public type IntIdRecordDependent record {|
-    string randomField;
-|};
-
 @test:Config {
-    groups: ["id-fields"]
+    groups: ["id-fields", "sql"]
 }
-function intIdFieldTest() returns error? {
+function sqlIntIdFieldTest() returns error? {
     SQLTestEntitiesClient testEntitiesClient = check new ();
     IntIdRecord intIdRecord1 = {
         id: 1,
@@ -80,14 +76,10 @@ function intIdFieldTest() returns error? {
     check testEntitiesClient.close();
 }
 
-public type StringIdRecordDependent record {|
-    string randomField;
-|};
-
 @test:Config {
-    groups: ["id-fields"]
+    groups: ["id-fields", "sql"]
 }
-function stringIdFieldTest() returns error? {
+function sqlStringIdFieldTest() returns error? {
     SQLTestEntitiesClient testEntitiesClient = check new ();
     StringIdRecord stringIdRecord1 = {
         id: "id-1",
@@ -144,14 +136,10 @@ function stringIdFieldTest() returns error? {
     check testEntitiesClient.close();
 }
 
-public type FloatIdRecordDependent record {|
-    string randomField;
-|};
-
 @test:Config {
-    groups: ["id-fields"]
+    groups: ["id-fields", "sql"]
 }
-function floatIdFieldTest() returns error? {
+function sqlFloatIdFieldTest() returns error? {
     SQLTestEntitiesClient testEntitiesClient = check new ();
     FloatIdRecord floatIdRecord1 = {
         id: 1.0,
@@ -206,14 +194,10 @@ function floatIdFieldTest() returns error? {
     test:assertEquals(floatIdRecords, [floatIdRecord1Updated, floatIdRecord3]);
 }
 
-public type DecimalIdRecordDependent record {|
-    string randomField;
-|};
-
 @test:Config {
-    groups: ["id-fields"]
+    groups: ["id-fields", "sql"]
 }
-function decimalIdFieldTest() returns error? {
+function sqlDecimalIdFieldTest() returns error? {
     SQLTestEntitiesClient testEntitiesClient = check new ();
     DecimalIdRecord decimalIdRecord1 = {
         id: 1.1d,
@@ -270,14 +254,10 @@ function decimalIdFieldTest() returns error? {
     check testEntitiesClient.close();
 }
 
-public type BooleanIdRecordDependent record {|
-    string randomField;
-|};
-
 @test:Config {
-    groups: ["id-fields"]
+    groups: ["id-fields", "sql"]
 }
-function booleanIdFieldTest() returns  error? {
+function sqlBooleanIdFieldTest() returns  error? {
     SQLTestEntitiesClient testEntitiesClient = check new ();
     BooleanIdRecord booleanIdRecord1 = {
         id: true,
@@ -330,14 +310,10 @@ function booleanIdFieldTest() returns  error? {
     check testEntitiesClient.close();
 }
 
-public type AllTypesIdRecordDependent record {|
-    string randomField;
-|};
-
 @test:Config {
-    groups: ["id-fields"]
+    groups: ["id-fields", "sql"]
 }
-function allTypesIdFieldTest() returns error? {
+function sqlAllTypesIdFieldTest() returns error? {
     SQLTestEntitiesClient testEntitiesClient = check new ();
     AllTypesIdRecord allTypesIdRecord1 = {
         intType: 1,
@@ -403,23 +379,11 @@ function allTypesIdFieldTest() returns error? {
     check testEntitiesClient.close();
 }
 
-public type CompositeAssociationRecordDependent record {|
-    string randomField;
-    int alltypesidrecordIntType;
-    decimal alltypesidrecordDecimalType;
-    record {|
-        int intType;
-        string stringType;
-        boolean booleanType;
-        string randomField;
-    |} allTypesIdRecord;
-|};
-
 @test:Config {
-    groups: ["id-fields", "associations"],
-    dependsOn : [allTypesIdFieldTest]
+    groups: ["id-fields", "sql", "associations"],
+    dependsOn : [sqlAllTypesIdFieldTest]
 }
-function compositeAssociationsTest() returns error? {
+function sqlCompositeAssociationsTest() returns error? {
     SQLTestEntitiesClient testEntitiesClient = check new ();
 
     CompositeAssociationRecord compositeAssociationRecord1 = {
