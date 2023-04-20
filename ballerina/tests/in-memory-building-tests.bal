@@ -21,8 +21,8 @@ import ballerina/test;
 }
 function inMemoryBuildingCreateTest() returns error? {
     InMemoryRainierClient rainierClient = check new ();
-    
-    string[] buildingCodes = check rainierClient->/buildings.post([building1]);    
+
+    string[] buildingCodes = check rainierClient->/buildings.post([building1]);
     test:assertEquals(buildingCodes, [building1.buildingCode]);
 
     Building buildingRetrieved = check rainierClient->/buildings/[building1.buildingCode].get();
@@ -35,7 +35,7 @@ function inMemoryBuildingCreateTest() returns error? {
 }
 function inMemoryBuildingCreateTest2() returns error? {
     InMemoryRainierClient rainierClient = check new ();
-    
+
     string[] buildingCodes = check rainierClient->/buildings.post([building2, building3]);
 
     test:assertEquals(buildingCodes, [building2.buildingCode, building3.buildingCode]);
@@ -85,7 +85,7 @@ function inMemoryBuildingReadManyTest() returns error? {
     InMemoryRainierClient rainierClient = check new ();
 
     stream<Building, error?> buildingStream = rainierClient->/buildings.get();
-    Building[] buildings = check from Building building in buildingStream 
+    Building[] buildings = check from Building building in buildingStream
         select building;
 
     test:assertEquals(buildings, [building1, building2, building3]);
@@ -100,7 +100,7 @@ function inMemoryBuildingReadManyDependentTest() returns error? {
     InMemoryRainierClient rainierClient = check new ();
 
     stream<BuildingInfo2, error?> buildingStream = rainierClient->/buildings.get();
-    BuildingInfo2[] buildings = check from BuildingInfo2 building in buildingStream 
+    BuildingInfo2[] buildings = check from BuildingInfo2 building in buildingStream
         select building;
 
     test:assertEquals(buildings, [
@@ -164,7 +164,7 @@ function inMemoryBuildingDeleteTest() returns error? {
     test:assertEquals(building, updatedBuilding1);
 
     stream<Building, error?> buildingStream = rainierClient->/buildings.get();
-    Building[] buildings = check from Building building2 in buildingStream 
+    Building[] buildings = check from Building building2 in buildingStream
         select building2;
 
     test:assertEquals(buildings, [building2, building3]);

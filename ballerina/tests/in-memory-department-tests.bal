@@ -17,10 +17,10 @@
 import ballerina/test;
 
 @test:Config {
-    groups: ["department", "sql"]
+    groups: ["department", "in-memory"]
 }
-function sqlDepartmentCreateTest() returns error? {
-    SQLRainierClient rainierClient = check new ();
+function inMemoryDepartmentCreateTest() returns error? {
+    InMemoryRainierClient rainierClient = check new ();
 
     string[] deptNos = check rainierClient->/departments.post([department1]);
     test:assertEquals(deptNos, [department1.deptNo]);
@@ -31,10 +31,10 @@ function sqlDepartmentCreateTest() returns error? {
 }
 
 @test:Config {
-    groups: ["department", "sql"]
+    groups: ["department", "in-memory"]
 }
-function sqlDepartmentCreateTest2() returns error? {
-    SQLRainierClient rainierClient = check new ();
+function inMemoryDepartmentCreateTest2() returns error? {
+    InMemoryRainierClient rainierClient = check new ();
 
     string[] deptNos = check rainierClient->/departments.post([department2, department3]);
 
@@ -49,26 +49,11 @@ function sqlDepartmentCreateTest2() returns error? {
 }
 
 @test:Config {
-    groups: ["department", "sql"]
+    groups: ["department", "in-memory"],
+    dependsOn: [inMemoryDepartmentCreateTest]
 }
-function sqlDepartmentCreateTestNegative() returns error? {
-    SQLRainierClient rainierClient = check new ();
-
-    string[]|error department = rainierClient->/departments.post([invalidDepartment]);
-    if department is Error {
-        test:assertTrue(department.message().includes("Data truncation: Data too long for column 'deptNo' at row 1."));
-    } else {
-        test:assertFail("Error expected.");
-    }
-    check rainierClient.close();
-}
-
-@test:Config {
-    groups: ["department", "sql"],
-    dependsOn: [sqlDepartmentCreateTest]
-}
-function sqlDepartmentReadOneTest() returns error? {
-    SQLRainierClient rainierClient = check new ();
+function inMemoryDepartmentReadOneTest() returns error? {
+    InMemoryRainierClient rainierClient = check new ();
 
     Department departmentRetrieved = check rainierClient->/departments/[department1.deptNo].get();
     test:assertEquals(departmentRetrieved, department1);
@@ -76,15 +61,15 @@ function sqlDepartmentReadOneTest() returns error? {
 }
 
 @test:Config {
-    groups: ["department", "sql"],
-    dependsOn: [sqlDepartmentCreateTest]
+    groups: ["department", "in-memory"],
+    dependsOn: [inMemoryDepartmentCreateTest]
 }
-function sqlDepartmentReadOneTestNegative() returns error? {
-    SQLRainierClient rainierClient = check new ();
+function inMemoryDepartmentReadOneTestNegative() returns error? {
+    InMemoryRainierClient rainierClient = check new ();
 
     Department|error departmentRetrieved = rainierClient->/departments/["invalid-department-id"].get();
     if departmentRetrieved is InvalidKeyError {
-        test:assertEquals(departmentRetrieved.message(), "A record does not exist for 'Department' for key \"invalid-department-id\".");
+        test:assertEquals(departmentRetrieved.message(), "Invalid key: invalid-department-id");
     } else {
         test:assertFail("InvalidKeyError expected.");
     }
@@ -92,11 +77,11 @@ function sqlDepartmentReadOneTestNegative() returns error? {
 }
 
 @test:Config {
-    groups: ["department", "sql"],
-    dependsOn: [sqlDepartmentCreateTest, sqlDepartmentCreateTest2]
+    groups: ["department", "in-memory"],
+    dependsOn: [inMemoryDepartmentCreateTest, inMemoryDepartmentCreateTest2]
 }
-function sqlDepartmentReadManyTest() returns error? {
-    SQLRainierClient rainierClient = check new ();
+function inMemoryDepartmentReadManyTest() returns error? {
+    InMemoryRainierClient rainierClient = check new ();
     stream<Department, error?> departmentStream = rainierClient->/departments.get();
     Department[] departments = check from Department department in departmentStream
         select department;
@@ -106,11 +91,11 @@ function sqlDepartmentReadManyTest() returns error? {
 }
 
 @test:Config {
-    groups: ["department", "sql", "dependent"],
-    dependsOn: [sqlDepartmentCreateTest, sqlDepartmentCreateTest2]
+    groups: ["department", "dependent"],
+    dependsOn: [inMemoryDepartmentCreateTest, inMemoryDepartmentCreateTest2]
 }
-function sqlDepartmentReadManyTestDependent() returns error? {
-    SQLRainierClient rainierClient = check new ();
+function inMemoryDepartmentReadManyTestDependent() returns error? {
+    InMemoryRainierClient rainierClient = check new ();
 
     stream<DepartmentInfo2, Error?> departmentStream = rainierClient->/departments.get();
     DepartmentInfo2[] departments = check from DepartmentInfo2 department in departmentStream
@@ -125,11 +110,11 @@ function sqlDepartmentReadManyTestDependent() returns error? {
 }
 
 @test:Config {
-    groups: ["department", "sql"],
-    dependsOn: [sqlDepartmentReadOneTest, sqlDepartmentReadManyTest, sqlDepartmentReadManyTestDependent]
+    groups: ["department", "in-memory"],
+    dependsOn: [inMemoryDepartmentReadOneTest, inMemoryDepartmentReadManyTest, inMemoryDepartmentReadManyTestDependent]
 }
-function sqlDepartmentUpdateTest() returns error? {
-    SQLRainierClient rainierClient = check new ();
+function inMemoryDepartmentUpdateTest() returns error? {
+    InMemoryRainierClient rainierClient = check new ();
 
     Department department = check rainierClient->/departments/[department1.deptNo].put({
         deptName: "Finance & Legalities"
@@ -143,18 +128,18 @@ function sqlDepartmentUpdateTest() returns error? {
 }
 
 @test:Config {
-    groups: ["department", "sql"],
-    dependsOn: [sqlDepartmentReadOneTest, sqlDepartmentReadManyTest, sqlDepartmentReadManyTestDependent]
+    groups: ["department", "in-memory"],
+    dependsOn: [inMemoryDepartmentReadOneTest, inMemoryDepartmentReadManyTest, inMemoryDepartmentReadManyTestDependent]
 }
-function sqlDepartmentUpdateTestNegative1() returns error? {
-    SQLRainierClient rainierClient = check new ();
+function inMemoryDepartmentUpdateTestNegative1() returns error? {
+    InMemoryRainierClient rainierClient = check new ();
 
     Department|error department = rainierClient->/departments/["invalid-department-id"].put({
         deptName: "Human Resources"
     });
 
     if department is InvalidKeyError {
-        test:assertEquals(department.message(), "A record does not exist for 'Department' for key \"invalid-department-id\".");
+        test:assertEquals(department.message(), "Not found: invalid-department-id");
     } else {
         test:assertFail("InvalidKeyError expected.");
     }
@@ -162,30 +147,11 @@ function sqlDepartmentUpdateTestNegative1() returns error? {
 }
 
 @test:Config {
-    groups: ["department", "sql"],
-    dependsOn: [sqlDepartmentReadOneTest, sqlDepartmentReadManyTest, sqlDepartmentReadManyTestDependent]
+    groups: ["department", "in-memory"],
+    dependsOn: [inMemoryDepartmentUpdateTest]
 }
-function sqlDepartmentUpdateTestNegative2() returns error? {
-    SQLRainierClient rainierClient = check new ();
-
-    Department|error department = rainierClient->/departments/[department1.deptNo].put({
-        deptName: "unncessarily-long-department-name-to-force-error-on-update"
-    });
-
-    if department is Error {
-        test:assertTrue(department.message().includes("Data truncation: Data too long for column 'deptName' at row 1."));
-    } else {
-        test:assertFail("InvalidKeyError expected.");
-    }
-    check rainierClient.close();
-}
-
-@test:Config {
-    groups: ["department", "sql"],
-    dependsOn: [sqlDepartmentUpdateTest, sqlDepartmentUpdateTestNegative2]
-}
-function sqlDepartmentDeleteTest() returns error? {
-    SQLRainierClient rainierClient = check new ();
+function inMemoryDepartmentDeleteTest() returns error? {
+    InMemoryRainierClient rainierClient = check new ();
 
     Department department = check rainierClient->/departments/[department1.deptNo].delete();
     test:assertEquals(department, updatedDepartment1);
@@ -199,16 +165,16 @@ function sqlDepartmentDeleteTest() returns error? {
 }
 
 @test:Config {
-    groups: ["department", "sql"],
-    dependsOn: [sqlDepartmentDeleteTest]
+    groups: ["department", "in-memory"],
+    dependsOn: [inMemoryDepartmentDeleteTest]
 }
-function sqlDepartmentDeleteTestNegative() returns error? {
-    SQLRainierClient rainierClient = check new ();
+function inMemoryDepartmentDeleteTestNegative() returns error? {
+    InMemoryRainierClient rainierClient = check new ();
 
     Department|error department = rainierClient->/departments/[department1.deptNo].delete();
 
     if department is InvalidKeyError {
-        test:assertEquals(department.message(), string `A record does not exist for 'Department' for key "${department1.deptNo}".`);
+        test:assertEquals(department.message(), string `Not found: department-1`);
     } else {
         test:assertFail("InvalidKeyError expected.");
     }

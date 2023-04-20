@@ -16,44 +16,14 @@
 
 import ballerina/test;
 
-Workspace workspace1 = {
-    workspaceId: "workspace-1",
-    workspaceType: "small",
-    locationBuildingCode: "building-2"
-};
-
-Workspace invalidWorkspace = {
-    workspaceId: "invalid-workspace-extra-characters-to-force-failure",
-    workspaceType: "small",
-    locationBuildingCode: "building-2"
-};
-
-Workspace workspace2 = {
-    workspaceId: "workspace-2",
-    workspaceType: "medium",
-    locationBuildingCode: "building-2"
-};
-
-Workspace workspace3 = {
-    workspaceId: "workspace-3",
-    workspaceType: "small",
-    locationBuildingCode: "building-2"
-};
-
-Workspace updatedWorkspace1 = {
-    workspaceId: "workspace-1",
-    workspaceType: "large",
-    locationBuildingCode: "building-2"
-};
-
 @test:Config {
-    groups: ["workspace"],
-    dependsOn: [buildingDeleteTestNegative]
+    groups: ["workspace", "sql"],
+    dependsOn: [sqlBuildingDeleteTestNegative]
 }
-function workspaceCreateTest() returns error? {
+function sqlWorkspaceCreateTest() returns error? {
     SQLRainierClient rainierClient = check new ();
-    
-    string[] workspaceIds = check rainierClient->/workspaces.post([workspace1]);    
+
+    string[] workspaceIds = check rainierClient->/workspaces.post([workspace1]);
     test:assertEquals(workspaceIds, [workspace1.workspaceId]);
 
     Workspace workspaceRetrieved = check rainierClient->/workspaces/[workspace1.workspaceId].get();
@@ -61,11 +31,11 @@ function workspaceCreateTest() returns error? {
 }
 
 @test:Config {
-    groups: ["workspace"]
+    groups: ["workspace", "sql"]
 }
-function workspaceCreateTest2() returns error? {
+function sqlWorkspaceCreateTest2() returns error? {
     SQLRainierClient rainierClient = check new ();
-    
+
     string[] workspaceIds = check rainierClient->/workspaces.post([workspace2, workspace3]);
 
     test:assertEquals(workspaceIds, [workspace2.workspaceId, workspace3.workspaceId]);
@@ -79,12 +49,12 @@ function workspaceCreateTest2() returns error? {
 }
 
 @test:Config {
-    groups: ["workspace"]
+    groups: ["workspace", "sql"]
 }
-function workspaceCreateTestNegative() returns error? {
+function sqlWorkspaceCreateTestNegative() returns error? {
     SQLRainierClient rainierClient = check new ();
-    
-    string[]|error workspace = rainierClient->/workspaces.post([invalidWorkspace]);   
+
+    string[]|error workspace = rainierClient->/workspaces.post([invalidWorkspace]);
     if workspace is Error {
         test:assertTrue(workspace.message().includes("Data truncation: Data too long for column 'workspaceId' at row 1."));
     } else {
@@ -94,10 +64,10 @@ function workspaceCreateTestNegative() returns error? {
 }
 
 @test:Config {
-    groups: ["workspace"],
-    dependsOn: [workspaceCreateTest]
+    groups: ["workspace", "sql"],
+    dependsOn: [sqlWorkspaceCreateTest]
 }
-function workspaceReadOneTest() returns error? {
+function sqlWorkspaceReadOneTest() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     Workspace workspaceRetrieved = check rainierClient->/workspaces/[workspace1.workspaceId].get();
@@ -106,27 +76,27 @@ function workspaceReadOneTest() returns error? {
 }
 
 @test:Config {
-    groups: ["workspace"],
-    dependsOn: [workspaceCreateTest]
+    groups: ["workspace", "sql"],
+    dependsOn: [sqlWorkspaceCreateTest]
 }
-function workspaceReadOneDependentTest() returns error? {
+function sqlWorkspaceReadOneDependentTest() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     WorkspaceInfo2 workspaceRetrieved = check rainierClient->/workspaces/[workspace1.workspaceId].get();
     test:assertEquals(workspaceRetrieved,
         {
-            workspaceType: workspace1.workspaceType,
-            locationBuildingCode: workspace1.locationBuildingCode
-        }
+        workspaceType: workspace1.workspaceType,
+        locationBuildingCode: workspace1.locationBuildingCode
+    }
     );
     check rainierClient.close();
 }
 
 @test:Config {
-    groups: ["workspace"],
-    dependsOn: [workspaceCreateTest]
+    groups: ["workspace", "sql"],
+    dependsOn: [sqlWorkspaceCreateTest]
 }
-function workspaceReadOneTestNegative() returns error? {
+function sqlWorkspaceReadOneTestNegative() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     Workspace|error workspaceRetrieved = rainierClient->/workspaces/["invalid-workspace-id"].get();
@@ -139,34 +109,29 @@ function workspaceReadOneTestNegative() returns error? {
 }
 
 @test:Config {
-    groups: ["workspace"],
-    dependsOn: [workspaceCreateTest, workspaceCreateTest2]
+    groups: ["workspace", "sql"],
+    dependsOn: [sqlWorkspaceCreateTest, sqlWorkspaceCreateTest2]
 }
-function workspaceReadManyTest() returns error? {
+function sqlWorkspaceReadManyTest() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     stream<Workspace, error?> workspaceStream = rainierClient->/workspaces.get();
-    Workspace[] workspaces = check from Workspace workspace in workspaceStream 
+    Workspace[] workspaces = check from Workspace workspace in workspaceStream
         select workspace;
 
     test:assertEquals(workspaces, [workspace1, workspace2, workspace3]);
     check rainierClient.close();
 }
 
-public type WorkspaceInfo2 record {|
-    string workspaceType;
-    string locationBuildingCode;
-|};
-
 @test:Config {
-    groups: ["workspace", "dependent"],
-    dependsOn: [workspaceCreateTest, workspaceCreateTest2]
+    groups: ["workspace", "sql", "dependent"],
+    dependsOn: [sqlWorkspaceCreateTest, sqlWorkspaceCreateTest2]
 }
-function workspaceReadManyDependentTest() returns error? {
+function sqlWorkspaceReadManyDependentTest() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     stream<WorkspaceInfo2, error?> workspaceStream = rainierClient->/workspaces.get();
-    WorkspaceInfo2[] workspaces = check from WorkspaceInfo2 workspace in workspaceStream 
+    WorkspaceInfo2[] workspaces = check from WorkspaceInfo2 workspace in workspaceStream
         select workspace;
 
     test:assertEquals(workspaces, [
@@ -178,14 +143,14 @@ function workspaceReadManyDependentTest() returns error? {
 }
 
 @test:Config {
-    groups: ["workspace"],
-    dependsOn: [workspaceReadOneTest, workspaceReadManyTest, workspaceReadManyDependentTest]
+    groups: ["workspace", "sql"],
+    dependsOn: [sqlWorkspaceReadOneTest, sqlWorkspaceReadManyTest, sqlWorkspaceReadManyDependentTest]
 }
-function workspaceUpdateTest() returns error? {
+function sqlWorkspaceUpdateTest() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     Workspace workspace = check rainierClient->/workspaces/[workspace1.workspaceId].put({
-        workspaceType: "large"   
+        workspaceType: "large"
     });
 
     test:assertEquals(workspace, updatedWorkspace1);
@@ -196,14 +161,14 @@ function workspaceUpdateTest() returns error? {
 }
 
 @test:Config {
-    groups: ["workspace"],
-    dependsOn: [workspaceReadOneTest, workspaceReadManyTest, workspaceReadManyDependentTest]
+    groups: ["workspace", "sql"],
+    dependsOn: [sqlWorkspaceReadOneTest, sqlWorkspaceReadManyTest, sqlWorkspaceReadManyDependentTest]
 }
-function workspaceUpdateTestNegative1() returns error? {
+function sqlWorkspaceUpdateTestNegative1() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     Workspace|error workspace = rainierClient->/workspaces/["invalid-workspace-id"].put({
-        workspaceType: "large"   
+        workspaceType: "large"
     });
 
     if workspace is InvalidKeyError {
@@ -215,10 +180,10 @@ function workspaceUpdateTestNegative1() returns error? {
 }
 
 @test:Config {
-    groups: ["workspace"],
-    dependsOn: [workspaceReadOneTest, workspaceReadManyTest, workspaceReadManyDependentTest]
+    groups: ["workspace", "sql"],
+    dependsOn: [sqlWorkspaceReadOneTest, sqlWorkspaceReadManyTest, sqlWorkspaceReadManyDependentTest]
 }
-function workspaceUpdateTestNegative2() returns error? {
+function sqlWorkspaceUpdateTestNegative2() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     Workspace|error workspace = rainierClient->/workspaces/[workspace1.workspaceId].put({
@@ -234,17 +199,17 @@ function workspaceUpdateTestNegative2() returns error? {
 }
 
 @test:Config {
-    groups: ["workspace"],
-    dependsOn: [workspaceUpdateTest, workspaceUpdateTestNegative2]
+    groups: ["workspace", "sql"],
+    dependsOn: [sqlWorkspaceUpdateTest, sqlWorkspaceUpdateTestNegative2]
 }
-function workspaceDeleteTest() returns error? {
+function sqlWorkspaceDeleteTest() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     Workspace workspace = check rainierClient->/workspaces/[workspace1.workspaceId].delete();
     test:assertEquals(workspace, updatedWorkspace1);
 
     stream<Workspace, error?> workspaceStream = rainierClient->/workspaces.get();
-    Workspace[] workspaces = check from Workspace workspace2 in workspaceStream 
+    Workspace[] workspaces = check from Workspace workspace2 in workspaceStream
         select workspace2;
 
     test:assertEquals(workspaces, [workspace2, workspace3]);
@@ -252,10 +217,10 @@ function workspaceDeleteTest() returns error? {
 }
 
 @test:Config {
-    groups: ["workspace"],
-    dependsOn: [workspaceDeleteTest]
+    groups: ["workspace", "sql"],
+    dependsOn: [sqlWorkspaceDeleteTest]
 }
-function workspaceDeleteTestNegative() returns error? {
+function sqlWorkspaceDeleteTestNegative() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     Workspace|error workspace = rainierClient->/workspaces/[workspace1.workspaceId].delete();
