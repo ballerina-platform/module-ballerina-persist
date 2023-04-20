@@ -85,28 +85,6 @@ public class MySQLProcessor {
                     public void notifySuccess(Object o) {
                         BStream sqlStream = (BStream) o;
                         BObject persistStream = ValueCreator.createObjectValue(
-                                ModuleUtils.getModule(), Constants.PERSIST_STREAM, sqlStream, targetType,
-                                fields, includes, typeDescriptions, persistClient, null
-                        );
-
-                        RecordType streamConstraint =
-                                (RecordType) TypeUtils.getReferredType(targetType.getDescribingType());
-                        balFuture.complete(
-                                ValueCreator.createStreamValue(TypeCreator.createStreamType(streamConstraint,
-                                        PredefinedTypes.TYPE_NULL), persistStream)
-                        );
-                    }
-
-                    @Override
-                    public void notifyFailure(BError bError) {
-                        balFuture.complete(bError);
-                    }
-                }, trxContextProperties, streamTypeWithIdFields,
-                null, null, new Callback() {
-                    @Override
-                    public void notifySuccess(Object o) {
-                        BStream sqlStream = (BStream) o;
-                        BObject persistStream = ValueCreator.createObjectValue(
                                 ModuleUtils.getModule(), Constants.PERSIST_SQL_STREAM, sqlStream, targetType,
                                 fields, includes, typeDescriptions, persistClient, null
                         );
@@ -123,7 +101,7 @@ public class MySQLProcessor {
                     public void notifyFailure(BError bError) {
                         balFuture.complete(bError);
                     }
-                }, null, streamTypeWithIdFields,
+                }, trxContextProperties, streamTypeWithIdFields,
                 targetTypeWithIdFields, true, fields, true, includes, true
         );
 
@@ -165,7 +143,7 @@ public class MySQLProcessor {
                     public void notifyFailure(BError bError) {
                         balFuture.complete(bError);
                     }
-                },  null, unionType,
+                },  trxContextProperties, unionType,
                 targetType, true, targetTypeWithIdFields, true, key, true, fields, true, includes, true,
                 typeDescriptions, true
         );
