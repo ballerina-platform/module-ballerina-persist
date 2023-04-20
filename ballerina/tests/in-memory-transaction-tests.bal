@@ -35,6 +35,7 @@ function inMemoryTransactionTest() returns error? {
     }
 
     Building|Error buildingRetrieved = rainierClient->/buildings/[building31.buildingCode].get();
+    io:println(buildingRetrieved);
     test:assertTrue(buildingRetrieved is InvalidKeyError, "InvalidKeyError expected");
 
     buildingRetrieved = rainierClient->/buildings/[building32.buildingCode].get();

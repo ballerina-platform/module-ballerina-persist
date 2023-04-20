@@ -54,17 +54,17 @@ Building building33Updated = {
 
 
 @test:Config {
-    groups: ["transactions"]
+    groups: ["transactions", "sql"]
 }
-function transactionTest() returns error? {
-    RainierClient rainierClient = check new ();
+function sqlTransactionTest() returns error? {
+    SQLRainierClient rainierClient = check new ();
 
     transaction {
         string[] buildingCodes = check rainierClient->/buildings.post([building31, building32]);
         test:assertEquals(buildingCodes, [building31.buildingCode, building32.buildingCode]);
 
         buildingCodes = check rainierClient->/buildings.post([building31]);
-        check commit;   
+        check commit;
     } on fail error e {
         test:assertTrue(e is DuplicateKeyError, "DuplicateKeyError expected");
     }
@@ -79,10 +79,10 @@ function transactionTest() returns error? {
 }
 
 @test:Config {
-    groups: ["transactions"]
+    groups: ["transactions", "sql"]
 }
-function transactionTest2() returns error? {
-    RainierClient rainierClient = check new ();
+function sqlTransactionTest2() returns error? {
+    SQLRainierClient rainierClient = check new ();
     
     _ = check rainierClient->/buildings.post([building33]);
     Building buildingRetrieved = check rainierClient->/buildings/[building33.buildingCode].get();
