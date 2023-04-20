@@ -21,8 +21,8 @@ import ballerina/test;
 }
 function sqlDepartmentCreateTest() returns error? {
     SQLRainierClient rainierClient = check new ();
-    
-    string[] deptNos = check rainierClient->/departments.post([department1]);    
+
+    string[] deptNos = check rainierClient->/departments.post([department1]);
     test:assertEquals(deptNos, [department1.deptNo]);
 
     Department departmentRetrieved = check rainierClient->/departments/[department1.deptNo].get();
@@ -35,7 +35,7 @@ function sqlDepartmentCreateTest() returns error? {
 }
 function sqlDepartmentCreateTest2() returns error? {
     SQLRainierClient rainierClient = check new ();
-    
+
     string[] deptNos = check rainierClient->/departments.post([department2, department3]);
 
     test:assertEquals(deptNos, [department2.deptNo, department3.deptNo]);
@@ -53,8 +53,8 @@ function sqlDepartmentCreateTest2() returns error? {
 }
 function sqlDepartmentCreateTestNegative() returns error? {
     SQLRainierClient rainierClient = check new ();
-    
-    string[]|error department = rainierClient->/departments.post([invalidDepartment]);   
+
+    string[]|error department = rainierClient->/departments.post([invalidDepartment]);
     if department is Error {
         test:assertTrue(department.message().includes("Data truncation: Data too long for column 'deptNo' at row 1."));
     } else {
@@ -98,7 +98,7 @@ function sqlDepartmentReadOneTestNegative() returns error? {
 function sqlDepartmentReadManyTest() returns error? {
     SQLRainierClient rainierClient = check new ();
     stream<Department, error?> departmentStream = rainierClient->/departments.get();
-    Department[] departments = check from Department department in departmentStream 
+    Department[] departments = check from Department department in departmentStream
         select department;
 
     test:assertEquals(departments, [department1, department2, department3]);
@@ -113,7 +113,7 @@ function sqlDepartmentReadManyTestDependent() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     stream<DepartmentInfo2, Error?> departmentStream = rainierClient->/departments.get();
-    DepartmentInfo2[] departments = check from DepartmentInfo2 department in departmentStream 
+    DepartmentInfo2[] departments = check from DepartmentInfo2 department in departmentStream
         select department;
 
     test:assertEquals(departments, [
@@ -132,7 +132,7 @@ function sqlDepartmentUpdateTest() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     Department department = check rainierClient->/departments/[department1.deptNo].put({
-        deptName: "Finance & Legalities"   
+        deptName: "Finance & Legalities"
     });
 
     test:assertEquals(department, updatedDepartment1);
@@ -150,7 +150,7 @@ function sqlDepartmentUpdateTestNegative1() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     Department|error department = rainierClient->/departments/["invalid-department-id"].put({
-        deptName: "Human Resources"   
+        deptName: "Human Resources"
     });
 
     if department is InvalidKeyError {
@@ -191,7 +191,7 @@ function sqlDepartmentDeleteTest() returns error? {
     test:assertEquals(department, updatedDepartment1);
 
     stream<Department, error?> departmentStream = rainierClient->/departments.get();
-    Department[] departments = check from Department department2 in departmentStream 
+    Department[] departments = check from Department department2 in departmentStream
         select department2;
 
     test:assertEquals(departments, [department2, department3]);

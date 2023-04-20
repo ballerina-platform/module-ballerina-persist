@@ -25,14 +25,14 @@ const BOOLEAN_ID_RECORD = "booleanidrecords";
 const COMPOSITE_ASSOCIATION_RECORD = "compositeassociationrecords";
 const ALL_TYPES_ID_RECORD = "alltypesidrecords";
 
-table<AllTypes> key(id) alltypes = table[];
-table<StringIdRecord> key(id) stringidrecords = table[];
-table<IntIdRecord> key(id) intidrecords = table[];
-table<FloatIdRecord> key(id) floatidrecords = table[];
-table<DecimalIdRecord> key(id) decimalidrecords = table[];
-table<BooleanIdRecord> key(id) booleanidrecords = table[];
-table<CompositeAssociationRecord> key(id) compositeassociationrecords = table[];
-table<AllTypesIdRecord> key(booleanType, intType, floatType, decimalType, stringType) alltypesidrecords = table[];
+table<AllTypes> key(id) alltypes = table [];
+table<StringIdRecord> key(id) stringidrecords = table [];
+table<IntIdRecord> key(id) intidrecords = table [];
+table<FloatIdRecord> key(id) floatidrecords = table [];
+table<DecimalIdRecord> key(id) decimalidrecords = table [];
+table<BooleanIdRecord> key(id) booleanidrecords = table [];
+table<CompositeAssociationRecord> key(id) compositeassociationrecords = table [];
+table<AllTypesIdRecord> key(booleanType, intType, floatType, decimalType, stringType) alltypesidrecords = table [];
 
 public client class InMemoryTestEntitiesClient {
     *AbstractPersistClient;
@@ -51,42 +51,42 @@ public client class InMemoryTestEntitiesClient {
     public function init() returns Error? {
 
         final map<TableMetadata> metadata = {
-            [ALL_TYPES]: {
+            [ALL_TYPES] : {
                 keyFields: ["id"],
                 query: self.queryAllTypes,
-                queryOne: self.queryOneAllTypes   
+                queryOne: self.queryOneAllTypes
             },
-            [STRING_ID_RECORD]: {
+            [STRING_ID_RECORD] : {
                 keyFields: ["id"],
                 query: self.queryStringIdRecord,
                 queryOne: self.queryOneStringIdRecord
             },
-            [INT_ID_RECORD]: {
+            [INT_ID_RECORD] : {
                 keyFields: ["id"],
                 query: self.queryIntIdRecord,
                 queryOne: self.queryOneIntIdRecord
             },
-            [FLOAT_ID_RECORD]: {
+            [FLOAT_ID_RECORD] : {
                 keyFields: ["id"],
                 query: self.queryFloatIdRecord,
                 queryOne: self.queryOneFloatIdRecord
             },
-            [DECIMAL_ID_RECORD]: {
+            [DECIMAL_ID_RECORD] : {
                 keyFields: ["id"],
                 query: self.queryDecimalIdRecord,
                 queryOne: self.queryOneDecimalIdRecord
             },
-            [BOOLEAN_ID_RECORD]: {
+            [BOOLEAN_ID_RECORD] : {
                 keyFields: ["id"],
                 query: self.queryBooleanIdRecord,
                 queryOne: self.queryOneBooleanIdRecord
             },
-            [COMPOSITE_ASSOCIATION_RECORD]: {
+            [COMPOSITE_ASSOCIATION_RECORD] : {
                 keyFields: ["id"],
                 query: self.queryCompositeAssociationRecords,
                 queryOne: self.queryOneCompositeAssociationRecords
             },
-            [ALL_TYPES_ID_RECORD]: {
+            [ALL_TYPES_ID_RECORD] : {
                 keyFields: ["booleanType", "intType", "floatType", "decimalType", "stringType"],
                 query: self.queryAllTypesIdRecords,
                 queryOne: self.queryOneAllTypesIdRecords
@@ -94,14 +94,14 @@ public client class InMemoryTestEntitiesClient {
         };
 
         self.persistClients = {
-            [ALL_TYPES]: check new (metadata.get(ALL_TYPES)),
-            [STRING_ID_RECORD]: check new (metadata.get(STRING_ID_RECORD)),
-            [INT_ID_RECORD]: check new (metadata.get(INT_ID_RECORD)),
-            [FLOAT_ID_RECORD]: check new (metadata.get(FLOAT_ID_RECORD)),
-            [DECIMAL_ID_RECORD]: check new (metadata.get(DECIMAL_ID_RECORD)),
-            [BOOLEAN_ID_RECORD]: check new (metadata.get(BOOLEAN_ID_RECORD)),
-            [COMPOSITE_ASSOCIATION_RECORD]: check new (metadata.get(COMPOSITE_ASSOCIATION_RECORD)),
-            [ALL_TYPES_ID_RECORD]: check new (metadata.get(ALL_TYPES_ID_RECORD))
+            [ALL_TYPES] : check new (metadata.get(ALL_TYPES)),
+            [STRING_ID_RECORD] : check new (metadata.get(STRING_ID_RECORD)),
+            [INT_ID_RECORD] : check new (metadata.get(INT_ID_RECORD)),
+            [FLOAT_ID_RECORD] : check new (metadata.get(FLOAT_ID_RECORD)),
+            [DECIMAL_ID_RECORD] : check new (metadata.get(DECIMAL_ID_RECORD)),
+            [BOOLEAN_ID_RECORD] : check new (metadata.get(BOOLEAN_ID_RECORD)),
+            [COMPOSITE_ASSOCIATION_RECORD] : check new (metadata.get(COMPOSITE_ASSOCIATION_RECORD)),
+            [ALL_TYPES_ID_RECORD] : check new (metadata.get(ALL_TYPES_ID_RECORD))
         };
     };
 
@@ -119,7 +119,7 @@ public client class InMemoryTestEntitiesClient {
         int[] keys = [];
         foreach AllTypesInsert value in data {
             if self.alltypes.hasKey(value.id) {
-                return <DuplicateKeyError>error("Duplicate key: " + value.id.toString()); 
+                return <DuplicateKeyError>error("Duplicate key: " + value.id.toString());
             }
             self.alltypes.put(value.clone());
             keys.push(value.id);
@@ -161,7 +161,7 @@ public client class InMemoryTestEntitiesClient {
         string[] keys = [];
         foreach StringIdRecordInsert value in data {
             if self.stringidrecords.hasKey(value.id) {
-                return <DuplicateKeyError>error("Duplicate key: " + value.id.toString()); 
+                return <DuplicateKeyError>error("Duplicate key: " + value.id.toString());
             }
             self.stringidrecords.put(value.clone());
             keys.push(value.id);
@@ -203,7 +203,7 @@ public client class InMemoryTestEntitiesClient {
         int[] keys = [];
         foreach IntIdRecordInsert value in data {
             if self.intidrecords.hasKey(value.id) {
-                return <DuplicateKeyError>error("Duplicate key: " + value.id.toString()); 
+                return <DuplicateKeyError>error("Duplicate key: " + value.id.toString());
             }
             self.intidrecords.put(value.clone());
             keys.push(value.id);
@@ -245,7 +245,7 @@ public client class InMemoryTestEntitiesClient {
         float[] keys = [];
         foreach FloatIdRecordInsert value in data {
             if self.floatidrecords.hasKey(value.id) {
-                return <DuplicateKeyError>error("Duplicate key: " + value.id.toString()); 
+                return <DuplicateKeyError>error("Duplicate key: " + value.id.toString());
             }
             self.floatidrecords.put(value.clone());
             keys.push(value.id);
@@ -287,7 +287,7 @@ public client class InMemoryTestEntitiesClient {
         decimal[] keys = [];
         foreach DecimalIdRecordInsert value in data {
             if self.decimalidrecords.hasKey(value.id) {
-                return <DuplicateKeyError>error("Duplicate key: " + value.id.toString()); 
+                return <DuplicateKeyError>error("Duplicate key: " + value.id.toString());
             }
             self.decimalidrecords.put(value.clone());
             keys.push(value.id);
@@ -329,7 +329,7 @@ public client class InMemoryTestEntitiesClient {
         boolean[] keys = [];
         foreach BooleanIdRecordInsert value in data {
             if self.booleanidrecords.hasKey(value.id) {
-                return <DuplicateKeyError>error("Duplicate key: " + value.id.toString()); 
+                return <DuplicateKeyError>error("Duplicate key: " + value.id.toString());
             }
             self.booleanidrecords.put(value.clone());
             keys.push(value.id);
@@ -445,171 +445,169 @@ public client class InMemoryTestEntitiesClient {
         return ();
     }
 
-    private isolated function queryAllTypes(string[] fields) returns stream<record{}, Error?> {
-        return from record{} 'object in self.alltypes
+    private isolated function queryAllTypes(string[] fields) returns stream<record {}, Error?> {
+        return from record {} 'object in self.alltypes
             select filterRecord(
                 {
-                    ...'object
-                }, fields);
+                ...'object
+            }, fields);
     }
 
-    private isolated function queryOneAllTypes(anydata key) returns record{}|InvalidKeyError {
-        from record{} 'object in self.alltypes
-            where self.persistClients.get(ALL_TYPES).getKey('object) == key
-            do {
-                return {
-                    ...'object
-                };
+    private isolated function queryOneAllTypes(anydata key) returns record {}|InvalidKeyError {
+        from record {} 'object in self.alltypes
+        where self.persistClients.get(ALL_TYPES).getKey('object) == key
+        do {
+            return {
+                ...'object
             };
+        };
         return <InvalidKeyError>error("Invalid key: " + key.toString());
     }
 
-    private isolated function queryStringIdRecord(string[] fields) returns stream<record{}, Error?> {
-        return from record{} 'object in self.stringidrecords
+    private isolated function queryStringIdRecord(string[] fields) returns stream<record {}, Error?> {
+        return from record {} 'object in self.stringidrecords
             select filterRecord(
                 {
-                    ...'object
-                }, fields);
+                ...'object
+            }, fields);
     }
 
-    private isolated function queryOneStringIdRecord(anydata key) returns record{}|InvalidKeyError {
-        from record{} 'object in self.stringidrecords
-            where self.persistClients.get(STRING_ID_RECORD).getKey('object) == key
-            do {
-                return {
-                    ...'object
-                };
+    private isolated function queryOneStringIdRecord(anydata key) returns record {}|InvalidKeyError {
+        from record {} 'object in self.stringidrecords
+        where self.persistClients.get(STRING_ID_RECORD).getKey('object) == key
+        do {
+            return {
+                ...'object
             };
+        };
         return <InvalidKeyError>error("Invalid key: " + key.toString());
     }
 
-    private isolated function queryIntIdRecord(string[] fields) returns stream<record{}, Error?> {
-        return from record{} 'object in self.intidrecords
+    private isolated function queryIntIdRecord(string[] fields) returns stream<record {}, Error?> {
+        return from record {} 'object in self.intidrecords
             select filterRecord(
                 {
-                    ...'object
-                }, fields);
+                ...'object
+            }, fields);
     }
 
-    private isolated function queryOneIntIdRecord(anydata key) returns record{}|InvalidKeyError {
-        from record{} 'object in self.intidrecords
-            where self.persistClients.get(INT_ID_RECORD).getKey('object) == key
-            do {
-                return {
-                    ...'object
-                };
+    private isolated function queryOneIntIdRecord(anydata key) returns record {}|InvalidKeyError {
+        from record {} 'object in self.intidrecords
+        where self.persistClients.get(INT_ID_RECORD).getKey('object) == key
+        do {
+            return {
+                ...'object
             };
+        };
         return <InvalidKeyError>error("Invalid key: " + key.toString());
     }
 
-    private isolated function queryFloatIdRecord(string[] fields) returns stream<record{}, Error?> {
-        return from record{} 'object in self.floatidrecords
+    private isolated function queryFloatIdRecord(string[] fields) returns stream<record {}, Error?> {
+        return from record {} 'object in self.floatidrecords
             select filterRecord(
                 {
-                    ...'object
-                }, fields);
+                ...'object
+            }, fields);
     }
 
-    private isolated function queryOneFloatIdRecord(anydata key) returns record{}|InvalidKeyError {
-        from record{} 'object in self.floatidrecords
-            where self.persistClients.get(FLOAT_ID_RECORD).getKey('object) == key
-            do {
-                return {
-                    ...'object
-                };
+    private isolated function queryOneFloatIdRecord(anydata key) returns record {}|InvalidKeyError {
+        from record {} 'object in self.floatidrecords
+        where self.persistClients.get(FLOAT_ID_RECORD).getKey('object) == key
+        do {
+            return {
+                ...'object
             };
+        };
         return <InvalidKeyError>error("Invalid key: " + key.toString());
     }
 
-    private isolated function queryDecimalIdRecord(string[] fields) returns stream<record{}, Error?> {
-        return from record{} 'object in self.decimalidrecords
+    private isolated function queryDecimalIdRecord(string[] fields) returns stream<record {}, Error?> {
+        return from record {} 'object in self.decimalidrecords
             select filterRecord(
                 {
-                    ...'object
-                }, fields);
+                ...'object
+            }, fields);
     }
 
-    private isolated function queryOneDecimalIdRecord(anydata key) returns record{}|InvalidKeyError {
-        from record{} 'object in self.decimalidrecords
-            where self.persistClients.get(DECIMAL_ID_RECORD).getKey('object) == key
-            do {
-                return {
-                    ...'object
-                };
+    private isolated function queryOneDecimalIdRecord(anydata key) returns record {}|InvalidKeyError {
+        from record {} 'object in self.decimalidrecords
+        where self.persistClients.get(DECIMAL_ID_RECORD).getKey('object) == key
+        do {
+            return {
+                ...'object
             };
+        };
         return <InvalidKeyError>error("Invalid key: " + key.toString());
     }
 
-    private isolated function queryBooleanIdRecord(string[] fields) returns stream<record{}, Error?> {
-        return from record{} 'object in self.booleanidrecords
+    private isolated function queryBooleanIdRecord(string[] fields) returns stream<record {}, Error?> {
+        return from record {} 'object in self.booleanidrecords
             select filterRecord(
                 {
-                    ...'object
-                }, fields);
+                ...'object
+            }, fields);
     }
 
-    private isolated function queryOneBooleanIdRecord(anydata key) returns record{}|InvalidKeyError {
-        from record{} 'object in self.booleanidrecords
-            where self.persistClients.get(BOOLEAN_ID_RECORD).getKey('object) == key
-            do {
-                return {
-                    ...'object
-                };
+    private isolated function queryOneBooleanIdRecord(anydata key) returns record {}|InvalidKeyError {
+        from record {} 'object in self.booleanidrecords
+        where self.persistClients.get(BOOLEAN_ID_RECORD).getKey('object) == key
+        do {
+            return {
+                ...'object
             };
+        };
         return <InvalidKeyError>error("Invalid key: " + key.toString());
     }
 
-    private isolated function queryCompositeAssociationRecords(string[] fields) returns stream<record{}, Error?> {
-        return from record{} 'object in self.compositeassociationrecords
+    private isolated function queryCompositeAssociationRecords(string[] fields) returns stream<record {}, Error?> {
+        return from record {} 'object in self.compositeassociationrecords
             outer join var alltypesidrecord in self.alltypesidrecords
-            on ['object.alltypesidrecordBooleanType, 'object.alltypesidrecordIntType, 'object.alltypesidrecordFloatType, 'object.alltypesidrecordDecimalType, 'object.alltypesidrecordStringType] 
-            equals [alltypesidrecord?.booleanType, alltypesidrecord?.intType, alltypesidrecord?.floatType, alltypesidrecord?.decimalType, alltypesidrecord?.stringType] 
+            on ['object.alltypesidrecordBooleanType, 'object.alltypesidrecordIntType, 'object.alltypesidrecordFloatType, 'object.alltypesidrecordDecimalType, 'object.alltypesidrecordStringType]
+            equals [alltypesidrecord?.booleanType, alltypesidrecord?.intType, alltypesidrecord?.floatType, alltypesidrecord?.decimalType, alltypesidrecord?.stringType]
             select filterRecord(
                 {
-                    ...'object,
-                    "allTypesIdRecord": alltypesidrecord
-                }, fields);
+                ...'object,
+                "allTypesIdRecord": alltypesidrecord
+            }, fields);
     }
 
     private isolated function queryOneCompositeAssociationRecords(anydata key) returns record {}|InvalidKeyError {
-        from record{} 'object in self.compositeassociationrecords
-            where self.persistClients.get(COMPOSITE_ASSOCIATION_RECORD).getKey('object) == key
-            outer join var alltypesidrecord in self.alltypesidrecords
-            on ['object.alltypesidrecordBooleanType, 'object.alltypesidrecordIntType, 'object.alltypesidrecordFloatType, 'object.alltypesidrecordDecimalType, 'object.alltypesidrecordStringType] 
-            equals [alltypesidrecord?.booleanType, alltypesidrecord?.intType, alltypesidrecord?.floatType, alltypesidrecord?.decimalType, alltypesidrecord?.stringType] 
-            do {
-                return {
-                    ...'object,
-                    "allTypesIdRecord": alltypesidrecord
-                };
+        from record {} 'object in self.compositeassociationrecords
+        where self.persistClients.get(COMPOSITE_ASSOCIATION_RECORD).getKey('object) == key
+        outer join var alltypesidrecord in self.alltypesidrecords
+            on ['object.alltypesidrecordBooleanType, 'object.alltypesidrecordIntType, 'object.alltypesidrecordFloatType, 'object.alltypesidrecordDecimalType, 'object.alltypesidrecordStringType]
+            equals [alltypesidrecord?.booleanType, alltypesidrecord?.intType, alltypesidrecord?.floatType, alltypesidrecord?.decimalType, alltypesidrecord?.stringType]
+        do {
+            return {
+                ...'object,
+                "allTypesIdRecord": alltypesidrecord
             };
+        };
         return <InvalidKeyError>error("Invalid key: " + key.toString());
     }
 
-    private isolated function queryAllTypesIdRecords(string [] fields) returns stream<record{}, Error?> {
-        return from record{} 'object in self.alltypesidrecords
+    private isolated function queryAllTypesIdRecords(string[] fields) returns stream<record {}, Error?> {
+        return from record {} 'object in self.alltypesidrecords
             select filterRecord(
                 {
-                    ...'object
-                }, fields);
+                ...'object
+            }, fields);
     }
 
     private isolated function queryOneAllTypesIdRecords(anydata key) returns record {}|InvalidKeyError {
-        from record{} 'object in self.alltypesidrecords
-            where self.persistClients.get(ALL_TYPES_ID_RECORD).getKey('object) == key
-            outer join var compositeassociationrecord in self.compositeassociationrecords
+        from record {} 'object in self.alltypesidrecords
+        where self.persistClients.get(ALL_TYPES_ID_RECORD).getKey('object) == key
+        outer join var compositeassociationrecord in self.compositeassociationrecords
             on ['object.booleanType, 'object.intType, 'object.floatType, 'object.decimalType, 'object.stringType]
             equals [compositeassociationrecord?.alltypesidrecordBooleanType, compositeassociationrecord?.alltypesidrecordIntType, compositeassociationrecord?.alltypesidrecordFloatType, compositeassociationrecord?.alltypesidrecordDecimalType, compositeassociationrecord?.alltypesidrecordStringType]
-            do {
-                return {
-                    ...'object,
-                    "compositeAssociationRecord": compositeassociationrecord
-                };
+        do {
+            return {
+                ...'object,
+                "compositeAssociationRecord": compositeassociationrecord
             };
+        };
         return <InvalidKeyError>error("Invalid key: " + key.toString());
     }
-
-
 
 }
 

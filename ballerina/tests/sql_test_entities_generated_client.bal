@@ -34,7 +34,7 @@ public client class SQLTestEntitiesClient {
     private final map<SQLClient> persistClients;
 
     private final record {|SQLMetadata...;|} metadata = {
-        [ALL_TYPES]: {
+        [ALL_TYPES] : {
             entityName: "AllTypes",
             tableName: `AllTypes`,
             fieldMetadata: {
@@ -59,7 +59,7 @@ public client class SQLTestEntitiesClient {
             },
             keyFields: ["id"]
         },
-        [STRING_ID_RECORD]: {
+        [STRING_ID_RECORD] : {
             entityName: "StringIdRecord",
             tableName: `StringIdRecord`,
             fieldMetadata: {
@@ -68,7 +68,7 @@ public client class SQLTestEntitiesClient {
             },
             keyFields: ["id"]
         },
-        [INT_ID_RECORD]: {
+        [INT_ID_RECORD] : {
             entityName: "IntIdRecord",
             tableName: `IntIdRecord`,
             fieldMetadata: {
@@ -77,7 +77,7 @@ public client class SQLTestEntitiesClient {
             },
             keyFields: ["id"]
         },
-        [FLOAT_ID_RECORD]: {
+        [FLOAT_ID_RECORD] : {
             entityName: "FloatIdRecord",
             tableName: `FloatIdRecord`,
             fieldMetadata: {
@@ -86,7 +86,7 @@ public client class SQLTestEntitiesClient {
             },
             keyFields: ["id"]
         },
-        [DECIMAL_ID_RECORD]: {
+        [DECIMAL_ID_RECORD] : {
             entityName: "DecimalIdRecord",
             tableName: `DecimalIdRecord`,
             fieldMetadata: {
@@ -95,7 +95,7 @@ public client class SQLTestEntitiesClient {
             },
             keyFields: ["id"]
         },
-        [BOOLEAN_ID_RECORD]: {
+        [BOOLEAN_ID_RECORD] : {
             entityName: "BooleanIdRecord",
             tableName: `BooleanIdRecord`,
             fieldMetadata: {
@@ -104,7 +104,7 @@ public client class SQLTestEntitiesClient {
             },
             keyFields: ["id"]
         },
-        [COMPOSITE_ASSOCIATION_RECORD]: {
+        [COMPOSITE_ASSOCIATION_RECORD] : {
             entityName: "CompositeAssociationRecord",
             tableName: `CompositeAssociationRecord`,
             fieldMetadata: {
@@ -125,7 +125,7 @@ public client class SQLTestEntitiesClient {
             keyFields: ["id"],
             joinMetadata: {allTypesIdRecord: {entity: AllTypesIdRecord, fieldName: "allTypesIdRecord", refTable: "AllTypesIdRecord", refColumns: ["booleanType", "intType", "floatType", "decimalType", "stringType"], joinColumns: ["alltypesidrecordBooleanType", "alltypesidrecordIntType", "alltypesidrecordFloatType", "alltypesidrecordDecimalType", "alltypesidrecordStringType"], 'type: ONE_TO_ONE}}
         },
-        [ALL_TYPES_ID_RECORD]: {
+        [ALL_TYPES_ID_RECORD] : {
             entityName: "AllTypesIdRecord",
             tableName: `AllTypesIdRecord`,
             fieldMetadata: {
@@ -155,14 +155,14 @@ public client class SQLTestEntitiesClient {
         }
         self.dbClient = dbClient;
         self.persistClients = {
-            [ALL_TYPES]: check new (self.dbClient, self.metadata.get(ALL_TYPES)),
-            [STRING_ID_RECORD]: check new (self.dbClient, self.metadata.get(STRING_ID_RECORD)),
-            [INT_ID_RECORD]: check new (self.dbClient, self.metadata.get(INT_ID_RECORD)),
-            [FLOAT_ID_RECORD]: check new (self.dbClient, self.metadata.get(FLOAT_ID_RECORD)),
-            [DECIMAL_ID_RECORD]: check new (self.dbClient, self.metadata.get(DECIMAL_ID_RECORD)),
-            [BOOLEAN_ID_RECORD]: check new (self.dbClient, self.metadata.get(BOOLEAN_ID_RECORD)),
-            [COMPOSITE_ASSOCIATION_RECORD]: check new (self.dbClient, self.metadata.get(COMPOSITE_ASSOCIATION_RECORD)),
-            [ALL_TYPES_ID_RECORD]: check new (self.dbClient, self.metadata.get(ALL_TYPES_ID_RECORD))
+            [ALL_TYPES] : check new (self.dbClient, self.metadata.get(ALL_TYPES)),
+            [STRING_ID_RECORD] : check new (self.dbClient, self.metadata.get(STRING_ID_RECORD)),
+            [INT_ID_RECORD] : check new (self.dbClient, self.metadata.get(INT_ID_RECORD)),
+            [FLOAT_ID_RECORD] : check new (self.dbClient, self.metadata.get(FLOAT_ID_RECORD)),
+            [DECIMAL_ID_RECORD] : check new (self.dbClient, self.metadata.get(DECIMAL_ID_RECORD)),
+            [BOOLEAN_ID_RECORD] : check new (self.dbClient, self.metadata.get(BOOLEAN_ID_RECORD)),
+            [COMPOSITE_ASSOCIATION_RECORD] : check new (self.dbClient, self.metadata.get(COMPOSITE_ASSOCIATION_RECORD)),
+            [ALL_TYPES_ID_RECORD] : check new (self.dbClient, self.metadata.get(ALL_TYPES_ID_RECORD))
         };
     }
 

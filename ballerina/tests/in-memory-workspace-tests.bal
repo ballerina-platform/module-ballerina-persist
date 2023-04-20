@@ -22,8 +22,8 @@ import ballerina/test;
 }
 function inMemoryWorkspaceCreateTest() returns error? {
     InMemoryRainierClient rainierClient = check new ();
-    
-    string[] workspaceIds = check rainierClient->/workspaces.post([workspace1]);    
+
+    string[] workspaceIds = check rainierClient->/workspaces.post([workspace1]);
     test:assertEquals(workspaceIds, [workspace1.workspaceId]);
 
     Workspace workspaceRetrieved = check rainierClient->/workspaces/[workspace1.workspaceId].get();
@@ -35,7 +35,7 @@ function inMemoryWorkspaceCreateTest() returns error? {
 }
 function inMemoryWorkspaceCreateTest2() returns error? {
     InMemoryRainierClient rainierClient = check new ();
-    
+
     string[] workspaceIds = check rainierClient->/workspaces.post([workspace2, workspace3]);
 
     test:assertEquals(workspaceIds, [workspace2.workspaceId, workspace3.workspaceId]);
@@ -70,9 +70,9 @@ function inMemoryWorkspaceReadOneDependentTest() returns error? {
     WorkspaceInfo2 workspaceRetrieved = check rainierClient->/workspaces/[workspace1.workspaceId].get();
     test:assertEquals(workspaceRetrieved,
         {
-            workspaceType: workspace1.workspaceType,
-            locationBuildingCode: workspace1.locationBuildingCode
-        }
+        workspaceType: workspace1.workspaceType,
+        locationBuildingCode: workspace1.locationBuildingCode
+    }
     );
     check rainierClient.close();
 }
@@ -101,7 +101,7 @@ function inMemoryWorkspaceReadManyTest() returns error? {
     InMemoryRainierClient rainierClient = check new ();
 
     stream<Workspace, error?> workspaceStream = rainierClient->/workspaces.get();
-    Workspace[] workspaces = check from Workspace workspace in workspaceStream 
+    Workspace[] workspaces = check from Workspace workspace in workspaceStream
         select workspace;
 
     test:assertEquals(workspaces, [workspace1, workspace2, workspace3]);
@@ -116,7 +116,7 @@ function inMemoryWorkspaceReadManyDependentTest() returns error? {
     InMemoryRainierClient rainierClient = check new ();
 
     stream<WorkspaceInfo2, error?> workspaceStream = rainierClient->/workspaces.get();
-    WorkspaceInfo2[] workspaces = check from WorkspaceInfo2 workspace in workspaceStream 
+    WorkspaceInfo2[] workspaces = check from WorkspaceInfo2 workspace in workspaceStream
         select workspace;
 
     test:assertEquals(workspaces, [
@@ -135,7 +135,7 @@ function inMemoryWorkspaceUpdateTest() returns error? {
     InMemoryRainierClient rainierClient = check new ();
 
     Workspace workspace = check rainierClient->/workspaces/[workspace1.workspaceId].put({
-        workspaceType: "large"   
+        workspaceType: "large"
     });
 
     test:assertEquals(workspace, updatedWorkspace1);
@@ -153,7 +153,7 @@ function inMemoryWorkspaceUpdateTestNegative1() returns error? {
     InMemoryRainierClient rainierClient = check new ();
 
     Workspace|error workspace = rainierClient->/workspaces/["invalid-workspace-id"].put({
-        workspaceType: "large"   
+        workspaceType: "large"
     });
 
     if workspace is InvalidKeyError {
@@ -175,7 +175,7 @@ function inMemoryWorkspaceDeleteTest() returns error? {
     test:assertEquals(workspace, updatedWorkspace1);
 
     stream<Workspace, error?> workspaceStream = rainierClient->/workspaces.get();
-    Workspace[] workspaces = check from Workspace workspace2 in workspaceStream 
+    Workspace[] workspaces = check from Workspace workspace2 in workspaceStream
         select workspace2;
 
     test:assertEquals(workspaces, [workspace2, workspace3]);

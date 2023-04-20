@@ -31,7 +31,7 @@ public client class SQLRainierClient {
     private final map<SQLClient> persistClients;
 
     private final record {|SQLMetadata...;|} metadata = {
-        [EMPLOYEE]: {
+        [EMPLOYEE] : {
             entityName: "Employee",
             tableName: `Employee`,
             fieldMetadata: {
@@ -55,7 +55,7 @@ public client class SQLRainierClient {
                 workspace: {entity: Workspace, fieldName: "workspace", refTable: "Workspace", refColumns: ["workspaceId"], joinColumns: ["workspaceWorkspaceId"], 'type: ONE_TO_MANY}
             }
         },
-        [WORKSPACE]: {
+        [WORKSPACE] : {
             entityName: "Workspace",
             tableName: `Workspace`,
             fieldMetadata: {
@@ -83,7 +83,7 @@ public client class SQLRainierClient {
                 employees: {entity: Employee, fieldName: "employees", refTable: "Employee", refColumns: ["workspaceWorkspaceId"], joinColumns: ["workspaceId"], 'type: MANY_TO_ONE}
             }
         },
-        [BUILDING]: {
+        [BUILDING] : {
             entityName: "Building",
             tableName: `Building`,
             fieldMetadata: {
@@ -100,7 +100,7 @@ public client class SQLRainierClient {
             keyFields: ["buildingCode"],
             joinMetadata: {workspaces: {entity: Workspace, fieldName: "workspaces", refTable: "Workspace", refColumns: ["locationBuildingCode"], joinColumns: ["buildingCode"], 'type: MANY_TO_ONE}}
         },
-        [DEPARTMENT]: {
+        [DEPARTMENT] : {
             entityName: "Department",
             tableName: `Department`,
             fieldMetadata: {
@@ -118,7 +118,7 @@ public client class SQLRainierClient {
             keyFields: ["deptNo"],
             joinMetadata: {employees: {entity: Employee, fieldName: "employees", refTable: "Employee", refColumns: ["departmentDeptNo"], joinColumns: ["deptNo"], 'type: MANY_TO_ONE}}
         },
-        [ORDER_ITEM]: {
+        [ORDER_ITEM] : {
             entityName: "OrderItem",
             tableName: `OrderItem`,
             fieldMetadata: {
@@ -138,11 +138,11 @@ public client class SQLRainierClient {
         }
         self.dbClient = dbClient;
         self.persistClients = {
-            [EMPLOYEE]: check new (self.dbClient, self.metadata.get(EMPLOYEE)),
-            [WORKSPACE]: check new (self.dbClient, self.metadata.get(WORKSPACE)),
-            [BUILDING]: check new (self.dbClient, self.metadata.get(BUILDING)),
-            [DEPARTMENT]: check new (self.dbClient, self.metadata.get(DEPARTMENT)),
-            [ORDER_ITEM]: check new (self.dbClient, self.metadata.get(ORDER_ITEM))
+            [EMPLOYEE] : check new (self.dbClient, self.metadata.get(EMPLOYEE)),
+            [WORKSPACE] : check new (self.dbClient, self.metadata.get(WORKSPACE)),
+            [BUILDING] : check new (self.dbClient, self.metadata.get(BUILDING)),
+            [DEPARTMENT] : check new (self.dbClient, self.metadata.get(DEPARTMENT)),
+            [ORDER_ITEM] : check new (self.dbClient, self.metadata.get(ORDER_ITEM))
         };
     }
 

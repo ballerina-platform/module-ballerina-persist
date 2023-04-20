@@ -22,11 +22,11 @@ const DEPARTMENT = "departments";
 const BUILDING = "buildings";
 const ORDER_ITEM = "orderitems";
 
-table<Building> key(buildingCode) buildings = table[];
-table<Department> key(deptNo) departments = table[];
-table<Workspace> key(workspaceId) workspaces = table[];
-table<Employee> key(empNo) employees = table[];
-table<OrderItem> key(orderId, itemId) orderItems = table[];
+table<Building> key(buildingCode) buildings = table [];
+table<Department> key(deptNo) departments = table [];
+table<Workspace> key(workspaceId) workspaces = table [];
+table<Employee> key(empNo) employees = table [];
+table<OrderItem> key(orderId, itemId) orderItems = table [];
 
 public client class InMemoryRainierClient {
     *AbstractPersistClient;
@@ -41,7 +41,7 @@ public client class InMemoryRainierClient {
 
     public function init() returns Error? {
         final map<TableMetadata> metadata = {
-            [BUILDING]: {
+            [BUILDING] : {
                 keyFields: ["buildingCode"],
                 query: self.queryBuildings,
                 queryOne: self.queryOneBuildings,
@@ -49,7 +49,7 @@ public client class InMemoryRainierClient {
                     "workspaces": self.queryBuildingsWorkspaces
                 }
             },
-            [DEPARTMENT]: {
+            [DEPARTMENT] : {
                 keyFields: ["deptNo"],
                 query: self.queryDepartments,
                 queryOne: self.queryOneDepartments,
@@ -57,7 +57,7 @@ public client class InMemoryRainierClient {
                     "employees": self.queryDepartmentsEmployees
                 }
             },
-            [WORKSPACE]: {
+            [WORKSPACE] : {
                 keyFields: ["workspaceId"],
                 query: self.queryWorkspaces,
                 queryOne: self.queryOneWorkspaces,
@@ -65,12 +65,12 @@ public client class InMemoryRainierClient {
                     "employees": self.queryWorkspacesEmployees
                 }
             },
-            [EMPLOYEE]: {
+            [EMPLOYEE] : {
                 keyFields: ["empNo"],
                 query: self.queryEmployees,
                 queryOne: self.queryOneEmployees
             },
-            [ORDER_ITEM]: {
+            [ORDER_ITEM] : {
                 keyFields: ["orderId", "itemId"],
                 query: self.queryOrderItems,
                 queryOne: self.queryOneOrderItems
@@ -78,11 +78,11 @@ public client class InMemoryRainierClient {
         };
 
         self.persistClients = {
-            [BUILDING]: check new (metadata.get(BUILDING)),
-            [DEPARTMENT]: check new (metadata.get(DEPARTMENT)),
-            [WORKSPACE]: check new (metadata.get(WORKSPACE)),
-            [EMPLOYEE]: check new (metadata.get(EMPLOYEE)),
-            [ORDER_ITEM]: check new (metadata.get(ORDER_ITEM))
+            [BUILDING] : check new (metadata.get(BUILDING)),
+            [DEPARTMENT] : check new (metadata.get(DEPARTMENT)),
+            [WORKSPACE] : check new (metadata.get(WORKSPACE)),
+            [EMPLOYEE] : check new (metadata.get(EMPLOYEE)),
+            [ORDER_ITEM] : check new (metadata.get(ORDER_ITEM))
         };
     }
 
@@ -150,7 +150,7 @@ public client class InMemoryRainierClient {
         }
         return keys;
     }
-    
+
     isolated resource function put departments/[string deptNo](DepartmentUpdate value) returns Department|Error {
         if !self.departments.hasKey(deptNo) {
             return <InvalidKeyError>error("Not found: " + deptNo);
@@ -246,7 +246,7 @@ public client class InMemoryRainierClient {
         }
 
         self.employees.put(employee);
-        return employee;   
+        return employee;
     }
 
     isolated resource function delete employees/[string empNo]() returns Employee|Error {
@@ -271,7 +271,7 @@ public client class InMemoryRainierClient {
     } external;
 
     isolated resource function post orderitems(OrderItemInsert[] data) returns [string, string][]|Error {
-        [string, string] [] keys = [];
+        [string, string][] keys = [];
         foreach OrderItemInsert value in data {
             if self.orderItems.hasKey([value.orderId, value.itemId]) {
                 return <DuplicateKeyError>error("Duplicate key: " + [value.orderId, value.itemId].toString());
@@ -300,93 +300,92 @@ public client class InMemoryRainierClient {
         }
         return self.orderItems.remove([orderId, itemId]);
     }
-   
 
-    private isolated function queryEmployees(string[] fields) returns stream<record{}, Error?> {
-        return from record{} 'object in self.employees
+    private isolated function queryEmployees(string[] fields) returns stream<record {}, Error?> {
+        return from record {} 'object in self.employees
             outer join var department in self.departments
             on 'object.departmentDeptNo equals department?.deptNo
             outer join var workspace in self.workspaces
             on 'object.workspaceWorkspaceId equals workspace?.workspaceId
             select filterRecord(
                 {
-                    ...'object,
-                    "department": department,
-                    "workspace": workspace
-                }, fields);
+                ...'object,
+                "department": department,
+                "workspace": workspace
+            }, fields);
     }
 
     private isolated function queryOneEmployees(anydata key) returns record {}|InvalidKeyError {
-        from record{} 'object in self.employees
-            where self.persistClients.get(EMPLOYEE).getKey('object) == key
-            outer join var department in self.departments
+        from record {} 'object in self.employees
+        where self.persistClients.get(EMPLOYEE).getKey('object) == key
+        outer join var department in self.departments
             on 'object.departmentDeptNo equals department?.deptNo
-            outer join var workspace in self.workspaces
+        outer join var workspace in self.workspaces
             on 'object.workspaceWorkspaceId equals workspace?.workspaceId
-            do {
-                return {
-                    ...'object,
-                    "department": department,
-                    "workspace": workspace
-                };
+        do {
+            return {
+                ...'object,
+                "department": department,
+                "workspace": workspace
             };
+        };
         return <InvalidKeyError>error("Invalid key: " + key.toString());
     }
 
-    private isolated function queryBuildings(string[] fields) returns stream<record{}, Error?> {
-        return from record{} 'object in self.buildings
+    private isolated function queryBuildings(string[] fields) returns stream<record {}, Error?> {
+        return from record {} 'object in self.buildings
             select filterRecord({
                 ...'object
             }, fields);
     }
 
-    private isolated function queryOneBuildings(anydata key) returns record{}|InvalidKeyError {
-        from record{} 'object in self.buildings
-            where self.persistClients.get(BUILDING).getKey('object) == key
-            do {
-                return {
-                    ...'object
-                };
+    private isolated function queryOneBuildings(anydata key) returns record {}|InvalidKeyError {
+        from record {} 'object in self.buildings
+        where self.persistClients.get(BUILDING).getKey('object) == key
+        do {
+            return {
+                ...'object
             };
+        };
         return <InvalidKeyError>error("Invalid key: " + key.toString());
     }
 
-    private isolated function queryBuildingsWorkspaces(record {} value, string[] fields) returns record{}[] {
-        return from record{} 'object in self.workspaces
+    private isolated function queryBuildingsWorkspaces(record {} value, string[] fields) returns record {}[] {
+        return from record {} 'object in self.workspaces
             where 'object.locationBuildingCode == value["buildingCode"]
             select filterRecord({
                 ...'object
             }, fields);
     }
 
-    private isolated function queryDepartments(string[] fields) returns stream<record{}, Error?> {
-        return from record{} 'object in self.departments
+    private isolated function queryDepartments(string[] fields) returns stream<record {}, Error?> {
+        return from record {} 'object in self.departments
             select filterRecord({
                 ...'object
             }, fields);
     }
 
-    private isolated function queryOneDepartments(anydata key) returns record{}|InvalidKeyError {
-        from record{} 'object in self.departments
-            where self.persistClients.get(DEPARTMENT).getKey('object) == key
-            do {
-                return {
-                    ...'object
-                };
+    private isolated function queryOneDepartments(anydata key) returns record {}|InvalidKeyError {
+        from record {} 'object in self.departments
+        where self.persistClients.get(DEPARTMENT).getKey('object) == key
+        do {
+            return {
+                ...'object
             };
+        };
         return <InvalidKeyError>error("Invalid key: " + key.toString());
     }
 
-    private isolated function queryDepartmentsEmployees(record {} value, string[] fields) returns record{}[] {
-        return from record{} 'object in self.employees
+    private isolated function queryDepartmentsEmployees(record {} value, string[] fields) returns record {}[] {
+        return from record {} 'object in self.employees
             where 'object.departmentDeptNo == value["deptNo"]
             select filterRecord({
                 ...'object
             }, fields);
     }
-    
-    private isolated function queryWorkspaces(string[] fields) returns stream<record{}, Error?> {
-        return from record{} 'object in self.workspaces
+
+    private isolated function queryWorkspaces(string[] fields) returns stream<record {}, Error?> {
+        return from record {} 'object in self.workspaces
             outer join var location in self.buildings
             on 'object.locationBuildingCode equals location?.buildingCode
             select filterRecord({
@@ -395,43 +394,43 @@ public client class InMemoryRainierClient {
             }, fields);
     }
 
-    private isolated function queryOneWorkspaces(anydata key) returns record{}|InvalidKeyError {
-        from record{} 'object in self.workspaces
-            where self.persistClients.get(WORKSPACE).getKey('object) == key
-            outer join var location in self.buildings
+    private isolated function queryOneWorkspaces(anydata key) returns record {}|InvalidKeyError {
+        from record {} 'object in self.workspaces
+        where self.persistClients.get(WORKSPACE).getKey('object) == key
+        outer join var location in self.buildings
             on 'object.locationBuildingCode equals location?.buildingCode
-            do {
-                return {
-                    ...'object,
-                    "location": location
-                };
+        do {
+            return {
+                ...'object,
+                "location": location
             };
+        };
         return <InvalidKeyError>error("Invalid key: " + key.toString());
     }
 
-    private isolated function queryWorkspacesEmployees(record {} value, string[] fields) returns record{}[] {
-        return from record{} 'object in self.employees
+    private isolated function queryWorkspacesEmployees(record {} value, string[] fields) returns record {}[] {
+        return from record {} 'object in self.employees
             where 'object.workspaceWorkspaceId == value["workspaceId"]
             select filterRecord({
                 ...'object
             }, fields);
     }
 
-    private isolated function queryOrderItems(string[] fields) returns stream<record{}, Error?> {
-        return from record{} 'object in self.orderItems
+    private isolated function queryOrderItems(string[] fields) returns stream<record {}, Error?> {
+        return from record {} 'object in self.orderItems
             select filterRecord({
                 ...'object
             }, fields);
     }
 
-    private isolated function queryOneOrderItems(anydata key) returns record{}|InvalidKeyError {
-        from record{} 'object in self.orderItems
-            where self.persistClients.get(ORDER_ITEM).getKey('object) == key
-            do {
-                return {
-                    ...'object
-                };
+    private isolated function queryOneOrderItems(anydata key) returns record {}|InvalidKeyError {
+        from record {} 'object in self.orderItems
+        where self.persistClients.get(ORDER_ITEM).getKey('object) == key
+        do {
+            return {
+                ...'object
             };
+        };
         return <InvalidKeyError>error("Invalid key: " + key.toString());
     }
 }

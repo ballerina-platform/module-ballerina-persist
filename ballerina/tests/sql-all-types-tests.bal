@@ -77,31 +77,61 @@ function sqlAllTypesReadDependentTest() returns error? {
 
     test:assertEquals(allTypes, [
         {
-            booleanType: allTypes1Expected.booleanType, intType: allTypes1Expected.intType, floatType: allTypes1Expected.floatType,
-            decimalType: allTypes1Expected.decimalType, stringType: allTypes1Expected.stringType, byteArrayType: allTypes1Expected.byteArrayType,
-            dateType: allTypes1Expected.dateType, timeOfDayType: allTypes1Expected.timeOfDayType, civilType: allTypes1Expected.civilType,
-            booleanTypeOptional: allTypes1Expected.booleanTypeOptional, intTypeOptional: allTypes1Expected.intTypeOptional,
-            floatTypeOptional: allTypes1Expected.floatTypeOptional, decimalTypeOptional: allTypes1Expected.decimalTypeOptional,
-            stringTypeOptional: allTypes1Expected.stringTypeOptional, dateTypeOptional: allTypes1Expected.dateTypeOptional,
-            timeOfDayTypeOptional: allTypes1Expected.timeOfDayTypeOptional, civilTypeOptional: allTypes1Expected.civilTypeOptional
+            booleanType: allTypes1Expected.booleanType,
+            intType: allTypes1Expected.intType,
+            floatType: allTypes1Expected.floatType,
+            decimalType: allTypes1Expected.decimalType,
+            stringType: allTypes1Expected.stringType,
+            byteArrayType: allTypes1Expected.byteArrayType,
+            dateType: allTypes1Expected.dateType,
+            timeOfDayType: allTypes1Expected.timeOfDayType,
+            civilType: allTypes1Expected.civilType,
+            booleanTypeOptional: allTypes1Expected.booleanTypeOptional,
+            intTypeOptional: allTypes1Expected.intTypeOptional,
+            floatTypeOptional: allTypes1Expected.floatTypeOptional,
+            decimalTypeOptional: allTypes1Expected.decimalTypeOptional,
+            stringTypeOptional: allTypes1Expected.stringTypeOptional,
+            dateTypeOptional: allTypes1Expected.dateTypeOptional,
+            timeOfDayTypeOptional: allTypes1Expected.timeOfDayTypeOptional,
+            civilTypeOptional: allTypes1Expected.civilTypeOptional
         },
         {
-            booleanType: allTypes2Expected.booleanType, intType: allTypes2Expected.intType, floatType: allTypes2Expected.floatType,
-            decimalType: allTypes2Expected.decimalType, stringType: allTypes2Expected.stringType, byteArrayType: allTypes2Expected.byteArrayType,
-            dateType: allTypes2Expected.dateType, timeOfDayType: allTypes2Expected.timeOfDayType, civilType: allTypes2Expected.civilType,
-            booleanTypeOptional: allTypes2Expected.booleanTypeOptional, intTypeOptional: allTypes2Expected.intTypeOptional,
-            floatTypeOptional: allTypes2Expected.floatTypeOptional, decimalTypeOptional: allTypes2Expected.decimalTypeOptional,
-            stringTypeOptional: allTypes2Expected.stringTypeOptional, dateTypeOptional: allTypes2Expected.dateTypeOptional,
-            timeOfDayTypeOptional: allTypes2Expected.timeOfDayTypeOptional, civilTypeOptional: allTypes2Expected.civilTypeOptional
+            booleanType: allTypes2Expected.booleanType,
+            intType: allTypes2Expected.intType,
+            floatType: allTypes2Expected.floatType,
+            decimalType: allTypes2Expected.decimalType,
+            stringType: allTypes2Expected.stringType,
+            byteArrayType: allTypes2Expected.byteArrayType,
+            dateType: allTypes2Expected.dateType,
+            timeOfDayType: allTypes2Expected.timeOfDayType,
+            civilType: allTypes2Expected.civilType,
+            booleanTypeOptional: allTypes2Expected.booleanTypeOptional,
+            intTypeOptional: allTypes2Expected.intTypeOptional,
+            floatTypeOptional: allTypes2Expected.floatTypeOptional,
+            decimalTypeOptional: allTypes2Expected.decimalTypeOptional,
+            stringTypeOptional: allTypes2Expected.stringTypeOptional,
+            dateTypeOptional: allTypes2Expected.dateTypeOptional,
+            timeOfDayTypeOptional: allTypes2Expected.timeOfDayTypeOptional,
+            civilTypeOptional: allTypes2Expected.civilTypeOptional
         },
         {
-            booleanType: allTypes3Expected.booleanType, intType: allTypes3Expected.intType, floatType: allTypes3Expected.floatType,
-            decimalType: allTypes3Expected.decimalType, stringType: allTypes3Expected.stringType, byteArrayType: allTypes3Expected.byteArrayType,
-            dateType: allTypes3Expected.dateType, timeOfDayType: allTypes3Expected.timeOfDayType, civilType: allTypes3Expected.civilType,
-            booleanTypeOptional: allTypes3Expected.booleanTypeOptional, intTypeOptional: allTypes3Expected.intTypeOptional,
-            floatTypeOptional: allTypes3Expected.floatTypeOptional, decimalTypeOptional: allTypes3Expected.decimalTypeOptional,
-            stringTypeOptional: allTypes3Expected.stringTypeOptional, dateTypeOptional: allTypes3Expected.dateTypeOptional,
-            timeOfDayTypeOptional: allTypes3Expected.timeOfDayTypeOptional, civilTypeOptional: allTypes3Expected.civilTypeOptional
+            booleanType: allTypes3Expected.booleanType,
+            intType: allTypes3Expected.intType,
+            floatType: allTypes3Expected.floatType,
+            decimalType: allTypes3Expected.decimalType,
+            stringType: allTypes3Expected.stringType,
+            byteArrayType: allTypes3Expected.byteArrayType,
+            dateType: allTypes3Expected.dateType,
+            timeOfDayType: allTypes3Expected.timeOfDayType,
+            civilType: allTypes3Expected.civilType,
+            booleanTypeOptional: allTypes3Expected.booleanTypeOptional,
+            intTypeOptional: allTypes3Expected.intTypeOptional,
+            floatTypeOptional: allTypes3Expected.floatTypeOptional,
+            decimalTypeOptional: allTypes3Expected.decimalTypeOptional,
+            stringTypeOptional: allTypes3Expected.stringTypeOptional,
+            dateTypeOptional: allTypes3Expected.dateTypeOptional,
+            timeOfDayTypeOptional: allTypes3Expected.timeOfDayTypeOptional,
+            civilTypeOptional: allTypes3Expected.civilTypeOptional
         }
     ]);
     check testEntitiesClient.close();
@@ -187,7 +217,7 @@ function sqlAllTypesDeleteTest() returns error? {
     test:assertEquals(allTypes, allTypes2Expected);
 
     stream<AllTypes, error?> allTypesStream = testEntitiesClient->/alltypes.get();
-    AllTypes[] allTypesCollection = check from AllTypes allTypesRecord in allTypesStream 
+    AllTypes[] allTypesCollection = check from AllTypes allTypesRecord in allTypesStream
         select allTypesRecord;
 
     test:assertEquals(allTypesCollection, [allTypes1UpdatedExpected, allTypes3Expected]);

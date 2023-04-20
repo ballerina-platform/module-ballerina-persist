@@ -215,7 +215,7 @@ function inMemoryDecimalIdFieldTest() returns error? {
         id: 1.1d,
         randomField: "test1Updated"
     };
-    
+
     // create
     decimal[] ids = check testEntitiesClient->/decimalidrecords.post([decimalIdRecord1, decimalIdRecord2, decimalIdRecord3]);
     test:assertEquals(ids, [decimalIdRecord1.id, decimalIdRecord2.id, decimalIdRecord3.id]);
@@ -257,7 +257,7 @@ function inMemoryDecimalIdFieldTest() returns error? {
 @test:Config {
     groups: ["id-fields", "in-memory"]
 }
-function inMemoryBooleanIdFieldTest() returns  error? {
+function inMemoryBooleanIdFieldTest() returns error? {
     InMemoryTestEntitiesClient testEntitiesClient = check new ();
     BooleanIdRecord booleanIdRecord1 = {
         id: true,
@@ -342,8 +342,10 @@ function inMemoryAllTypesIdFieldTest() returns error? {
 
     // create
     [boolean, int, float, decimal, string][] ids = check testEntitiesClient->/alltypesidrecords.post([allTypesIdRecord1, allTypesIdRecord2]);
-    test:assertEquals(ids, [[allTypesIdRecord1.booleanType, allTypesIdRecord1.intType, allTypesIdRecord1.floatType, allTypesIdRecord1.decimalType, allTypesIdRecord1.stringType], 
-        [allTypesIdRecord2.booleanType, allTypesIdRecord2.intType, allTypesIdRecord2.floatType, allTypesIdRecord2.decimalType, allTypesIdRecord2.stringType]]);
+    test:assertEquals(ids, [
+        [allTypesIdRecord1.booleanType, allTypesIdRecord1.intType, allTypesIdRecord1.floatType, allTypesIdRecord1.decimalType, allTypesIdRecord1.stringType],
+        [allTypesIdRecord2.booleanType, allTypesIdRecord2.intType, allTypesIdRecord2.floatType, allTypesIdRecord2.decimalType, allTypesIdRecord2.stringType]
+    ]);
 
     // read one
     AllTypesIdRecord retrievedRecord1 = check testEntitiesClient->/alltypesidrecords/[allTypesIdRecord1.booleanType]/[allTypesIdRecord1.intType]/[allTypesIdRecord1.floatType]/[allTypesIdRecord1.decimalType]/[allTypesIdRecord1.stringType].get();
@@ -381,7 +383,7 @@ function inMemoryAllTypesIdFieldTest() returns error? {
 
 @test:Config {
     groups: ["id-fields", "associations", "in-memoryx"],
-    dependsOn : [inMemoryAllTypesIdFieldTest]
+    dependsOn: [inMemoryAllTypesIdFieldTest]
 }
 function inMemoryCompositeAssociationsTest() returns error? {
     InMemoryTestEntitiesClient testEntitiesClient = check new ();
@@ -393,7 +395,7 @@ function inMemoryCompositeAssociationsTest() returns error? {
         alltypesidrecordStringType: "id-1",
         alltypesidrecordFloatType: 1.0,
         alltypesidrecordBooleanType: true,
-        alltypesidrecordDecimalType: 1.1        
+        alltypesidrecordDecimalType: 1.1
     };
 
     CompositeAssociationRecord compositeAssociationRecord2 = {
@@ -403,7 +405,7 @@ function inMemoryCompositeAssociationsTest() returns error? {
         alltypesidrecordStringType: "id-1",
         alltypesidrecordFloatType: 1.0,
         alltypesidrecordBooleanType: true,
-        alltypesidrecordDecimalType: 1.1       
+        alltypesidrecordDecimalType: 1.1
     };
 
     CompositeAssociationRecord compositeAssociationRecordUpdated1 = {
@@ -436,8 +438,8 @@ function inMemoryCompositeAssociationsTest() returns error? {
     // read one dependent
     CompositeAssociationRecordDependent retrievedRecord1Dependent = check testEntitiesClient->/compositeassociationrecords/[compositeAssociationRecord1.id].get();
     test:assertEquals({
-        randomField: compositeAssociationRecord1.randomField, 
-        alltypesidrecordIntType: compositeAssociationRecord1.alltypesidrecordIntType, 
+        randomField: compositeAssociationRecord1.randomField,
+        alltypesidrecordIntType: compositeAssociationRecord1.alltypesidrecordIntType,
         alltypesidrecordDecimalType: compositeAssociationRecord1.alltypesidrecordDecimalType,
         allTypesIdRecord: {intType: allTypesIdRecord1.intType, stringType: allTypesIdRecord1.stringType, booleanType: allTypesIdRecord1.booleanType, randomField: allTypesIdRecord1.randomField}
     }, retrievedRecord1Dependent);
@@ -451,7 +453,7 @@ function inMemoryCompositeAssociationsTest() returns error? {
     CompositeAssociationRecordDependent[] compositeAssociationRecordsDependent = check from CompositeAssociationRecordDependent compositeAssociationRecord in testEntitiesClient->/compositeassociationrecords.get(CompositeAssociationRecordDependent)
         select compositeAssociationRecord;
     test:assertEquals(compositeAssociationRecordsDependent, [
-        {randomField: compositeAssociationRecord1.randomField, alltypesidrecordIntType: compositeAssociationRecord1.alltypesidrecordIntType, alltypesidrecordDecimalType: compositeAssociationRecord1.alltypesidrecordDecimalType, allTypesIdRecord: {intType: allTypesIdRecord1.intType, stringType: allTypesIdRecord1.stringType, booleanType: allTypesIdRecord1.booleanType, randomField: allTypesIdRecord1.randomField}}, 
+        {randomField: compositeAssociationRecord1.randomField, alltypesidrecordIntType: compositeAssociationRecord1.alltypesidrecordIntType, alltypesidrecordDecimalType: compositeAssociationRecord1.alltypesidrecordDecimalType, allTypesIdRecord: {intType: allTypesIdRecord1.intType, stringType: allTypesIdRecord1.stringType, booleanType: allTypesIdRecord1.booleanType, randomField: allTypesIdRecord1.randomField}},
         {randomField: compositeAssociationRecord2.randomField, alltypesidrecordIntType: compositeAssociationRecord2.alltypesidrecordIntType, alltypesidrecordDecimalType: compositeAssociationRecord2.alltypesidrecordDecimalType, allTypesIdRecord: {intType: allTypesIdRecord1.intType, stringType: allTypesIdRecord1.stringType, booleanType: allTypesIdRecord1.booleanType, randomField: allTypesIdRecord1.randomField}}
     ]);
 
@@ -467,6 +469,6 @@ function inMemoryCompositeAssociationsTest() returns error? {
     compositeAssociationRecords = check from CompositeAssociationRecord compositeAssociationRecord in testEntitiesClient->/compositeassociationrecords.get(CompositeAssociationRecord)
         select compositeAssociationRecord;
     test:assertEquals(compositeAssociationRecords, [compositeAssociationRecordUpdated1]);
-    
+
     check testEntitiesClient.close();
 }

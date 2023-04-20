@@ -22,8 +22,8 @@ import ballerina/test;
 }
 function inMemoryEmployeeCreateTest() returns error? {
     InMemoryRainierClient rainierClient = check new ();
-    
-    string[] empNos = check rainierClient->/employees.post([employee1]);    
+
+    string[] empNos = check rainierClient->/employees.post([employee1]);
     test:assertEquals(empNos, [employee1.empNo]);
 
     Employee employeeRetrieved = check rainierClient->/employees/[employee1.empNo].get();
@@ -37,7 +37,7 @@ function inMemoryEmployeeCreateTest() returns error? {
 }
 function inMemoryEmployeeCreateTest2() returns error? {
     InMemoryRainierClient rainierClient = check new ();
-    
+
     string[] empNos = check rainierClient->/employees.post([employee2, employee3]);
 
     test:assertEquals(empNos, [employee2.empNo, employee3.empNo]);
@@ -86,7 +86,7 @@ function inMemoryEmployeeReadManyTest() returns error? {
     InMemoryRainierClient rainierClient = check new ();
 
     stream<Employee, Error?> employeeStream = rainierClient->/employees.get();
-    Employee[] employees = check from Employee employee in employeeStream 
+    Employee[] employees = check from Employee employee in employeeStream
         select employee;
 
     test:assertEquals(employees, [employee1, employee2, employee3]);
@@ -94,14 +94,14 @@ function inMemoryEmployeeReadManyTest() returns error? {
 }
 
 @test:Config {
-    groups:  ["dependent", "employee"],
+    groups: ["dependent", "employee"],
     dependsOn: [inMemoryEmployeeCreateTest, inMemoryEmployeeCreateTest2]
 }
 function inMemoryEmployeeReadManyDependentTest1() returns error? {
     InMemoryRainierClient rainierClient = check new ();
 
     stream<EmployeeName, Error?> employeeStream = rainierClient->/employees.get();
-    EmployeeName[] employees = check from EmployeeName employee in employeeStream 
+    EmployeeName[] employees = check from EmployeeName employee in employeeStream
         select employee;
 
     test:assertEquals(employees, [
@@ -113,14 +113,14 @@ function inMemoryEmployeeReadManyDependentTest1() returns error? {
 }
 
 @test:Config {
-    groups:  ["dependent", "employee"],
+    groups: ["dependent", "employee"],
     dependsOn: [inMemoryEmployeeCreateTest, inMemoryEmployeeCreateTest2]
 }
 function inMemoryEmployeeReadManyDependentTest2() returns error? {
     InMemoryRainierClient rainierClient = check new ();
 
     stream<EmployeeInfo2, Error?> employeeStream = rainierClient->/employees.get();
-    EmployeeInfo2[] employees = check from EmployeeInfo2 employee in employeeStream 
+    EmployeeInfo2[] employees = check from EmployeeInfo2 employee in employeeStream
         select employee;
 
     test:assertEquals(employees, [
@@ -141,7 +141,7 @@ function inMemoryEmployeeUpdateTest() returns error? {
     Employee employee = check rainierClient->/employees/[employee1.empNo].put({
         lastName: "Jones",
         departmentDeptNo: "department-3",
-        birthDate: {year: 1994, month: 11, day:13}
+        birthDate: {year: 1994, month: 11, day: 13}
     });
 
     test:assertEquals(employee, updatedEmployee1);
@@ -159,7 +159,7 @@ function inMemoryEmployeeUpdateTestNegative1() returns error? {
     InMemoryRainierClient rainierClient = check new ();
 
     Employee|error employee = rainierClient->/employees/["invalid-employee-id"].put({
-        lastName: "Jones"   
+        lastName: "Jones"
     });
 
     if employee is InvalidKeyError {
@@ -181,7 +181,7 @@ function inMemoryEmployeeDeleteTest() returns error? {
     test:assertEquals(employee, updatedEmployee1);
 
     stream<Employee, error?> employeeStream = rainierClient->/employees.get();
-    Employee[] employees = check from Employee employee2 in employeeStream 
+    Employee[] employees = check from Employee employee2 in employeeStream
         select employee2;
 
     test:assertEquals(employees, [employee2, employee3]);

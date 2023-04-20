@@ -26,12 +26,12 @@ isolated function stringToParameterizedQuery(string queryStr) returns sql:Parame
 isolated function getKeyFromDuplicateKeyErrorMessage(string errorMessage) returns string|Error {
     int? startIndex = errorMessage.indexOf(".Duplicate entry '");
     int? endIndex = errorMessage.indexOf("' for key");
-    
+
     if startIndex is () || endIndex is () {
         return <Error>error("Unable to determine key from DuplicateKey error message.");
     }
 
-    string key = errorMessage.substring(startIndex+18, endIndex);
+    string key = errorMessage.substring(startIndex + 18, endIndex);
     return key;
 }
 
@@ -41,7 +41,7 @@ isolated function convertToArray(typedesc<record {}> elementType, record {}[] ar
 
 isolated function arrayToParameterizedQuery(string[] arr, sql:ParameterizedQuery delimiter = `,`) returns sql:ParameterizedQuery {
     sql:ParameterizedQuery query = stringToParameterizedQuery(arr[0]);
-    foreach int i in 1..<arr.length() {
+    foreach int i in 1 ..< arr.length() {
         query = sql:queryConcat(query, delimiter, stringToParameterizedQuery(arr[i]));
     }
     return query;
@@ -67,7 +67,7 @@ public isolated function filterRecord(record {} 'object, string[] fields) return
 
         // ignore many relations
         if 'field.includes("[]") {
-            continue; 
+            continue;
         }
 
         // if field is part of a relation
