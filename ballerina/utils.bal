@@ -15,24 +15,82 @@
 // under the License.
 
 import ballerina/sql;
+import ballerina/jballerina.java;
 
-function stringToParameterizedQuery(string queryStr) returns sql:ParameterizedQuery {
+isolated function stringToParameterizedQuery(string queryStr) returns sql:ParameterizedQuery {
     sql:ParameterizedQuery query = ``;
     query.strings = [queryStr];
     return query;
 }
 
-function flattenRecord(record {} r) returns record {} {
-    record {} returnRecord = {};
-    foreach string key in r.keys() {
-        if r[key] is record {} {
-            record {} innerFlattenedRecord = flattenRecord(<record {}> r[key]);
-            foreach string innerKey in innerFlattenedRecord.keys() {
-                returnRecord[key + "." + innerKey] = innerFlattenedRecord[innerKey];
-            }
-        } else {
-            returnRecord[key] = r[key];
+isolated function getKeyFromDuplicateKeyErrorMessage(string errorMessage) returns string|Error {
+    int? startIndex = errorMessage.indexOf(".Duplicate entry '");
+    int? endIndex = errorMessage.indexOf("' for key");
+
+    if startIndex is () || endIndex is () {
+        return <Error>error("Unable to determine key from DuplicateKey error message.");
+    }
+
+    string key = errorMessage.substring(startIndex + 18, endIndex);
+    return key;
+}
+
+isolated function convertToArray(typedesc<record {}> elementType, record {}[] arr) returns elementType[] = @java:Method {
+    'class: "io.ballerina.stdlib.persist.Utils"
+} external;
+
+isolated function arrayToParameterizedQuery(string[] arr, sql:ParameterizedQuery delimiter = `,`) returns sql:ParameterizedQuery {
+    sql:ParameterizedQuery query = stringToParameterizedQuery(arr[0]);
+    foreach int i in 1 ..< arr.length() {
+        query = sql:queryConcat(query, delimiter, stringToParameterizedQuery(arr[i]));
+    }
+    return query;
+}
+
+# Closes the entity stream.
+#
+# + customStream - Stream that needs to be closed
+# + return - `()` if the operation is performed successfully or a `persist:Error` if the operation fails
+public isolated function closeEntityStream(stream<anydata, error?>? customStream) returns Error? {
+    if customStream is stream<anydata, sql:Error?> {
+        error? e = customStream.close();
+        if e is error {
+            return <Error>error(e.message());
         }
     }
-    return returnRecord;
+}
+
+public isolated function filterRecord(record {} 'object, string[] fields) returns record {} {
+    record {} retrieved = {};
+
+    foreach string 'field in fields {
+
+        // ignore many relations
+        if 'field.includes("[]") {
+            continue;
+        }
+
+        // if field is part of a relation
+        if 'field.includes(".") {
+
+            int splitIndex = <int>'field.indexOf(".");
+            string relation = 'field.substring(0, splitIndex);
+            string innerField = 'field.substring(splitIndex + 1, 'field.length());
+
+            if 'object[relation] is record {} {
+                anydata val = (<record {}>'object[relation])[innerField];
+
+                if !(retrieved[relation] is record {}) {
+                    retrieved[relation] = {};
+                }
+
+                record {} innerRecord = <record {}>'retrieved[relation];
+                innerRecord[innerField] = val;
+            }
+        } else {
+            retrieved['field] = 'object['field];
+        }
+
+    }
+    return retrieved;
 }

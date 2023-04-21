@@ -123,7 +123,7 @@ def checkExecResult(execResult, failText, standardOutput) {
 task createTestDockerImage(type: Exec) {
     if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
         def standardOutput = new ByteArrayOutputStream()
-        commandLine 'sh', '-c', "docker build -f $project.projectDir/tests/resources/Dockerfile -t ballerina-persist" +
+        commandLine 'sh', '-c', "docker build --platform linux/amd64 -f $project.projectDir/tests/resources/Dockerfile -t ballerina-persist" +
                 " -q $project.projectDir/tests/resources/"
         doLast {
             checkExecResult(execResult, 'Error', standardOutput)
@@ -165,7 +165,6 @@ task startTestDockerContainer(type: Exec) {
     }
 }
 
-
 task stopTestDockerContainer() {
     doLast {
         if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
@@ -187,7 +186,9 @@ startTestDockerContainer.dependsOn createTestDockerImage
 
 build.dependsOn "generatePomFileForMavenPublication"
 build.dependsOn ":${packageName}-compiler-plugin:build"
+build.dependsOn ":${packageName}-native:build"
 build.finalizedBy stopTestDockerContainer
 
 test.dependsOn ":${packageName}-compiler-plugin:build"
+test.dependsOn ":${packageName}-native:build"
 test.dependsOn startTestDockerContainer

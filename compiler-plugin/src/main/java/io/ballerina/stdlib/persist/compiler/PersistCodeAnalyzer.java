@@ -22,13 +22,18 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.plugins.CodeAnalysisContext;
 import io.ballerina.projects.plugins.CodeAnalyzer;
 
+import java.util.List;
+
 /**
  * Persist Code Analyzer.
  */
-public class PersistCodeAnalyzer extends CodeAnalyzer  {
+public class PersistCodeAnalyzer extends CodeAnalyzer {
 
     @Override
-    public void init(CodeAnalysisContext codeAnalysisContext) {
-        codeAnalysisContext.addSyntaxNodeAnalysisTask(new PersistRecordValidator(), SyntaxKind.TYPE_DEFINITION);
+    public void init(CodeAnalysisContext ctx) {
+        // Adding 2 different tasks to single task to improve performance,
+        // Else, base checks such as persist model definition file location will be checked twice.
+        ctx.addSyntaxNodeAnalysisTask(new PersistModelDefinitionValidator(),
+                List.of(SyntaxKind.MODULE_PART, SyntaxKind.IMPORT_PREFIX));
     }
 }

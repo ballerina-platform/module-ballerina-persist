@@ -3,12 +3,14 @@ org = "ballerina"
 name = "persist"
 version = "@toml.version@"
 authors = ["Ballerina"]
-keywords = ["persist"]
+keywords = ["persist", "experimental"]
 repository = "https://github.com/ballerina-platform/module-ballerina-persist"
 icon = "icon.png"
 license = ["Apache-2.0"]
-distribution = "2201.2.0"
+distribution = "2201.5.0"
 
 [[platform.java11.dependency]]
-path = "./lib/mysql-connector-java-8.0.29.jar"
-scope="testOnly"
+groupId = "io.ballerina.persist"
+artifactId = "persist-native"
+version = "@toml.version@"
+path = "../native/build/libs/persist-native-@project.version@.jar"

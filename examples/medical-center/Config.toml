@@ -1,5 +1,8 @@
-USER="root"
-PASSWORD="Test123#"
-HOST="localhost"
-PORT=3305
-DATABASE="test"
+[medical_center]
+host = "localhost"
+port = 3305
+user = "root"
+password = "Test123#"
+database = "test"
+
+
