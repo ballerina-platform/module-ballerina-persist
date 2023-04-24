@@ -5,8 +5,8 @@ type User record {|
     string name;
     int age;
     string address;
-	Follow? follow;
-	Follow? follow1;
+    Follow? follow;
+    Follow? follow1;
 |};
 
 type Follow record {|
