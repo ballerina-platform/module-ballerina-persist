@@ -147,6 +147,4 @@ public final class Utils {
         }
         return fieldName;
     }
-
-
 }
