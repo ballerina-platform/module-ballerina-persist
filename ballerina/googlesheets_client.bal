@@ -1,6 +1,6 @@
-// Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2023 WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
 //
-// WSO2 Inc. licenses this file to you under the Apache License,
+// WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
 // in compliance with the License.
 // You may obtain a copy of the License at
@@ -29,10 +29,10 @@ type RowValues record {
 };
 
 # The client used by the generated persist clients to abstract and
-# execute SQL queries that are required to perform CRUD operations.
+# execute API calls that are required to perform CRUD operations.
 public client class GoogleSheetsClient {
 
-    private final sheets:Client dbClient;
+    private final sheets:Client googleSheetClient;
     private final http:Client httpClient;
     private string spreadsheetId;
     private string entityName;
@@ -49,17 +49,17 @@ public client class GoogleSheetsClient {
     # + metadata - Metadata of the entity
     # + spreadsheetId - Id of the spreadsheet
     # + return - A `persist:Error` if the client creation fails
-    public function init(sheets:Client GSheetClient, http:Client httpClient, SheetMetadata metadata, string spreadsheetId) returns error? {
-        self.entityName = metadata.entityName;
+    public function init(sheets:Client googleSheetClient, http:Client httpClient, SheetMetadata sheetMetadata, string spreadsheetId) returns error? {
+        self.entityName = sheetMetadata.entityName;
         self.spreadsheetId = spreadsheetId;
-        self.tableName = metadata.tableName;
-        self.fieldMetadata = metadata.fieldMetadata;
-        self.range = metadata.range;
+        self.tableName = sheetMetadata.tableName;
+        self.fieldMetadata = sheetMetadata.fieldMetadata;
+        self.range = sheetMetadata.range;
         self.httpClient = httpClient;
-        self.keyFields = metadata.keyFields;
-        self.dbClient = GSheetClient;
-        if metadata.joinMetadata is map<JoinMetadata> {
-            self.joinMetadata = <map<JoinMetadata>>metadata.joinMetadata;
+        self.keyFields = sheetMetadata.keyFields;
+        self.googleSheetClient = googleSheetClient;
+        if sheetMetadata.joinMetadata is map<JoinMetadata> {
+            self.joinMetadata = <map<JoinMetadata>>sheetMetadata.joinMetadata;
         }
     }
 
@@ -69,30 +69,24 @@ public client class GoogleSheetsClient {
     # + return - An `sql:ExecutionResult[]` containing the metadata of the query execution
     # or a `persist:Error` if the operation fails
     public isolated function runBatchInsertQuery(record {}[] insertRecords) returns error? {
-        string[] keys = self.fieldMetadata.keys();
-        foreach record {} item in insertRecords {
-            string metadataValue = "";
-            foreach string key in self.keyFields {
-                if (metadataValue != "") {
-                    metadataValue += ":";
-                }
-                metadataValue += item[key].toString();
-            }
+        string[] fieldMetadataKeys = self.fieldMetadata.keys();
+        foreach record {} rowValues in insertRecords {
+            string metadataValue = self.generateMetadataValue(self.keyFields, rowValues);
             sheets:DeveloperMetadataLookupFilter filter = {locationType: "ROW", metadataKey: self.tableName, metadataValue: metadataValue};
-            sheets:Sheet sheet = check self.dbClient->getSheetByName(self.spreadsheetId, self.tableName);
-            sheets:Row[]|error output = self.dbClient->getRowByDataFilter(self.spreadsheetId, sheet.properties.sheetId, filter);
+            sheets:Sheet sheet = check self.googleSheetClient->getSheetByName(self.spreadsheetId, self.tableName);
+            sheets:Row[]|error output = self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, sheet.properties.sheetId, filter);
             if (output !is error) {
                 if (output.length() > 0) {
-                    return <error>error("already exists");
+                    return <error>error("Error: record already exists. " + rowValues.toString());
                 }
             }
             (int|string|decimal)[] values = [];
-            foreach string key in keys {
-                (int|string|decimal) value = check item.get(key).ensureType();
+            foreach string key in fieldMetadataKeys {
+                (int|string|decimal) value = check rowValues.get(key).ensureType();
                 values.push(value);
             }
-            sheets:Row insertedRow = check self.dbClient->appendRowToSheet(self.spreadsheetId, self.tableName, values, self.range, "USER_ENTERED");
-            check self.dbClient->setRowMetaData(self.spreadsheetId, sheet.properties.sheetId, insertedRow.rowPosition, "DOCUMENT", self.tableName, metadataValue);
+            sheets:Row insertedRow = check self.googleSheetClient->appendRowToSheet(self.spreadsheetId, self.tableName, values, self.range, "USER_ENTERED");
+            check self.googleSheetClient->setRowMetaData(self.spreadsheetId, sheet.properties.sheetId, insertedRow.rowPosition, "DOCUMENT", self.tableName, metadataValue);
         }
     }
 
@@ -106,94 +100,53 @@ public client class GoogleSheetsClient {
     # + typeDescriptions - The type descriptions of the relations to be retrieved
     # + return - A record in the `rowType` type or a `persist:Error` if the operation fails
     public isolated function runReadByKeyQuery(typedesc<record {}> rowType, typedesc<record {}> rowTypeWithIdFields, anydata key, string[] fields = [], string[] include = [], typedesc<record {}>[] typeDescriptions = []) returns record {}|error {
-        sheets:Sheet sheet = check self.dbClient->getSheetByName(self.spreadsheetId, self.tableName);
-        string whereClause = "";
-        if (key is map<any>) {
-            foreach string primaryKey in key.keys() {
-                string? columnId = self.fieldMetadata.get(primaryKey)["columnId"];
-                if (columnId !is ()) {
-                    if (whereClause != "") {
-                        whereClause += " and ";
-                    }
-                    whereClause += columnId;
-                    whereClause += " = ";
-                    whereClause += "'" + key.get(primaryKey).toString() + "'";
-                }
-            }
-        } else {
-            string? columnId = self.fieldMetadata.get(self.keyFields[0])["columnId"];
-            if (columnId !is ()) {
-                whereClause = self.keyFields[0] + " = " + "'" + key.toString() + "'";
-            }
-        }
-        string query = "";
-        // if (include.length() == 0) {
-        //     foreach string fieldMetadataKey in self.fieldMetadata.keys() {
-        //         SheetFieldMetadata fieldMetadata = self.fieldMetadata.get(fieldMetadataKey);
-        //         if (fieldMetadata is SimpleSheetFieldMetadata) {
-        //             if (query != "") {
-        //                 query += ", ";
-        //             }
-        //             query += fieldMetadata.columnId;
-        //         }
-        //     }
-        // } else if (include.length() > 0) {
-        foreach string fieldMetadataKey in fields {
-            if (self.fieldMetadata.hasKey(fieldMetadataKey) == false) {
-                return <error>error("no such a key:" + fieldMetadataKey);
-            }
-            SheetFieldMetadata fieldMetadata = self.fieldMetadata.get(fieldMetadataKey);
-            // if (fieldMetadata is SimpleSheetFieldMetadata) {
-            if (query != "") {
-                query += ", ";
-            }
-            query += fieldMetadata.columnId;
-            // }
-        }
-        //}
-        query = "select " + query + " where " + whereClause;
+        sheets:Sheet sheet = check self.googleSheetClient->getSheetByName(self.spreadsheetId, self.tableName);
+        string whereClause = check self.generateWhereClause(key);
+        string columnIds = check self.generateColumnIds(fields);
+
+        string query = string `select ${columnIds} where ${whereClause}`;
         string encodedQuery = check url:encode(query, "UTF-8");
         http:QueryParams queries = {"gid": sheet.properties.sheetId, "range": self.range, "tq": encodedQuery, "tqx": "out:json"};
         http:Response response = check self.httpClient->/d/[self.spreadsheetId]/gviz/tq(params = queries);
         string|error textResponse = response.getTextPayload();
         record {}|error result;
-        if (textResponse !is error) {
+        if textResponse !is error {
             map<json> payload = check textResponse.substring(47, textResponse.length() - 2).fromJsonStringWithType();
             Table worksheet = check payload["table"].fromJsonWithType();
             string[] columnNames = [];
-            record {}[] output = [];
+            record {}[] rowTable = [];
             if (worksheet.rows.length() == 0) {
-                return <error>error("no record");
+                return <error>error(string `No record found for the given key: ${key.toString()}`);
             }
             foreach map<json> item in worksheet.cols {
                 columnNames.push(item["label"].toString());
             }
             foreach RowValues value in worksheet.rows {
                 int i = 0;
-                record {} temp = {};
+                record {} rowArray = {};
                 foreach map<json> item in value.c {
                     string dataType = self.fieldMetadata.get(columnNames[i]).get("dataType");
-                    if (dataType == "int") {
+                    if dataType == "int" {
                         (string|int|decimal) typedValue = check self.dataConverter(item["f"], dataType);
-                        temp[columnNames[i]] = typedValue;
+                        rowArray[columnNames[i]] = typedValue;
                     } else {
                         (string|int|decimal) typedValue = check self.dataConverter(item["v"], dataType);
-                        temp[columnNames[i]] = typedValue;
+                        rowArray[columnNames[i]] = typedValue;
                     }
                     i = i + 1;
 
                 }
-                output.push(temp);
+                rowTable.push(rowArray);
             }
-            if (output.length() == 0) {
-                return <error>error("no record");
-            } else if (output.length() > 1) {
-                return <error>error("error");
+            if rowTable.length() == 0 {
+                return <error>error(string `No record found for the given key: ${key.toString()}`);
+            } else if rowTable.length() > 1 {
+                return <error>error("string `Multiple records found for the given key: ${key.toString()}`");
             }
-            result = output[0].cloneWithType(rowType);
+            result = rowTable[0].cloneWithType(rowType);
 
             if result is error {
-                return <Error>error(result.message());
+                return <error>error(result.message());
             }
             return result;
 
@@ -208,33 +161,9 @@ public client class GoogleSheetsClient {
     # + return - A stream of records in the `rowType` type or a `persist:Error` if the operation fails
     public isolated function runReadQuery(typedesc<record {}> rowType, string[] fields = [], string[] include = [])
     returns stream<record {}, error?>|error {
-        sheets:Sheet sheet = check self.dbClient->getSheetByName(self.spreadsheetId, self.tableName);
-        string query = "";
-        // if (include.length() == 0) {
-        //     foreach string key in self.fieldMetadata.keys() {
-        //         SheetFieldMetadata fieldMetadata = self.fieldMetadata.get(key);
-        //         if (fieldMetadata is SimpleSheetFieldMetadata) {
-        //             if (query != "") {
-        //                 query += ", ";
-        //             }
-        //             query += fieldMetadata.columnId;
-        //         }
-        //     }
-        // } else if (include.length() > 0) {
-        foreach string key in fields {
-            if (self.fieldMetadata.hasKey(key) == false) {
-                return <error>error("no such a key:" + key);
-            }
-            SheetFieldMetadata fieldMetadata = self.fieldMetadata.get(key);
-            // if (fieldMetadata is SimpleSheetFieldMetadata) {
-                if (query != "") {
-                    query += ", ";
-                }
-                query += fieldMetadata.columnId;
-            }
-        // }
-        // }
-        query = "select " + query;
+        sheets:Sheet sheet = check self.googleSheetClient->getSheetByName(self.spreadsheetId, self.tableName);
+        string columnIds = check self.generateColumnIds(fields);
+        string query = string `select ${columnIds}`;
         string encodedQuery = check url:encode(query, "UTF-8");
         http:QueryParams queries = {"gid": sheet.properties.sheetId, "range": self.range, "tq": encodedQuery, "tqx": "out:json"};
         http:Response response = check self.httpClient->/d/[self.spreadsheetId]/gviz/tq(params = queries);
@@ -243,28 +172,28 @@ public client class GoogleSheetsClient {
             map<json> payload = check textResponse.substring(47, textResponse.length() - 2).fromJsonStringWithType();
             Table workSheet = check payload["table"].fromJsonWithType();
             string[] columnNames = [];
-            record {}[] output = [];
+            record {}[] rowTable = [];
             foreach map<json> item in workSheet.cols {
                 columnNames.push(item["label"].toString());
             }
             foreach RowValues value in workSheet.rows {
                 int i = 0;
-                record {} temp = {};
+                record {} rowArray = {};
                 foreach map<json> item in value.c {
                     string dataType = self.fieldMetadata.get(columnNames[i]).get("dataType");
                     if (dataType == "int") {
                         (string|int|decimal) typedValue = check self.dataConverter(item["f"], dataType);
-                        temp[columnNames[i]] = typedValue;
+                        rowArray[columnNames[i]] = typedValue;
                     } else {
                         (string|int|decimal) typedValue = check self.dataConverter(item["v"], dataType);
-                        temp[columnNames[i]] = typedValue;
+                        rowArray[columnNames[i]] = typedValue;
                     }
                     i = i + 1;
                 }
-                output.push(temp);
+                rowTable.push(rowArray);
 
             }
-            return output.toStream();
+            return rowTable.toStream();
         } else {
             return <error>error(textResponse.message());
         }
@@ -279,33 +208,34 @@ public client class GoogleSheetsClient {
     # A `persist:Error` if the operation fails due to another reason.
     public isolated function runUpdateQuery(anydata key, record {} updateRecord) returns error? {
         string[] entityKeys = self.fieldMetadata.keys();
-        sheets:Sheet sheet = check self.dbClient->getSheetByName(self.spreadsheetId, self.tableName);
+        sheets:Sheet sheet = check self.googleSheetClient->getSheetByName(self.spreadsheetId, self.tableName);
         (int|string|decimal)[] values = [];
-        if (key is string) {
-            sheets:DeveloperMetadataLookupFilter filter = {locationType: "ROW", metadataKey: self.tableName, metadataValue: <string>key};
-            sheets:Row[] rows = check self.dbClient->getRowByDataFilter(self.spreadsheetId, sheet.properties.sheetId, filter);
+        if (key is string|int|decimal) {
+            sheets:DeveloperMetadataLookupFilter filter = {locationType: "ROW", metadataKey: self.tableName, metadataValue: key.toString()};
+            sheets:Row[] rows = check self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, sheet.properties.sheetId, filter);
             if (rows.length() == 0) {
-                return <error>error("no element found for update");
+                return <error>error(string `No element found for given key: ${key.toString()}`);
+            } else if rows.length() > 1 {
+                return <error>error(string `Multiple elements found for given key: ${key.toString()}`);
             }
             foreach string entityKey in entityKeys {
-                if (!updateRecord.hasKey(entityKey) && (self.keyFields.indexOf(entityKey) != ())) {
+                if !updateRecord.hasKey(entityKey) && (self.keyFields.indexOf(entityKey) != ()) {
                     values.push(key);
+                } else if !updateRecord.hasKey(entityKey) && (self.keyFields.indexOf(entityKey) == ()) {
+                    int? indexOfKey = self.fieldMetadata.keys().indexOf(entityKey, 0);
+                    if (indexOfKey !is ()) {
+                        values.push(rows[0].values[indexOfKey]);
+                    }
                 } else {
-                    (int|string|decimal) value = check updateRecord.get(key).ensureType();
+                    (int|string|decimal) value = check updateRecord.get(entityKey).ensureType();
                     values.push(value);
                 }
             }
-            check self.dbClient->updateRowByDataFilter(self.spreadsheetId, sheet.properties.sheetId, filter, values, "USER_ENTERED");
+            check self.googleSheetClient->updateRowByDataFilter(self.spreadsheetId, sheet.properties.sheetId, filter, values, "USER_ENTERED");
         } else if (key is map<anydata>) {
-            string metadataValue = "";
-            foreach string entityKey in self.keyFields {
-                if (metadataValue != "") {
-                    metadataValue += ":";
-                }
-                metadataValue += key.get(entityKey).toString();
-            }
+            string metadataValue = self.generateMetadataValue(self.keyFields, key);
             sheets:DeveloperMetadataLookupFilter filter = {locationType: "ROW", metadataKey: self.tableName, metadataValue: metadataValue};
-            sheets:Row[] rows = check self.dbClient->getRowByDataFilter(self.spreadsheetId, sheet.properties.sheetId, filter);
+            sheets:Row[] rows = check self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, sheet.properties.sheetId, filter);
             if (rows.length() == 0) {
                 return <error>error("no element found for update");
             }
@@ -314,12 +244,17 @@ public client class GoogleSheetsClient {
                 if (!updateRecord.hasKey(entityKey) && (self.keyFields.indexOf(entityKey) != ())) {
                     (int|string|decimal) value = check key.get(entityKey).ensureType();
                     values.push(value);
-                } else {
+                } else if !updateRecord.hasKey(entityKey) && (self.keyFields.indexOf(entityKey) == ()) {
+                    int? indexOfKey = self.fieldMetadata.keys().indexOf(entityKey, 0);
+                    if (indexOfKey !is ()) {
+                        values.push(rows[0].values[indexOfKey]);
+                    }
+                }else {
                     (int|string|decimal) value = check updateRecord.get(entityKey).ensureType();
                     values.push(value);
                 }
             }
-            check self.dbClient->updateRowByDataFilter(self.spreadsheetId, sheet.properties.sheetId, filter, values, "USER_ENTERED");
+            check self.googleSheetClient->updateRowByDataFilter(self.spreadsheetId, sheet.properties.sheetId, filter, values, "USER_ENTERED");
 
         }
     }
@@ -329,28 +264,22 @@ public client class GoogleSheetsClient {
     # + deleteKey - The key used to delete an entity record
     # + return - `()` if the operation is performed successfully or a `persist:Error` if the operation fails
     public isolated function runDeleteQuery(anydata deleteKey) returns error? {
-        sheets:Sheet sheet = check self.dbClient->getSheetByName(self.spreadsheetId, self.tableName);
-        if (deleteKey is string) {
-            sheets:DeveloperMetadataLookupFilter filter = {locationType: "ROW", metadataKey: self.tableName, metadataValue: <string>deleteKey};
-            sheets:Row[] rows = check self.dbClient->getRowByDataFilter(self.spreadsheetId, sheet.properties.sheetId, filter);
+        sheets:Sheet sheet = check self.googleSheetClient->getSheetByName(self.spreadsheetId, self.tableName);
+        if (deleteKey is string|int|decimal) {
+            sheets:DeveloperMetadataLookupFilter filter = {locationType: "ROW", metadataKey: self.tableName, metadataValue: deleteKey.toString()};
+            sheets:Row[] rows = check self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, sheet.properties.sheetId, filter);
             if (rows.length() == 0) {
                 return <error>error("no element found for delete");
             }
-            check self.dbClient->deleteRowByDataFilter(self.spreadsheetId, sheet.properties.sheetId, filter);
+            check self.googleSheetClient->deleteRowByDataFilter(self.spreadsheetId, sheet.properties.sheetId, filter);
         } else if (deleteKey is map<anydata>) {
-            string metadataValue = "";
-            foreach string entityKey in self.keyFields {
-                if (metadataValue != "") {
-                    metadataValue += ":";
-                }
-                metadataValue += deleteKey.get(entityKey).toString();
-            }
+            string metadataValue = self.generateMetadataValue(self.keyFields, deleteKey);
             sheets:DeveloperMetadataLookupFilter filter = {locationType: "ROW", metadataKey: self.tableName, metadataValue: metadataValue};
-            sheets:Row[] rows = check self.dbClient->getRowByDataFilter(self.spreadsheetId, sheet.properties.sheetId, filter);
+            sheets:Row[] rows = check self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, sheet.properties.sheetId, filter);
             if (rows.length() == 0) {
                 return <error>error("no element found for update");
             }
-            check self.dbClient->deleteRowByDataFilter(self.spreadsheetId, sheet.properties.sheetId, filter);
+            check self.googleSheetClient->deleteRowByDataFilter(self.spreadsheetId, sheet.properties.sheetId, filter);
 
         }
     }
@@ -382,6 +311,70 @@ public client class GoogleSheetsClient {
         } else {
             return <error>error("unsupported data format");
         }
+    }
+
+    private isolated function generateMetadataValue(string[] keyFields, record{}|map<anydata> rowValues) returns string {
+        string metadataValue = "";
+        foreach string key in keyFields {
+            if (metadataValue != "") {
+                metadataValue += ":";
+            }
+            metadataValue += rowValues[key].toString();
+        }
+        return metadataValue;
+    }
+
+    private isolated function generateWhereClause(anydata key) returns string|error {
+        string whereClause = "";
+        if (key is map<any>) {
+            foreach string primaryKey in key.keys() {
+                string? columnId = self.fieldMetadata.get(primaryKey)["columnId"];
+                if (columnId !is ()) {
+                    string keyValue = key.get(primaryKey).toString();
+                    if (whereClause != "") {
+                        whereClause += " and ";
+                    }
+                    if (self.fieldMetadata.get(primaryKey).dataType == "string") {
+                        string condition = string `${columnId} = '${keyValue}'`;
+                        whereClause += condition;
+                    } else {
+                        string condition = string `${columnId} = ${keyValue}`;
+                        whereClause += condition;
+                    }
+                } else {
+                    return <error>error(string `ColumnId for the field : ${primaryKey} cannot be found.`);
+                }
+            }
+        } else {
+            string? columnId = self.fieldMetadata.get(self.keyFields[0])["columnId"];
+            if (columnId !is ()) {
+                if (self.fieldMetadata.get(self.keyFields[0]).dataType == "string") {
+                    whereClause = string `${columnId} = '${key.toString()}'`;
+                } else {
+                    whereClause = string `${columnId} = ${key.toString()}`;
+                }
+
+            } else {
+                return <error>error(string `ColumnId for the field : ${self.keyFields[0]} cannot be found.`);
+            }
+        }
+        return whereClause;
+
+    }
+
+    private isolated function generateColumnIds(string[] fields) returns string|error {
+        string columnIds = "";
+        foreach string fieldMetadataKey in fields {
+            if self.fieldMetadata.hasKey(fieldMetadataKey) == false {
+                return <error>error("Error: no such a key:" + fieldMetadataKey);
+            }
+            SheetFieldMetadata fieldMetadata = self.fieldMetadata.get(fieldMetadataKey);
+            if (columnIds != "") {
+                columnIds += ", ";
+            }
+            columnIds += fieldMetadata.columnId;
+        }
+        return columnIds;
     }
 
 }
