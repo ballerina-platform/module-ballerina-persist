@@ -33,6 +33,7 @@ public final class Constants {
 
     public static final BString PERSIST_CLIENTS = fromString("persistClients");
     public static final String PERSIST_SQL_STREAM = "PersistSQLStream";
+    public static final String PERSIST_GOOGLE_SHEETS_STREAM = "PersistGoogleSheetsStream";
     public static final String PERSIST_IN_MEMORY_STREAM = "PersistInMemoryStream";
     public static final BString KEY_FIELDS = fromString("keyFields");
     public static final String ERROR = "Error";
