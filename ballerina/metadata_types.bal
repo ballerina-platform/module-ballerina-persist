@@ -60,11 +60,9 @@ public type SheetMetadata record {|
 #
 # + columnName - The name of the SQL table column to which the field is mapped
 # + columnId - The alphabetical Id of the column
-# + dataType - The data type stored in the column
 public type SimpleSheetFieldMetadata record {|
     string columnName;
     string columnId;
-    string dataType;
 |};
 
 # Represents the metadata associated with a field from a related entity.
@@ -104,13 +102,11 @@ public type FieldMetadata SimpleFieldMetadata|EntityFieldMetadata;
 # + entityName - The name of the entity represented in the relation  
 # + refField - The name of the referenced column in the soogle sheets table
 # + columnId - The alphabetical Id of the column
-# + dataType - The data type stored in the column
 
 public type SheetRelationMetadata record {|
     string entityName;
     string refField;
     string columnId;
-    string dataType;
 |};
 
 # Represents the metadata associated with a relation.

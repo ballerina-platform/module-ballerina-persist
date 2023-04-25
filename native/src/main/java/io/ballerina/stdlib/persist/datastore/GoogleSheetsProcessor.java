@@ -32,6 +32,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BString;
@@ -42,6 +43,7 @@ import io.ballerina.stdlib.persist.ModuleUtils;
 import static io.ballerina.stdlib.persist.Constants.ERROR;
 import static io.ballerina.stdlib.persist.Constants.KEY_FIELDS;
 import static io.ballerina.stdlib.persist.Utils.getEntity;
+import static io.ballerina.stdlib.persist.Utils.getFieldTypes;
 import static io.ballerina.stdlib.persist.Utils.getKey;
 import static io.ballerina.stdlib.persist.Utils.getMetadata;
 import static io.ballerina.stdlib.persist.Utils.getPersistClient;
@@ -71,6 +73,7 @@ public class GoogleSheetsProcessor {
         BArray fields = metadata[0];
         BArray includes = metadata[1];
         BArray typeDescriptions = metadata[2];
+        BMap<BString, Object> typeMap = getFieldTypes(recordType);
 
         Future balFuture = env.markAsync();
         env.getRuntime().invokeMethodAsyncSequentially(
@@ -80,7 +83,7 @@ public class GoogleSheetsProcessor {
                     public void notifySuccess(Object o) {
                         BStream sqlStream = (BStream) o;
                         BObject persistStream = ValueCreator.createObjectValue(
-                                ModuleUtils.getModule(), Constants.PERSIST_GOOGLE_SHEETS_STREAM, sqlStream, targetType,
+                                ModuleUtils.getModule(), Constants.PERSIST_GOOGLE_SHEETS_STREAM, sqlStream, targetType, 
                                 fields, includes, typeDescriptions, persistClient, null
                         );
 
@@ -97,7 +100,7 @@ public class GoogleSheetsProcessor {
                         balFuture.complete(bError);
                     }
                 }, null, streamTypeWithIdFields,
-                targetTypeWithIdFields, true, fields, true, includes, true
+                targetTypeWithIdFields, true, typeMap, true, fields, true, includes, true
         );
 
         return null;
@@ -118,6 +121,7 @@ public class GoogleSheetsProcessor {
         BArray fields = metadata[0];
         BArray includes = metadata[1];
         BArray typeDescriptions = metadata[2];
+        BMap<BString, Object> typeMap = getFieldTypes(recordType);
 
         Object key = getKey(env, path);
 
@@ -135,7 +139,7 @@ public class GoogleSheetsProcessor {
                         balFuture.complete(bError);
                     }
                 },  null, unionType,
-                targetType, true, targetTypeWithIdFields, true, key, true, fields, true, includes, true,
+                targetType, true, targetTypeWithIdFields, true, typeMap, true, key, true, fields, true, includes, true,
                 typeDescriptions, true
         );
 

@@ -94,14 +94,15 @@ public client class GoogleSheetsClient {
     #
     # + rowType - The type description of the entity to be retrieved
     # + rowTypeWithIdFields - The type description of the entity to be retrieved with the key fields included
+    # + typeMap - The data types of the record
     # + key - The value of the key (to be used as the `WHERE` clauses)
     # + fields - The fields to be retrieved
     # + include - The relations to be retrieved (SQL `JOINs` to be performed)
     # + typeDescriptions - The type descriptions of the relations to be retrieved
     # + return - A record in the `rowType` type or a `persist:Error` if the operation fails
-    public isolated function runReadByKeyQuery(typedesc<record {}> rowType, typedesc<record {}> rowTypeWithIdFields, anydata key, string[] fields = [], string[] include = [], typedesc<record {}>[] typeDescriptions = []) returns record {}|error {
+    public isolated function runReadByKeyQuery(typedesc<record {}> rowType, typedesc<record {}> rowTypeWithIdFields, map<anydata> typeMap, anydata key, string[] fields = [], string[] include = [], typedesc<record {}>[] typeDescriptions = []) returns record {}|error {
         sheets:Sheet sheet = check self.googleSheetClient->getSheetByName(self.spreadsheetId, self.tableName);
-        string whereClause = check self.generateWhereClause(key);
+        string whereClause = check self.generateWhereClause(key, typeMap);
         string columnIds = check self.generateColumnIds(fields);
 
         string query = string `select ${columnIds} where ${whereClause}`;
@@ -125,7 +126,7 @@ public client class GoogleSheetsClient {
                 int i = 0;
                 record {} rowArray = {};
                 foreach map<json> item in value.c {
-                    string dataType = self.fieldMetadata.get(columnNames[i]).get("dataType");
+                    string dataType = typeMap.get(columnNames[i]).toString();
                     if dataType == "int" {
                         (string|int|decimal) typedValue = check self.dataConverter(item["f"], dataType);
                         rowArray[columnNames[i]] = typedValue;
@@ -134,7 +135,6 @@ public client class GoogleSheetsClient {
                         rowArray[columnNames[i]] = typedValue;
                     }
                     i = i + 1;
-
                 }
                 rowTable.push(rowArray);
             }
@@ -156,10 +156,11 @@ public client class GoogleSheetsClient {
     }
 
     # + rowType - The type description of the entity to be retrieved
+    # + typeMap - The data types of the record
     # + fields - The fields to be retrieved
     # + include - The associations to be retrieved
     # + return - A stream of records in the `rowType` type or a `persist:Error` if the operation fails
-    public isolated function runReadQuery(typedesc<record {}> rowType, string[] fields = [], string[] include = [])
+    public isolated function runReadQuery(typedesc<record {}> rowType, map<anydata> typeMap, string[] fields = [], string[] include = [])
     returns stream<record {}, error?>|error {
         sheets:Sheet sheet = check self.googleSheetClient->getSheetByName(self.spreadsheetId, self.tableName);
         string columnIds = check self.generateColumnIds(fields);
@@ -180,7 +181,7 @@ public client class GoogleSheetsClient {
                 int i = 0;
                 record {} rowArray = {};
                 foreach map<json> item in value.c {
-                    string dataType = self.fieldMetadata.get(columnNames[i]).get("dataType");
+                    string dataType = typeMap.get(columnNames[i]).toString();
                     if (dataType == "int") {
                         (string|int|decimal) typedValue = check self.dataConverter(item["f"], dataType);
                         rowArray[columnNames[i]] = typedValue;
@@ -324,7 +325,7 @@ public client class GoogleSheetsClient {
         return metadataValue;
     }
 
-    private isolated function generateWhereClause(anydata key) returns string|error {
+    private isolated function generateWhereClause(anydata key, map<anydata> typeMap) returns string|error {
         string whereClause = "";
         if (key is map<any>) {
             foreach string primaryKey in key.keys() {
@@ -334,7 +335,8 @@ public client class GoogleSheetsClient {
                     if (whereClause != "") {
                         whereClause += " and ";
                     }
-                    if (self.fieldMetadata.get(primaryKey).dataType == "string") {
+                    string dataType = typeMap.get(primaryKey).toString();
+                    if (dataType == "string") {
                         string condition = string `${columnId} = '${keyValue}'`;
                         whereClause += condition;
                     } else {
@@ -348,7 +350,8 @@ public client class GoogleSheetsClient {
         } else {
             string? columnId = self.fieldMetadata.get(self.keyFields[0])["columnId"];
             if (columnId !is ()) {
-                if (self.fieldMetadata.get(self.keyFields[0]).dataType == "string") {
+                string dataType = typeMap.get(self.keyFields[0]).toString();
+                if (dataType == "string") {
                     whereClause = string `${columnId} = '${key.toString()}'`;
                 } else {
                     whereClause = string `${columnId} = ${key.toString()}`;
