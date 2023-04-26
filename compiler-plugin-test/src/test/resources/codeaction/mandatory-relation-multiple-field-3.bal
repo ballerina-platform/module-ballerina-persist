@@ -7,7 +7,7 @@ type User record {|
     string address;
     Follow? follow;
     Follow? follow1;
-    Follow? follow2;
+	Follow? follow2;
 |};
 
 type Follow record {|
