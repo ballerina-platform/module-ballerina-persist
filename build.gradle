@@ -81,17 +81,13 @@ subprojects {
         ballerinaStdLibs "io.ballerina.stdlib:mysql.driver-ballerina:${stdlibMysqlDriverVersion}"
 
         ballerinaStdLibs "io.ballerina.stdlib:sql-ballerina:${stdlibSqlVersion}"
-        ballerinaStdLibs "io.ballerina.stdlib:io-ballerina:${stdlibIoVersion}"
         ballerinaStdLibs "io.ballerina.stdlib:constraint-ballerina:${stdlibConstraintVersion}"
         ballerinaStdLibs "io.ballerina.stdlib:time-ballerina:${stdlibTimeVersion}"
-        ballerinaStdLibs "io.ballerina.stdlib:regex-ballerina:${stdlibRegexVersion}"
         ballerinaStdLibs "io.ballerina.stdlib:os-ballerina:${stdlibOsVersion}"
-        ballerinaStdLibs "io.ballerina.stdlib:crypto-ballerina:${stdlibCryptoVersion}"
         ballerinaStdLibs "io.ballerina.stdlib:log-ballerina:${stdlibLogVersion}"
         ballerinaStdLibs "io.ballerina.stdlib:file-ballerina:${stdlibFileVersion}"
 
         ballerinaStdLibs "org.ballerinalang:transaction-ballerina:${stdlibTransactionVersion}"
-        ballerinaStdLibs "io.ballerina.stdlib:task-ballerina:${stdlibTaskVersion}"
         ballerinaStdLibs "io.ballerina.stdlib:uuid-ballerina:${stdlibUuidVersion}"
         ballerinaStdLibs "io.ballerina.stdlib:mime-ballerina:${stdlibMimeVersion}"
         ballerinaStdLibs "io.ballerina.stdlib:cache-ballerina:${stdlibCacheVersion}"
@@ -102,8 +98,6 @@ subprojects {
         ballerinaStdLibs "io.ballerina.stdlib:http-ballerina:${stdlibHttpVersion}"
         ballerinaStdLibs "io.ballerina.stdlib:observe-ballerina:${observeVersion}"
         ballerinaStdLibs "io.ballerina:observe-ballerina:${observeInternalVersion}"
-        ballerinaStdLibs "io.ballerina.stdlib:mysql.driver-ballerina:${stdlibMysqlDriverVersion}"
-
 
     }
 }
