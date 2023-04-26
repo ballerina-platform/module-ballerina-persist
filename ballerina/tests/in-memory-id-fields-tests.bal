@@ -17,10 +17,10 @@
 import ballerina/test;
 
 @test:Config {
-    groups: ["id-fields", "sql"]
+    groups: ["id-fields", "in-memory"]
 }
-function sqlIntIdFieldTest() returns error? {
-    SQLTestEntitiesClient testEntitiesClient = check new ();
+function inMemoryIntIdFieldTest() returns error? {
+    InMemoryTestEntitiesClient testEntitiesClient = check new ();
     IntIdRecord intIdRecord1 = {
         id: 1,
         randomField: "test1"
@@ -77,10 +77,10 @@ function sqlIntIdFieldTest() returns error? {
 }
 
 @test:Config {
-    groups: ["id-fields", "sql"]
+    groups: ["id-fields", "in-memory"]
 }
-function sqlStringIdFieldTest() returns error? {
-    SQLTestEntitiesClient testEntitiesClient = check new ();
+function inMemoryStringIdFieldTest() returns error? {
+    InMemoryTestEntitiesClient testEntitiesClient = check new ();
     StringIdRecord stringIdRecord1 = {
         id: "id-1",
         randomField: "test1"
@@ -137,10 +137,10 @@ function sqlStringIdFieldTest() returns error? {
 }
 
 @test:Config {
-    groups: ["id-fields", "sql"]
+    groups: ["id-fields", "in-memory"]
 }
-function sqlFloatIdFieldTest() returns error? {
-    SQLTestEntitiesClient testEntitiesClient = check new ();
+function inMemoryFloatIdFieldTest() returns error? {
+    InMemoryTestEntitiesClient testEntitiesClient = check new ();
     FloatIdRecord floatIdRecord1 = {
         id: 1.0,
         randomField: "test1"
@@ -195,10 +195,10 @@ function sqlFloatIdFieldTest() returns error? {
 }
 
 @test:Config {
-    groups: ["id-fields", "sql"]
+    groups: ["id-fields", "in-memory"]
 }
-function sqlDecimalIdFieldTest() returns error? {
-    SQLTestEntitiesClient testEntitiesClient = check new ();
+function inMemoryDecimalIdFieldTest() returns error? {
+    InMemoryTestEntitiesClient testEntitiesClient = check new ();
     DecimalIdRecord decimalIdRecord1 = {
         id: 1.1d,
         randomField: "test1"
@@ -255,10 +255,10 @@ function sqlDecimalIdFieldTest() returns error? {
 }
 
 @test:Config {
-    groups: ["id-fields", "sql"]
+    groups: ["id-fields", "in-memory"]
 }
-function sqlBooleanIdFieldTest() returns error? {
-    SQLTestEntitiesClient testEntitiesClient = check new ();
+function inMemoryBooleanIdFieldTest() returns error? {
+    InMemoryTestEntitiesClient testEntitiesClient = check new ();
     BooleanIdRecord booleanIdRecord1 = {
         id: true,
         randomField: "test1"
@@ -287,12 +287,12 @@ function sqlBooleanIdFieldTest() returns error? {
     // read
     BooleanIdRecord[] booleanIdRecords = check from BooleanIdRecord booleanIdRecord in testEntitiesClient->/booleanidrecords.get(BooleanIdRecord)
         select booleanIdRecord;
-    test:assertEquals(booleanIdRecords, [booleanIdRecord2, booleanIdRecord1]);
+    test:assertEquals(booleanIdRecords, [booleanIdRecord1, booleanIdRecord2]);
 
     // read dependent
     BooleanIdRecordDependent[] booleanIdRecordsDependent = check from BooleanIdRecordDependent booleanIdRecord in testEntitiesClient->/booleanidrecords.get(BooleanIdRecordDependent)
         select booleanIdRecord;
-    test:assertEquals(booleanIdRecordsDependent, [{randomField: booleanIdRecord2.randomField}, {randomField: booleanIdRecord1.randomField}]);
+    test:assertEquals(booleanIdRecordsDependent, [{randomField: booleanIdRecord1.randomField}, {randomField: booleanIdRecord2.randomField}]);
 
     // update
     retrievedRecord1 = check testEntitiesClient->/booleanidrecords/[booleanIdRecord1.id].put({randomField: booleanIdRecord1Updated.randomField});
@@ -311,10 +311,10 @@ function sqlBooleanIdFieldTest() returns error? {
 }
 
 @test:Config {
-    groups: ["id-fields", "sql"]
+    groups: ["id-fields", "in-memory"]
 }
-function sqlAllTypesIdFieldTest() returns error? {
-    SQLTestEntitiesClient testEntitiesClient = check new ();
+function inMemoryAllTypesIdFieldTest() returns error? {
+    InMemoryTestEntitiesClient testEntitiesClient = check new ();
     AllTypesIdRecord allTypesIdRecord1 = {
         intType: 1,
         stringType: "id-1",
@@ -358,12 +358,12 @@ function sqlAllTypesIdFieldTest() returns error? {
     // read
     AllTypesIdRecord[] allTypesIdRecords = check from AllTypesIdRecord allTypesIdRecord in testEntitiesClient->/alltypesidrecords.get(AllTypesIdRecord)
         select allTypesIdRecord;
-    test:assertEquals(allTypesIdRecords, [allTypesIdRecord2, allTypesIdRecord1]);
+    test:assertEquals(allTypesIdRecords, [allTypesIdRecord1, allTypesIdRecord2]);
 
     // read dependent
     AllTypesIdRecordDependent[] allTypesIdRecordsDependent = check from AllTypesIdRecordDependent allTypesIdRecord in testEntitiesClient->/alltypesidrecords.get(AllTypesIdRecordDependent)
         select allTypesIdRecord;
-    test:assertEquals(allTypesIdRecordsDependent, [{randomField: allTypesIdRecord2.randomField}, {randomField: allTypesIdRecord1.randomField}]);
+    test:assertEquals(allTypesIdRecordsDependent, [{randomField: allTypesIdRecord1.randomField}, {randomField: allTypesIdRecord2.randomField}]);
 
     // update
     retrievedRecord1 = check testEntitiesClient->/alltypesidrecords/[allTypesIdRecord1.booleanType]/[allTypesIdRecord1.intType]/[allTypesIdRecord1.floatType]/[allTypesIdRecord1.decimalType]/[allTypesIdRecord1.stringType].put({randomField: allTypesIdRecord1Updated.randomField});
@@ -382,11 +382,11 @@ function sqlAllTypesIdFieldTest() returns error? {
 }
 
 @test:Config {
-    groups: ["id-fields", "sql", "associations"],
-    dependsOn: [sqlAllTypesIdFieldTest]
+    groups: ["id-fields", "associations", "in-memoryx"],
+    dependsOn: [inMemoryAllTypesIdFieldTest]
 }
-function sqlCompositeAssociationsTest() returns error? {
-    SQLTestEntitiesClient testEntitiesClient = check new ();
+function inMemoryCompositeAssociationsTest() returns error? {
+    InMemoryTestEntitiesClient testEntitiesClient = check new ();
 
     CompositeAssociationRecord compositeAssociationRecord1 = {
         id: "id-1",
@@ -395,7 +395,7 @@ function sqlCompositeAssociationsTest() returns error? {
         alltypesidrecordStringType: "id-1",
         alltypesidrecordFloatType: 1.0,
         alltypesidrecordBooleanType: true,
-        alltypesidrecordDecimalType: 1.10
+        alltypesidrecordDecimalType: 1.1
     };
 
     CompositeAssociationRecord compositeAssociationRecord2 = {
@@ -405,7 +405,7 @@ function sqlCompositeAssociationsTest() returns error? {
         alltypesidrecordStringType: "id-1",
         alltypesidrecordFloatType: 1.0,
         alltypesidrecordBooleanType: true,
-        alltypesidrecordDecimalType: 1.10
+        alltypesidrecordDecimalType: 1.1
     };
 
     CompositeAssociationRecord compositeAssociationRecordUpdated1 = {
@@ -415,7 +415,7 @@ function sqlCompositeAssociationsTest() returns error? {
         alltypesidrecordStringType: "id-1",
         alltypesidrecordFloatType: 1.0,
         alltypesidrecordBooleanType: true,
-        alltypesidrecordDecimalType: 1.10
+        alltypesidrecordDecimalType: 1.1
     };
 
     AllTypesIdRecordOptionalized allTypesIdRecord1 = {
@@ -423,7 +423,7 @@ function sqlCompositeAssociationsTest() returns error? {
         stringType: "id-1",
         floatType: 1.0,
         booleanType: true,
-        decimalType: 1.10,
+        decimalType: 1.1,
         randomField: "test1Updated"
     };
 

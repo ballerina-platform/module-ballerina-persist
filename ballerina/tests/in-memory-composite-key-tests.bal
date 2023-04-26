@@ -61,7 +61,7 @@ function inMemoryCompositeKeyReadManyTest() returns error? {
     stream<OrderItem, error?> orderItemStream = rainierClient->/orderitems.get();
     OrderItem[] orderitem = check from OrderItem orderItem in orderItemStream
         select orderItem;
-    
+
     test:assertEquals(orderitem, [orderItem1, orderItem2]);
     check rainierClient.close();
 }
@@ -72,7 +72,7 @@ function inMemoryCompositeKeyReadManyTest() returns error? {
 }
 function inMemoryCompositeKeyReadOneTest() returns error? {
     InMemoryRainierClient rainierClient = check new ();
-    OrderItem orderItem = check rainierClient->/orderitems/[orderItem1.orderId]/[orderItem1.itemId].get();    
+    OrderItem orderItem = check rainierClient->/orderitems/[orderItem1.orderId]/[orderItem1.itemId].get();
     test:assertEquals(orderItem, orderItem1);
     check rainierClient.close();
 }
@@ -83,7 +83,7 @@ function inMemoryCompositeKeyReadOneTest() returns error? {
 }
 function inMemoryCompositeKeyReadOneTest2() returns error? {
     InMemoryRainierClient rainierClient = check new ();
-    OrderItem orderItem = check rainierClient->/orderitems/[orderItem1.orderId]/[orderItem1.itemId].get();    
+    OrderItem orderItem = check rainierClient->/orderitems/[orderItem1.orderId]/[orderItem1.itemId].get();
     test:assertEquals(orderItem, orderItem1);
     check rainierClient.close();
 }
@@ -135,7 +135,7 @@ function inMemoryCompositeKeyUpdateTest() returns error? {
     });
     test:assertEquals(orderItem, orderItem2Updated);
 
-    orderItem = check rainierClient->/orderitems/[orderItem2.orderId]/[orderItem2.itemId].get();    
+    orderItem = check rainierClient->/orderitems/[orderItem2.orderId]/[orderItem2.itemId].get();
     test:assertEquals(orderItem, orderItem2Updated);
 
     check rainierClient.close();
@@ -171,7 +171,7 @@ function inMemoryCompositeKeyDeleteTest() returns error? {
     OrderItem orderItem = check rainierClient->/orderitems/[orderItem2.orderId]/[orderItem2.itemId].delete();
     test:assertEquals(orderItem, orderItem2Updated);
 
-    OrderItem|error orderItemRetrieved =  rainierClient->/orderitems/[orderItem2.orderId]/[orderItem2.itemId].get();    
+    OrderItem|error orderItemRetrieved = rainierClient->/orderitems/[orderItem2.orderId]/[orderItem2.itemId].get();
     test:assertTrue(orderItemRetrieved is InvalidKeyError);
 
     check rainierClient.close();

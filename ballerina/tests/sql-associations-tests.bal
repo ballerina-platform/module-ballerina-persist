@@ -16,27 +16,18 @@
 
 import ballerina/test;
 
-public type EmployeeInfo record {|
-    string firstName;
-    string lastName;
-    record {|
-        string deptName;
-    |} department;
-    Workspace workspace;
-|};
-
 @test:Config {
-    groups:  ["associations"],
-    dependsOn: [employeeDeleteTestNegative]
+    groups: ["associations", "sql"],
+    dependsOn: [sqlEmployeeDeleteTestNegative]
 }
-function employeeRelationsTest() returns error? {
+function sqlEmployeeRelationsTest() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     Employee employee21 = {
         empNo: "employee-21",
         firstName: "Tom",
         lastName: "Scott",
-        birthDate: {year: 1992, month: 11, day:13},
+        birthDate: {year: 1992, month: 11, day: 13},
         gender: "M",
         hireDate: {year: 2022, month: 8, day: 1},
         departmentDeptNo: "department-22",
@@ -63,17 +54,17 @@ function employeeRelationsTest() returns error? {
         deptName: "Marketing"
     };
 
-    _ = check rainierClient->/buildings.post([building22]);    
-    _ = check rainierClient->/departments.post([department22]);    
-    _ = check rainierClient->/workspaces.post([workspace22]);    
-    _ = check rainierClient->/employees.post([employee21]);    
+    _ = check rainierClient->/buildings.post([building22]);
+    _ = check rainierClient->/departments.post([department22]);
+    _ = check rainierClient->/workspaces.post([workspace22]);
+    _ = check rainierClient->/employees.post([employee21]);
 
     stream<EmployeeInfo, Error?> employeeStream = rainierClient->/employees.get();
-    EmployeeInfo[] employees = check from EmployeeInfo employee in employeeStream 
+    EmployeeInfo[] employees = check from EmployeeInfo employee in employeeStream
         select employee;
 
     EmployeeInfo retrieved = check rainierClient->/employees/["employee-21"].get();
-    
+
     EmployeeInfo expected = {
         firstName: "Tom",
         lastName: "Scott",
@@ -92,18 +83,9 @@ function employeeRelationsTest() returns error? {
     check rainierClient.close();
 }
 
-public type DepartmentInfo record {|
-    string deptNo;
-    string deptName;
-    record {|
-        string firstName;
-        string lastName;
-    |}[] employees;
-|};
-
 @test:Config {
-    groups: ["associations"],
-    dependsOn: [employeeDeleteTestNegative]
+    groups: ["associations", "sql"],
+    dependsOn: [sqlEmployeeDeleteTestNegative]
 }
 function departmentRelationsTest() returns error? {
     SQLRainierClient rainierClient = check new ();
@@ -112,7 +94,7 @@ function departmentRelationsTest() returns error? {
         empNo: "employee-11",
         firstName: "Tom",
         lastName: "Scott",
-        birthDate: {year: 1992, month: 11, day:13},
+        birthDate: {year: 1992, month: 11, day: 13},
         gender: "M",
         hireDate: {year: 2022, month: 8, day: 1},
         departmentDeptNo: "department-12",
@@ -123,7 +105,7 @@ function departmentRelationsTest() returns error? {
         empNo: "employee-12",
         firstName: "Jane",
         lastName: "Doe",
-        birthDate: {year: 1996, month: 9, day:15},
+        birthDate: {year: 1996, month: 9, day: 15},
         gender: "F",
         hireDate: {year: 2022, month: 6, day: 1},
         departmentDeptNo: "department-12",
@@ -150,13 +132,13 @@ function departmentRelationsTest() returns error? {
         deptName: "Marketing"
     };
 
-    _ = check rainierClient->/buildings.post([building12]);    
-    _ = check rainierClient->/departments.post([department12]);    
-    _ = check rainierClient->/workspaces.post([workspace12]);    
-    _ = check rainierClient->/employees.post([employee11, employee12]);    
+    _ = check rainierClient->/buildings.post([building12]);
+    _ = check rainierClient->/departments.post([department12]);
+    _ = check rainierClient->/workspaces.post([workspace12]);
+    _ = check rainierClient->/employees.post([employee11, employee12]);
 
     stream<DepartmentInfo, error?> departmentStream = rainierClient->/departments.get();
-    DepartmentInfo[] departments = check from DepartmentInfo department in departmentStream 
+    DepartmentInfo[] departments = check from DepartmentInfo department in departmentStream
         select department;
 
     DepartmentInfo retrieved = check rainierClient->/departments/["department-12"].get();
@@ -164,13 +146,16 @@ function departmentRelationsTest() returns error? {
     DepartmentInfo expected = {
         deptNo: "department-12",
         deptName: "Marketing",
-        employees: [{
-            firstName: "Tom",
-            lastName: "Scott"
-        }, {
-            firstName: "Jane",
-            lastName: "Doe"
-        }]
+        employees: [
+            {
+                firstName: "Tom",
+                lastName: "Scott"
+            },
+            {
+                firstName: "Jane",
+                lastName: "Doe"
+            }
+        ]
     };
 
     test:assertTrue(departments.indexOf(expected) is int, "Expected DepartmentInfo not found.");
@@ -178,15 +163,9 @@ function departmentRelationsTest() returns error? {
     check rainierClient.close();
 }
 
-public type WorkspaceInfo record {|
-    string workspaceType;
-    Building location;
-    Employee[] employees;
-|};
-
 @test:Config {
-    groups: ["associations"],
-    dependsOn: [employeeRelationsTest]
+    groups: ["associations", "sql"],
+    dependsOn: [sqlEmployeeRelationsTest]
 }
 function workspaceRelationsTest() returns error? {
     SQLRainierClient rainierClient = check new ();
@@ -195,16 +174,16 @@ function workspaceRelationsTest() returns error? {
         empNo: "employee-22",
         firstName: "James",
         lastName: "David",
-        birthDate: {year: 1996, month: 11, day:13},
+        birthDate: {year: 1996, month: 11, day: 13},
         gender: "F",
         hireDate: {year: 2021, month: 8, day: 1},
         departmentDeptNo: "department-22",
         workspaceWorkspaceId: "workspace-22"
     };
-    _ = check rainierClient->/employees.post([employee22]);    
+    _ = check rainierClient->/employees.post([employee22]);
 
     stream<WorkspaceInfo, error?> workspaceStream = rainierClient->/workspaces.get();
-    WorkspaceInfo[] workspaces = check from WorkspaceInfo workspace in workspaceStream 
+    WorkspaceInfo[] workspaces = check from WorkspaceInfo workspace in workspaceStream
         select workspace;
 
     WorkspaceInfo retrieved = check rainierClient->/workspaces/["workspace-22"].get();
@@ -224,7 +203,7 @@ function workspaceRelationsTest() returns error? {
                 empNo: "employee-21",
                 firstName: "Tom",
                 lastName: "Scott",
-                birthDate: {year: 1992, month: 11, day:13},
+                birthDate: {year: 1992, month: 11, day: 13},
                 gender: "M",
                 hireDate: {year: 2022, month: 8, day: 1},
                 departmentDeptNo: "department-22",
@@ -234,7 +213,7 @@ function workspaceRelationsTest() returns error? {
                 empNo: "employee-22",
                 firstName: "James",
                 lastName: "David",
-                birthDate: {year: 1996, month: 11, day:13},
+                birthDate: {year: 1996, month: 11, day: 13},
                 gender: "F",
                 hireDate: {year: 2021, month: 8, day: 1},
                 departmentDeptNo: "department-22",
@@ -260,25 +239,15 @@ function workspaceRelationsTest() returns error? {
     check rainierClient.close();
 }
 
-public type BuildingInfo record {|
-    string buildingCode;
-    string city;
-    string state;
-    string country;
-    string postalCode;
-    string 'type;
-    Workspace[] workspaces;
-|};
-
 @test:Config {
-    groups: ["associations"],
-    dependsOn: [employeeRelationsTest]
+    groups: ["associations", "sql"],
+    dependsOn: [sqlEmployeeRelationsTest]
 }
 function buildingRelationsTest() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     stream<BuildingInfo, error?> buildingStream = rainierClient->/buildings.get();
-    BuildingInfo[] buildings = check from BuildingInfo building in buildingStream 
+    BuildingInfo[] buildings = check from BuildingInfo building in buildingStream
         select building;
 
     BuildingInfo retrieved = check rainierClient->/buildings/["building-22"].get();

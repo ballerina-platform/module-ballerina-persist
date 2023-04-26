@@ -48,9 +48,9 @@ public client class SQLClient {
     #
     # + insertRecords - The entity records to be inserted into the table
     # + return - An `sql:ExecutionResult[]` containing the metadata of the query execution
-    #            or a `persist:Error` if the operation fails
+    # or a `persist:Error` if the operation fails
     public isolated function runBatchInsertQuery(record {}[] insertRecords) returns sql:ExecutionResult[]|Error {
-        sql:ParameterizedQuery[] insertQueries = self.getInsertQueries(insertRecords);        
+        sql:ParameterizedQuery[] insertQueries = self.getInsertQueries(insertRecords);
         sql:ExecutionResult[]|sql:Error result = self.dbClient->batchExecute(insertQueries);
 
         if result is sql:Error {
@@ -188,7 +188,7 @@ public client class SQLClient {
             if arr is error {
                 return <Error>error(arr.message());
             }
-            
+
             'object[joinMetadata.fieldName] = convertToArray(joinRelationTypedesc, arr);
         }
     }
@@ -199,7 +199,7 @@ public client class SQLClient {
 
     private isolated function getKey(anydata|record {} 'object) returns record {} {
         record {} keyRecord = {};
-        
+
         if 'object is record {} {
             foreach string key in self.keyFields {
                 keyRecord[key] = 'object[key];
@@ -229,7 +229,7 @@ public client class SQLClient {
     private isolated function getInsertColumnNames() returns sql:ParameterizedQuery {
         sql:ParameterizedQuery params = ` `;
         int columnCount = 0;
-        
+
         foreach string key in self.getInsertableFields() {
             FieldMetadata fieldMetadata = self.fieldMetadata.get(key);
             if columnCount > 0 {
@@ -365,7 +365,7 @@ public client class SQLClient {
 
     private isolated function getInsertQueries(record {}[] insertRecords) returns sql:ParameterizedQuery[] {
         return from record {} insertRecord in insertRecords
-               select sql:queryConcat(`INSERT INTO `, self.tableName, ` (`, self.getInsertColumnNames(), ` ) `, `VALUES `, self.getInsertQueryParams(insertRecord));
+            select sql:queryConcat(`INSERT INTO `, self.tableName, ` (`, self.getInsertColumnNames(), ` ) `, `VALUES `, self.getInsertQueryParams(insertRecord));
     }
 
     private isolated function getSelectQuery(string[] fields) returns sql:ParameterizedQuery {
@@ -385,12 +385,12 @@ public client class SQLClient {
     private isolated function getDeleteQuery() returns sql:ParameterizedQuery {
         return sql:queryConcat(`DELETE FROM `, self.tableName, stringToParameterizedQuery(" " + self.entityName));
     }
- 
+
     private isolated function getJoinFields(string[] include) returns string[] {
         string[] joinFields = [];
         foreach string joinKey in self.joinMetadata.keys() {
             JoinMetadata joinMetadata = self.joinMetadata.get(joinKey);
-            if include.indexOf(joinKey) != () && (joinMetadata.'type == ONE_TO_ONE  || joinMetadata.'type == ONE_TO_MANY) {
+            if include.indexOf(joinKey) != () && (joinMetadata.'type == ONE_TO_ONE || joinMetadata.'type == ONE_TO_MANY) {
                 joinFields.push(joinKey);
             }
         }
@@ -399,12 +399,12 @@ public client class SQLClient {
 
     private isolated function getManyRelationFields(string[] include) returns string[] {
         return from string joinKey in self.joinMetadata.keys()
-               let JoinMetadata joinMetadata = self.joinMetadata.get(joinKey)
-               where include.indexOf(joinKey) != () && joinMetadata.'type == MANY_TO_ONE
-               select joinKey;
+            let JoinMetadata joinMetadata = self.joinMetadata.get(joinKey)
+            where include.indexOf(joinKey) != () && joinMetadata.'type == MANY_TO_ONE
+            select joinKey;
     }
 
-    private isolated function getManyRelationWhereFilter(record{} 'object, JoinMetadata joinMetadata) returns map<string>|Error {
+    private isolated function getManyRelationWhereFilter(record {} 'object, JoinMetadata joinMetadata) returns map<string>|Error {
         map<string> whereFilter = {};
         foreach int i in 0 ..< joinMetadata.refColumns.length() {
             whereFilter[joinMetadata.refColumns[i]] = 'object[check self.getFieldFromColumn(joinMetadata.joinColumns[i])].toBalString();
@@ -415,14 +415,14 @@ public client class SQLClient {
     private isolated function getJoinQuery(string joinKey) returns sql:ParameterizedQuery|Error {
         JoinMetadata joinMetadata = self.joinMetadata.get(joinKey);
         return sql:queryConcat(` LEFT JOIN `, stringToParameterizedQuery(joinMetadata.refTable + " " + joinKey),
-                               ` ON `, check self.getJoinFilters(joinKey, joinMetadata.refColumns, <string[]>joinMetadata.joinColumns));
+                                ` ON `, check self.getJoinFilters(joinKey, joinMetadata.refColumns, <string[]>joinMetadata.joinColumns));
     }
 
     private isolated function getJoinRelationTypedescription(typedesc<record {}>[] typedescriptions, string[] include, string joinKey) returns typedesc<record {}> {
         return typedescriptions[<int>include.indexOf(joinKey)];
     }
 
-    private isolated function removeUnwantedFields(record{} 'object, string[] fields) {
+    private isolated function removeUnwantedFields(record {} 'object, string[] fields) {
         foreach string keyField in self.keyFields {
             if fields.indexOf(keyField) is () {
                 _ = 'object.remove(keyField);
@@ -432,13 +432,13 @@ public client class SQLClient {
 
     private isolated function getInsertableFields() returns string[] {
         return from string key in self.fieldMetadata.keys()
-               where self.fieldMetadata.get(key) is SimpleFieldMetadata
-               select key;
+            where self.fieldMetadata.get(key) is SimpleFieldMetadata
+            select key;
     }
 
     private isolated function getSelectableFields(string[] fields) returns string[] {
         return from string key in self.fieldMetadata.keys()
-               where (fields.indexOf(key) != () || self.keyFields.indexOf(key) != ()) && !key.includes("[]")
-               select key;
+            where (fields.indexOf(key) != () || self.keyFields.indexOf(key) != ()) && !key.includes("[]")
+            select key;
     }
 }
