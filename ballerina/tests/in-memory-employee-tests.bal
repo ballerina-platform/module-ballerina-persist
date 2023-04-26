@@ -17,11 +17,11 @@
 import ballerina/test;
 
 @test:Config {
-    groups: ["employee", "sql"],
-    dependsOn: [sqlWorkspaceDeleteTestNegative, sqlDepartmentDeleteTestNegative]
+    groups: ["employee", "in-memory"],
+    dependsOn: [inMemoryWorkspaceDeleteTestNegative, inMemoryDepartmentDeleteTestNegative]
 }
-function sqlEmployeeCreateTest() returns error? {
-    SQLRainierClient rainierClient = check new ();
+function inMemoryEmployeeCreateTest() returns error? {
+    InMemoryRainierClient rainierClient = check new ();
 
     string[] empNos = check rainierClient->/employees.post([employee1]);
     test:assertEquals(empNos, [employee1.empNo]);
@@ -32,11 +32,11 @@ function sqlEmployeeCreateTest() returns error? {
 }
 
 @test:Config {
-    groups: ["employee", "sql"],
-    dependsOn: [sqlWorkspaceDeleteTestNegative, sqlDepartmentDeleteTestNegative]
+    groups: ["employee", "in-memory"],
+    dependsOn: [inMemoryWorkspaceDeleteTestNegative, inMemoryDepartmentDeleteTestNegative]
 }
-function sqlEmployeeCreateTest2() returns error? {
-    SQLRainierClient rainierClient = check new ();
+function inMemoryEmployeeCreateTest2() returns error? {
+    InMemoryRainierClient rainierClient = check new ();
 
     string[] empNos = check rainierClient->/employees.post([employee2, employee3]);
 
@@ -51,26 +51,11 @@ function sqlEmployeeCreateTest2() returns error? {
 }
 
 @test:Config {
-    groups: ["employee", "sql"]
+    groups: ["employee", "in-memory"],
+    dependsOn: [inMemoryEmployeeCreateTest]
 }
-function sqlEmployeeCreateTestNegative() returns error? {
-    SQLRainierClient rainierClient = check new ();
-
-    string[]|error employee = rainierClient->/employees.post([invalidEmployee]);
-    if employee is Error {
-        test:assertTrue(employee.message().includes("Data truncation: Data too long for column 'empNo' at row 1."));
-    } else {
-        test:assertFail("Error expected.");
-    }
-    check rainierClient.close();
-}
-
-@test:Config {
-    groups: ["employee", "sql"],
-    dependsOn: [sqlEmployeeCreateTest]
-}
-function sqlEmployeeReadOneTest() returns error? {
-    SQLRainierClient rainierClient = check new ();
+function inMemoryEmployeeReadOneTest() returns error? {
+    InMemoryRainierClient rainierClient = check new ();
 
     Employee employeeRetrieved = check rainierClient->/employees/[employee1.empNo].get();
     test:assertEquals(employeeRetrieved, employee1);
@@ -78,15 +63,15 @@ function sqlEmployeeReadOneTest() returns error? {
 }
 
 @test:Config {
-    groups: ["employee", "sql"],
-    dependsOn: [sqlEmployeeCreateTest]
+    groups: ["employee", "in-memory"],
+    dependsOn: [inMemoryEmployeeCreateTest]
 }
-function sqlEmployeeReadOneTestNegative() returns error? {
-    SQLRainierClient rainierClient = check new ();
+function inMemoryEmployeeReadOneTestNegative() returns error? {
+    InMemoryRainierClient rainierClient = check new ();
 
     Employee|error employeeRetrieved = rainierClient->/employees/["invalid-employee-id"].get();
     if employeeRetrieved is InvalidKeyError {
-        test:assertEquals(employeeRetrieved.message(), "A record does not exist for 'Employee' for key \"invalid-employee-id\".");
+        test:assertEquals(employeeRetrieved.message(), "Invalid key: invalid-employee-id");
     } else {
         test:assertFail("InvalidKeyError expected.");
     }
@@ -94,11 +79,11 @@ function sqlEmployeeReadOneTestNegative() returns error? {
 }
 
 @test:Config {
-    groups: ["employee", "sql"],
-    dependsOn: [sqlEmployeeCreateTest, sqlEmployeeCreateTest2]
+    groups: ["employee", "in-memory"],
+    dependsOn: [inMemoryEmployeeCreateTest, inMemoryEmployeeCreateTest2]
 }
-function sqlEmployeeReadManyTest() returns error? {
-    SQLRainierClient rainierClient = check new ();
+function inMemoryEmployeeReadManyTest() returns error? {
+    InMemoryRainierClient rainierClient = check new ();
 
     stream<Employee, Error?> employeeStream = rainierClient->/employees.get();
     Employee[] employees = check from Employee employee in employeeStream
@@ -110,10 +95,10 @@ function sqlEmployeeReadManyTest() returns error? {
 
 @test:Config {
     groups: ["dependent", "employee"],
-    dependsOn: [sqlEmployeeCreateTest, sqlEmployeeCreateTest2]
+    dependsOn: [inMemoryEmployeeCreateTest, inMemoryEmployeeCreateTest2]
 }
-function sqlEmployeeReadManyDependentTest1() returns error? {
-    SQLRainierClient rainierClient = check new ();
+function inMemoryEmployeeReadManyDependentTest1() returns error? {
+    InMemoryRainierClient rainierClient = check new ();
 
     stream<EmployeeName, Error?> employeeStream = rainierClient->/employees.get();
     EmployeeName[] employees = check from EmployeeName employee in employeeStream
@@ -129,10 +114,10 @@ function sqlEmployeeReadManyDependentTest1() returns error? {
 
 @test:Config {
     groups: ["dependent", "employee"],
-    dependsOn: [sqlEmployeeCreateTest, sqlEmployeeCreateTest2]
+    dependsOn: [inMemoryEmployeeCreateTest, inMemoryEmployeeCreateTest2]
 }
-function sqlEmployeeReadManyDependentTest2() returns error? {
-    SQLRainierClient rainierClient = check new ();
+function inMemoryEmployeeReadManyDependentTest2() returns error? {
+    InMemoryRainierClient rainierClient = check new ();
 
     stream<EmployeeInfo2, Error?> employeeStream = rainierClient->/employees.get();
     EmployeeInfo2[] employees = check from EmployeeInfo2 employee in employeeStream
@@ -147,11 +132,11 @@ function sqlEmployeeReadManyDependentTest2() returns error? {
 }
 
 @test:Config {
-    groups: ["employee", "sql"],
-    dependsOn: [sqlEmployeeReadOneTest, sqlEmployeeReadManyTest, sqlEmployeeReadManyDependentTest1, sqlEmployeeReadManyDependentTest2]
+    groups: ["employee", "in-memory"],
+    dependsOn: [inMemoryEmployeeReadOneTest, inMemoryEmployeeReadManyTest, inMemoryEmployeeReadManyDependentTest1, inMemoryEmployeeReadManyDependentTest2]
 }
-function sqlEmployeeUpdateTest() returns error? {
-    SQLRainierClient rainierClient = check new ();
+function inMemoryEmployeeUpdateTest() returns error? {
+    InMemoryRainierClient rainierClient = check new ();
 
     Employee employee = check rainierClient->/employees/[employee1.empNo].put({
         lastName: "Jones",
@@ -167,18 +152,18 @@ function sqlEmployeeUpdateTest() returns error? {
 }
 
 @test:Config {
-    groups: ["employee", "sql"],
-    dependsOn: [sqlEmployeeReadOneTest, sqlEmployeeReadManyTest, sqlEmployeeReadManyDependentTest1, sqlEmployeeReadManyDependentTest2]
+    groups: ["employee", "in-memory"],
+    dependsOn: [inMemoryEmployeeReadOneTest, inMemoryEmployeeReadManyTest, inMemoryEmployeeReadManyDependentTest1, inMemoryEmployeeReadManyDependentTest2]
 }
-function sqlEmployeeUpdateTestNegative1() returns error? {
-    SQLRainierClient rainierClient = check new ();
+function inMemoryEmployeeUpdateTestNegative1() returns error? {
+    InMemoryRainierClient rainierClient = check new ();
 
     Employee|error employee = rainierClient->/employees/["invalid-employee-id"].put({
         lastName: "Jones"
     });
 
     if employee is InvalidKeyError {
-        test:assertEquals(employee.message(), "A record does not exist for 'Employee' for key \"invalid-employee-id\".");
+        test:assertEquals(employee.message(), "Not found: invalid-employee-id");
     } else {
         test:assertFail("InvalidKeyError expected.");
     }
@@ -186,50 +171,11 @@ function sqlEmployeeUpdateTestNegative1() returns error? {
 }
 
 @test:Config {
-    groups: ["employee", "sql"],
-    dependsOn: [sqlEmployeeReadOneTest, sqlEmployeeReadManyTest, sqlEmployeeReadManyDependentTest1, sqlEmployeeReadManyDependentTest2]
+    groups: ["employee", "in-memory"],
+    dependsOn: [inMemoryEmployeeUpdateTest]
 }
-function sqlEmployeeUpdateTestNegative2() returns error? {
-    SQLRainierClient rainierClient = check new ();
-
-    Employee|error employee = rainierClient->/employees/[employee1.empNo].put({
-        firstName: "unncessarily-long-employee-name-to-force-error-on-update"
-    });
-
-    if employee is Error {
-        test:assertTrue(employee.message().includes("Data truncation: Data too long for column 'firstName' at row 1."));
-    } else {
-        test:assertFail("InvalidKeyError expected.");
-    }
-    check rainierClient.close();
-}
-
-@test:Config {
-    groups: ["employee", "sql"],
-    dependsOn: [sqlEmployeeReadOneTest, sqlEmployeeReadManyTest, sqlEmployeeReadManyDependentTest1, sqlEmployeeReadManyDependentTest2]
-}
-function sqlEmployeeUpdateTestNegative3() returns error? {
-    SQLRainierClient rainierClient = check new ();
-
-    Employee|error employee = rainierClient->/employees/[employee1.empNo].put({
-        workspaceWorkspaceId: "invalid-workspaceWorkspaceId"
-    });
-
-    if employee is ForeignKeyConstraintViolationError {
-        test:assertTrue(employee.message().includes("Cannot add or update a child row: a foreign key constraint fails (`test`.`Employee`, " +
-            "CONSTRAINT `Employee_ibfk_2` FOREIGN KEY (`workspaceWorkspaceId`) REFERENCES `Workspace` (`workspaceId`))."));
-    } else {
-        test:assertFail("ForeignKeyConstraintViolationError expected.");
-    }
-    check rainierClient.close();
-}
-
-@test:Config {
-    groups: ["employee", "sql"],
-    dependsOn: [sqlEmployeeUpdateTest, sqlEmployeeUpdateTestNegative2, sqlEmployeeUpdateTestNegative3]
-}
-function sqlEmployeeDeleteTest() returns error? {
-    SQLRainierClient rainierClient = check new ();
+function inMemoryEmployeeDeleteTest() returns error? {
+    InMemoryRainierClient rainierClient = check new ();
 
     Employee employee = check rainierClient->/employees/[employee1.empNo].delete();
     test:assertEquals(employee, updatedEmployee1);
@@ -243,16 +189,16 @@ function sqlEmployeeDeleteTest() returns error? {
 }
 
 @test:Config {
-    groups: ["employee", "sql"],
-    dependsOn: [sqlEmployeeDeleteTest]
+    groups: ["employee", "in-memory"],
+    dependsOn: [inMemoryEmployeeDeleteTest]
 }
-function sqlEmployeeDeleteTestNegative() returns error? {
-    SQLRainierClient rainierClient = check new ();
+function inMemoryEmployeeDeleteTestNegative() returns error? {
+    InMemoryRainierClient rainierClient = check new ();
 
     Employee|error employee = rainierClient->/employees/[employee1.empNo].delete();
 
     if employee is InvalidKeyError {
-        test:assertEquals(employee.message(), string `A record does not exist for 'Employee' for key "${employee1.empNo}".`);
+        test:assertEquals(employee.message(), string `Not found: employee-1`);
     } else {
         test:assertFail("InvalidKeyError expected.");
     }

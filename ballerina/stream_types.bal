@@ -16,12 +16,12 @@
 import ballerina/sql;
 
 public class PersistSQLStream {
-    
+
     private stream<record {}, sql:Error?>? anydataStream;
     private Error? err;
     private string[] fields;
     private string[] include;
-    private typedesc<record{}>[] typeDescriptions;
+    private typedesc<record {}>[] typeDescriptions;
     private SQLClient? persistClient;
     private typedesc<record {}> targetType;
 
@@ -31,12 +31,12 @@ public class PersistSQLStream {
         self.include = include;
         self.targetType = targetType;
 
-        typedesc<record{}>[] typeDescriptionsArray = [];
+        typedesc<record {}>[] typeDescriptionsArray = [];
         foreach any typeDescription in typeDescriptions {
             typeDescriptionsArray.push(<typedesc<record {}>>typeDescription);
         }
         self.typeDescriptions = typeDescriptionsArray;
-    
+
         self.persistClient = persistClient;
         self.err = err;
     }
@@ -64,7 +64,7 @@ public class PersistSQLStream {
                         _ = value.remove(keyField);
                     }
                 }
-                
+
                 record {|record {} value;|} nextRecord = {value: checkpanic value.cloneWithType(self.targetType)};
                 return nextRecord;
             }
@@ -79,12 +79,12 @@ public class PersistSQLStream {
 }
 
 public class PersistInMemoryStream {
-    
+
     private stream<record {}, error?>? anydataStream;
     private Error? err;
     private string[] fields;
     private string[] include;
-    private typedesc<record{}>[] typeDescriptions;
+    private typedesc<record {}>[] typeDescriptions;
     private InMemoryClient? persistClient;
     private typedesc<record {}> targetType;
 
@@ -94,12 +94,12 @@ public class PersistInMemoryStream {
         self.include = include;
         self.targetType = targetType;
 
-        typedesc<record{}>[] typeDescriptionsArray = [];
+        typedesc<record {}>[] typeDescriptionsArray = [];
         foreach any typeDescription in typeDescriptions {
             typeDescriptionsArray.push(<typedesc<record {}>>typeDescription);
         }
         self.typeDescriptions = typeDescriptionsArray;
-    
+
         self.persistClient = persistClient;
         self.err = err;
     }

@@ -18,8 +18,8 @@ public client class InMemoryClient {
 
     private string[] keyFields;
     private function (string[]) returns stream<record {}, Error?> query;
-    private function (anydata) returns record{}|InvalidKeyError queryOne;
-    private map<function (record {}, string[]) returns record{}[]> associationsMethods;
+    private function (anydata) returns record {}|InvalidKeyError queryOne;
+    private map<function (record {}, string[]) returns record {}[]> associationsMethods;
 
     public function init(TableMetadata metadata) returns Error? {
         self.keyFields = metadata.keyFields;
@@ -48,17 +48,17 @@ public client class InMemoryClient {
     }
 
     public isolated function getManyRelations(record {} 'object, string[] fields, string[] include, typedesc<record {}>[] typeDescriptions) returns Error? {
-        foreach int i in 0..< include.length() {
+        foreach int i in 0 ..< include.length() {
             string entity = include[i];
             string[] relationFields = from string 'field in fields
-                                      where 'field.startsWith(entity + "[].")
-                                      select 'field.substring(entity.length() + 3, 'field.length());
+                where 'field.startsWith(entity + "[].")
+                select 'field.substring(entity.length() + 3, 'field.length());
 
             if relationFields.length() is 0 {
                 continue;
             }
 
-            function (record {}, string[]) returns record{}[] associationsMethod = self.associationsMethods.get(entity);
+            function (record {}, string[]) returns record {}[] associationsMethod = self.associationsMethods.get(entity);
             record {}[] relations = associationsMethod('object, relationFields);
             'object[entity] = relations;
         }
@@ -96,7 +96,7 @@ public client class InMemoryClient {
         return updatedFields;
     }
 
-    private isolated function removeUnwantedFields(record{} 'object, string[] fields) {
+    private isolated function removeUnwantedFields(record {} 'object, string[] fields) {
         foreach string keyField in self.keyFields {
             if fields.indexOf(keyField) is () {
                 _ = 'object.remove(keyField);
