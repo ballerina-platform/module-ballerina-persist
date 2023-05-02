@@ -26,6 +26,12 @@ configurable string database = ?;
 configurable string password = ?;
 configurable mysql:Options connectionOptions = {};
 
+configurable string clientId = ?;
+configurable string clientSecret = ?;
+configurable string refreshToken = ?;
+configurable string spreadsheetId = ?;
+configurable string refreshUrl = ?;
+
 @test:BeforeSuite
 function truncate() returns error? {
     mysql:Client dbClient = check new (host = host, user = user, password = password, database = database, port = port);

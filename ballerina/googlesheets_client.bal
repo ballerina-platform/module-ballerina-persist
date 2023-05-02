@@ -40,7 +40,6 @@ public client class GoogleSheetsClient {
     private string range;
     private map<SheetFieldMetadata> fieldMetadata;
     private string[] keyFields;
-    private map<JoinMetadata> joinMetadata = {};
 
     # Initializes the `GSheetClient`.
     #
@@ -49,7 +48,7 @@ public client class GoogleSheetsClient {
     # + metadata - Metadata of the entity
     # + spreadsheetId - Id of the spreadsheet
     # + return - A `persist:Error` if the client creation fails
-    public function init(sheets:Client googleSheetClient, http:Client httpClient, SheetMetadata sheetMetadata, string spreadsheetId) returns error? {
+    public function init(sheets:Client googleSheetClient, http:Client httpClient, SheetMetadata sheetMetadata, string spreadsheetId) returns Error? {
         self.entityName = sheetMetadata.entityName;
         self.spreadsheetId = spreadsheetId;
         self.tableName = sheetMetadata.tableName;
@@ -58,9 +57,6 @@ public client class GoogleSheetsClient {
         self.httpClient = httpClient;
         self.keyFields = sheetMetadata.keyFields;
         self.googleSheetClient = googleSheetClient;
-        if sheetMetadata.joinMetadata is map<JoinMetadata> {
-            self.joinMetadata = <map<JoinMetadata>>sheetMetadata.joinMetadata;
-        }
     }
 
     # Performs an append operation to insert entity instances into a table.
@@ -77,7 +73,7 @@ public client class GoogleSheetsClient {
             sheets:Row[]|error output = self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, sheet.properties.sheetId, filter);
             if (output !is error) {
                 if (output.length() > 0) {
-                    return <error>error("Error: record already exists. " + rowValues.toString());
+                    return <Error>error("Error: record already exists. " + rowValues.toString());
                 }
             }
             (int|string|decimal)[] values = [];

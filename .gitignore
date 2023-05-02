@@ -56,3 +56,4 @@ gradle-app.setting
 # Examples
 examples/**/Dependencies.toml
 /compiler-plugin-test/bin/
+ballerina/tests/Config.toml

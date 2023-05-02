@@ -53,7 +53,7 @@ public type SheetMetadata record {|
     map<SheetFieldMetadata> fieldMetadata;
     string[] keyFields;
     string range;
-    map<JoinMetadata> joinMetadata?;
+    map<function (record {}, string[]) returns record {}[]> associationsMethods = {};
 |};
 
 # Represents the metadata associated with a simple field in the entity record.
