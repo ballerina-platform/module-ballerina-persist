@@ -104,6 +104,18 @@ public class CodeActionTest {
                 {"mandatory-relation-field.bal", LinePosition.from(58, 10),
                         "mandatory-relation-entity-optional-type.bal",
                         "PERSIST_005", "ADD_SINGLE_TEXT", "Add corresponding relation field in 'Building3' entity"},
+                {"mandatory-relation-multiple-field-1.bal", LinePosition.from(13, 10),
+                        "mandatory-relation-multiple-field-1.bal",
+                        "PERSIST_005", "ADD_SINGLE_TEXT", "Add corresponding 1-n relation field in 'User' entity"},
+                {"mandatory-relation-multiple-field-2.bal", LinePosition.from(13, 10),
+                        "mandatory-relation-multiple-field-2.bal",
+                        "PERSIST_005", "ADD_SINGLE_TEXT", "Add corresponding 1-1 relation field in 'User' entity"},
+                {"mandatory-relation-multiple-field-3.bal", LinePosition.from(15, 10),
+                        "mandatory-relation-multiple-field-3.bal",
+                        "PERSIST_005", "ADD_SINGLE_TEXT", "Add corresponding 1-1 relation field in 'User' entity"},
+                {"mandatory-relation-multiple-field-4.bal", LinePosition.from(11, 10),
+                        "mandatory-relation-multiple-field-4.bal",
+                        "PERSIST_005", "ADD_SINGLE_TEXT", "Add corresponding 1-1 relation field in 'User' entity"},
 
                 // PERSIST_403
                 {"different-owners.bal", LinePosition.from(9, 9), "different-owners-building.bal",
@@ -149,7 +161,6 @@ public class CodeActionTest {
 
                 {"identifier-field-properties.bal", LinePosition.from(16, 15), "identifier-field-properties.bal",
                         "PERSIST_503", "CHANGE_TYPE_TO_STRING", "Change to 'string' type"},
-
         };
     }
 
@@ -172,16 +183,9 @@ public class CodeActionTest {
             throws IOException {
         Project project = ProjectLoader.loadProject(filePath, getEnvironmentBuilder());
         List<CodeActionInfo> codeActions = getCodeActions(filePath, cursorPos, project);
-        Assert.assertTrue(codeActions.size() > 0, "Expected at least 1 code action");
+        CodeActionInfo codeAction = validateCodeAction(codeActions, expected);
+        List<DocumentEdit> actualEdits = executeCodeAction(project, filePath, codeAction);
 
-        Optional<CodeActionInfo> found = codeActions.stream()
-                // Code action args are not validated due to intermittent order change when converting to json
-                .filter((codeActionInfo) -> expected.getTitle().equals(codeActionInfo.getTitle()) &&
-                        expected.getProviderName().equals(codeActionInfo.getProviderName()))
-                .findFirst();
-        Assert.assertTrue(found.isPresent(), "Code action not found:" + expected);
-
-        List<DocumentEdit> actualEdits = executeCodeAction(project, filePath, found.get());
         // Changes to 1 file expected
         Assert.assertEquals(actualEdits.size(), 1, "Expected changes to 1 file");
 
@@ -196,6 +200,17 @@ public class CodeActionTest {
         String expectedSourceCode = Files.readString(expectedSrc);
         Assert.assertEquals(modifiedSourceCode, expectedSourceCode,
                 "Actual source code didn't match expected source code");
+    }
+
+    private CodeActionInfo validateCodeAction(List<CodeActionInfo> found, CodeActionInfo expected) {
+        Assert.assertTrue(found.size() > 0, "Expected at least 1 code action");
+        Optional<CodeActionInfo> foundCodeAction = found.stream()
+                // Code action args are not validated due to intermittent order change when converting to json
+                .filter((codeActionInfo) -> expected.getTitle().equals(codeActionInfo.getTitle()) &&
+                        expected.getProviderName().equals(codeActionInfo.getProviderName()))
+                .findFirst();
+        Assert.assertTrue(foundCodeAction.isPresent(), "Code action not found:" + expected);
+        return foundCodeAction.get();
     }
 
     private List<CodeActionInfo> getCodeActions(Path filePath, LinePosition cursorPos, Project project) {

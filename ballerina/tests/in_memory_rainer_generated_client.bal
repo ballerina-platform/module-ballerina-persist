@@ -187,7 +187,6 @@ public client class InMemoryRainierClient {
             if self.workspaces.hasKey(value.workspaceId) {
                 return <DuplicateKeyError>error("Duplicate key: " + value.workspaceId);
             }
-            // TODO: add .clone() to the generated code
             self.workspaces.put(value.clone());
             keys.push(value.workspaceId);
         }

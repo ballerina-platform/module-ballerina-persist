@@ -3,7 +3,7 @@
 _Owners_: @daneshk @niveathika @kaneeldias  
 _Reviewers_: @daneshk  
 _Created_: 2022/01/25   
-_Updated_: 2022/03/08  
+_Updated_: 2023/04/26  
 _Edition_: Swan Lake  
 
 ## Introduction
@@ -97,7 +97,7 @@ Simple Types are mapped to native data source types as follows:
     | float | DOUBLE |
     | decimal | DECIMAL(65,30) |
     | string | VARCHAR(191) |
-    | byte[] | BINARY |
+    | byte[] | LONGBLOB |
     | time:Date | DATE |
     | time:TimeOfDay | TIME |
     | time:Utc | TIMESTAMP |
