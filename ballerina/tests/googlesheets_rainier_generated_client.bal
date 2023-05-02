@@ -32,72 +32,98 @@ public client class SheetsRainierClient {
 
     private final map<GoogleSheetsClient> persistClients;
 
-    private final record {|SheetMetadata...;|} metadata = {
-        [EMPLOYEE] : {
-            entityName: "Employee",
-            tableName: "Employee",
-            fieldMetadata: {
-                empNo: {columnName: "empNo", columnId: "A"},
-                firstName: {columnName: "firstName", columnId: "B"},
-                lastName: {columnName: "lastName", columnId: "C"},
-                birthDate: {columnName: "birthDate", columnId: "D"},
-                gender: {columnName: "gender", columnId: "E"},
-                hireDate: {columnName: "hireDate", columnId: "F"},
-                departmentDeptNo: {columnName: "departmentDeptNo", columnId: "G"},
-                workspaceWorkspaceId: {columnName: "workspaceWorkspaceId", columnId: "H"}
-            },
-            range: "A:H",
-            keyFields: ["empNo"]
-        },
-        [WORKSPACE] : {
-            entityName: "Workspace",
-            tableName: "Workspace",
-            fieldMetadata: {
-                workspaceId: {columnName: "workspaceId", columnId: "A"},
-                workspaceType: {columnName: "workspaceType", columnId: "B"},
-                locationBuildingCode: {columnName: "locationBuildingCode", columnId: "C"}
-            },
-            range: "A:C",
-            keyFields: ["workspaceId"]
-        },
-        [BUILDING] : {
-            entityName: "Building",
-            tableName: "Building",
-            fieldMetadata: {
-                buildingCode: {columnName: "buildingCode", columnId: "A"},
-                city: {columnName: "city", columnId: "B"},
-                state: {columnName: "state", columnId: "C"},
-                country: {columnName: "country", columnId: "D"},
-                postalCode: {columnName: "postalCode", columnId: "E"}
-            },
-            range: "A:E",
-            keyFields: ["buildingCode"]
-        },
-        [DEPARTMENT] : {
-            entityName: "Department",
-            tableName: "Department",
-            fieldMetadata: {
-                deptNo: {columnName: "deptNo", columnId: "A"},
-                deptName: {columnName: "deptName", columnId: "B"}
-            },
-            range: "A:B",
-            keyFields: ["deptNo"]
-        },
-        [ORDER_ITEM] : {
-            entityName: "OrderItem",
-            tableName: "OrderItem",
-            fieldMetadata: {
-                orderId: {columnName: "orderId", columnId: "A"},
-                itemId: {columnName: "itemId", columnId: "B"},
-                quantity: {columnName: "quantity", columnId: "C"},
-                notes: {columnName: "notes", columnId: "D"}
-            },
-            range: "A:B",
-            keyFields: ["orderId", "itemId"]
-        }
-    };
-
     public function init() returns Error? {
+
+        final record {|SheetMetadata...;|} metadata = {
+            [EMPLOYEE] : {
+                entityName: "Employee",
+                tableName: "Employee",
+                fieldMetadata: {
+                    empNo: {columnName: "empNo", columnId: "A"},
+                    firstName: {columnName: "firstName", columnId: "B"},
+                    lastName: {columnName: "lastName", columnId: "C"},
+                    birthDate: {columnName: "birthDate", columnId: "D"},
+                    gender: {columnName: "gender", columnId: "E"},
+                    hireDate: {columnName: "hireDate", columnId: "F"},
+                    departmentDeptNo: {columnName: "departmentDeptNo", columnId: "G"},
+                    workspaceWorkspaceId: {columnName: "workspaceWorkspaceId", columnId: "H"}
+                },
+                keyFields: ["empNo"],
+                range: "A:H",
+                dataTypes: {empNo: "int", firstName: "string", lastName: "string", birthDate: "date", gender:"string", hireDate:"date", departmentDeptNo: "string", workspaceWorkspaceId:"string"},
+                queryOne: self.queryOneEmployees,
+                query:self.queryEmployees
+            },
+
+            [WORKSPACE] : {
+                entityName: "Workspace",
+                tableName: "Workspace",
+                fieldMetadata: {
+                    workspaceId: {columnName: "workspaceId", columnId: "A"},
+                    workspaceType: {columnName: "workspaceType", columnId: "B"},
+                    locationBuildingCode: {columnName: "locationBuildingCode", columnId: "C"}
+                },
+                range: "A:C",
+                dataTypes: {workspaceId: "string", workspaceType: "string", locationBuildingCode: "string"},
+                keyFields: ["workspaceId"],
+                query: self.queryWorkspaces,
+                queryOne: self.queryOneWorkspaces,
+                associationsMethods: {
+                    "employees": self.queryWorkspacesEmployees
+                }
+            },
+            [BUILDING] : {
+                entityName: "Building",
+                tableName: "Building",
+                fieldMetadata: {
+                    buildingCode: {columnName: "buildingCode", columnId: "A"},
+                    city: {columnName: "city", columnId: "B"},
+                    state: {columnName: "state", columnId: "C"},
+                    country: {columnName: "country", columnId: "D"},
+                    postalCode: {columnName: "postalCode", columnId: "E"},
+                    'type: {columnName: "type", columnId: "F"}
+                },
+                range: "A:G",
+                dataTypes: {buildingCode: "string", city: "string", state: "string", country:"string", postalCode:"string", 'type:"string"},
+                keyFields: ["buildingCode"],
+                query: self.queryBuildings,
+                queryOne: self.queryOneBuildings,
+                associationsMethods: {
+                    "workspaces": self.queryBuildingsWorkspaces
+                }
+            },
+            [DEPARTMENT] : {
+                entityName: "Department",
+                tableName: "Department",
+                fieldMetadata: {
+                    deptNo: {columnName: "deptNo", columnId: "A"},
+                    deptName: {columnName: "deptName", columnId: "B"}
+                },
+                range: "A:B",
+                dataTypes: {deptNo: "string", deptName: "string"},
+                keyFields: ["deptNo"],
+                query: self.queryDepartments,
+                queryOne: self.queryOneDepartments,
+                associationsMethods: {
+                    "employees": self.queryDepartmentsEmployees
+                }
+            },
+            [ORDER_ITEM] : {
+                entityName: "OrderItem",
+                tableName: "OrderItem",
+                fieldMetadata: {
+                    orderId: {columnName: "orderId", columnId: "A"},
+                    itemId: {columnName: "itemId", columnId: "B"},
+                    quantity: {columnName: "quantity", columnId: "C"},
+                    notes: {columnName: "notes", columnId: "D"}
+                },
+                range: "A:B",
+                dataTypes: {orderId: "string", itemId: "string", quantity: "int", notes:"string"},
+                keyFields: ["orderId", "itemId"],
+                query: self.queryOrderItems,
+                queryOne: self.queryOneOrderItems
+            }
+        };
         sheets:ConnectionConfig sheetsClientConfig = {
             auth: {
                 clientId: clientId,
@@ -127,11 +153,11 @@ public client class SheetsRainierClient {
         self.googleSheetClient = googleSheetClient;
         self.httpClient = httpClient;
         self.persistClients = {
-            [EMPLOYEE] : check new (self.googleSheetClient, self.httpClient, self.metadata.get(EMPLOYEE), spreadsheetId),
-            [WORKSPACE] : check new (self.googleSheetClient, self.httpClient, self.metadata.get(WORKSPACE), spreadsheetId),
-            [BUILDING] : check new (self.googleSheetClient, self.httpClient, self.metadata.get(BUILDING), spreadsheetId),
-            [DEPARTMENT] : check new (self.googleSheetClient, self.httpClient, self.metadata.get(DEPARTMENT), spreadsheetId),
-            [ORDER_ITEM] : check new (self.googleSheetClient, self.httpClient, self.metadata.get(ORDER_ITEM), spreadsheetId)
+            [EMPLOYEE] : check new (self.googleSheetClient, self.httpClient, metadata.get(EMPLOYEE), spreadsheetId),
+            [WORKSPACE] : check new (self.googleSheetClient, self.httpClient, metadata.get(WORKSPACE), spreadsheetId),
+            [BUILDING] : check new (self.googleSheetClient, self.httpClient, metadata.get(BUILDING), spreadsheetId),
+            [DEPARTMENT] : check new (self.googleSheetClient, self.httpClient, metadata.get(DEPARTMENT), spreadsheetId),
+            [ORDER_ITEM] : check new (self.googleSheetClient, self.httpClient, metadata.get(ORDER_ITEM), spreadsheetId)
         };
     }
 
@@ -273,5 +299,174 @@ public client class SheetsRainierClient {
     public function close() returns error? {
         return ();
     }
+
+    private isolated function queryEmployees(string[] fields) returns stream<record {}, Error?>|Error {
+        stream<Employee, Error?> employeesStream = <stream<Employee, Error?>>(check self.persistClients.get(EMPLOYEE).readTableAsStream());
+        stream<Department, Error?> departmenttStream = <stream<Department, Error?>>(check self.persistClients.get(DEPARTMENT).readTableAsStream());
+        stream<Workspace, Error?> workspacesStream = <stream<Workspace, Error?>>(check self.persistClients.get(WORKSPACE).readTableAsStream());
+
+        return from record {} 'object in employeesStream
+            outer join var department in departmenttStream
+            on 'object.departmentDeptNo equals department?.deptNo
+            outer join var workspace in workspacesStream
+            on 'object.workspaceWorkspaceId equals workspace?.workspaceId
+            select filterRecord(
+                {
+                ...'object,
+                "department": department,
+                "workspace": workspace
+            }, fields);
+    }
+
+    private isolated function queryOneEmployees(anydata key) returns record {}|error {
+        stream<Employee, Error?> employeesStream = <stream<Employee, Error?>>(check self.persistClients.get(EMPLOYEE).readTableAsStream());
+        stream<Department, Error?> departmenttStream = <stream<Department, Error?>>(check self.persistClients.get(DEPARTMENT).readTableAsStream());
+        stream<Workspace, Error?> workspacesStream = <stream<Workspace, Error?>>(check self.persistClients.get(WORKSPACE).readTableAsStream());
+        //check with kaneel
+        error? unionResult = from record {} 'object in employeesStream
+            where self.persistClients.get(EMPLOYEE).getKey('object) == key
+            outer join var department in departmenttStream
+            on 'object.departmentDeptNo equals department?.deptNo
+            outer join var workspace in workspacesStream
+            on 'object.workspaceWorkspaceId equals workspace?.workspaceId
+            do {
+                return {
+                    ...'object,
+                    "department": department,
+                    "workspace": workspace
+                };
+            };
+        if unionResult is error {
+            return <Error>error(unionResult.message());
+        }
+        return <InvalidKeyError>error("Invalid key: " + key.toString());
+    }
+    private isolated function queryBuildings(string[] fields) returns stream<record {}, Error?>|Error {
+        stream<Building, Error?> buildingsStream = <stream<Building, Error?>>(check self.persistClients.get(BUILDING).readTableAsStream());
+        return from record {} 'object in buildingsStream
+            select filterRecord({
+                ...'object
+            }, fields);
+    }
+
+    private isolated function queryOneBuildings(anydata key) returns record {}|error {
+        stream<Building, Error?> buildingsStream = <stream<Building, Error?>>(check self.persistClients.get(BUILDING).readTableAsStream());
+        error? unionResult = from record {} 'object in buildingsStream
+            where self.persistClients.get(BUILDING).getKey('object) == key
+            do {
+                return {
+                    ...'object
+                };
+            };
+        if unionResult is error {
+            return <Error>error(unionResult.message());
+        }
+        return <InvalidKeyError>error("Invalid key: " + key.toString());
+    }
+
+    private isolated function queryBuildingsWorkspaces(record {} value, string[] fields) returns record {}[]|error {
+        stream<Workspace, Error?> workspacesStream = <stream<Workspace, Error?>>(check self.persistClients.get(WORKSPACE).readTableAsStream());
+        return from record {} 'object in workspacesStream
+            where 'object.locationBuildingCode == value["buildingCode"]
+            select filterRecord({
+                ...'object
+            }, fields);
+    }
+
+    private isolated function queryDepartments(string[] fields) returns stream<record {}, Error?>|Error {
+        stream<Department, Error?> departmenttStream = <stream<Department, Error?>>(check self.persistClients.get(DEPARTMENT).readTableAsStream());
+        return from record {} 'object in departmenttStream
+            select filterRecord({
+                ...'object
+            }, fields);
+    }
+
+    private isolated function queryOneDepartments(anydata key) returns record {}|error {
+        stream<Department, Error?> departmenttStream = <stream<Department, Error?>>(check self.persistClients.get(DEPARTMENT).readTableAsStream());
+        error? unionResult = from record {} 'object in departmenttStream
+            where self.persistClients.get(DEPARTMENT).getKey('object) == key
+            do {
+                return {
+                    ...'object
+                };
+            };
+        if unionResult is error {
+            return <Error>error(unionResult.message());
+        }
+        return <InvalidKeyError>error("Invalid key: " + key.toString());
+    }
+
+    private isolated function queryDepartmentsEmployees(record {} value, string[] fields) returns record {}[]|error {
+        stream<Employee, Error?> employeesStream = <stream<Employee, Error?>>(check self.persistClients.get(EMPLOYEE).readTableAsStream());
+        return from record {} 'object in employeesStream
+            where 'object.departmentDeptNo == value["deptNo"]
+            select filterRecord({
+                ...'object
+            }, fields);
+    }
+
+    private isolated function queryWorkspaces(string[] fields) returns stream<record {}, Error?>|Error {
+        stream<Workspace, Error?> workspacesStream = <stream<Workspace, Error?>>(check self.persistClients.get(WORKSPACE).readTableAsStream());
+        stream<Building, Error?> buildingsStream = <stream<Building, Error?>>(check self.persistClients.get(BUILDING).readTableAsStream());
+        return from record {} 'object in workspacesStream
+            outer join var location in buildingsStream
+            on 'object.locationBuildingCode equals location?.buildingCode
+            select filterRecord({
+                ...'object,
+                "location": location
+            }, fields);
+    }
+
+    private isolated function queryOneWorkspaces(anydata key) returns record {}|error {
+        stream<Workspace, Error?> workspacesStream = <stream<Workspace, Error?>>(check self.persistClients.get(WORKSPACE).readTableAsStream());
+        stream<Building, Error?> buildingsStream = <stream<Building, Error?>>(check self.persistClients.get(BUILDING).readTableAsStream());
+        error? unionResult = from record {} 'object in workspacesStream
+            where self.persistClients.get(WORKSPACE).getKey('object) == key
+            outer join var location in buildingsStream
+            on 'object.locationBuildingCode equals location?.buildingCode
+            do {
+                return {
+                    ...'object,
+                    "location": location
+                };
+            };
+        if unionResult is error {
+            return <Error>error(unionResult.message());
+        }
+        return <InvalidKeyError>error("Invalid key: " + key.toString());
+    }
+
+    private isolated function queryWorkspacesEmployees(record {} value, string[] fields) returns record {}[]|error {
+        stream<Employee, Error?> employeesStream = <stream<Employee, Error?>>(check self.persistClients.get(EMPLOYEE).readTableAsStream());
+        return from record {} 'object in employeesStream
+            where 'object.workspaceWorkspaceId == value["workspaceId"]
+            select filterRecord({
+                ...'object
+            }, fields);
+    }
+
+    private isolated function queryOrderItems(string[] fields) returns stream<record {}, Error?>|Error {
+        stream<OrderItem, Error?> orderItemsStream = <stream<OrderItem, Error?>>(check self.persistClients.get(ORDER_ITEM).readTableAsStream());
+        return from record {} 'object in orderItemsStream
+            select filterRecord({
+                ...'object
+            }, fields);
+    }
+
+    private isolated function queryOneOrderItems(anydata key) returns record {}|error {
+        stream<OrderItem, Error?> orderItemsStream = <stream<OrderItem, Error?>>(check self.persistClients.get(ORDER_ITEM).readTableAsStream());
+        error? unionResult = from record {} 'object in orderItemsStream
+            where self.persistClients.get(ORDER_ITEM).getKey('object) == key
+            do {
+                return {
+                    ...'object
+                };
+            };
+        if unionResult is error {
+            return <Error>error(unionResult.message());
+        }
+        return <InvalidKeyError>error("Invalid key: " + key.toString());
+    }
+
 }
 

@@ -39,6 +39,7 @@ public client class GoogleSheetsClient {
     private string tableName;
     private string range;
     private map<SheetFieldMetadata> fieldMetadata;
+    private map<string> dataTypes;
     private string[] keyFields;
 
     # Initializes the `GSheetClient`.
@@ -57,6 +58,7 @@ public client class GoogleSheetsClient {
         self.httpClient = httpClient;
         self.keyFields = sheetMetadata.keyFields;
         self.googleSheetClient = googleSheetClient;
+        self.dataTypes = sheetMetadata.dataTypes;
     }
 
     # Performs an append operation to insert entity instances into a table.
@@ -196,6 +198,67 @@ public client class GoogleSheetsClient {
         }
     }
 
+    # + return - A stream of records in the `rowType` type or a `persist:Error` if the operation fails
+    public isolated function readTableAsStream() returns stream<record {}, Error?>|Error {
+        sheets:Sheet|error sheet = self.googleSheetClient->getSheetByName(self.spreadsheetId, self.tableName);
+        if sheet is error {
+            return <Error>error(sheet.message());
+        }
+        string query = "select *";
+        string|error encodedQuery = url:encode(query, "UTF-8");
+        if encodedQuery is error {
+            return <Error>error(encodedQuery.message());
+        }
+        http:QueryParams queries = {"gid": (<sheets:Sheet>sheet).properties.sheetId, "range": self.range, "tq": <string>encodedQuery, "tqx": "out:json"};
+        http:Response|error response = self.httpClient->/d/[self.spreadsheetId]/gviz/tq(params = queries);
+        if response is error {
+            return <Error>error(response.message());
+        }
+        string|error textResponse = response.getTextPayload();
+        if (textResponse !is error) {
+            map<json>|error payload = textResponse.substring(47, textResponse.length() - 2).fromJsonStringWithType();
+            if payload is error {
+                return <Error>error(payload.message());
+            }
+
+            Table|error workSheet = payload["table"].fromJsonWithType();
+            if workSheet is error {
+                return <Error>error(workSheet.message());
+            }
+            string[] columnNames = [];
+            record {}[] rowTable = [];
+            foreach map<json> item in workSheet.cols {
+                columnNames.push(item["label"].toString());
+            }
+            foreach RowValues value in workSheet.rows {
+                int i = 0;
+                record {} rowArray = {};
+                foreach map<json> item in value.c {
+                    string dataType = self.dataTypes.get(columnNames[i]).toString();
+                    if (dataType == "int") {
+                        (string|int|decimal)|error typedValue = self.dataConverter(item["f"], dataType);
+                        if typedValue is error {
+                            return <Error>error(typedValue.message());
+                        }
+                        rowArray[columnNames[i]] = <(string|int|decimal)>typedValue;
+                    } else {
+                        (string|int|decimal)|error typedValue = self.dataConverter(item["v"], dataType);
+                        if typedValue is error {
+                            return <Error>error(typedValue.message());
+                        }
+                        rowArray[columnNames[i]] = <(string|int|decimal)>typedValue;
+                    }
+                    i = i + 1;
+                }
+                rowTable.push(rowArray);
+
+            }
+            return rowTable.toStream();
+        } else {
+            return <Error>error(textResponse.message());
+        }
+    }
+
     # Performs an SQL `UPDATE` operation to update multiple entity records in the database.
     #
     # + key - the key of the entity
@@ -285,18 +348,18 @@ public client class GoogleSheetsClient {
         return self.keyFields;
     }
 
-    private isolated function getKey(anydata|record {} 'object) returns record {} {
-        record {} keyRecord = {};
+    // private isolated function getKey(anydata|record {} 'object) returns record {} {
+    //     record {} keyRecord = {};
 
-        if 'object is record {} {
-            foreach string key in self.keyFields {
-                keyRecord[key] = 'object[key];
-            }
-        } else {
-            keyRecord[self.keyFields[0]] = 'object;
-        }
-        return keyRecord;
-    }
+    //     if 'object is record {} {
+    //         foreach string key in self.keyFields {
+    //             keyRecord[key] = 'object[key];
+    //         }
+    //     } else {
+    //         keyRecord[self.keyFields[0]] = 'object;
+    //     }
+    //     return keyRecord;
+    // }
 
     private isolated function dataConverter(json value, string dataType) returns int|string|decimal|error {
         if (dataType == "int") {
@@ -374,6 +437,23 @@ public client class GoogleSheetsClient {
             columnIds += fieldMetadata.columnId;
         }
         return columnIds;
+    }
+
+    public isolated function getKey(anydata|record {} 'object) returns anydata|record {} {
+        record {} keyRecord = {};
+
+        if self.keyFields.length() == 1 && 'object is record {} {
+            return 'object[self.keyFields[0]];
+        }
+
+        if 'object is record {} {
+            foreach string key in self.keyFields {
+                keyRecord[key] = 'object[key];
+            }
+        } else {
+            keyRecord[self.keyFields[0]] = 'object;
+        }
+        return keyRecord;
     }
 
 }
