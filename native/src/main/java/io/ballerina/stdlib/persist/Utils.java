@@ -35,6 +35,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.transactions.TransactionResourceManager;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -179,4 +180,21 @@ public class Utils {
                 TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE)
         );
     }
+
+    private static boolean isWithinTrxBlock(TransactionResourceManager trxResourceManager) {
+        return trxResourceManager.isInTransaction() &&
+                trxResourceManager.getCurrentTransactionContext().hasTransactionBlock();
+    }
+
+    public static Map<String, Object> getTransactionContextProperties() {
+        Map<String, Object> properties = null;
+        TransactionResourceManager trxResourceManager = TransactionResourceManager.getInstance();
+        if (isWithinTrxBlock(trxResourceManager)) {
+            properties = new HashMap<>();
+            properties.put(Constants.CURRENT_TRANSACTION_CONTEXT, trxResourceManager.getCurrentTransactionContext());
+        }
+
+        return properties;
+    }
+
 }

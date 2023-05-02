@@ -38,6 +38,8 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.stdlib.persist.Constants;
 import io.ballerina.stdlib.persist.ModuleUtils;
 
+import java.util.Map;
+
 import static io.ballerina.stdlib.persist.Constants.ERROR;
 import static io.ballerina.stdlib.persist.Constants.KEY_FIELDS;
 import static io.ballerina.stdlib.persist.Utils.getEntity;
@@ -45,6 +47,7 @@ import static io.ballerina.stdlib.persist.Utils.getKey;
 import static io.ballerina.stdlib.persist.Utils.getMetadata;
 import static io.ballerina.stdlib.persist.Utils.getPersistClient;
 import static io.ballerina.stdlib.persist.Utils.getRecordTypeWithKeyFields;
+import static io.ballerina.stdlib.persist.Utils.getTransactionContextProperties;
 
 /**
  * This class provides the MySQL query processing implementations for persistence.
@@ -66,6 +69,8 @@ public class MySQLProcessor {
         BTypedesc targetTypeWithIdFields = ValueCreator.createTypedescValue(recordTypeWithIdFields);
         StreamType streamTypeWithIdFields = TypeCreator.createStreamType(recordTypeWithIdFields,
                 PredefinedTypes.TYPE_NULL);
+
+        Map<String, Object> trxContextProperties = getTransactionContextProperties();
 
         BArray[] metadata = getMetadata(recordType);
         BArray fields = metadata[0];
@@ -96,7 +101,7 @@ public class MySQLProcessor {
                     public void notifyFailure(BError bError) {
                         balFuture.complete(bError);
                     }
-                }, null, streamTypeWithIdFields,
+                }, trxContextProperties, streamTypeWithIdFields,
                 targetTypeWithIdFields, true, fields, true, includes, true
         );
 
@@ -104,10 +109,14 @@ public class MySQLProcessor {
     }
 
     public static Object queryOne(Environment env, BObject client, BArray path, BTypedesc targetType) {
+
         BString entity = getEntity(env);
         BObject persistClient = getPersistClient(client, entity);
+
         BArray keyFields = (BArray) persistClient.get(KEY_FIELDS);
         RecordType recordType = (RecordType) targetType.getDescribingType();
+
+        Map<String, Object> trxContextProperties = getTransactionContextProperties();
 
         RecordType recordTypeWithIdFields = getRecordTypeWithKeyFields(keyFields, recordType);
         BTypedesc targetTypeWithIdFields = ValueCreator.createTypedescValue(recordTypeWithIdFields);
@@ -134,7 +143,7 @@ public class MySQLProcessor {
                     public void notifyFailure(BError bError) {
                         balFuture.complete(bError);
                     }
-                },  null, unionType,
+                },  trxContextProperties, unionType,
                 targetType, true, targetTypeWithIdFields, true, key, true, fields, true, includes, true,
                 typeDescriptions, true
         );

@@ -41,6 +41,7 @@ public final class Constants {
     public static final String RUN_READ_BY_KEY_QUERY_METHOD = "runReadByKeyQuery";
     public static final Module BALLERINA_ANNOTATIONS_MODULE = new Module("ballerina", "lang.annotations", "0.0.0");
     public static final String DEFAULT_STREAM_CONSTRAINT_NAME = "$stream$anon$constraint$";
+    public static final String CURRENT_TRANSACTION_CONTEXT = "currentTrxContext";
 
     /**
      * Constant related to the Ballerina time types.
