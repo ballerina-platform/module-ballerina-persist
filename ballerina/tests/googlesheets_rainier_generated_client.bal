@@ -152,12 +152,13 @@ public client class SheetsRainierClient {
         }
         self.googleSheetClient = googleSheetClient;
         self.httpClient = httpClient;
+        map<int> sheetIds = check getSheetIds(self.googleSheetClient, metadata, spreadsheetId);
         self.persistClients = {
-            [EMPLOYEE] : check new (self.googleSheetClient, self.httpClient, metadata.get(EMPLOYEE), spreadsheetId),
-            [WORKSPACE] : check new (self.googleSheetClient, self.httpClient, metadata.get(WORKSPACE), spreadsheetId),
-            [BUILDING] : check new (self.googleSheetClient, self.httpClient, metadata.get(BUILDING), spreadsheetId),
-            [DEPARTMENT] : check new (self.googleSheetClient, self.httpClient, metadata.get(DEPARTMENT), spreadsheetId),
-            [ORDER_ITEM] : check new (self.googleSheetClient, self.httpClient, metadata.get(ORDER_ITEM), spreadsheetId)
+            [EMPLOYEE] : check new (self.googleSheetClient, self.httpClient, metadata.get(EMPLOYEE), spreadsheetId, sheetIds.get(EMPLOYEE)),
+            [WORKSPACE] : check new (self.googleSheetClient, self.httpClient, metadata.get(WORKSPACE), spreadsheetId, sheetIds.get(WORKSPACE)),
+            [BUILDING] : check new (self.googleSheetClient, self.httpClient, metadata.get(BUILDING), spreadsheetId, sheetIds.get(BUILDING)),
+            [DEPARTMENT] : check new (self.googleSheetClient, self.httpClient, metadata.get(DEPARTMENT), spreadsheetId, sheetIds.get(DEPARTMENT)),
+            [ORDER_ITEM] : check new (self.googleSheetClient, self.httpClient, metadata.get(ORDER_ITEM), spreadsheetId, sheetIds.get(ORDER_ITEM))
         };
     }
 
@@ -300,10 +301,35 @@ public client class SheetsRainierClient {
         return ();
     }
 
-    private isolated function queryEmployees(string[] fields) returns stream<record {}, Error?>|Error {
-        stream<Employee, Error?> employeesStream = <stream<Employee, Error?>>(check self.persistClients.get(EMPLOYEE).readTableAsStream());
-        stream<Department, Error?> departmenttStream = <stream<Department, Error?>>(check self.persistClients.get(DEPARTMENT).readTableAsStream());
-        stream<Workspace, Error?> workspacesStream = <stream<Workspace, Error?>>(check self.persistClients.get(WORKSPACE).readTableAsStream());
+    private isolated function queryEmployeesStream(EmployeeTargetType targetType = <>) returns stream<targetType, error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.datastore.GoogleSheetsProcessor",
+        name: "queryStream"
+    } external;
+
+    private isolated function queryBuildingsStream(BuildingTargetType targetType = <>) returns stream<targetType, error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.datastore.GoogleSheetsProcessor",
+        name: "queryStream"
+    } external;
+
+    private isolated function queryDepartmentStream(DepartmentTargetType targetType = <>) returns stream<targetType, error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.datastore.GoogleSheetsProcessor",
+        name: "queryStream"
+    } external;
+
+    private isolated function queryWorkspaceStream(WorkspaceTargetType targetType = <>) returns stream<targetType, error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.datastore.GoogleSheetsProcessor",
+        name: "queryStream"
+    } external;
+
+    private isolated function queryOrderItemStream(OrderItemTargetType targetType = <>) returns stream<targetType, error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.datastore.GoogleSheetsProcessor",
+        name: "queryStream"
+    } external;
+
+    private isolated function queryEmployees(string[] fields) returns stream<record {}, error?>|error {
+        stream<Employee, error?> employeesStream = self.queryEmployeesStream();
+        stream<Department, error?> departmenttStream = self.queryDepartmentStream();
+        stream<Workspace, error?> workspacesStream = self.queryWorkspaceStream();
 
         return from record {} 'object in employeesStream
             outer join var department in departmenttStream
@@ -319,9 +345,9 @@ public client class SheetsRainierClient {
     }
 
     private isolated function queryOneEmployees(anydata key) returns record {}|error {
-        stream<Employee, Error?> employeesStream = <stream<Employee, Error?>>(check self.persistClients.get(EMPLOYEE).readTableAsStream());
-        stream<Department, Error?> departmenttStream = <stream<Department, Error?>>(check self.persistClients.get(DEPARTMENT).readTableAsStream());
-        stream<Workspace, Error?> workspacesStream = <stream<Workspace, Error?>>(check self.persistClients.get(WORKSPACE).readTableAsStream());
+        stream<Employee, error?> employeesStream = self.queryEmployeesStream();
+        stream<Department, error?> departmenttStream = self.queryDepartmentStream();
+        stream<Workspace, error?> workspacesStream = self.queryWorkspaceStream();
         //check with kaneel
         error? unionResult = from record {} 'object in employeesStream
             where self.persistClients.get(EMPLOYEE).getKey('object) == key
@@ -341,8 +367,8 @@ public client class SheetsRainierClient {
         }
         return <InvalidKeyError>error("Invalid key: " + key.toString());
     }
-    private isolated function queryBuildings(string[] fields) returns stream<record {}, Error?>|Error {
-        stream<Building, Error?> buildingsStream = <stream<Building, Error?>>(check self.persistClients.get(BUILDING).readTableAsStream());
+    private isolated function queryBuildings(string[] fields) returns stream<record {}, error?>|error {
+        stream<Building, error?> buildingsStream = self.queryBuildingsStream();
         return from record {} 'object in buildingsStream
             select filterRecord({
                 ...'object
@@ -350,7 +376,7 @@ public client class SheetsRainierClient {
     }
 
     private isolated function queryOneBuildings(anydata key) returns record {}|error {
-        stream<Building, Error?> buildingsStream = <stream<Building, Error?>>(check self.persistClients.get(BUILDING).readTableAsStream());
+        stream<Building, error?> buildingsStream = self.queryBuildingsStream();
         error? unionResult = from record {} 'object in buildingsStream
             where self.persistClients.get(BUILDING).getKey('object) == key
             do {
@@ -365,7 +391,7 @@ public client class SheetsRainierClient {
     }
 
     private isolated function queryBuildingsWorkspaces(record {} value, string[] fields) returns record {}[]|error {
-        stream<Workspace, Error?> workspacesStream = <stream<Workspace, Error?>>(check self.persistClients.get(WORKSPACE).readTableAsStream());
+        stream<Workspace, error?> workspacesStream = self.queryWorkspaceStream();
         return from record {} 'object in workspacesStream
             where 'object.locationBuildingCode == value["buildingCode"]
             select filterRecord({
@@ -373,8 +399,8 @@ public client class SheetsRainierClient {
             }, fields);
     }
 
-    private isolated function queryDepartments(string[] fields) returns stream<record {}, Error?>|Error {
-        stream<Department, Error?> departmenttStream = <stream<Department, Error?>>(check self.persistClients.get(DEPARTMENT).readTableAsStream());
+    private isolated function queryDepartments(string[] fields) returns stream<record {}, error?>|error {
+        stream<Department, error?> departmenttStream = self.queryDepartmentStream();
         return from record {} 'object in departmenttStream
             select filterRecord({
                 ...'object
@@ -382,7 +408,7 @@ public client class SheetsRainierClient {
     }
 
     private isolated function queryOneDepartments(anydata key) returns record {}|error {
-        stream<Department, Error?> departmenttStream = <stream<Department, Error?>>(check self.persistClients.get(DEPARTMENT).readTableAsStream());
+        stream<Department, error?> departmenttStream = self.queryDepartmentStream();
         error? unionResult = from record {} 'object in departmenttStream
             where self.persistClients.get(DEPARTMENT).getKey('object) == key
             do {
@@ -397,17 +423,16 @@ public client class SheetsRainierClient {
     }
 
     private isolated function queryDepartmentsEmployees(record {} value, string[] fields) returns record {}[]|error {
-        stream<Employee, Error?> employeesStream = <stream<Employee, Error?>>(check self.persistClients.get(EMPLOYEE).readTableAsStream());
+        stream<Employee, error?> employeesStream = self.queryEmployeesStream();
         return from record {} 'object in employeesStream
             where 'object.departmentDeptNo == value["deptNo"]
             select filterRecord({
                 ...'object
             }, fields);
     }
-
-    private isolated function queryWorkspaces(string[] fields) returns stream<record {}, Error?>|Error {
-        stream<Workspace, Error?> workspacesStream = <stream<Workspace, Error?>>(check self.persistClients.get(WORKSPACE).readTableAsStream());
-        stream<Building, Error?> buildingsStream = <stream<Building, Error?>>(check self.persistClients.get(BUILDING).readTableAsStream());
+    private isolated function queryWorkspaces(string[] fields) returns stream<record {}, error?>|error {
+        stream<Workspace, error?> workspacesStream = self.queryWorkspaceStream();
+        stream<Building, error?> buildingsStream = self.queryBuildingsStream();
         return from record {} 'object in workspacesStream
             outer join var location in buildingsStream
             on 'object.locationBuildingCode equals location?.buildingCode
@@ -418,8 +443,8 @@ public client class SheetsRainierClient {
     }
 
     private isolated function queryOneWorkspaces(anydata key) returns record {}|error {
-        stream<Workspace, Error?> workspacesStream = <stream<Workspace, Error?>>(check self.persistClients.get(WORKSPACE).readTableAsStream());
-        stream<Building, Error?> buildingsStream = <stream<Building, Error?>>(check self.persistClients.get(BUILDING).readTableAsStream());
+        stream<Workspace, error?> workspacesStream = self.queryWorkspaceStream();
+        stream<Building, error?> buildingsStream = self.queryBuildingsStream();
         error? unionResult = from record {} 'object in workspacesStream
             where self.persistClients.get(WORKSPACE).getKey('object) == key
             outer join var location in buildingsStream
@@ -437,7 +462,7 @@ public client class SheetsRainierClient {
     }
 
     private isolated function queryWorkspacesEmployees(record {} value, string[] fields) returns record {}[]|error {
-        stream<Employee, Error?> employeesStream = <stream<Employee, Error?>>(check self.persistClients.get(EMPLOYEE).readTableAsStream());
+        stream<Employee, error?> employeesStream = self.queryEmployeesStream();
         return from record {} 'object in employeesStream
             where 'object.workspaceWorkspaceId == value["workspaceId"]
             select filterRecord({
@@ -445,8 +470,8 @@ public client class SheetsRainierClient {
             }, fields);
     }
 
-    private isolated function queryOrderItems(string[] fields) returns stream<record {}, Error?>|Error {
-        stream<OrderItem, Error?> orderItemsStream = <stream<OrderItem, Error?>>(check self.persistClients.get(ORDER_ITEM).readTableAsStream());
+    private isolated function queryOrderItems(string[] fields) returns stream<record {}, error?>|error {
+        stream<OrderItem, error?> orderItemsStream = self.queryOrderItemStream();
         return from record {} 'object in orderItemsStream
             select filterRecord({
                 ...'object
@@ -454,7 +479,7 @@ public client class SheetsRainierClient {
     }
 
     private isolated function queryOneOrderItems(anydata key) returns record {}|error {
-        stream<OrderItem, Error?> orderItemsStream = <stream<OrderItem, Error?>>(check self.persistClients.get(ORDER_ITEM).readTableAsStream());
+        stream<OrderItem, error?> orderItemsStream = self.queryOrderItemStream();
         error? unionResult = from record {} 'object in orderItemsStream
             where self.persistClients.get(ORDER_ITEM).getKey('object) == key
             do {

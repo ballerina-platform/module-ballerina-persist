@@ -46,7 +46,7 @@ public type SheetMetadata record {|
     string[] keyFields;
     string range;
     map<string> dataTypes = {};
-    function (string[]) returns stream<record {}, Error?>|error query;
+    function (string[]) returns stream<record {}, error?>|error query;
     function (anydata) returns record {}|error queryOne;
     map<function (record {}, string[]) returns record {}[]|error> associationsMethods = {};
 |};

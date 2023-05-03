@@ -37,13 +37,14 @@ public client class GoogleSheetsClient {
     private final sheets:Client googleSheetClient;
     private final http:Client httpClient;
     private string spreadsheetId;
+    private int sheetId;
     private string entityName;
     private string tableName;
     private string range;
     private map<SheetFieldMetadata> fieldMetadata;
     private map<string> dataTypes;
     private string[] keyFields;
-    private function (string[]) returns stream<record {}, Error?>|error query;
+    private function (string[]) returns stream<record {}, error?>|error query;
     private function (anydata) returns record {}|error queryOne;
     private map<function (record {}, string[]) returns record {}[]|error> associationsMethods;
 
@@ -53,8 +54,9 @@ public client class GoogleSheetsClient {
     # + httpClient - The `http:Client`, which is used to execute http requests
     # + metadata - Metadata of the entity
     # + spreadsheetId - Id of the spreadsheet
+    # + sheetId - Id of the sheet
     # + return - A `persist:Error` if the client creation fails
-    public function init(sheets:Client googleSheetClient, http:Client httpClient, SheetMetadata sheetMetadata, string spreadsheetId) returns Error? {
+    public function init(sheets:Client googleSheetClient, http:Client httpClient, SheetMetadata sheetMetadata, string spreadsheetId, int sheetId) returns Error? {
         self.entityName = sheetMetadata.entityName;
         self.spreadsheetId = spreadsheetId;
         self.tableName = sheetMetadata.tableName;
@@ -67,6 +69,7 @@ public client class GoogleSheetsClient {
         self.query = sheetMetadata.query;
         self.queryOne = sheetMetadata.queryOne;
         self.associationsMethods = sheetMetadata.associationsMethods;
+        self.sheetId = sheetId;
 
     }
 
@@ -80,8 +83,8 @@ public client class GoogleSheetsClient {
         foreach record {} rowValues in insertRecords {
             string metadataValue = self.generateMetadataValue(self.keyFields, rowValues);
             sheets:DeveloperMetadataLookupFilter filter = {locationType: "ROW", metadataKey: self.tableName, metadataValue: metadataValue};
-            sheets:Sheet sheet = check self.googleSheetClient->getSheetByName(self.spreadsheetId, self.tableName);
-            sheets:Row[]|error output = self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, sheet.properties.sheetId, filter);
+            //sheets:Sheet sheet = check self.googleSheetClient->getSheetByName(self.spreadsheetId, self.tableName);
+            sheets:Row[]|error output = self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
             if (output !is error) {
                 if (output.length() > 0) {
                     return <Error>error("Error: record already exists. " + rowValues.toString());
@@ -100,7 +103,7 @@ public client class GoogleSheetsClient {
                 }
             }
             sheets:Row insertedRow = check self.googleSheetClient->appendRowToSheet(self.spreadsheetId, self.tableName, values, self.range, "USER_ENTERED");
-            check self.googleSheetClient->setRowMetaData(self.spreadsheetId, sheet.properties.sheetId, insertedRow.rowPosition, "DOCUMENT", self.tableName, metadataValue);
+            check self.googleSheetClient->setRowMetaData(self.spreadsheetId, self.sheetId, insertedRow.rowPosition, "DOCUMENT", self.tableName, metadataValue);
         }
     }
 
@@ -138,18 +141,22 @@ public client class GoogleSheetsClient {
         return self.query(self.addKeyFields(fields));
     }
 
+    # + rowType - The type description of the entity to be retrieved
+    # + typeMap - The data types of the record
+    # + fields - The fields to be retrieved
+    # + include - The associations to be retrieved
     # + return - A stream of records in the `rowType` type or a `persist:Error` if the operation fails
-    public isolated function readTableAsStream() returns stream<record {}, Error?>|Error {
-        sheets:Sheet|error sheet = self.googleSheetClient->getSheetByName(self.spreadsheetId, self.tableName);
-        if sheet is error {
-            return <Error>error(sheet.message());
-        }
+    public isolated function readTableAsStream(typedesc<record {}> rowType, map<anydata> typeMap, string[] fields = [], string[] include = []) returns stream<record {}, Error?>|Error {
+        //sheets:Sheet|error sheet = self.googleSheetClient->getSheetByName(self.spreadsheetId, self.tableName);
+        // if sheet is error {
+        //     return <Error>error(sheet.message());
+        // }
         string query = "select *";
         string|error encodedQuery = url:encode(query, "UTF-8");
         if encodedQuery is error {
             return <Error>error(encodedQuery.message());
         }
-        http:QueryParams queries = {"gid": (<sheets:Sheet>sheet).properties.sheetId, "range": self.range, "tq": <string>encodedQuery, "tqx": "out:json"};
+        http:QueryParams queries = {"gid": self.sheetId, "range": self.range, "tq": <string>encodedQuery, "tqx": "out:json"};
         http:Response|error response = self.httpClient->/d/[self.spreadsheetId]/gviz/tq(params = queries);
         if response is error {
             return <Error>error(response.message());
@@ -214,11 +221,11 @@ public client class GoogleSheetsClient {
     # A `persist:Error` if the operation fails due to another reason.
     public isolated function runUpdateQuery(anydata key, record {} updateRecord) returns error? {
         string[] entityKeys = self.fieldMetadata.keys();
-        sheets:Sheet sheet = check self.googleSheetClient->getSheetByName(self.spreadsheetId, self.tableName);
+        //sheets:Sheet sheet = check self.googleSheetClient->getSheetByName(self.spreadsheetId, self.tableName);
         (int|string|decimal)[] values = [];
         if (key is string|int|decimal) {
             sheets:DeveloperMetadataLookupFilter filter = {locationType: "ROW", metadataKey: self.tableName, metadataValue: key.toString()};
-            sheets:Row[] rows = check self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, sheet.properties.sheetId, filter);
+            sheets:Row[] rows = check self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
             if (rows.length() == 0) {
                 return <error>error(string `No element found for given key: ${key.toString()}`);
             } else if rows.length() > 1 {
@@ -237,11 +244,11 @@ public client class GoogleSheetsClient {
                     values.push(value);
                 }
             }
-            check self.googleSheetClient->updateRowByDataFilter(self.spreadsheetId, sheet.properties.sheetId, filter, values, "USER_ENTERED");
+            check self.googleSheetClient->updateRowByDataFilter(self.spreadsheetId, self.sheetId, filter, values, "USER_ENTERED");
         } else if (key is map<anydata>) {
             string metadataValue = self.generateMetadataValue(self.keyFields, key);
             sheets:DeveloperMetadataLookupFilter filter = {locationType: "ROW", metadataKey: self.tableName, metadataValue: metadataValue};
-            sheets:Row[] rows = check self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, sheet.properties.sheetId, filter);
+            sheets:Row[] rows = check self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
             if (rows.length() == 0) {
                 return <error>error("no element found for update");
             }
@@ -260,7 +267,7 @@ public client class GoogleSheetsClient {
                     values.push(value);
                 }
             }
-            check self.googleSheetClient->updateRowByDataFilter(self.spreadsheetId, sheet.properties.sheetId, filter, values, "USER_ENTERED");
+            check self.googleSheetClient->updateRowByDataFilter(self.spreadsheetId, self.sheetId, filter, values, "USER_ENTERED");
 
         }
     }
@@ -270,22 +277,22 @@ public client class GoogleSheetsClient {
     # + deleteKey - The key used to delete an entity record
     # + return - `()` if the operation is performed successfully or a `persist:Error` if the operation fails
     public isolated function runDeleteQuery(anydata deleteKey) returns error? {
-        sheets:Sheet sheet = check self.googleSheetClient->getSheetByName(self.spreadsheetId, self.tableName);
+        //sheets:Sheet sheet = check self.googleSheetClient->getSheetByName(self.spreadsheetId, self.tableName);
         if (deleteKey is string|int|decimal) {
             sheets:DeveloperMetadataLookupFilter filter = {locationType: "ROW", metadataKey: self.tableName, metadataValue: deleteKey.toString()};
-            sheets:Row[] rows = check self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, sheet.properties.sheetId, filter);
+            sheets:Row[] rows = check self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
             if (rows.length() == 0) {
                 return <error>error("no element found for delete");
             }
-            check self.googleSheetClient->deleteRowByDataFilter(self.spreadsheetId, sheet.properties.sheetId, filter);
+            check self.googleSheetClient->deleteRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
         } else if (deleteKey is map<anydata>) {
             string metadataValue = self.generateMetadataValue(self.keyFields, deleteKey);
             sheets:DeveloperMetadataLookupFilter filter = {locationType: "ROW", metadataKey: self.tableName, metadataValue: metadataValue};
-            sheets:Row[] rows = check self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, sheet.properties.sheetId, filter);
+            sheets:Row[] rows = check self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
             if (rows.length() == 0) {
                 return <error>error("no element found for update");
             }
-            check self.googleSheetClient->deleteRowByDataFilter(self.spreadsheetId, sheet.properties.sheetId, filter);
+            check self.googleSheetClient->deleteRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
 
         }
     }

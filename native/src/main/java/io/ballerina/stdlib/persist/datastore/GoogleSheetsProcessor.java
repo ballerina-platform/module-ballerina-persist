@@ -43,6 +43,7 @@ import io.ballerina.stdlib.persist.ModuleUtils;
 import static io.ballerina.stdlib.persist.Constants.ERROR;
 import static io.ballerina.stdlib.persist.Constants.KEY_FIELDS;
 import static io.ballerina.stdlib.persist.Utils.getEntity;
+import static io.ballerina.stdlib.persist.Utils.getEntityFromStreamMethod;
 import static io.ballerina.stdlib.persist.Utils.getFieldTypes;
 import static io.ballerina.stdlib.persist.Utils.getKey;
 import static io.ballerina.stdlib.persist.Utils.getMetadata;
@@ -78,6 +79,54 @@ public class GoogleSheetsProcessor {
         Future balFuture = env.markAsync();
         env.getRuntime().invokeMethodAsyncSequentially(
                 persistClient, Constants.RUN_READ_QUERY_METHOD,
+                null, null, new Callback() {
+                    @Override
+                    public void notifySuccess(Object o) {
+                        BStream sqlStream = (BStream) o;
+                        BObject persistStream = ValueCreator.createObjectValue(
+                                ModuleUtils.getModule(), Constants.PERSIST_GOOGLE_SHEETS_STREAM, sqlStream, targetType, 
+                                fields, includes, typeDescriptions, persistClient, null
+                        );
+
+                        RecordType streamConstraint =
+                                (RecordType) TypeUtils.getReferredType(targetType.getDescribingType());
+                        balFuture.complete(
+                                ValueCreator.createStreamValue(TypeCreator.createStreamType(streamConstraint,
+                                        PredefinedTypes.TYPE_NULL), persistStream)
+                        );
+                    }
+
+                    @Override
+                    public void notifyFailure(BError bError) {
+                        balFuture.complete(bError);
+                    }
+                }, null, streamTypeWithIdFields,
+                targetTypeWithIdFields, true, typeMap, true, fields, true, includes, true
+        );
+
+        return null;
+    }
+
+    public static BStream queryStream(Environment env, BObject client, BTypedesc targetType) {
+        BString entity = getEntityFromStreamMethod(env);
+        BObject persistClient = getPersistClient(client, entity);
+        BArray keyFields = (BArray) persistClient.get(KEY_FIELDS);
+        RecordType recordType = (RecordType) targetType.getDescribingType();
+
+        RecordType recordTypeWithIdFields = getRecordTypeWithKeyFields(keyFields, recordType);
+        BTypedesc targetTypeWithIdFields = ValueCreator.createTypedescValue(recordTypeWithIdFields);
+        StreamType streamTypeWithIdFields = TypeCreator.createStreamType(recordTypeWithIdFields,
+                PredefinedTypes.TYPE_NULL);
+
+        BArray[] metadata = getMetadata(recordType);
+        BArray fields = metadata[0];
+        BArray includes = metadata[1];
+        BArray typeDescriptions = metadata[2];
+        BMap<BString, Object> typeMap = getFieldTypes(recordType);
+
+        Future balFuture = env.markAsync();
+        env.getRuntime().invokeMethodAsyncSequentially(
+                persistClient, Constants.RUN_READ_AS_TABLE_QUERY_METHOD,
                 null, null, new Callback() {
                     @Override
                     public void notifySuccess(Object o) {
