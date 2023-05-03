@@ -17,6 +17,8 @@
 import ballerinax/googleapis.sheets;
 import ballerina/url;
 import ballerina/http;
+import ballerina/regex;
+import ballerina/time;
 
 type Table record {
     map<json>[] cols;
@@ -41,6 +43,9 @@ public client class GoogleSheetsClient {
     private map<SheetFieldMetadata> fieldMetadata;
     private map<string> dataTypes;
     private string[] keyFields;
+    private function (string[]) returns stream<record {}, Error?>|error query;
+    private function (anydata) returns record {}|error queryOne;
+    private map<function (record {}, string[]) returns record {}[]|error> associationsMethods;
 
     # Initializes the `GSheetClient`.
     #
@@ -59,6 +64,10 @@ public client class GoogleSheetsClient {
         self.keyFields = sheetMetadata.keyFields;
         self.googleSheetClient = googleSheetClient;
         self.dataTypes = sheetMetadata.dataTypes;
+        self.query = sheetMetadata.query;
+        self.queryOne = sheetMetadata.queryOne;
+        self.associationsMethods = sheetMetadata.associationsMethods;
+
     }
 
     # Performs an append operation to insert entity instances into a table.
@@ -80,8 +89,15 @@ public client class GoogleSheetsClient {
             }
             (int|string|decimal)[] values = [];
             foreach string key in fieldMetadataKeys {
-                (int|string|decimal) value = check rowValues.get(key).ensureType();
-                values.push(value);
+                string dataType = self.dataTypes.get(key).toString();
+                if dataType == "Date" {
+                    time:Date date = check rowValues.get(key).ensureType();
+                    (int|string|decimal) value = string `${date.day}/${date.month}/${date.year}`;
+                    values.push(value);
+                } else {
+                    (int|string|decimal) value = check rowValues.get(key).ensureType();
+                    values.push(value);
+                }
             }
             sheets:Row insertedRow = check self.googleSheetClient->appendRowToSheet(self.spreadsheetId, self.tableName, values, self.range, "USER_ENTERED");
             check self.googleSheetClient->setRowMetaData(self.spreadsheetId, sheet.properties.sheetId, insertedRow.rowPosition, "DOCUMENT", self.tableName, metadataValue);
@@ -99,57 +115,16 @@ public client class GoogleSheetsClient {
     # + typeDescriptions - The type descriptions of the relations to be retrieved
     # + return - A record in the `rowType` type or a `persist:Error` if the operation fails
     public isolated function runReadByKeyQuery(typedesc<record {}> rowType, typedesc<record {}> rowTypeWithIdFields, map<anydata> typeMap, anydata key, string[] fields = [], string[] include = [], typedesc<record {}>[] typeDescriptions = []) returns record {}|error {
-        sheets:Sheet sheet = check self.googleSheetClient->getSheetByName(self.spreadsheetId, self.tableName);
-        string whereClause = check self.generateWhereClause(key, typeMap);
-        string columnIds = check self.generateColumnIds(fields);
+                record {} 'object = check self.queryOne(key);
 
-        string query = string `select ${columnIds} where ${whereClause}`;
-        string encodedQuery = check url:encode(query, "UTF-8");
-        http:QueryParams queries = {"gid": sheet.properties.sheetId, "range": self.range, "tq": encodedQuery, "tqx": "out:json"};
-        http:Response response = check self.httpClient->/d/[self.spreadsheetId]/gviz/tq(params = queries);
-        string|error textResponse = response.getTextPayload();
-        record {}|error result;
-        if textResponse !is error {
-            map<json> payload = check textResponse.substring(47, textResponse.length() - 2).fromJsonStringWithType();
-            Table worksheet = check payload["table"].fromJsonWithType();
-            string[] columnNames = [];
-            record {}[] rowTable = [];
-            if (worksheet.rows.length() == 0) {
-                return <error>error(string `No record found for the given key: ${key.toString()}`);
-            }
-            foreach map<json> item in worksheet.cols {
-                columnNames.push(item["label"].toString());
-            }
-            foreach RowValues value in worksheet.rows {
-                int i = 0;
-                record {} rowArray = {};
-                foreach map<json> item in value.c {
-                    string dataType = typeMap.get(columnNames[i]).toString();
-                    if dataType == "int" {
-                        (string|int|decimal) typedValue = check self.dataConverter(item["f"], dataType);
-                        rowArray[columnNames[i]] = typedValue;
-                    } else {
-                        (string|int|decimal) typedValue = check self.dataConverter(item["v"], dataType);
-                        rowArray[columnNames[i]] = typedValue;
-                    }
-                    i = i + 1;
-                }
-                rowTable.push(rowArray);
-            }
-            if rowTable.length() == 0 {
-                return <error>error(string `No record found for the given key: ${key.toString()}`);
-            } else if rowTable.length() > 1 {
-                return <error>error("string `Multiple records found for the given key: ${key.toString()}`");
-            }
-            result = rowTable[0].cloneWithType(rowType);
+        'object = filterRecord('object, self.addKeyFields(fields));
+        check self.getManyRelations('object, fields, include, typeDescriptions);
+        self.removeUnwantedFields('object, fields);
 
-            if result is error {
-                return <error>error(result.message());
-            }
-            return result;
-
-        } else {
-            return <error>error(textResponse.message());
+        do {
+            return check 'object.cloneWithType(rowType);
+        } on fail error e {
+            return <Error>e;
         }
     }
 
@@ -160,42 +135,7 @@ public client class GoogleSheetsClient {
     # + return - A stream of records in the `rowType` type or a `persist:Error` if the operation fails
     public isolated function runReadQuery(typedesc<record {}> rowType, map<anydata> typeMap, string[] fields = [], string[] include = [])
     returns stream<record {}, error?>|error {
-        sheets:Sheet sheet = check self.googleSheetClient->getSheetByName(self.spreadsheetId, self.tableName);
-        string columnIds = check self.generateColumnIds(fields);
-        string query = string `select ${columnIds}`;
-        string encodedQuery = check url:encode(query, "UTF-8");
-        http:QueryParams queries = {"gid": sheet.properties.sheetId, "range": self.range, "tq": encodedQuery, "tqx": "out:json"};
-        http:Response response = check self.httpClient->/d/[self.spreadsheetId]/gviz/tq(params = queries);
-        string|error textResponse = response.getTextPayload();
-        if (textResponse !is error) {
-            map<json> payload = check textResponse.substring(47, textResponse.length() - 2).fromJsonStringWithType();
-            Table workSheet = check payload["table"].fromJsonWithType();
-            string[] columnNames = [];
-            record {}[] rowTable = [];
-            foreach map<json> item in workSheet.cols {
-                columnNames.push(item["label"].toString());
-            }
-            foreach RowValues value in workSheet.rows {
-                int i = 0;
-                record {} rowArray = {};
-                foreach map<json> item in value.c {
-                    string dataType = typeMap.get(columnNames[i]).toString();
-                    if (dataType == "int") {
-                        (string|int|decimal) typedValue = check self.dataConverter(item["f"], dataType);
-                        rowArray[columnNames[i]] = typedValue;
-                    } else {
-                        (string|int|decimal) typedValue = check self.dataConverter(item["v"], dataType);
-                        rowArray[columnNames[i]] = typedValue;
-                    }
-                    i = i + 1;
-                }
-                rowTable.push(rowArray);
-
-            }
-            return rowTable.toStream();
-        } else {
-            return <error>error(textResponse.message());
-        }
+        return self.query(self.addKeyFields(fields));
     }
 
     # + return - A stream of records in the `rowType` type or a `persist:Error` if the operation fails
@@ -236,13 +176,19 @@ public client class GoogleSheetsClient {
                 foreach map<json> item in value.c {
                     string dataType = self.dataTypes.get(columnNames[i]).toString();
                     if (dataType == "int") {
-                        (string|int|decimal)|error typedValue = self.dataConverter(item["f"], dataType);
+                        (string|int|decimal|time:Date)|error typedValue = self.dataConverter(item["f"], dataType);
                         if typedValue is error {
                             return <Error>error(typedValue.message());
                         }
                         rowArray[columnNames[i]] = <(string|int|decimal)>typedValue;
+                    } else if dataType == "date" {
+                        (string|int|decimal|time:Date)|error typedValue = self.dataConverter(item["f"], dataType);
+                        if typedValue is error {
+                            return <Error>error(typedValue.message());
+                        }
+                        rowArray[columnNames[i]] = <time:Date>typedValue;
                     } else {
-                        (string|int|decimal)|error typedValue = self.dataConverter(item["v"], dataType);
+                        (string|int|decimal|time:Date)|error typedValue = self.dataConverter(item["v"], dataType);
                         if typedValue is error {
                             return <Error>error(typedValue.message());
                         }
@@ -361,9 +307,44 @@ public client class GoogleSheetsClient {
     //     return keyRecord;
     // }
 
-    private isolated function dataConverter(json value, string dataType) returns int|string|decimal|error {
+    public isolated function getManyRelations(record {} 'object, string[] fields, string[] include, typedesc<record {}>[] typeDescriptions) returns Error? {
+        foreach int i in 0 ..< include.length() {
+            string entity = include[i];
+            string[] relationFields = from string 'field in fields
+                where 'field.startsWith(entity + "[].")
+                select 'field.substring(entity.length() + 3, 'field.length());
+
+            if relationFields.length() is 0 {
+                continue;
+            }
+
+            function (record {}, string[]) returns record {}[]|error associationsMethod = self.associationsMethods.get(entity);
+            record {}[]|error relations = associationsMethod('object, relationFields);
+            if (relations is error) {
+                return <Error>error("unsupported data format");
+            }
+            'object[entity] = relations;
+        }
+    }
+
+    public isolated function addKeyFields(string[] fields) returns string[] {
+        string[] updatedFields = fields.clone();
+
+        foreach string key in self.keyFields {
+            if updatedFields.indexOf(key) is () {
+                updatedFields.push(key);
+            }
+        }
+        return updatedFields;
+    }
+
+    private isolated function dataConverter(json value, string dataType) returns int|string|decimal|time:Date|error {
         if (dataType == "int") {
             return int:fromString(value.toString());
+        } else if (dataType == "Date") {
+            string[] temp = regex:split(value.toString(), "/");
+            time:Date date = {day:check int:fromString(temp[0]), month:check int:fromString(temp[1]), year: check int:fromString(temp[2])};
+            return date;
         } else if (dataType == "string") {
             return value.toString();
         } else if (dataType == "decimal") {
@@ -454,6 +435,14 @@ public client class GoogleSheetsClient {
             keyRecord[self.keyFields[0]] = 'object;
         }
         return keyRecord;
+    }
+
+    private isolated function removeUnwantedFields(record {} 'object, string[] fields) {
+        foreach string keyField in self.keyFields {
+            if fields.indexOf(keyField) is () {
+                _ = 'object.remove(keyField);
+            }
+        }
     }
 
 }

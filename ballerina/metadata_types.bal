@@ -39,15 +39,6 @@ public type TableMetadata record {|
     map<function (record {}, string[]) returns record {}[]> associationsMethods = {};
 |};
 
-# Represents the metadata of an entity.
-#
-# + entityName - Name of the entity
-# + tableName - Table name of the entity
-# + fieldMetadata - Metadata of all the fields of the entity
-# + keyFields - Names of the identity fields
-# + dataTypes - Names of the identity fields
-# + associationsMethods - Metadata of the fields that are used for `JOIN` operations
-# + range - a1Range of the table columns
 public type SheetMetadata record {|
     string entityName;
     string tableName;
@@ -55,8 +46,8 @@ public type SheetMetadata record {|
     string[] keyFields;
     string range;
     map<string> dataTypes = {};
-    function (string[]) returns stream<record {}, Error?>|Error query?;
-    function (anydata) returns record {}|error queryOne?;
+    function (string[]) returns stream<record {}, Error?>|error query;
+    function (anydata) returns record {}|error queryOne;
     map<function (record {}, string[]) returns record {}[]|error> associationsMethods = {};
 |};
 
