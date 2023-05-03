@@ -331,7 +331,7 @@ public client class SheetsRainierClient {
         stream<Department, error?> departmenttStream = self.queryDepartmentStream();
         stream<Workspace, error?> workspacesStream = self.queryWorkspaceStream();
 
-        return from record {} 'object in employeesStream
+        record{}[] outputArray = check from record {} 'object in employeesStream
             outer join var department in departmenttStream
             on 'object.departmentDeptNo equals department?.deptNo
             outer join var workspace in workspacesStream
@@ -342,13 +342,13 @@ public client class SheetsRainierClient {
                 "department": department,
                 "workspace": workspace
             }, fields);
+        return outputArray.toStream();
     }
 
     private isolated function queryOneEmployees(anydata key) returns record {}|error {
         stream<Employee, error?> employeesStream = self.queryEmployeesStream();
         stream<Department, error?> departmenttStream = self.queryDepartmentStream();
         stream<Workspace, error?> workspacesStream = self.queryWorkspaceStream();
-        //check with kaneel
         error? unionResult = from record {} 'object in employeesStream
             where self.persistClients.get(EMPLOYEE).getKey('object) == key
             outer join var department in departmenttStream
@@ -369,10 +369,11 @@ public client class SheetsRainierClient {
     }
     private isolated function queryBuildings(string[] fields) returns stream<record {}, error?>|error {
         stream<Building, error?> buildingsStream = self.queryBuildingsStream();
-        return from record {} 'object in buildingsStream
+        record{}[] outputArray = check from record {} 'object in buildingsStream
             select filterRecord({
                 ...'object
             }, fields);
+        return outputArray.toStream();
     }
 
     private isolated function queryOneBuildings(anydata key) returns record {}|error {
@@ -401,10 +402,11 @@ public client class SheetsRainierClient {
 
     private isolated function queryDepartments(string[] fields) returns stream<record {}, error?>|error {
         stream<Department, error?> departmenttStream = self.queryDepartmentStream();
-        return from record {} 'object in departmenttStream
+        record{}[] outputArray = check from record {} 'object in departmenttStream
             select filterRecord({
                 ...'object
             }, fields);
+        return outputArray.toStream();
     }
 
     private isolated function queryOneDepartments(anydata key) returns record {}|error {
@@ -433,13 +435,14 @@ public client class SheetsRainierClient {
     private isolated function queryWorkspaces(string[] fields) returns stream<record {}, error?>|error {
         stream<Workspace, error?> workspacesStream = self.queryWorkspaceStream();
         stream<Building, error?> buildingsStream = self.queryBuildingsStream();
-        return from record {} 'object in workspacesStream
+        record{}[] outputArray = check from record {} 'object in workspacesStream
             outer join var location in buildingsStream
             on 'object.locationBuildingCode equals location?.buildingCode
             select filterRecord({
                 ...'object,
                 "location": location
             }, fields);
+        return outputArray.toStream();
     }
 
     private isolated function queryOneWorkspaces(anydata key) returns record {}|error {
@@ -472,10 +475,11 @@ public client class SheetsRainierClient {
 
     private isolated function queryOrderItems(string[] fields) returns stream<record {}, error?>|error {
         stream<OrderItem, error?> orderItemsStream = self.queryOrderItemStream();
-        return from record {} 'object in orderItemsStream
+        record{}[] outputArray = check from record {} 'object in orderItemsStream
             select filterRecord({
                 ...'object
             }, fields);
+        return outputArray.toStream();
     }
 
     private isolated function queryOneOrderItems(anydata key) returns record {}|error {
