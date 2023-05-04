@@ -20,6 +20,7 @@ module io.ballerina.stdlib.persist.plugin {
     requires io.ballerina.lang;
     requires io.ballerina.parser;
     requires io.ballerina.tools.api;
+    requires io.ballerina.toml;
     exports io.ballerina.stdlib.persist.compiler;
     exports io.ballerina.stdlib.persist.compiler.model;
     exports io.ballerina.stdlib.persist.compiler.codeaction;
