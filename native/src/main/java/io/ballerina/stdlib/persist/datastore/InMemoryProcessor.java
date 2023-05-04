@@ -38,6 +38,8 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.stdlib.persist.Constants;
 import io.ballerina.stdlib.persist.ModuleUtils;
 
+import java.util.Map;
+
 import static io.ballerina.stdlib.persist.Constants.ERROR;
 import static io.ballerina.stdlib.persist.Constants.KEY_FIELDS;
 import static io.ballerina.stdlib.persist.Utils.getEntity;
@@ -45,8 +47,9 @@ import static io.ballerina.stdlib.persist.Utils.getKey;
 import static io.ballerina.stdlib.persist.Utils.getMetadata;
 import static io.ballerina.stdlib.persist.Utils.getPersistClient;
 import static io.ballerina.stdlib.persist.Utils.getRecordTypeWithKeyFields;
+import static io.ballerina.stdlib.persist.Utils.getTransactionContextProperties;
 
-  /**
+/**
   * This class provides the in-memory query processing implementations for persistence.
   *
   * @since 0.3.1
@@ -70,6 +73,8 @@ import static io.ballerina.stdlib.persist.Utils.getRecordTypeWithKeyFields;
         BArray fields = metadata[0];
         BArray includes = metadata[1];
         BArray typeDescriptions = metadata[2];
+
+        Map<String, Object> trxContextProperties = getTransactionContextProperties();
 
         Future balFuture = env.markAsync();
         env.getRuntime().invokeMethodAsyncSequentially(
@@ -95,7 +100,7 @@ import static io.ballerina.stdlib.persist.Utils.getRecordTypeWithKeyFields;
                     public void notifyFailure(BError bError) {
                         balFuture.complete(bError);
                     }
-                }, null, streamTypeWithIdFields, fields, true
+                }, trxContextProperties, streamTypeWithIdFields, fields, true
         );
 
         return null;
@@ -117,6 +122,7 @@ import static io.ballerina.stdlib.persist.Utils.getRecordTypeWithKeyFields;
         BArray typeDescriptions = metadata[2];
 
         Object key = getKey(env, path);
+        Map<String, Object> trxContextProperties = getTransactionContextProperties();
 
         Future balFuture = env.markAsync();
         env.getRuntime().invokeMethodAsyncSequentially(
@@ -131,7 +137,7 @@ import static io.ballerina.stdlib.persist.Utils.getRecordTypeWithKeyFields;
                     public void notifyFailure(BError bError) {
                         balFuture.complete(bError);
                     }
-                },  null, unionType,
+                },  trxContextProperties, unionType,
                 targetType, true, key, true, fields, true, includes, true,
                 typeDescriptions, true
         );

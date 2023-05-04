@@ -101,6 +101,7 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_422;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_501;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_502;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_503;
+import static io.ballerina.stdlib.persist.compiler.Utils.getFieldName;
 import static io.ballerina.stdlib.persist.compiler.Utils.stripEscapeCharacter;
 import static io.ballerina.stdlib.persist.compiler.model.RelationType.MANY_TO_MANY;
 import static io.ballerina.stdlib.persist.compiler.model.RelationType.ONE_TO_MANY;
@@ -787,6 +788,11 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
     private void reportMandatoryCorrespondingFieldDiagnostic(RelationField relationField, Entity missingFieldEntity,
                                                              Entity reportDiagnosticsEntity) {
         NodeList<Node> fields = missingFieldEntity.getTypeDescriptorNode().fields();
+        ArrayList<String> fieldNames = new ArrayList<>();
+        for (Node field : fields) {
+            String fieldName = ((RecordFieldNode) field).fieldName().text();
+            fieldNames.add(fieldName);
+        }
         Node lastField = fields.get(fields.size() - 1);
         int addFieldLocation = lastField.location().textRange().endOffset();
         reportDiagnosticsEntity.reportDiagnostic(PERSIST_402.getCode(),
@@ -802,16 +808,17 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                             new BStringProperty(MessageFormat.format(codeActionTitle, " 1-1 ")),
                             new BStringProperty(MessageFormat.format(LS + "\t{0}? {1};",
                                     relationField.getContainingEntity(),
-                                    relationField.getContainingEntity().toLowerCase(Locale.ROOT))
-                            )));
+                                    getFieldName(relationField.getContainingEntity(), fieldNames)
+
+                            ))));
             reportDiagnosticsEntity.reportDiagnostic(PERSIST_005.getCode(), PERSIST_005.getMessage(),
                     PERSIST_005.getSeverity(), relationField.getLocation(), List.of(
                             new BNumericProperty(addFieldLocation),
                             new BStringProperty(MessageFormat.format(codeActionTitle, " 1-n ")),
                             new BStringProperty(MessageFormat.format(LS + "\t{0}[] {1};",
                                     relationField.getContainingEntity(),
-                                    relationField.getContainingEntity().toLowerCase(Locale.ROOT))
-                            )));
+                                    getFieldName(relationField.getContainingEntity(), fieldNames)
+                            ))));
         } else {
             // Field Type: EntityType? EntityType[]
             reportDiagnosticsEntity.reportDiagnostic(PERSIST_005.getCode(), PERSIST_005.getMessage(),
@@ -820,8 +827,8 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                             new BStringProperty(MessageFormat.format(codeActionTitle, " ")),
                             new BStringProperty(MessageFormat.format(LS + "\t{0} {1};",
                                     relationField.getContainingEntity(),
-                                    relationField.getContainingEntity().toLowerCase(Locale.ROOT))
-                            )));
+                                    getFieldName(relationField.getContainingEntity(), fieldNames)
+                            ))));
         }
     }
 
@@ -874,4 +881,5 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         }
         return false;
     }
+
 }
