@@ -16,6 +16,7 @@
 
 import ballerina/sql;
 import ballerina/jballerina.java;
+import ballerinax/googleapis.sheets;
 
 isolated function stringToParameterizedQuery(string queryStr) returns sql:ParameterizedQuery {
     sql:ParameterizedQuery query = ``;
@@ -93,4 +94,19 @@ public isolated function filterRecord(record {} 'object, string[] fields) return
 
     }
     return retrieved;
+}
+
+public isolated function getSheetIds(sheets:Client googleSheetClient, record {|SheetMetadata...;|} metadata, string spreadsheetId) returns map<int>|Error {
+    map<int> sheetIds = {};
+    sheets:Sheet|error sheet;
+    foreach string key in metadata.keys() {
+        sheet = googleSheetClient->getSheetByName(spreadsheetId, metadata.get(key).tableName);
+        if sheet is error {
+            return <Error>error(string `Error: sheet cannot be found : ${metadata.get(key).tableName}`);
+        }
+        sheetIds[key] = sheet.properties.sheetId;
+    }
+    return sheetIds;
+    
+    
 }
