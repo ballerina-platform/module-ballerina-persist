@@ -453,11 +453,11 @@ public class CompilerPluginTest {
                 diagnostics,
                 new String[]{
                         PERSIST_101.getCode(),
-                        PERSIST_305.getCode()
+                        PERSIST_306.getCode()
                 },
                 new String[]{
                         "persist model definition only supports record definitions",
-                        "an entity does not support Integer[]-typed field"
+                        "an entity does not support Integer array field type"
                 },
                 new String[]{
                         "(2:0,2:17)",
