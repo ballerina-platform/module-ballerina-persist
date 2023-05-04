@@ -83,7 +83,6 @@ public client class GoogleSheetsClient {
         foreach record {} rowValues in insertRecords {
             string metadataValue = self.generateMetadataValue(self.keyFields, rowValues);
             sheets:DeveloperMetadataLookupFilter filter = {locationType: "ROW", metadataKey: self.tableName, metadataValue: metadataValue};
-            //sheets:Sheet sheet = check self.googleSheetClient->getSheetByName(self.spreadsheetId, self.tableName);
             sheets:Row[]|error output = self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
             if (output !is error) {
                 if (output.length() > 0) {
@@ -93,9 +92,9 @@ public client class GoogleSheetsClient {
             (int|string|decimal)[] values = [];
             foreach string key in fieldMetadataKeys {
                 string dataType = self.dataTypes.get(key).toString();
-                if dataType == "Date" {
-                    time:Date date = check rowValues.get(key).ensureType();
-                    (int|string|decimal) value = string `${date.day}/${date.month}/${date.year}`;
+                if dataType == "time:Date" || dataType == "time:TimeOfDay" ||dataType == "time:Civil" || dataType == "time:Utc" {
+                    (time:Date|time:TimeOfDay|time:Civil|time:Utc) timeValue = check rowValues.get(key).ensureType();
+                    (int|string|decimal) value = check self.timeToString(timeValue);
                     values.push(value);
                 } else {
                     (int|string|decimal) value = check rowValues.get(key).ensureType();
@@ -118,7 +117,7 @@ public client class GoogleSheetsClient {
     # + typeDescriptions - The type descriptions of the relations to be retrieved
     # + return - A record in the `rowType` type or a `persist:Error` if the operation fails
     public isolated function runReadByKeyQuery(typedesc<record {}> rowType, typedesc<record {}> rowTypeWithIdFields, map<anydata> typeMap, anydata key, string[] fields = [], string[] include = [], typedesc<record {}>[] typeDescriptions = []) returns record {}|error {
-                record {} 'object = check self.queryOne(key);
+        record {} 'object = check self.queryOne(key);
 
         'object = filterRecord('object, self.addKeyFields(fields));
         check self.getManyRelations('object, fields, include, typeDescriptions);
@@ -147,10 +146,6 @@ public client class GoogleSheetsClient {
     # + include - The associations to be retrieved
     # + return - A stream of records in the `rowType` type or a `persist:Error` if the operation fails
     public isolated function readTableAsStream(typedesc<record {}> rowType, map<anydata> typeMap, string[] fields = [], string[] include = []) returns stream<record {}, Error?>|Error {
-        //sheets:Sheet|error sheet = self.googleSheetClient->getSheetByName(self.spreadsheetId, self.tableName);
-        // if sheet is error {
-        //     return <Error>error(sheet.message());
-        // }
         string query = "select *";
         string|error encodedQuery = url:encode(query, "UTF-8");
         if encodedQuery is error {
@@ -183,19 +178,26 @@ public client class GoogleSheetsClient {
                 foreach map<json> item in value.c {
                     string dataType = self.dataTypes.get(columnNames[i]).toString();
                     if (dataType == "int") {
-                        (string|int|decimal|time:Date)|error typedValue = self.dataConverter(item["f"], dataType);
+                        (string|int|decimal|time:Date|time:TimeOfDay|time:Civil|time:Utc)|error typedValue = self.dataConverter(item["f"], dataType);
                         if typedValue is error {
                             return <Error>error(typedValue.message());
                         }
                         rowArray[columnNames[i]] = <(string|int|decimal)>typedValue;
-                    } else if dataType == "date" {
-                        (string|int|decimal|time:Date)|error typedValue = self.dataConverter(item["f"], dataType);
+                    } else if dataType == "time:Date" || dataType == "time:TimeOfDay" ||dataType == "time:Civil" || dataType == "time:Utc" {
+                        (string|int|decimal|time:Date|time:TimeOfDay|time:Civil|time:Utc)|error typedValue = self.dataConverter(item["f"], dataType);
                         if typedValue is error {
                             return <Error>error(typedValue.message());
+                        } else if typedValue is time:Date {
+                            rowArray[columnNames[i]] = <time:Date>typedValue;
+                        } else if typedValue is time:TimeOfDay {
+                            rowArray[columnNames[i]] = <time:TimeOfDay>typedValue;
+                        } else if typedValue is time:Civil {
+                            rowArray[columnNames[i]] = <time:Civil>typedValue;
+                        } else if typedValue is time:Utc {
+                            rowArray[columnNames[i]] = <time:Utc>typedValue;
                         }
-                        rowArray[columnNames[i]] = <time:Date>typedValue;
                     } else {
-                        (string|int|decimal|time:Date)|error typedValue = self.dataConverter(item["v"], dataType);
+                        (string|int|decimal|time:Date|time:TimeOfDay|time:Civil|time:Utc)|error typedValue = self.dataConverter(item["v"], dataType);
                         if typedValue is error {
                             return <Error>error(typedValue.message());
                         }
@@ -221,7 +223,6 @@ public client class GoogleSheetsClient {
     # A `persist:Error` if the operation fails due to another reason.
     public isolated function runUpdateQuery(anydata key, record {} updateRecord) returns error? {
         string[] entityKeys = self.fieldMetadata.keys();
-        //sheets:Sheet sheet = check self.googleSheetClient->getSheetByName(self.spreadsheetId, self.tableName);
         (int|string|decimal)[] values = [];
         if (key is string|int|decimal) {
             sheets:DeveloperMetadataLookupFilter filter = {locationType: "ROW", metadataKey: self.tableName, metadataValue: key.toString()};
@@ -262,7 +263,7 @@ public client class GoogleSheetsClient {
                     if (indexOfKey !is ()) {
                         values.push(rows[0].values[indexOfKey]);
                     }
-                }else {
+                } else {
                     (int|string|decimal) value = check updateRecord.get(entityKey).ensureType();
                     values.push(value);
                 }
@@ -277,7 +278,6 @@ public client class GoogleSheetsClient {
     # + deleteKey - The key used to delete an entity record
     # + return - `()` if the operation is performed successfully or a `persist:Error` if the operation fails
     public isolated function runDeleteQuery(anydata deleteKey) returns error? {
-        //sheets:Sheet sheet = check self.googleSheetClient->getSheetByName(self.spreadsheetId, self.tableName);
         if (deleteKey is string|int|decimal) {
             sheets:DeveloperMetadataLookupFilter filter = {locationType: "ROW", metadataKey: self.tableName, metadataValue: deleteKey.toString()};
             sheets:Row[] rows = check self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
@@ -300,19 +300,6 @@ public client class GoogleSheetsClient {
     public isolated function getKeyFields() returns string[] {
         return self.keyFields;
     }
-
-    // private isolated function getKey(anydata|record {} 'object) returns record {} {
-    //     record {} keyRecord = {};
-
-    //     if 'object is record {} {
-    //         foreach string key in self.keyFields {
-    //             keyRecord[key] = 'object[key];
-    //         }
-    //     } else {
-    //         keyRecord[self.keyFields[0]] = 'object;
-    //     }
-    //     return keyRecord;
-    // }
 
     public isolated function getManyRelations(record {} 'object, string[] fields, string[] include, typedesc<record {}>[] typeDescriptions) returns Error? {
         foreach int i in 0 ..< include.length() {
@@ -345,13 +332,12 @@ public client class GoogleSheetsClient {
         return updatedFields;
     }
 
-    private isolated function dataConverter(json value, string dataType) returns int|string|decimal|time:Date|error {
+    private isolated function dataConverter(json value, string dataType) returns time:Date|time:TimeOfDay|time:Civil|time:Utc|int|string|decimal|error {
         if (dataType == "int") {
             return int:fromString(value.toString());
-        } else if (dataType == "Date") {
-            string[] temp = regex:split(value.toString(), "/");
-            time:Date date = {day:check int:fromString(temp[0]), month:check int:fromString(temp[1]), year: check int:fromString(temp[2])};
-            return date;
+        } else if dataType == "time:Date" || dataType == "time:TimeOfDay" ||dataType == "time:Civil" || dataType == "time:Utc" {
+            
+            return self.stringToTime(value.toString(), dataType);
         } else if (dataType == "string") {
             return value.toString();
         } else if (dataType == "decimal") {
@@ -361,7 +347,7 @@ public client class GoogleSheetsClient {
         }
     }
 
-    private isolated function generateMetadataValue(string[] keyFields, record{}|map<anydata> rowValues) returns string {
+    private isolated function generateMetadataValue(string[] keyFields, record {}|map<anydata> rowValues) returns string {
         string metadataValue = "";
         foreach string key in keyFields {
             if (metadataValue != "") {
@@ -449,6 +435,38 @@ public client class GoogleSheetsClient {
             if fields.indexOf(keyField) is () {
                 _ = 'object.remove(keyField);
             }
+        }
+    }
+
+    private isolated function timeToString((time:Date|time:TimeOfDay|time:Civil|time:Utc) timeValue) returns string|error {
+        if timeValue is time:TimeOfDay {
+            return string `${timeValue.hour}:${timeValue.minute}:${(timeValue.second).toString()}`;
+        } else if timeValue is time:Date {
+            return string `${timeValue.day}:${timeValue.month}:${timeValue.year}`;
+        } else if timeValue is time:Civil {
+            return time:civilToString(timeValue);
+        } else if timeValue is time:Utc {
+            return time:utcToString(timeValue);
+        } else {
+            return <error>error("Error: unsupported time format");
+        }
+    }
+
+    private isolated function stringToTime(string timeValue, string dataType) returns time:Date|time:TimeOfDay|time:Civil|time:Utc|error {
+        if dataType == "time:TimeOfDay" {
+            string[] timeValues =  regex:split(timeValue, ":");
+            time:TimeOfDay output = {hour: check int:fromString(timeValues[0]), minute: check int:fromString(timeValues[1]), second: check decimal:fromString(timeValues[2])};
+            return output;
+        } else if dataType == "time:Date" {
+            string[] timeValues =  regex:split(timeValue, ":");
+            time:Date output = {day: check int:fromString(timeValues[0]), month: check int:fromString(timeValues[1]), year: check int:fromString(timeValues[2])};
+            return output;
+        } else if dataType == "time:Civil" {
+            return time:civilFromString(timeValue);
+        } else if dataType == "time:Utc" {
+            return time:utcFromString(timeValue);
+        } else {
+            return <error>error("Error: unsupported time format");
         }
     }
 
