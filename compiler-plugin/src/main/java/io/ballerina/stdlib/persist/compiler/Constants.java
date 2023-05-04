@@ -23,6 +23,8 @@ package io.ballerina.stdlib.persist.compiler;
  */
 public final class Constants {
     public static final String PERSIST_DIRECTORY = "persist";
+    public static final String PERSIST = "persist";
+    public static final String DATASTORE = "datastore";
     public static final String TIME_MODULE = "time";
     public static final String EMPTY_STRING = "";
     public static final String ARRAY = "[]";
@@ -60,5 +62,20 @@ public final class Constants {
         private BallerinaTimeTypes() {
         }
     }
+
+    /**
+     * Constants related to Persist datastores.
+     */
+    public static final class Datastores {
+
+        public static final String MYSQL = "mysql";
+        public static final String IN_MEMORY = "in-memory";
+        public static final String GOOGLE_SHEETS = "google-sheets";
+
+        private Datastores() {
+        }
+    }
+
+
 
 }
