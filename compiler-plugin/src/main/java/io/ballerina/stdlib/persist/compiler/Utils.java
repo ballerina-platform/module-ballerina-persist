@@ -29,7 +29,9 @@ import io.ballerina.tools.text.TextRange;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.BNumericProperty;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.BStringProperty;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Class containing util functions.
@@ -134,4 +136,15 @@ public final class Utils {
         return ((BNumericProperty) diagnosticProperties.get(index)).value().intValue();
     }
 
+    static String getFieldName(String entityName, ArrayList<String> fieldNames) {
+        String fieldName = entityName.toLowerCase(Locale.ROOT);
+        if (fieldNames.contains(fieldName)) {
+            int i = 1;
+            while (fieldNames.contains(fieldName + i)) {
+                i++;
+            }
+            fieldName = fieldName + i;
+        }
+        return fieldName;
+    }
 }
