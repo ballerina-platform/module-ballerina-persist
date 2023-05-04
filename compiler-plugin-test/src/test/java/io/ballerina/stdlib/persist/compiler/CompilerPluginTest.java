@@ -62,8 +62,8 @@ import static io.ballerina.stdlib.persist.compiler.TestUtils.getEnvironmentBuild
  */
 public class CompilerPluginTest {
 
-    private Package loadPersistModelFile(String name) {
-        Path projectDirPath = Paths.get("src", "test", "resources", "project_2", "persist").
+    private Package loadPersistModelFile(String directory, String name) {
+        Path projectDirPath = Paths.get("src", "test", "resources", directory, "persist").
                 toAbsolutePath().resolve(name);
         SingleFileProject project = SingleFileProject.load(getEnvironmentBuilder(), projectDirPath);
         return project.currentPackage();
@@ -98,7 +98,7 @@ public class CompilerPluginTest {
 
     @Test
     public void identifyModelFileSuccess() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("valid-persist-model-path.bal", 1);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "valid-persist-model-path.bal", 1);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -115,7 +115,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateEntityRecordProperties() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("record-properties.bal", 1);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "record-properties.bal", 1);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -132,7 +132,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateEntityFieldProperties() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("field-properties.bal", 4);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "field-properties.bal", 4);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -157,37 +157,97 @@ public class CompilerPluginTest {
     }
 
     @Test
-    public void validateEntityFieldType() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("field-types.bal", 5);
+    public void validateEntityFieldTypeForMysql() {
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "field-types.bal", 9);
         testDiagnostic(
                 diagnostics,
                 new String[]{
                         PERSIST_306.getCode(),
                         PERSIST_305.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_305.getCode(),
                         PERSIST_305.getCode(),
                         PERSIST_306.getCode(),
-                        PERSIST_305.getCode()
+                        PERSIST_305.getCode(),
+                        PERSIST_306.getCode()
                 },
                 new String[]{
                         "an entity does not support boolean array field type",
                         "an entity does not support json-typed field",
-                        "an entity does not support json[]-typed field",
+                        "an entity does not support json array field type",
                         "an entity does not support time:Civil array field type",
-                        "an entity does not support union-typed field"
+                        "an entity does not support union-typed field",
+                        "an entity does not support error-typed field",
+                        "an entity does not support error array field type",
+                        "an entity does not support mysql:Client-typed field",
+                        "an entity does not support mysql:Client array field type"
                 },
                 new String[]{
-                        "(12:4,12:13)",
-                        "(14:4,14:8)",
-                        "(15:4,15:10)",
-                        "(18:4,18:16)",
-                        "(19:4,19:21)"
+                        "(13:4,13:13)",
+                        "(15:4,15:8)",
+                        "(16:4,16:10)",
+                        "(19:4,19:16)",
+                        "(20:4,20:21)",
+                        "(22:4,22:9)",
+                        "(23:4,23:11)",
+                        "(25:4,25:16)",
+                        "(26:4,26:18)"
+                }
+        );
+    }
+    @Test
+    public void validateEntityFieldTypeForGoogleSheets() {
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_3", "field-types.bal", 10);
+        testDiagnostic(
+                diagnostics,
+                new String[]{
+                        PERSIST_306.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_306.getCode()
+                },
+                new String[]{
+                        "an entity does not support byte array field type",
+                        "an entity does not support boolean array field type",
+                        "an entity does not support json-typed field",
+                        "an entity does not support json array field type",
+                        "an entity does not support time:Civil array field type",
+                        "an entity does not support union-typed field",
+                        "an entity does not support error-typed field",
+                        "an entity does not support error array field type",
+                        "an entity does not support mysql:Client-typed field",
+                        "an entity does not support mysql:Client array field type"
+                },
+                new String[]{
+                        "(11:4,11:10)",
+                        "(13:4,13:13)",
+                        "(15:4,15:8)",
+                        "(16:4,16:10)",
+                        "(19:4,19:16)",
+                        "(20:4,20:21)",
+                        "(22:4,22:9)",
+                        "(23:4,23:11)",
+                        "(25:4,25:16)",
+                        "(26:4,26:18)"
                 }
         );
     }
 
     @Test
+    public void validateEntityFieldTypeForInMemory() {
+        getErrorDiagnostics("project_4", "field-types.bal", 0);
+    }
+
+    @Test
     public void validateReadonlyFieldCount() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("readonly-field.bal", 1);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "readonly-field.bal", 1);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -204,7 +264,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateIdentityFieldProperties() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("identifier-field-properties.bal", 3);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "identifier-field-properties.bal", 3);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -229,7 +289,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateSelfReferencedEntity() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("self-referenced-entity.bal", 1);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "self-referenced-entity.bal", 1);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -246,7 +306,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateNillableRelationField() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("nillable-relation-field.bal", 6);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "nillable-relation-field.bal", 6);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -280,7 +340,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateManyToManyRelationship() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("many-to-many.bal", 2);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "many-to-many.bal", 2);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -300,7 +360,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateMandatoryRelationField() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("mandatory-relation-field.bal", 4);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "mandatory-relation-field.bal", 4);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -326,7 +386,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateMandatoryMultipleRelationField() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("mandatory-relation-multiple-field.bal", 6);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "mandatory-relation-multiple-field.bal", 6);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -358,7 +418,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validatePresenceOfForeignKeyField() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("foreign-key-present.bal", 4);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "foreign-key-present.bal", 4);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -388,7 +448,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateInvalidRelations() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("invalid-relation.bal", 2);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "invalid-relation.bal", 2);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -408,7 +468,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateDifferentOwners() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("different-owners.bal", 10);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "different-owners.bal", 10);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -453,7 +513,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateUseOfEscapeCharacters() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("usage-of-escape-characters.bal", 1);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "usage-of-escape-characters.bal", 1);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -470,7 +530,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateUseOfImportPrefix() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("usage-of-import-prefix.bal", 2);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "usage-of-import-prefix.bal", 2);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -490,7 +550,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateEntityNamesCaseSensitivity() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("case-sensitive-entities.bal", 2);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "case-sensitive-entities.bal", 2);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -508,13 +568,15 @@ public class CompilerPluginTest {
         );
     }
 
-    private List<Diagnostic> getErrorDiagnostics(String modelFileName, int count) {
-        DiagnosticResult diagnosticResult = loadPersistModelFile(modelFileName).getCompilation().diagnosticResult();
+    private List<Diagnostic> getErrorDiagnostics(String modelDirectory, String modelFileName, int count) {
+        DiagnosticResult diagnosticResult = loadPersistModelFile(modelDirectory, modelFileName).getCompilation()
+                .diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().filter
                 (r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).collect(Collectors.toList());
         Assert.assertEquals(errorDiagnosticsList.size(), count);
         return errorDiagnosticsList;
     }
+
 
     private void testDiagnostic(List<Diagnostic> errorDiagnosticsList, String[] codes, String[] messages,
                                 String[] locations) {
