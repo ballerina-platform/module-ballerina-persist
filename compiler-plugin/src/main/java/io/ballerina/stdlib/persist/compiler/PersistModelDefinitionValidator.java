@@ -104,9 +104,6 @@ import static io.ballerina.stdlib.persist.compiler.utils.Utils.getFieldName;
 import static io.ballerina.stdlib.persist.compiler.utils.Utils.getTypeName;
 import static io.ballerina.stdlib.persist.compiler.utils.Utils.hasCompilationErrors;
 import static io.ballerina.stdlib.persist.compiler.utils.Utils.stripEscapeCharacter;
-import static io.ballerina.stdlib.persist.compiler.utils.ValidatorsByDatastore.isValidGoogleSheetsImportedType;
-import static io.ballerina.stdlib.persist.compiler.utils.ValidatorsByDatastore.isValidInMemoryImportedType;
-import static io.ballerina.stdlib.persist.compiler.utils.ValidatorsByDatastore.isValidMysqlImportedType;
 
 /**
  * Persist model definition validator.
@@ -310,8 +307,8 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                         new BNumericProperty(arrayStartOffset),
                         new BNumericProperty(arrayLength),
                         new BStringProperty(isOptionalType ? type + "?" : type));
-                isValidType = validateSimpleTypes(entity, typeNode, typeNamePostfix, isArrayType, properties, type,
-                        datastore);
+                isValidType = ValidatorsByDatastore.validateSimpleTypes(
+                        entity, typeNode, typeNamePostfix, isArrayType, properties, type, datastore);
                 isSimpleType = true;
             } else if (processedTypeNode instanceof QualifiedNameReferenceNode) {
                 // Support only time constructs
@@ -319,8 +316,8 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                 String modulePrefix = stripEscapeCharacter(qualifiedName.modulePrefix().text());
                 String identifier = stripEscapeCharacter(qualifiedName.identifier().text());
                 fieldType = modulePrefix + ":" + identifier;
-                if (isValidImportedType(modulePrefix, identifier, datastore)) {
-                    if (isArrayType && !isValidArrayType(fieldType, datastore)) {
+                if (ValidatorsByDatastore.isValidImportedType(modulePrefix, identifier, datastore)) {
+                    if (isArrayType && !ValidatorsByDatastore.isValidArrayType(fieldType, datastore)) {
                         fieldType = isOptionalType
                                 ? modulePrefix + ":" + identifier + "?"
                                 : modulePrefix + ":" + identifier;
@@ -361,17 +358,17 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                             new BNumericProperty(arrayStartOffset),
                             new BNumericProperty(arrayLength),
                             new BStringProperty(isOptionalType ? typeName + "?" : typeName));
-                    isValidType = validateSimpleTypes(entity, typeNode, typeNamePostfix, isArrayType, properties,
-                            typeName, datastore);
+                    isValidType = ValidatorsByDatastore.validateSimpleTypes(
+                            entity, typeNode, typeNamePostfix, isArrayType, properties, typeName, datastore);
                     isSimpleType = true;
                 }
             } else {
                 String typeName = getTypeName(processedTypeNode);
                 fieldType = typeName;
-                if (!isArrayType && !isValidSimpleType(typeName, datastore)) {
+                if (!isArrayType && !ValidatorsByDatastore.isValidSimpleType(typeName, datastore)) {
                     entity.reportDiagnostic(PERSIST_305.getCode(), MessageFormat.format(PERSIST_305.getMessage(),
                                     typeName), PERSIST_305.getSeverity(), typeNode.location());
-                } else if (isArrayType && !isValidArrayType(typeName, datastore)) {
+                } else if (isArrayType && !ValidatorsByDatastore.isValidArrayType(typeName, datastore)) {
                     entity.reportDiagnostic(PERSIST_306.getCode(), MessageFormat.format(PERSIST_306.getMessage(),
                             typeName), PERSIST_306.getSeverity(), typeNode.location());
                 }
@@ -391,66 +388,6 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                         isOptionalType, isArrayType, fieldNode.location(), typeNode.location()));
             }
 
-        }
-    }
-
-    private boolean validateSimpleTypes(Entity entity, Node typeNode, String typeNamePostfix,
-                                        boolean isArrayType, List<DiagnosticProperty<?>> properties, String type,
-                                        String datastore) {
-        if (isArrayType) {
-            if (!isValidArrayType(type, datastore)) {
-                entity.reportDiagnostic(PERSIST_306.getCode(),
-                        MessageFormat.format(PERSIST_306.getMessage(), type),
-                        PERSIST_306.getSeverity(), typeNode.location(), properties);
-                return false;
-            }
-        } else {
-            if (!isValidSimpleType(type, datastore)) {
-                entity.reportDiagnostic(PERSIST_305.getCode(), MessageFormat.format(PERSIST_305.getMessage(),
-                                type + typeNamePostfix), PERSIST_305.getSeverity(),
-                        typeNode.location());
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean isValidSimpleType(String type, String datastore) {
-        switch (datastore) {
-            case Constants.Datastores.MYSQL:
-                return ValidatorsByDatastore.isValidMysqlType(type);
-            case Constants.Datastores.IN_MEMORY:
-                return ValidatorsByDatastore.isValidInMemoryType(type);
-            case Constants.Datastores.GOOGLE_SHEETS:
-                return ValidatorsByDatastore.isValidGoogleSheetsType(type);
-            default:
-                return false;
-        }
-    }
-
-    private boolean isValidArrayType(String type, String datastore) {
-        switch (datastore) {
-            case Constants.Datastores.MYSQL:
-                return ValidatorsByDatastore.isValidMysqlArrayType(type);
-            case Constants.Datastores.IN_MEMORY:
-                return ValidatorsByDatastore.isValidInMemoryArrayType(type);
-            case Constants.Datastores.GOOGLE_SHEETS:
-                return ValidatorsByDatastore.isValidGoogleSheetsArrayType(type);
-            default:
-                return false;
-        }
-    }
-
-    private boolean isValidImportedType(String modulePrefix, String identifier, String datastore) {
-        switch (datastore) {
-            case Constants.Datastores.MYSQL:
-                return isValidMysqlImportedType(modulePrefix, identifier);
-            case Constants.Datastores.IN_MEMORY:
-                return isValidInMemoryImportedType(modulePrefix, identifier);
-            case Constants.Datastores.GOOGLE_SHEETS:
-                return isValidGoogleSheetsImportedType(modulePrefix, identifier);
-            default:
-                return false;
         }
     }
 

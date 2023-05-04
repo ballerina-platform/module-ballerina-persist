@@ -25,6 +25,10 @@ import io.ballerina.projects.plugins.codeaction.CodeActionContext;
 import io.ballerina.projects.plugins.codeaction.CodeActionExecutionContext;
 import io.ballerina.projects.plugins.codeaction.CodeActionInfo;
 import io.ballerina.projects.plugins.codeaction.DocumentEdit;
+import io.ballerina.stdlib.persist.compiler.BalException;
+import io.ballerina.stdlib.persist.compiler.Constants;
+import io.ballerina.stdlib.persist.compiler.utils.Utils;
+import io.ballerina.stdlib.persist.compiler.utils.ValidatorsByDatastore;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocumentChange;
 import io.ballerina.tools.text.TextEdit;
@@ -52,6 +56,22 @@ public abstract class AbstractChangeToSupportedType implements CodeAction {
 
     @Override
     public Optional<CodeActionInfo> codeActionInfo(CodeActionContext codeActionContext) {
+        try {
+            String type = getType();
+            String datastore = Utils.getDatastore(codeActionContext);
+            if (type.endsWith(Constants.ARRAY)) {
+                String arrayType = type.substring(0, type.length() - 2);
+                if (!ValidatorsByDatastore.isValidArrayType(arrayType, datastore)) {
+                    return Optional.empty();
+                }
+            } else {
+                if (!ValidatorsByDatastore.isValidSimpleType(type, datastore)) {
+                    return Optional.empty();
+                }
+            }
+        } catch (BalException e) {
+            throw new RuntimeException(e);
+        }
         String type = getType();
         String title = MessageFormat.format("Change to ''{0}'' type", type);
         CodeActionArgument syntaxLocationArg = CodeActionArgument.from(TYPE_CHANGE_TEXT_RANGE,

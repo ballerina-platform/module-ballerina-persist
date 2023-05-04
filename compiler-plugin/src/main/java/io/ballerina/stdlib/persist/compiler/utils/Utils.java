@@ -21,6 +21,7 @@ package io.ballerina.stdlib.persist.compiler.utils;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.projects.plugins.codeaction.CodeActionArgument;
+import io.ballerina.projects.plugins.codeaction.CodeActionContext;
 import io.ballerina.projects.plugins.codeaction.CodeActionExecutionContext;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.stdlib.persist.compiler.BalException;
@@ -164,6 +165,45 @@ public final class Utils {
 
     public static String getDatastore(SyntaxNodeAnalysisContext ctx) throws BalException {
         Path balFilePath = ctx.currentPackage().project().sourceRoot().toAbsolutePath();
+
+        Path balFileContainingFolder = balFilePath.getParent();
+        if (balFileContainingFolder == null) {
+            throw new BalException("unable to locate the project's Ballerina.toml file");
+        }
+
+        Path balProjectDir = balFileContainingFolder.getParent();
+        if (balProjectDir == null) {
+            throw new BalException("unable to locate the project's Ballerina.toml file");
+        }
+
+        Path configPath = balProjectDir.resolve(ProjectConstants.BALLERINA_TOML);
+        try {
+            TextDocument configDocument = TextDocuments.from(Files.readString(configPath));
+            SyntaxTree syntaxTree = SyntaxTree.from(configDocument);
+            DocumentNode rootNote = syntaxTree.rootNode();
+            NodeList<DocumentMemberDeclarationNode> nodeList = rootNote.members();
+            for (DocumentMemberDeclarationNode member : nodeList) {
+                if (member instanceof TableNode) {
+                    TableNode node = (TableNode) member;
+                    String tableName = node.identifier().toSourceCode().trim();
+                    if (tableName.equals(Constants.PERSIST)) {
+                        for (KeyValueNode field : node.fields()) {
+                            if (field.identifier().toSourceCode().trim().equals(Constants.DATASTORE)) {
+                                return field.value().toSourceCode().trim().replaceAll("\"", "");
+                            }
+                        }
+                    }
+
+                }
+            }
+            throw new BalException("the persist.datastore configuration does not exist in the Ballerina.toml file");
+        } catch (IOException e) {
+            throw new BalException("error while reading persist configurations. " + e.getMessage());
+        }
+    }
+
+    public static String getDatastore(CodeActionContext ctx) throws BalException {
+        Path balFilePath = ctx.filePath();
 
         Path balFileContainingFolder = balFilePath.getParent();
         if (balFileContainingFolder == null) {

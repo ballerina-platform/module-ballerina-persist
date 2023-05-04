@@ -18,6 +18,14 @@
 
 package io.ballerina.stdlib.persist.compiler.utils;
 
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.stdlib.persist.compiler.Constants;
+import io.ballerina.stdlib.persist.compiler.model.Entity;
+import io.ballerina.tools.diagnostics.DiagnosticProperty;
+
+import java.text.MessageFormat;
+import java.util.List;
+
 import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTimeTypes.CIVIL;
 import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTimeTypes.DATE;
 import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTimeTypes.TIME_OF_DAY;
@@ -29,6 +37,8 @@ import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.FLOA
 import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.INT;
 import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.STRING;
 import static io.ballerina.stdlib.persist.compiler.Constants.TIME_MODULE;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_305;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_306;
 
 /**
  * Class containing util functions.
@@ -36,6 +46,72 @@ import static io.ballerina.stdlib.persist.compiler.Constants.TIME_MODULE;
 public final class ValidatorsByDatastore {
 
     private ValidatorsByDatastore() {
+    }
+
+    public static boolean validateSimpleTypes(Entity entity, Node typeNode, String typeNamePostfix,
+                                        boolean isArrayType, List<DiagnosticProperty<?>> properties, String type,
+                                        String datastore) {
+        if (isArrayType) {
+            if (!isValidArrayType(type, datastore)) {
+                if (isValidSimpleType(type, datastore)) {
+                    entity.reportDiagnostic(PERSIST_306.getCode(),
+                            MessageFormat.format(PERSIST_306.getMessage(), type),
+                            PERSIST_306.getSeverity(), typeNode.location(), properties);
+                } else {
+                    entity.reportDiagnostic(PERSIST_306.getCode(),
+                            MessageFormat.format(PERSIST_306.getMessage(), type),
+                            PERSIST_306.getSeverity(), typeNode.location());
+                }
+                return false;
+            }
+        } else {
+            if (!isValidSimpleType(type, datastore)) {
+                entity.reportDiagnostic(PERSIST_305.getCode(), MessageFormat.format(PERSIST_305.getMessage(),
+                                type + typeNamePostfix), PERSIST_305.getSeverity(),
+                        typeNode.location());
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean isValidSimpleType(String type, String datastore) {
+        switch (datastore) {
+            case Constants.Datastores.MYSQL:
+                return isValidMysqlType(type);
+            case Constants.Datastores.IN_MEMORY:
+                return isValidInMemoryType(type);
+            case Constants.Datastores.GOOGLE_SHEETS:
+                return isValidGoogleSheetsType(type);
+            default:
+                return false;
+        }
+    }
+
+    public static boolean isValidArrayType(String type, String datastore) {
+        switch (datastore) {
+            case Constants.Datastores.MYSQL:
+                return isValidMysqlArrayType(type);
+            case Constants.Datastores.IN_MEMORY:
+                return isValidInMemoryArrayType(type);
+            case Constants.Datastores.GOOGLE_SHEETS:
+                return isValidGoogleSheetsArrayType(type);
+            default:
+                return false;
+        }
+    }
+
+    public static boolean isValidImportedType(String modulePrefix, String identifier, String datastore) {
+        switch (datastore) {
+            case Constants.Datastores.MYSQL:
+                return isValidMysqlImportedType(modulePrefix, identifier);
+            case Constants.Datastores.IN_MEMORY:
+                return isValidInMemoryImportedType(modulePrefix, identifier);
+            case Constants.Datastores.GOOGLE_SHEETS:
+                return isValidGoogleSheetsImportedType(modulePrefix, identifier);
+            default:
+                return false;
+        }
     }
 
     public static boolean isValidMysqlType(String type) {
