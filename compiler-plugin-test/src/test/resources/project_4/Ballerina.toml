@@ -4,4 +4,4 @@ name = "project_4"
 version = "0.1.0"
 
 [persist]
-datastore = "in-memory"
+datastore = "inmemory"
