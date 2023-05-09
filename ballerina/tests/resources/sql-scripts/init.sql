@@ -61,8 +61,8 @@ CREATE TABLE test.AllTypes (
 	dateTypeOptional DATE,
 	timeOfDayTypeOptional TIME,
 	civilTypeOptional DATETIME,
-	enumType CHAR(6) NOT NULL,
-	enumTypeOptional CHAR(6),
+	enumType ENUM('TYPE_1', 'TYPE_2', 'TYPE_3', 'TYPE_4') NOT NULL,
+	enumTypeOptional ENUM('TYPE_1', 'TYPE_2', 'TYPE_3', 'TYPE_4'),
 	PRIMARY KEY(id)
 );
 
