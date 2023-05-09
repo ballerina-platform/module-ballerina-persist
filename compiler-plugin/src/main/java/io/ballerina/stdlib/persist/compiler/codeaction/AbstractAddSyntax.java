@@ -37,10 +37,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static io.ballerina.stdlib.persist.compiler.Utils.getNumericDiagnosticProperty;
-import static io.ballerina.stdlib.persist.compiler.Utils.getStringArgument;
-import static io.ballerina.stdlib.persist.compiler.Utils.getTextRangeArgument;
 import static io.ballerina.stdlib.persist.compiler.codeaction.PersistCodeActionName.ADD_SINGLE_TEXT;
+import static io.ballerina.stdlib.persist.compiler.utils.Utils.getNumericDiagnosticProperty;
+import static io.ballerina.stdlib.persist.compiler.utils.Utils.getStringArgument;
+import static io.ballerina.stdlib.persist.compiler.utils.Utils.getTextRangeArgument;
 
 /**
  * Abstract class to add syntax as code action.

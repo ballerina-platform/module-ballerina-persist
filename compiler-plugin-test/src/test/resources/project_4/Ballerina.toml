@@ -1,7 +1,7 @@
 [package]
 org = "root"
-name = "project_2"
+name = "project_4"
 version = "0.1.0"
 
 [persist]
-datastore = "mysql"
+datastore = "inmemory"

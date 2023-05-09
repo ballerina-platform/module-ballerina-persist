@@ -46,6 +46,7 @@ import io.ballerina.stdlib.persist.compiler.model.IdentityField;
 import io.ballerina.stdlib.persist.compiler.model.RelationField;
 import io.ballerina.stdlib.persist.compiler.model.RelationType;
 import io.ballerina.stdlib.persist.compiler.model.SimpleTypeField;
+import io.ballerina.stdlib.persist.compiler.utils.ValidatorsByDatastore;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
@@ -61,19 +62,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTimeTypes.CIVIL;
-import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTimeTypes.DATE;
-import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTimeTypes.TIME_OF_DAY;
-import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTimeTypes.UTC;
 import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.BOOLEAN;
-import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.BYTE;
 import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.DECIMAL;
 import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.FLOAT;
 import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.INT;
 import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.STRING;
 import static io.ballerina.stdlib.persist.compiler.Constants.LS;
 import static io.ballerina.stdlib.persist.compiler.Constants.PERSIST_DIRECTORY;
-import static io.ballerina.stdlib.persist.compiler.Constants.TIME_MODULE;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_001;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_002;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_003;
@@ -101,11 +96,14 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_422;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_501;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_502;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_503;
-import static io.ballerina.stdlib.persist.compiler.Utils.getFieldName;
-import static io.ballerina.stdlib.persist.compiler.Utils.stripEscapeCharacter;
 import static io.ballerina.stdlib.persist.compiler.model.RelationType.MANY_TO_MANY;
 import static io.ballerina.stdlib.persist.compiler.model.RelationType.ONE_TO_MANY;
 import static io.ballerina.stdlib.persist.compiler.model.RelationType.ONE_TO_ONE;
+import static io.ballerina.stdlib.persist.compiler.utils.Utils.getDatastore;
+import static io.ballerina.stdlib.persist.compiler.utils.Utils.getFieldName;
+import static io.ballerina.stdlib.persist.compiler.utils.Utils.getTypeName;
+import static io.ballerina.stdlib.persist.compiler.utils.Utils.hasCompilationErrors;
+import static io.ballerina.stdlib.persist.compiler.utils.Utils.stripEscapeCharacter;
 
 /**
  * Persist model definition validator.
@@ -122,8 +120,15 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             return;
         }
 
-        if (Utils.hasCompilationErrors(ctx)) {
+        if (hasCompilationErrors(ctx)) {
             return;
+        }
+
+        String datastore;
+        try {
+            datastore = getDatastore(ctx);
+        } catch (BalException e) {
+            throw new RuntimeException(e);
         }
 
         if (ctx.node() instanceof ImportPrefixNode) {
@@ -175,7 +180,7 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             Entity entity = new Entity(entityName, typeDefinitionNode.typeName().location(),
                     ((RecordTypeDescriptorNode) typeDescriptorNode));
             validateEntityRecordProperties(entity);
-            validateEntityFields(entity);
+            validateEntityFields(entity, datastore);
             validateIdentityFields(entity);
             validateEntityRelations(entity);
 
@@ -211,7 +216,7 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         }
     }
 
-    private void validateEntityFields(Entity entity) {
+    private void validateEntityFields(Entity entity, String datastore) {
         // Check whether the entity has rest field initialization
         RecordTypeDescriptorNode typeDescriptorNode = entity.getTypeDescriptorNode();
         if (typeDescriptorNode.recordRestDescriptor().isPresent()) {
@@ -302,7 +307,8 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                         new BNumericProperty(arrayStartOffset),
                         new BNumericProperty(arrayLength),
                         new BStringProperty(isOptionalType ? type + "?" : type));
-                isValidType = validateSimpleTypes(entity, typeNode, typeNamePostfix, isArrayType, properties, type);
+                isValidType = ValidatorsByDatastore.validateSimpleTypes(
+                        entity, typeNode, typeNamePostfix, isArrayType, properties, type, datastore);
                 isSimpleType = true;
             } else if (processedTypeNode instanceof QualifiedNameReferenceNode) {
                 // Support only time constructs
@@ -310,23 +316,29 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                 String modulePrefix = stripEscapeCharacter(qualifiedName.modulePrefix().text());
                 String identifier = stripEscapeCharacter(qualifiedName.identifier().text());
                 fieldType = modulePrefix + ":" + identifier;
-                if (isValidImportedType(modulePrefix, identifier)) {
-                    if (isArrayType) {
-                        String codeActionType = isOptionalType
+                if (ValidatorsByDatastore.isValidImportedType(modulePrefix, identifier, datastore)) {
+                    if (isArrayType && !ValidatorsByDatastore.isValidArrayType(fieldType, datastore)) {
+                        fieldType = isOptionalType
                                 ? modulePrefix + ":" + identifier + "?"
                                 : modulePrefix + ":" + identifier;
                         entity.reportDiagnostic(PERSIST_306.getCode(),
                                 MessageFormat.format(PERSIST_306.getMessage(), modulePrefix + ":" + identifier),
                                 PERSIST_306.getSeverity(), typeNode.location(),
                                 List.of(new BNumericProperty(arrayStartOffset), new BNumericProperty(arrayLength),
-                                        new BStringProperty(codeActionType)));
+                                        new BStringProperty(fieldType)));
                     } else {
                         isValidType = true;
                     }
                 } else {
-                    entity.reportDiagnostic(PERSIST_305.getCode(), MessageFormat.format(PERSIST_305.getMessage(),
-                                    modulePrefix + ":" + identifier + typeNamePostfix), PERSIST_305.getSeverity(),
-                            typeNode.location());
+                    if (isArrayType) {
+                        entity.reportDiagnostic(PERSIST_306.getCode(), MessageFormat.format(PERSIST_306.getMessage(),
+                                        modulePrefix + ":" + identifier), PERSIST_305.getSeverity(),
+                                typeNode.location());
+                    } else {
+                        entity.reportDiagnostic(PERSIST_305.getCode(), MessageFormat.format(PERSIST_305.getMessage(),
+                                        modulePrefix + ":" + identifier), PERSIST_305.getSeverity(),
+                                typeNode.location());
+                    }
                 }
                 isSimpleType = true;
             } else if (processedTypeNode instanceof SimpleNameReferenceNode) {
@@ -346,16 +358,20 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                             new BNumericProperty(arrayStartOffset),
                             new BNumericProperty(arrayLength),
                             new BStringProperty(isOptionalType ? typeName + "?" : typeName));
-                    isValidType = validateSimpleTypes(entity, typeNode, typeNamePostfix, isArrayType, properties,
-                            typeName);
+                    isValidType = ValidatorsByDatastore.validateSimpleTypes(
+                            entity, typeNode, typeNamePostfix, isArrayType, properties, typeName, datastore);
                     isSimpleType = true;
                 }
             } else {
-                String typeName = Utils.getTypeName(processedTypeNode);
+                String typeName = getTypeName(processedTypeNode);
                 fieldType = typeName;
-                entity.reportDiagnostic(PERSIST_305.getCode(), MessageFormat.format(PERSIST_305.getMessage(),
-                                typeName), PERSIST_305.getSeverity(),
-                        typeNode.location());
+                if (!isArrayType && !ValidatorsByDatastore.isValidSimpleType(typeName, datastore)) {
+                    entity.reportDiagnostic(PERSIST_305.getCode(), MessageFormat.format(PERSIST_305.getMessage(),
+                                    typeName), PERSIST_305.getSeverity(), typeNode.location());
+                } else if (isArrayType && !ValidatorsByDatastore.isValidArrayType(typeName, datastore)) {
+                    entity.reportDiagnostic(PERSIST_306.getCode(), MessageFormat.format(PERSIST_306.getMessage(),
+                            typeName), PERSIST_306.getSeverity(), typeNode.location());
+                }
             }
             if (isIdentityField) {
                 identityField.setType(fieldType);
@@ -372,52 +388,6 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                         isOptionalType, isArrayType, fieldNode.location(), typeNode.location()));
             }
 
-        }
-    }
-
-    private boolean validateSimpleTypes(Entity entity, Node typeNode, String typeNamePostfix,
-                                        boolean isArrayType, List<DiagnosticProperty<?>> properties, String type) {
-        if (isValidSimpleType(type)) {
-            if (isArrayType) {
-                entity.reportDiagnostic(PERSIST_306.getCode(),
-                        MessageFormat.format(PERSIST_306.getMessage(), type),
-                        PERSIST_306.getSeverity(), typeNode.location(), properties);
-                return false;
-            }
-        } else if (!(type.equals(BYTE) && isArrayType)) {
-            entity.reportDiagnostic(PERSIST_305.getCode(), MessageFormat.format(PERSIST_305.getMessage(),
-                            type + typeNamePostfix), PERSIST_305.getSeverity(),
-                    typeNode.location());
-            return false;
-        }
-        return true;
-    }
-
-    private boolean isValidSimpleType(String type) {
-        switch (type) {
-            case INT:
-            case BOOLEAN:
-            case DECIMAL:
-            case FLOAT:
-            case STRING:
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    private boolean isValidImportedType(String modulePrefix, String identifier) {
-        if (!modulePrefix.equals(TIME_MODULE)) {
-            return false;
-        }
-        switch (identifier) {
-            case DATE:
-            case TIME_OF_DAY:
-            case UTC:
-            case CIVIL:
-                return true;
-            default:
-                return false;
         }
     }
 
@@ -881,5 +851,4 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         }
         return false;
     }
-
 }

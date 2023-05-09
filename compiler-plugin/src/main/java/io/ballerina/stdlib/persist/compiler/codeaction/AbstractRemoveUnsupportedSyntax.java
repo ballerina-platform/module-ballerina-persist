@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static io.ballerina.stdlib.persist.compiler.Constants.EMPTY_STRING;
-import static io.ballerina.stdlib.persist.compiler.Utils.getTextRangeArgument;
+import static io.ballerina.stdlib.persist.compiler.utils.Utils.getTextRangeArgument;
 
 /**
  * Remove unsupported syntax code action.

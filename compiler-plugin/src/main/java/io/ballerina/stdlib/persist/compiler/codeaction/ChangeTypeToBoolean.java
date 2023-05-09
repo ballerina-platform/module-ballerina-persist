@@ -22,6 +22,7 @@ import java.util.List;
 
 import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.BOOLEAN;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_305;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_306;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_503;
 import static io.ballerina.stdlib.persist.compiler.codeaction.PersistCodeActionName.CHANGE_TYPE_TO_BOOLEAN;
 
@@ -36,12 +37,13 @@ public class ChangeTypeToBoolean extends AbstractChangeToSupportedType {
 
     @Override
     protected List<String> getSupportedDiagnosticCodes() {
-        return List.of(PERSIST_305.getCode(), PERSIST_503.getCode());
+        return List.of(PERSIST_305.getCode(), PERSIST_306.getCode(), PERSIST_503.getCode());
     }
 
     @Override
     protected String getType() {
         return BOOLEAN;
     }
+
 }
 
