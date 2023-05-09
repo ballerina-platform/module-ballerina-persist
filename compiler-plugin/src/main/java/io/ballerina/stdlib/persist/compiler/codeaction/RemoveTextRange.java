@@ -32,9 +32,9 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_306;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_406;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_502;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_503;
-import static io.ballerina.stdlib.persist.compiler.Utils.getNumericDiagnosticProperty;
-import static io.ballerina.stdlib.persist.compiler.Utils.getStringDiagnosticProperty;
 import static io.ballerina.stdlib.persist.compiler.codeaction.PersistCodeActionName.REMOVE_TEXT_RANGE;
+import static io.ballerina.stdlib.persist.compiler.utils.Utils.getNumericDiagnosticProperty;
+import static io.ballerina.stdlib.persist.compiler.utils.Utils.getStringDiagnosticProperty;
 
 /**
  * Remove text range code action.

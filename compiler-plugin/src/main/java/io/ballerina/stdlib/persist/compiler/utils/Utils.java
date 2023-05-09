@@ -16,19 +16,34 @@
  * under the License.
  */
 
-package io.ballerina.stdlib.persist.compiler;
+package io.ballerina.stdlib.persist.compiler.utils;
 
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.projects.plugins.codeaction.CodeActionArgument;
+import io.ballerina.projects.plugins.codeaction.CodeActionContext;
 import io.ballerina.projects.plugins.codeaction.CodeActionExecutionContext;
+import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.stdlib.persist.compiler.BalException;
+import io.ballerina.stdlib.persist.compiler.Constants;
+import io.ballerina.toml.syntax.tree.DocumentMemberDeclarationNode;
+import io.ballerina.toml.syntax.tree.DocumentNode;
+import io.ballerina.toml.syntax.tree.KeyValueNode;
+import io.ballerina.toml.syntax.tree.NodeList;
+import io.ballerina.toml.syntax.tree.SyntaxTree;
+import io.ballerina.toml.syntax.tree.TableNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocuments;
 import io.ballerina.tools.text.TextRange;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.BNumericProperty;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.BStringProperty;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -136,7 +151,7 @@ public final class Utils {
         return ((BNumericProperty) diagnosticProperties.get(index)).value().intValue();
     }
 
-    static String getFieldName(String entityName, ArrayList<String> fieldNames) {
+    public static String getFieldName(String entityName, ArrayList<String> fieldNames) {
         String fieldName = entityName.toLowerCase(Locale.ROOT);
         if (fieldNames.contains(fieldName)) {
             int i = 1;
@@ -146,5 +161,83 @@ public final class Utils {
             fieldName = fieldName + i;
         }
         return fieldName;
+    }
+
+    public static String getDatastore(SyntaxNodeAnalysisContext ctx) throws BalException {
+        Path balFilePath = ctx.currentPackage().project().sourceRoot().toAbsolutePath();
+
+        Path balFileContainingFolder = balFilePath.getParent();
+        if (balFileContainingFolder == null) {
+            throw new BalException("unable to locate the project's Ballerina.toml file");
+        }
+
+        Path balProjectDir = balFileContainingFolder.getParent();
+        if (balProjectDir == null) {
+            throw new BalException("unable to locate the project's Ballerina.toml file");
+        }
+
+        Path configPath = balProjectDir.resolve(ProjectConstants.BALLERINA_TOML);
+        try {
+            TextDocument configDocument = TextDocuments.from(Files.readString(configPath));
+            SyntaxTree syntaxTree = SyntaxTree.from(configDocument);
+            DocumentNode rootNote = syntaxTree.rootNode();
+            NodeList<DocumentMemberDeclarationNode> nodeList = rootNote.members();
+            for (DocumentMemberDeclarationNode member : nodeList) {
+                if (member instanceof TableNode) {
+                    TableNode node = (TableNode) member;
+                    String tableName = node.identifier().toSourceCode().trim();
+                    if (tableName.equals(Constants.PERSIST)) {
+                        for (KeyValueNode field : node.fields()) {
+                            if (field.identifier().toSourceCode().trim().equals(Constants.DATASTORE)) {
+                                return field.value().toSourceCode().trim().replaceAll("\"", "");
+                            }
+                        }
+                    }
+
+                }
+            }
+            throw new BalException("the persist.datastore configuration does not exist in the Ballerina.toml file");
+        } catch (IOException e) {
+            throw new BalException("error while reading persist configurations. " + e.getMessage());
+        }
+    }
+
+    public static String getDatastore(CodeActionContext ctx) throws BalException {
+        Path balFilePath = ctx.filePath();
+
+        Path balFileContainingFolder = balFilePath.getParent();
+        if (balFileContainingFolder == null) {
+            throw new BalException("unable to locate the project's Ballerina.toml file");
+        }
+
+        Path balProjectDir = balFileContainingFolder.getParent();
+        if (balProjectDir == null) {
+            throw new BalException("unable to locate the project's Ballerina.toml file");
+        }
+
+        Path configPath = balProjectDir.resolve(ProjectConstants.BALLERINA_TOML);
+        try {
+            TextDocument configDocument = TextDocuments.from(Files.readString(configPath));
+            SyntaxTree syntaxTree = SyntaxTree.from(configDocument);
+            DocumentNode rootNote = syntaxTree.rootNode();
+            NodeList<DocumentMemberDeclarationNode> nodeList = rootNote.members();
+            for (DocumentMemberDeclarationNode member : nodeList) {
+                if (member instanceof TableNode) {
+                    TableNode node = (TableNode) member;
+                    String tableName = node.identifier().toSourceCode().trim();
+                    if (tableName.equals(Constants.PERSIST)) {
+                        for (KeyValueNode field : node.fields()) {
+                            if (field.identifier().toSourceCode().trim().equals(Constants.DATASTORE)) {
+                                return field.value().toSourceCode().trim().replaceAll("\"", "");
+                            }
+                        }
+                    }
+
+                }
+            }
+            throw new BalException("the persist.datastore configuration does not exist in the Ballerina.toml file");
+        } catch (IOException e) {
+            throw new BalException("error while reading persist configurations. " + e.getMessage());
+        }
     }
 }

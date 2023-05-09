@@ -26,7 +26,7 @@ import java.util.List;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_001;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_002;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_005;
-import static io.ballerina.stdlib.persist.compiler.Utils.getStringDiagnosticProperty;
+import static io.ballerina.stdlib.persist.compiler.utils.Utils.getStringDiagnosticProperty;
 
 /**
  * Code action to add single text.

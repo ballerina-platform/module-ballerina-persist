@@ -1,5 +1,4 @@
 import ballerina/time;
-import ballerinax/mysql;
 import ballerina/persist as _;
 
 public type MedicalNeed record {|
@@ -19,10 +18,4 @@ public type MedicalNeed record {|
     time:Civil period;
     time:Civil[] periodArray;
     time:Civil|string unionType;
-
-    error errorType;
-    error[] errorArrayType;
-
-    mysql:Client clientType;
-    mysql:Client[] clientArrayType;
 |};
