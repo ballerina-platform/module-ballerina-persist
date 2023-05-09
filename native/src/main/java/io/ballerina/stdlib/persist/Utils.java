@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
@@ -99,7 +100,11 @@ public class Utils {
                     }
                 }
 
-                typeDescriptionArray.append(ValueCreator.createTypedescValue(type));
+                if (type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+                    type = ((ReferenceType) type).getReferredType();
+                }
+                typeDescriptionArray.append(ValueCreator.createTypedescValue(
+                        getRecordTypeWithEnumFieldsReplaced((RecordType) type)));
             } else {
                 fieldsArray.append(fromString(field.getFieldName()));
             }
@@ -165,8 +170,18 @@ public class Utils {
     public static RecordType getRecordTypeWithKeyFields(BArray keyFields, RecordType recordType) {
         Map<String, Field> fieldsMap = new HashMap<>();
         for (Field field : recordType.getFields().values()) {
-            fieldsMap.put(field.getFieldName(), field);
+            if (isEnumType(field.getFieldType())) {
+                Type updatedType = PredefinedTypes.TYPE_STRING;
+                if (field.getFieldType().isNilable()) {
+                    updatedType = TypeCreator.createUnionType(Arrays.asList(
+                            PredefinedTypes.TYPE_STRING, PredefinedTypes.TYPE_NULL));
+                }
+                fieldsMap.put(field.getFieldName(), TypeCreator.createField(updatedType, field.getFieldName(), 0));
+            } else {
+                fieldsMap.put(field.getFieldName(), field);
+            }
         }
+
         for (int i = 0; i < keyFields.size(); i++) {
             String key = keyFields.get(i).toString();
             if (!fieldsMap.containsKey(key)) {
@@ -178,6 +193,28 @@ public class Utils {
                 Constants.DEFAULT_STREAM_CONSTRAINT_NAME, Constants.BALLERINA_ANNOTATIONS_MODULE, 1,
                 fieldsMap, null, true,
                 TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE)
+        );
+    }
+
+    private static RecordType getRecordTypeWithEnumFieldsReplaced(RecordType recordType) {
+        Map<String, Field> fieldsMap = new HashMap<>();
+        for (Field field : recordType.getFields().values()) {
+            if (isEnumType(field.getFieldType())) {
+                Type updatedType = PredefinedTypes.TYPE_STRING;
+                if (field.getFieldType().isNilable()) {
+                    updatedType = TypeCreator.createUnionType(Arrays.asList(
+                            PredefinedTypes.TYPE_STRING, PredefinedTypes.TYPE_NULL));
+                }
+                fieldsMap.put(field.getFieldName(), TypeCreator.createField(updatedType, field.getFieldName(), 0));
+            } else {
+                fieldsMap.put(field.getFieldName(), field);
+            }
+        }
+
+        return TypeCreator.createRecordType(
+                recordType.getName(), recordType.getPkg(), recordType.getFlags(),
+                fieldsMap, recordType.getRestFieldType(), recordType.isSealed(),
+                recordType.getTypeFlags()
         );
     }
 
@@ -195,6 +232,13 @@ public class Utils {
         }
 
         return properties;
+    }
+
+    private static boolean isEnumType(Type type) {
+        return type.getTag() == TypeTags.UNION_TAG &&
+                ((UnionType) type).getMemberTypes().stream().allMatch(memberType ->
+                        memberType.getTag() == TypeTags.FINITE_TYPE_TAG ||
+                        memberType.getTag() == TypeTags.NULL_TAG);
     }
 
 }
