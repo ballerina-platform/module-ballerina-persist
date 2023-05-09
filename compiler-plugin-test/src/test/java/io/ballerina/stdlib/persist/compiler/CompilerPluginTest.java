@@ -125,7 +125,7 @@ public class CompilerPluginTest {
                         "an entity should be a closed record"
                 },
                 new String[]{
-                        "(11:25,17:1)"
+                        "(17:25,23:1)"
                 }
         );
     }
@@ -158,7 +158,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateEntityFieldTypeForMysql() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "field-types.bal", 9);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "field-types.bal", 10);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -170,7 +170,8 @@ public class CompilerPluginTest {
                         PERSIST_305.getCode(),
                         PERSIST_306.getCode(),
                         PERSIST_305.getCode(),
-                        PERSIST_306.getCode()
+                        PERSIST_306.getCode(),
+                        PERSIST_306.getCode(),
                 },
                 new String[]{
                         "an entity does not support boolean array field type",
@@ -181,24 +182,26 @@ public class CompilerPluginTest {
                         "an entity does not support error-typed field",
                         "an entity does not support error array field type",
                         "an entity does not support mysql:Client-typed field",
-                        "an entity does not support mysql:Client array field type"
+                        "an entity does not support mysql:Client array field type",
+                        "an entity does not support enum array field type"
                 },
                 new String[]{
-                        "(13:4,13:13)",
-                        "(15:4,15:8)",
-                        "(16:4,16:10)",
-                        "(19:4,19:16)",
-                        "(20:4,20:21)",
-                        "(22:4,22:9)",
-                        "(23:4,23:11)",
-                        "(25:4,25:16)",
-                        "(26:4,26:18)"
+                        "(18:4,18:13)",
+                        "(20:4,20:8)",
+                        "(21:4,21:10)",
+                        "(24:4,24:16)",
+                        "(25:4,25:21)",
+                        "(27:4,27:9)",
+                        "(28:4,28:11)",
+                        "(30:4,30:16)",
+                        "(31:4,31:18)",
+                        "(34:4,34:12)"
                 }
         );
     }
     @Test
     public void validateEntityFieldTypeForGoogleSheets() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("project_3", "field-types.bal", 10);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_3", "field-types.bal", 11);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -211,6 +214,7 @@ public class CompilerPluginTest {
                         PERSIST_305.getCode(),
                         PERSIST_306.getCode(),
                         PERSIST_305.getCode(),
+                        PERSIST_306.getCode(),
                         PERSIST_306.getCode()
                 },
                 new String[]{
@@ -223,19 +227,21 @@ public class CompilerPluginTest {
                         "an entity does not support error-typed field",
                         "an entity does not support error array field type",
                         "an entity does not support mysql:Client-typed field",
-                        "an entity does not support mysql:Client array field type"
+                        "an entity does not support mysql:Client array field type",
+                        "an entity does not support enum array field type"
                 },
                 new String[]{
-                        "(11:4,11:10)",
-                        "(13:4,13:13)",
-                        "(15:4,15:8)",
                         "(16:4,16:10)",
-                        "(19:4,19:16)",
-                        "(20:4,20:21)",
-                        "(22:4,22:9)",
-                        "(23:4,23:11)",
-                        "(25:4,25:16)",
-                        "(26:4,26:18)"
+                        "(18:4,18:13)",
+                        "(20:4,20:8)",
+                        "(21:4,21:10)",
+                        "(24:4,24:16)",
+                        "(25:4,25:21)",
+                        "(27:4,27:9)",
+                        "(28:4,28:11)",
+                        "(30:4,30:16)",
+                        "(31:4,31:18)",
+                        "(34:4,34:12)"
                 }
         );
     }
