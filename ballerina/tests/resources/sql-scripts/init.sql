@@ -26,7 +26,7 @@ CREATE TABLE test.Employee (
     firstName VARCHAR(30),
     lastName VARCHAR(30),
     birthDate DATE,
-    gender CHAR(1),
+	gender ENUM('MALE', 'FEMALE') NOT NULL,
     hireDate DATE,
     departmentDeptNo VARCHAR(36),
     workspaceWorkspaceId VARCHAR(36),
@@ -61,6 +61,8 @@ CREATE TABLE test.AllTypes (
 	dateTypeOptional DATE,
 	timeOfDayTypeOptional TIME,
 	civilTypeOptional DATETIME,
+	enumType CHAR(6) NOT NULL,
+	enumTypeOptional CHAR(6),
 	PRIMARY KEY(id)
 );
 
