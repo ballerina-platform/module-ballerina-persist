@@ -105,7 +105,7 @@ public class CompilerPluginTest {
                         PERSIST_101.getCode()
                 },
                 new String[]{
-                        "persist model definition only supports record definitions"
+                        "persist model definition only supports record and enum definitions"
                 },
                 new String[]{
                         "(2:0,3:1)"
@@ -462,7 +462,7 @@ public class CompilerPluginTest {
                         PERSIST_306.getCode()
                 },
                 new String[]{
-                        "persist model definition only supports record definitions",
+                        "persist model definition only supports record and enum definitions",
                         "an entity does not support Integer array field type"
                 },
                 new String[]{
