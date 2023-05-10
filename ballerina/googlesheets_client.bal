@@ -17,7 +17,6 @@
 import ballerinax/googleapis.sheets;
 import ballerina/url;
 import ballerina/http;
-import ballerina/regex;
 import ballerina/time;
 
 type Table record {
@@ -86,7 +85,7 @@ public client class GoogleSheetsClient {
             sheets:ValueRange[]|error output = self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
             if (output !is error) {
                 if (output.length() > 0) {
-                    return <Error>error("Error: record already exists. " + rowValues.toString());
+                    return <Error>error("Error: Record already exists. " + rowValues.toString());
                 }
             }
             (int|string|decimal|boolean|float)[] values = [];
@@ -175,21 +174,21 @@ public client class GoogleSheetsClient {
         }
         string|error textResponse = response.getTextPayload();
         if (textResponse !is error) {
-            string[] responseRows = regex:split(textResponse, "\n");
+            string[] responseRows = re `\n`.split(textResponse);
             record {}[] rowTable = [];
             if responseRows.length() == 0 {
                 return <Error>error("Error: the spreadsheet is not initialised correctly. ");
             } else if responseRows.length() == 1 {
                 return rowTable.toStream();
             }
-            string[] columnNames = regex:split(responseRows[0], ",");
+            string[] columnNames = re `,`.split(responseRows[0]);
             foreach string rowString in responseRows.slice(1) {
                 int i = 0;
                 record {} rowArray = {};
-                string[] rowValues = regex:split(rowString, ",");
+                string[] rowValues = re `,`.split(rowString);
                 foreach string rowValue in rowValues {
-                    string columnName = regex:replaceAll(columnNames[i], "\"", "");
-                    string value = regex:replaceAll(rowValue, "\"", "");
+                    string columnName = re `"`.replaceAll(columnNames[i], "");
+                    string value = re `"`.replaceAll(rowValue, "");
                     string dataType = self.dataTypes.get(columnName).toString();
                     if (dataType == "int") {
                         (string|int|decimal|time:Date|time:TimeOfDay|time:Civil|time:Utc)|error typedValue = self.dataConverter(value, dataType);
@@ -277,7 +276,7 @@ public client class GoogleSheetsClient {
                 return <Error> error(rows.message());
             }
             if (rows.length() == 0) {
-                return <Error>error("no element found for update");
+                return <Error>error("Error: No element with given key found. ");
             }
 
             foreach string entityKey in entityKeys {
@@ -502,11 +501,11 @@ public client class GoogleSheetsClient {
 
     private isolated function stringToTime(string timeValue, string dataType) returns time:Date|time:TimeOfDay|time:Civil|time:Utc|error {
         if dataType == "time:TimeOfDay" {
-            string[] timeValues =  regex:split(timeValue, ":");
+            string[] timeValues =  re `:`.split(timeValue);
             time:TimeOfDay output = {hour: check int:fromString(timeValues[0]), minute: check int:fromString(timeValues[1]), second: check decimal:fromString(timeValues[2])};
             return output;
         } else if dataType == "time:Date" {
-            string[] timeValues =  regex:split(timeValue, ":");
+            string[] timeValues =  re `:`.split(timeValue);
             time:Date output = {day: check int:fromString(timeValues[0]), month: check int:fromString(timeValues[1]), year: check int:fromString(timeValues[2])};
             return output;
         } else if dataType == "time:Civil" {
