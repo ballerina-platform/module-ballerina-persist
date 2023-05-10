@@ -71,7 +71,9 @@ AllTypes allTypes1 = {
     stringTypeOptional: "test",
     dateTypeOptional: {year: 1993, month: 11, day: 3},
     timeOfDayTypeOptional: {hour: 12, minute: 32, second: 34},
-    civilTypeOptional: {year: 1993, month: 11, day: 3, hour: 12, minute: 32, second: 34}
+    civilTypeOptional: {year: 1993, month: 11, day: 3, hour: 12, minute: 32, second: 34},
+    enumType: "TYPE_3",
+    enumTypeOptional: "TYPE_2"
 };
 
 AllTypes allTypes1Expected = {
@@ -92,7 +94,9 @@ AllTypes allTypes1Expected = {
     stringTypeOptional: allTypes1.stringTypeOptional,
     dateTypeOptional: allTypes1.dateTypeOptional,
     timeOfDayTypeOptional: allTypes1.timeOfDayTypeOptional,
-    civilTypeOptional: allTypes1.civilTypeOptional
+    civilTypeOptional: allTypes1.civilTypeOptional,
+    enumType: allTypes1.enumType,
+    enumTypeOptional: allTypes1.enumTypeOptional
 };
 
 AllTypes allTypes2 = {
@@ -113,7 +117,9 @@ AllTypes allTypes2 = {
     stringTypeOptional: "test2",
     dateTypeOptional: {year: 1293, month: 11, day: 3},
     timeOfDayTypeOptional: {hour: 19, minute: 32, second: 34},
-    civilTypeOptional: {year: 1989, month: 11, day: 3, hour: 12, minute: 32, second: 34}
+    civilTypeOptional: {year: 1989, month: 11, day: 3, hour: 12, minute: 32, second: 34},
+    enumType: "TYPE_1",
+    enumTypeOptional: "TYPE_3"
 };
 
 AllTypes allTypes2Expected = {
@@ -134,7 +140,9 @@ AllTypes allTypes2Expected = {
     stringTypeOptional: allTypes2.stringTypeOptional,
     dateTypeOptional: allTypes2.dateTypeOptional,
     timeOfDayTypeOptional: allTypes2.timeOfDayTypeOptional,
-    civilTypeOptional: allTypes2.civilTypeOptional
+    civilTypeOptional: allTypes2.civilTypeOptional,
+    enumType: allTypes2.enumType,
+    enumTypeOptional: allTypes2.enumTypeOptional
 };
 
 AllTypes allTypes3 = {
@@ -155,7 +163,9 @@ AllTypes allTypes3 = {
     stringTypeOptional: (),
     dateTypeOptional: (),
     timeOfDayTypeOptional: (),
-    civilTypeOptional: ()
+    civilTypeOptional: (),
+    enumType: "TYPE_1",
+    enumTypeOptional: ()
 };
 
 AllTypes allTypes3Expected = {
@@ -176,7 +186,9 @@ AllTypes allTypes3Expected = {
     stringTypeOptional: allTypes3.stringTypeOptional,
     dateTypeOptional: allTypes3.dateTypeOptional,
     timeOfDayTypeOptional: allTypes3.timeOfDayTypeOptional,
-    civilTypeOptional: allTypes3.civilTypeOptional
+    civilTypeOptional: allTypes3.civilTypeOptional,
+    enumType: allTypes3.enumType,
+    enumTypeOptional: allTypes3.enumTypeOptional
 };
 
 AllTypes allTypes1Updated = {
@@ -197,7 +209,9 @@ AllTypes allTypes1Updated = {
     stringTypeOptional: "testUpdate",
     dateTypeOptional: {year: 1923, month: 11, day: 3},
     timeOfDayTypeOptional: {hour: 18, minute: 32, second: 34},
-    civilTypeOptional: {year: 1991, month: 11, day: 3, hour: 12, minute: 32, second: 34}
+    civilTypeOptional: {year: 1991, month: 11, day: 3, hour: 12, minute: 32, second: 34},
+    enumType: "TYPE_4",
+    enumTypeOptional: "TYPE_4"
 };
 
 AllTypes allTypes1UpdatedExpected = {
@@ -218,7 +232,9 @@ AllTypes allTypes1UpdatedExpected = {
     stringTypeOptional: allTypes1Updated.stringTypeOptional,
     dateTypeOptional: allTypes1Updated.dateTypeOptional,
     timeOfDayTypeOptional: allTypes1Updated.timeOfDayTypeOptional,
-    civilTypeOptional: allTypes1Updated.civilTypeOptional
+    civilTypeOptional: allTypes1Updated.civilTypeOptional,
+    enumType: allTypes1Updated.enumType,
+    enumTypeOptional: allTypes1Updated.enumTypeOptional
 };
 
 public type AllTypesDependent record {|
@@ -350,7 +366,7 @@ Employee employee1 = {
     firstName: "Tom",
     lastName: "Scott",
     birthDate: {year: 1992, month: 11, day: 13},
-    gender: "M",
+    gender: MALE,
     hireDate: {year: 2022, month: 8, day: 1},
     departmentDeptNo: "department-2",
     workspaceWorkspaceId: "workspace-2"
@@ -361,7 +377,7 @@ Employee invalidEmployee = {
     firstName: "Tom",
     lastName: "Scott",
     birthDate: {year: 1992, month: 11, day: 13},
-    gender: "M",
+    gender: MALE,
     hireDate: {year: 2022, month: 8, day: 1},
     departmentDeptNo: "department-2",
     workspaceWorkspaceId: "workspace-2"
@@ -372,7 +388,7 @@ Employee employee2 = {
     firstName: "Jane",
     lastName: "Doe",
     birthDate: {year: 1996, month: 9, day: 15},
-    gender: "F",
+    gender: FEMALE,
     hireDate: {year: 2022, month: 6, day: 1},
     departmentDeptNo: "department-2",
     workspaceWorkspaceId: "workspace-2"
@@ -383,7 +399,7 @@ Employee employee3 = {
     firstName: "Hugh",
     lastName: "Smith",
     birthDate: {year: 1986, month: 9, day: 15},
-    gender: "F",
+    gender: FEMALE,
     hireDate: {year: 2021, month: 6, day: 1},
     departmentDeptNo: "department-3",
     workspaceWorkspaceId: "workspace-3"
@@ -394,7 +410,7 @@ Employee updatedEmployee1 = {
     firstName: "Tom",
     lastName: "Jones",
     birthDate: {year: 1994, month: 11, day: 13},
-    gender: "M",
+    gender: MALE,
     hireDate: {year: 2022, month: 8, day: 1},
     departmentDeptNo: "department-3",
     workspaceWorkspaceId: "workspace-2"

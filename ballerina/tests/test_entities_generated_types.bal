@@ -16,6 +16,13 @@
 
 import ballerina/time;
 
+public enum EnumType {
+    TYPE_1,
+    TYPE_2,
+    TYPE_3,
+    TYPE_4
+}
+
 public type AllTypes record {|
     readonly int id;
     boolean booleanType;
@@ -35,6 +42,8 @@ public type AllTypes record {|
     time:Date? dateTypeOptional;
     time:TimeOfDay? timeOfDayTypeOptional;
     time:Civil? civilTypeOptional;
+    EnumType enumType;
+    EnumType? enumTypeOptional;
 |};
 
 public type AllTypesOptionalized record {|
@@ -56,6 +65,8 @@ public type AllTypesOptionalized record {|
     time:Date? dateTypeOptional?;
     time:TimeOfDay? timeOfDayTypeOptional?;
     time:Civil? civilTypeOptional?;
+    EnumType? enumType?;
+    EnumType? enumTypeOptional?;
 |};
 
 public type AllTypesTargetType typedesc<AllTypesOptionalized>;
@@ -80,6 +91,8 @@ public type AllTypesUpdate record {|
     time:Date? dateTypeOptional?;
     time:TimeOfDay? timeOfDayTypeOptional?;
     time:Civil? civilTypeOptional?;
+    EnumType? enumType?;
+    EnumType? enumTypeOptional?;
 |};
 
 public type StringIdRecord record {|

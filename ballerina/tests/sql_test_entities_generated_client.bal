@@ -55,7 +55,9 @@ public client class SQLTestEntitiesClient {
                 stringTypeOptional: {columnName: "stringTypeOptional"},
                 dateTypeOptional: {columnName: "dateTypeOptional"},
                 timeOfDayTypeOptional: {columnName: "timeOfDayTypeOptional"},
-                civilTypeOptional: {columnName: "civilTypeOptional"}
+                civilTypeOptional: {columnName: "civilTypeOptional"},
+                enumType: {columnName: "enumType"},
+                enumTypeOptional: {columnName: "enumTypeOptional"}
             },
             keyFields: ["id"]
         },
