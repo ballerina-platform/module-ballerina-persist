@@ -111,7 +111,7 @@ public client class GoogleSheetsClient {
                 }
             }
             string[] splitedRange = re `:`.split(self.range);
-            sheets:A1Notation a1Range = {sheetName: self.tableName, startIndex: splitedRange[0], endIndex: splitedRange[1]};
+            sheets:A1Range a1Range = {sheetName: self.tableName, startIndex: splitedRange[0], endIndex: splitedRange[1]};
             sheets:ValueRange|error insertedRow = self.googleSheetClient->appendValue(self.spreadsheetId, values, a1Range, "USER_ENTERED");
             if insertedRow is error {
                 return <Error> error (insertedRow.message());

@@ -48,7 +48,7 @@ public type SheetMetadata record {|
     map<string> dataTypes = {};
     function (string[]) returns stream<record {}, Error?>|Error query;
     function (anydata) returns record {}|InvalidKeyError queryOne;
-    map<function (record {}, string[]) returns record {}[]|error> associationsMethods = {};
+    map<function (record {}, string[]) returns record {}[]|Error> associationsMethods = {};
 |};
 
 # Represents the metadata associated with a simple field in the entity record.
