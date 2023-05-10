@@ -44,8 +44,8 @@ public client class GoogleSheetsClient {
     private map<SheetFieldMetadata> fieldMetadata;
     private map<string> dataTypes;
     private string[] keyFields;
-    private function (string[]) returns stream<record {}, error?>|error query;
-    private function (anydata) returns record {}|error queryOne;
+    private function (string[]) returns stream<record {}, Error?>|Error query;
+    private function (anydata) returns record {}|InvalidKeyError queryOne;
     private map<function (record {}, string[]) returns record {}[]|error> associationsMethods;
 
     # Initializes the `GSheetClient`.
@@ -78,31 +78,48 @@ public client class GoogleSheetsClient {
     # + insertRecords - The entity records to be inserted into the table
     # + return - An `sql:ExecutionResult[]` containing the metadata of the query execution
     # or a `persist:Error` if the operation fails
-    public isolated function runBatchInsertQuery(record {}[] insertRecords) returns error? {
+    public isolated function runBatchInsertQuery(record {}[] insertRecords) returns Error? {
         string[] fieldMetadataKeys = self.fieldMetadata.keys();
         foreach record {} rowValues in insertRecords {
             string metadataValue = self.generateMetadataValue(self.keyFields, rowValues);
             sheets:DeveloperMetadataLookupFilter filter = {locationType: "ROW", metadataKey: self.tableName, metadataValue: metadataValue};
-            sheets:Row[]|error output = self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
+            sheets:ValueRange[]|error output = self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
             if (output !is error) {
                 if (output.length() > 0) {
                     return <Error>error("Error: record already exists. " + rowValues.toString());
                 }
             }
-            (int|string|decimal)[] values = [];
+            (int|string|decimal|boolean|float)[] values = [];
             foreach string key in fieldMetadataKeys {
                 string dataType = self.dataTypes.get(key).toString();
                 if dataType == "time:Date" || dataType == "time:TimeOfDay" ||dataType == "time:Civil" || dataType == "time:Utc" {
-                    (time:Date|time:TimeOfDay|time:Civil|time:Utc) timeValue = check rowValues.get(key).ensureType();
-                    (int|string|decimal) value = check self.timeToString(timeValue);
+                    (time:Date|time:TimeOfDay|time:Civil|time:Utc)|error timeValue = rowValues.get(key).ensureType();
+                    if timeValue is error {
+                        return <Error> error(timeValue.message());
+                    } 
+                    string|error value = self.timeToString(timeValue);
+                    if value is error {
+                        return <Error> error(value.message());
+                    } 
                     values.push(value);
                 } else {
-                    (int|string|decimal) value = check rowValues.get(key).ensureType();
+                    (int|string|decimal|boolean|float)|error value = rowValues.get(key).ensureType();
+                    if value is error {
+                        return <Error> error(value.message());
+                    } 
                     values.push(value);
                 }
             }
-            sheets:Row insertedRow = check self.googleSheetClient->appendRowToSheet(self.spreadsheetId, self.tableName, values, self.range, "USER_ENTERED");
-            check self.googleSheetClient->setRowMetaData(self.spreadsheetId, self.sheetId, insertedRow.rowPosition, "DOCUMENT", self.tableName, metadataValue);
+            string[] splitedRange = re `:`.split(self.range);
+            sheets:A1Notation a1Range = {sheetName: self.tableName, startIndex: splitedRange[0], endIndex: splitedRange[1]};
+            sheets:ValueRange|error insertedRow = self.googleSheetClient->appendValue(self.spreadsheetId, values, a1Range, "USER_ENTERED");
+            if insertedRow is error {
+                return <Error> error (insertedRow.message());
+            }
+            error? response = self.googleSheetClient->setRowMetaData(self.spreadsheetId, self.sheetId, insertedRow.rowPosition, "DOCUMENT", self.tableName, metadataValue);
+            if response is error {
+                return <Error> error (response.message());
+            }
         }
     }
 
@@ -116,7 +133,7 @@ public client class GoogleSheetsClient {
     # + include - The relations to be retrieved (SQL `JOINs` to be performed)
     # + typeDescriptions - The type descriptions of the relations to be retrieved
     # + return - A record in the `rowType` type or a `persist:Error` if the operation fails
-    public isolated function runReadByKeyQuery(typedesc<record {}> rowType, typedesc<record {}> rowTypeWithIdFields, map<anydata> typeMap, anydata key, string[] fields = [], string[] include = [], typedesc<record {}>[] typeDescriptions = []) returns record {}|error {
+    public isolated function runReadByKeyQuery(typedesc<record {}> rowType, typedesc<record {}> rowTypeWithIdFields, map<anydata> typeMap, anydata key, string[] fields = [], string[] include = [], typedesc<record {}>[] typeDescriptions = []) returns record {}|Error {
         record {} 'object = check self.queryOne(key);
 
         'object = filterRecord('object, self.addKeyFields(fields));
@@ -136,7 +153,7 @@ public client class GoogleSheetsClient {
     # + include - The associations to be retrieved
     # + return - A stream of records in the `rowType` type or a `persist:Error` if the operation fails
     public isolated function runReadQuery(typedesc<record {}> rowType, map<anydata> typeMap, string[] fields = [], string[] include = [])
-    returns stream<record {}, error?>|error {
+    returns stream<record {}, error?>|Error {
         return self.query(self.addKeyFields(fields));
     }
 
@@ -221,16 +238,19 @@ public client class GoogleSheetsClient {
     # + return - `()` if the operation is performed successfully.
     # A `ForeignKeyConstraintViolationError` if the operation violates a foreign key constraint.
     # A `persist:Error` if the operation fails due to another reason.
-    public isolated function runUpdateQuery(anydata key, record {} updateRecord) returns error? {
+    public isolated function runUpdateQuery(anydata key, record {} updateRecord) returns Error? {
         string[] entityKeys = self.fieldMetadata.keys();
-        (int|string|decimal)[] values = [];
-        if (key is string|int|decimal) {
+        (int|string|decimal|boolean|float)[] values = [];
+        if (key is string|int|decimal|float) {
             sheets:DeveloperMetadataLookupFilter filter = {locationType: "ROW", metadataKey: self.tableName, metadataValue: key.toString()};
-            sheets:Row[] rows = check self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
+            sheets:ValueRange[]|error rows = self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
+            if rows is error {
+                return <Error> error(rows.message());
+            }
             if (rows.length() == 0) {
-                return <error>error(string `No element found for given key: ${key.toString()}`);
+                return <Error>error(string `No element found for given key: ${key.toString()}`);
             } else if rows.length() > 1 {
-                return <error>error(string `Multiple elements found for given key: ${key.toString()}`);
+                return <Error>error(string `Multiple elements found for given key: ${key.toString()}`);
             }
             foreach string entityKey in entityKeys {
                 if !updateRecord.hasKey(entityKey) && (self.keyFields.indexOf(entityKey) != ()) {
@@ -241,22 +261,34 @@ public client class GoogleSheetsClient {
                         values.push(rows[0].values[indexOfKey]);
                     }
                 } else {
-                    (int|string|decimal) value = check updateRecord.get(entityKey).ensureType();
+                    (int|string|decimal|float)|error value =  updateRecord.get(entityKey).ensureType();
+                    if value is error {
+                        return <Error> error(value.message());
+                    }
                     values.push(value);
                 }
             }
-            check self.googleSheetClient->updateRowByDataFilter(self.spreadsheetId, self.sheetId, filter, values, "USER_ENTERED");
+            error? response = self.googleSheetClient->updateRowByDataFilter(self.spreadsheetId, self.sheetId, filter, values, "USER_ENTERED");
+            if response is error {
+                return <Error> error(response.message());
+            }
         } else if (key is map<anydata>) {
             string metadataValue = self.generateMetadataValue(self.keyFields, key);
             sheets:DeveloperMetadataLookupFilter filter = {locationType: "ROW", metadataKey: self.tableName, metadataValue: metadataValue};
-            sheets:Row[] rows = check self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
+            sheets:ValueRange[]|error rows = self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
+            if rows is error {
+                return <Error> error(rows.message());
+            }
             if (rows.length() == 0) {
-                return <error>error("no element found for update");
+                return <Error>error("no element found for update");
             }
 
             foreach string entityKey in entityKeys {
                 if (!updateRecord.hasKey(entityKey) && (self.keyFields.indexOf(entityKey) != ())) {
-                    (int|string|decimal) value = check key.get(entityKey).ensureType();
+                    (int|string|decimal)|error value = key.get(entityKey).ensureType();
+                    if value is error {
+                        return <Error> error(value.message());
+                    }
                     values.push(value);
                 } else if !updateRecord.hasKey(entityKey) && (self.keyFields.indexOf(entityKey) == ()) {
                     int? indexOfKey = self.fieldMetadata.keys().indexOf(entityKey, 0);
@@ -264,11 +296,17 @@ public client class GoogleSheetsClient {
                         values.push(rows[0].values[indexOfKey]);
                     }
                 } else {
-                    (int|string|decimal) value = check updateRecord.get(entityKey).ensureType();
+                    (int|string|decimal)|error value = updateRecord.get(entityKey).ensureType();
+                    if value is error {
+                        return <Error> error(value.message());
+                    }
                     values.push(value);
                 }
             }
-            check self.googleSheetClient->updateRowByDataFilter(self.spreadsheetId, self.sheetId, filter, values, "USER_ENTERED");
+            error? response = self.googleSheetClient->updateRowByDataFilter(self.spreadsheetId, self.sheetId, filter, values, "USER_ENTERED");
+            if response is error {
+                return <Error> error(response.message());
+            }
 
         }
     }
@@ -277,22 +315,35 @@ public client class GoogleSheetsClient {
     #
     # + deleteKey - The key used to delete an entity record
     # + return - `()` if the operation is performed successfully or a `persist:Error` if the operation fails
-    public isolated function runDeleteQuery(anydata deleteKey) returns error? {
+    public isolated function runDeleteQuery(anydata deleteKey) returns Error? {
         if (deleteKey is string|int|decimal) {
             sheets:DeveloperMetadataLookupFilter filter = {locationType: "ROW", metadataKey: self.tableName, metadataValue: deleteKey.toString()};
-            sheets:Row[] rows = check self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
-            if (rows.length() == 0) {
-                return <error>error("no element found for delete");
+            sheets:ValueRange[]|error rows = self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
+            if rows is error {
+                return <Error>error(rows.message());
             }
-            check self.googleSheetClient->deleteRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
+            if rows.length() == 0 {
+                return <Error>error("no element found for delete");
+            }
+            error? response = self.googleSheetClient->deleteRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
+            if response is error {
+                return <Error> error(response.message());
+            }
+            
         } else if (deleteKey is map<anydata>) {
             string metadataValue = self.generateMetadataValue(self.keyFields, deleteKey);
             sheets:DeveloperMetadataLookupFilter filter = {locationType: "ROW", metadataKey: self.tableName, metadataValue: metadataValue};
-            sheets:Row[] rows = check self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
-            if (rows.length() == 0) {
-                return <error>error("no element found for update");
+            sheets:ValueRange[]|error rows = self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
+            if rows is error {
+                return <Error>error(rows.message());
             }
-            check self.googleSheetClient->deleteRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
+            if (rows.length() == 0) {
+                return <Error>error("no element found for update");
+            }
+            error? response = self.googleSheetClient->deleteRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
+            if response is error {
+                return <Error> error(response.message());
+            }
 
         }
     }
@@ -448,7 +499,7 @@ public client class GoogleSheetsClient {
         } else if timeValue is time:Utc {
             return time:utcToString(timeValue);
         } else {
-            return <error>error("Error: unsupported time format");
+            return <Error>error("Error: unsupported time format");
         }
     }
 
