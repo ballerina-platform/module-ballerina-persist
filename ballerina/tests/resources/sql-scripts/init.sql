@@ -26,7 +26,7 @@ CREATE TABLE test.Employee (
     firstName VARCHAR(30),
     lastName VARCHAR(30),
     birthDate DATE,
-	gender ENUM('MALE', 'FEMALE') NOT NULL,
+    gender ENUM('MALE', 'FEMALE') NOT NULL,
     hireDate DATE,
     departmentDeptNo VARCHAR(36),
     workspaceWorkspaceId VARCHAR(36),
