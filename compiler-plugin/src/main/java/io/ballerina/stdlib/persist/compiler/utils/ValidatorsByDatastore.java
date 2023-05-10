@@ -33,6 +33,7 @@ import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTimeTypes.
 import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.BOOLEAN;
 import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.BYTE;
 import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.DECIMAL;
+import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.ENUM;
 import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.FLOAT;
 import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.INT;
 import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.STRING;
@@ -121,6 +122,7 @@ public final class ValidatorsByDatastore {
             case DECIMAL:
             case FLOAT:
             case STRING:
+            case ENUM:
                 return true;
             default:
                 return false;
@@ -138,6 +140,7 @@ public final class ValidatorsByDatastore {
             case DECIMAL:
             case FLOAT:
             case STRING:
+            case ENUM:
                 return true;
             default:
                 return false;

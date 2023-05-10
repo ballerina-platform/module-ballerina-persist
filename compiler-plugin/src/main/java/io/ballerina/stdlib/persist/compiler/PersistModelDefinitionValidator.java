@@ -20,6 +20,7 @@ package io.ballerina.stdlib.persist.compiler;
 
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
@@ -111,6 +112,7 @@ import static io.ballerina.stdlib.persist.compiler.utils.Utils.stripEscapeCharac
 public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeAnalysisContext> {
     private final Map<String, Entity> entities = new HashMap<>();
     private final List<String> entityNames = new ArrayList<>();
+    private final List<String> enumTypes = new ArrayList<>();
     private final Map<String, List<RelationField>> deferredRelationKeyEntities = new HashMap<>();
     private final Map<String, List<GroupedRelationField>> deferredGroupedRelationKeyEntities = new HashMap<>();
 
@@ -167,6 +169,10 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                     }
                     continue;
                 }
+            } else if (member instanceof EnumDeclarationNode) {
+                String enumTypeName = stripEscapeCharacter(((EnumDeclarationNode) member).identifier().text().trim());
+                enumTypes.add(enumTypeName);
+                continue;
             }
             ctx.reportDiagnostic(DiagnosticFactory.createDiagnostic(
                     new DiagnosticInfo(PERSIST_101.getCode(), PERSIST_101.getMessage(), PERSIST_101.getSeverity()),
@@ -353,6 +359,10 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                             isArrayType, arrayStartOffset, arrayLength, recordFieldNode.location(),
                             entity.getEntityName()));
                 } else {
+                    if (this.enumTypes.contains(typeName)) {
+                        typeName = Constants.BallerinaTypes.ENUM;
+                    }
+
                     // Revisit once https://github.com/ballerina-platform/ballerina-lang/issues/39441 is resolved
                     List<DiagnosticProperty<?>> properties = List.of(
                             new BNumericProperty(arrayStartOffset),

@@ -28,7 +28,7 @@ function sqlEmployeeRelationsTest() returns error? {
         firstName: "Tom",
         lastName: "Scott",
         birthDate: {year: 1992, month: 11, day: 13},
-        gender: "M",
+        gender: MALE,
         hireDate: {year: 2022, month: 8, day: 1},
         departmentDeptNo: "department-22",
         workspaceWorkspaceId: "workspace-22"
@@ -95,7 +95,7 @@ function departmentRelationsTest() returns error? {
         firstName: "Tom",
         lastName: "Scott",
         birthDate: {year: 1992, month: 11, day: 13},
-        gender: "M",
+        gender: MALE,
         hireDate: {year: 2022, month: 8, day: 1},
         departmentDeptNo: "department-12",
         workspaceWorkspaceId: "workspace-12"
@@ -106,7 +106,7 @@ function departmentRelationsTest() returns error? {
         firstName: "Jane",
         lastName: "Doe",
         birthDate: {year: 1996, month: 9, day: 15},
-        gender: "F",
+        gender: FEMALE,
         hireDate: {year: 2022, month: 6, day: 1},
         departmentDeptNo: "department-12",
         workspaceWorkspaceId: "workspace-12"
@@ -175,7 +175,7 @@ function workspaceRelationsTest() returns error? {
         firstName: "James",
         lastName: "David",
         birthDate: {year: 1996, month: 11, day: 13},
-        gender: "F",
+        gender: FEMALE,
         hireDate: {year: 2021, month: 8, day: 1},
         departmentDeptNo: "department-22",
         workspaceWorkspaceId: "workspace-22"
@@ -204,7 +204,7 @@ function workspaceRelationsTest() returns error? {
                 firstName: "Tom",
                 lastName: "Scott",
                 birthDate: {year: 1992, month: 11, day: 13},
-                gender: "M",
+                gender: MALE,
                 hireDate: {year: 2022, month: 8, day: 1},
                 departmentDeptNo: "department-22",
                 workspaceWorkspaceId: "workspace-22"
@@ -214,7 +214,7 @@ function workspaceRelationsTest() returns error? {
                 firstName: "James",
                 lastName: "David",
                 birthDate: {year: 1996, month: 11, day: 13},
-                gender: "F",
+                gender: FEMALE,
                 hireDate: {year: 2021, month: 8, day: 1},
                 departmentDeptNo: "department-22",
                 workspaceWorkspaceId: "workspace-22"

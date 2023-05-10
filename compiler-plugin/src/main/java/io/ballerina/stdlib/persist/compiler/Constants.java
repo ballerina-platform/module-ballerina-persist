@@ -44,6 +44,7 @@ public final class Constants {
         public static final String DECIMAL = "decimal";
         public static final String FLOAT = "float";
         public static final String BYTE = "byte";
+        public static final String ENUM = "enum";
 
         private BallerinaTypes() {
         }

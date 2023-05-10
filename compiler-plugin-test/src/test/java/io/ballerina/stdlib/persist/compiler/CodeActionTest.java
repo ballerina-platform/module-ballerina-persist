@@ -64,7 +64,7 @@ public class CodeActionTest {
                 {"usage-of-import-prefix.bal", LinePosition.from(0, 25), "usage-of-import-prefix.bal",
                         "PERSIST_102", "REMOVE_TEXT_RANGE", "Remove import prefix"},
 
-                {"record-properties.bal", LinePosition.from(14, 6), "record-properties.bal",
+                {"record-properties.bal", LinePosition.from(18, 6), "record-properties.bal",
                         "PERSIST_201", "CHANGE_TO_CLOSED_RECORD", "Change to closed record"},
 
                 {"field-properties.bal", LinePosition.from(22, 9), "field-properties-rest-descriptor.bal",

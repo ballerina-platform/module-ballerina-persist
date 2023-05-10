@@ -197,7 +197,9 @@ function inMemoryAllTypesUpdateTest() returns error? {
         stringTypeOptional: allTypes1Updated.stringTypeOptional,
         dateTypeOptional: allTypes1Updated.dateTypeOptional,
         timeOfDayTypeOptional: allTypes1Updated.timeOfDayTypeOptional,
-        civilTypeOptional: allTypes1Updated.civilTypeOptional
+        civilTypeOptional: allTypes1Updated.civilTypeOptional,
+        enumType: allTypes1Updated.enumType,
+        enumTypeOptional: allTypes1Updated.enumTypeOptional
     });
     test:assertEquals(allTypes, allTypes1UpdatedExpected);
 
