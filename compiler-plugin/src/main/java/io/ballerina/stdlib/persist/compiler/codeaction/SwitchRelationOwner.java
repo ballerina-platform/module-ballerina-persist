@@ -42,9 +42,9 @@ import java.util.Optional;
 
 import static io.ballerina.stdlib.persist.compiler.Constants.EMPTY_STRING;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_004;
-import static io.ballerina.stdlib.persist.compiler.Utils.getNumericDiagnosticProperty;
-import static io.ballerina.stdlib.persist.compiler.Utils.getStringDiagnosticProperty;
 import static io.ballerina.stdlib.persist.compiler.codeaction.PersistCodeActionName.SWITCH_RELATION_OWNER;
+import static io.ballerina.stdlib.persist.compiler.utils.Utils.getNumericDiagnosticProperty;
+import static io.ballerina.stdlib.persist.compiler.utils.Utils.getStringDiagnosticProperty;
 
 /**
  * Code action to switch owner in multiple relations.

@@ -38,8 +38,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static io.ballerina.stdlib.persist.compiler.Utils.getNumericDiagnosticProperty;
-import static io.ballerina.stdlib.persist.compiler.Utils.getTextRangeArgument;
+import static io.ballerina.stdlib.persist.compiler.utils.Utils.getNumericDiagnosticProperty;
+import static io.ballerina.stdlib.persist.compiler.utils.Utils.getTextRangeArgument;
 
 /**
  * Code action for changing to closed record.
