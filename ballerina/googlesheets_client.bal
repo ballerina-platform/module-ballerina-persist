@@ -168,57 +168,54 @@ public client class GoogleSheetsClient {
         if encodedQuery is error {
             return <Error>error(encodedQuery.message());
         }
-        http:QueryParams queries = {"gid": self.sheetId, "range": self.range, "tq": <string>encodedQuery, "tqx": "out:json"};
+        http:QueryParams queries = {"gid": self.sheetId, "range": self.range, "tq": <string>encodedQuery, "tqx": "out:csv"};
         http:Response|error response = self.httpClient->/d/[self.spreadsheetId]/gviz/tq(params = queries);
         if response is error {
             return <Error>error(response.message());
         }
         string|error textResponse = response.getTextPayload();
         if (textResponse !is error) {
-            map<json>|error payload = textResponse.substring(47, textResponse.length() - 2).fromJsonStringWithType();
-            if payload is error {
-                return <Error>error(payload.message());
-            }
-
-            Table|error workSheet = payload["table"].fromJsonWithType();
-            if workSheet is error {
-                return <Error>error(workSheet.message());
-            }
-            string[] columnNames = [];
+            string[] responseRows = regex:split(textResponse, "\n");
             record {}[] rowTable = [];
-            foreach map<json> item in workSheet.cols {
-                columnNames.push(item["label"].toString());
+            if responseRows.length() == 0 {
+                return <Error>error("Error: the spreadsheet is not initialised correctly. ");
+            } else if responseRows.length() == 1 {
+                return rowTable.toStream();
             }
-            foreach RowValues value in workSheet.rows {
+            string[] columnNames = regex:split(responseRows[0], ",");
+            foreach string rowString in responseRows.slice(1) {
                 int i = 0;
                 record {} rowArray = {};
-                foreach map<json> item in value.c {
-                    string dataType = self.dataTypes.get(columnNames[i]).toString();
+                string[] rowValues = regex:split(rowString, ",");
+                foreach string rowValue in rowValues {
+                    string columnName = regex:replaceAll(columnNames[i], "\"", "");
+                    string value = regex:replaceAll(rowValue, "\"", "");
+                    string dataType = self.dataTypes.get(columnName).toString();
                     if (dataType == "int") {
-                        (string|int|decimal|time:Date|time:TimeOfDay|time:Civil|time:Utc)|error typedValue = self.dataConverter(item["f"], dataType);
+                        (string|int|decimal|time:Date|time:TimeOfDay|time:Civil|time:Utc)|error typedValue = self.dataConverter(value, dataType);
                         if typedValue is error {
                             return <Error>error(typedValue.message());
                         }
-                        rowArray[columnNames[i]] = <(string|int|decimal)>typedValue;
+                        rowArray[columnName] = <(string|int|decimal)>typedValue;
                     } else if dataType == "time:Date" || dataType == "time:TimeOfDay" ||dataType == "time:Civil" || dataType == "time:Utc" {
-                        (string|int|decimal|time:Date|time:TimeOfDay|time:Civil|time:Utc)|error typedValue = self.dataConverter(item["f"], dataType);
+                        (string|int|decimal|time:Date|time:TimeOfDay|time:Civil|time:Utc)|error typedValue = self.dataConverter(value, dataType);
                         if typedValue is error {
                             return <Error>error(typedValue.message());
                         } else if typedValue is time:Date {
-                            rowArray[columnNames[i]] = <time:Date>typedValue;
+                            rowArray[columnName] = <time:Date>typedValue;
                         } else if typedValue is time:TimeOfDay {
-                            rowArray[columnNames[i]] = <time:TimeOfDay>typedValue;
+                            rowArray[columnName] = <time:TimeOfDay>typedValue;
                         } else if typedValue is time:Civil {
-                            rowArray[columnNames[i]] = <time:Civil>typedValue;
+                            rowArray[columnName] = <time:Civil>typedValue;
                         } else if typedValue is time:Utc {
-                            rowArray[columnNames[i]] = <time:Utc>typedValue;
+                            rowArray[columnName] = <time:Utc>typedValue;
                         }
                     } else {
-                        (string|int|decimal|time:Date|time:TimeOfDay|time:Civil|time:Utc)|error typedValue = self.dataConverter(item["v"], dataType);
+                        (string|int|decimal|time:Date|time:TimeOfDay|time:Civil|time:Utc)|error typedValue = self.dataConverter(value, dataType);
                         if typedValue is error {
                             return <Error>error(typedValue.message());
                         }
-                        rowArray[columnNames[i]] = <(string|int|decimal)>typedValue;
+                        rowArray[columnName] = <(string|int|decimal)>typedValue;
                     }
                     i = i + 1;
                 }

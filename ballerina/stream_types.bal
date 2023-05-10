@@ -120,7 +120,7 @@ public class PersistGoogleSheetsStream {
                 if value is error {
                     return <Error>error(value.message());
                 }
-                // check (<GoogleSheetsClient>self.persistClient).getManyRelations(value, self.fields, self.include, self.typeDescriptions);
+                check (<GoogleSheetsClient>self.persistClient).getManyRelations(value, self.fields, self.include, self.typeDescriptions);
 
                 string[] keyFields = (<GoogleSheetsClient>self.persistClient).getKeyFields();
                 foreach string keyField in keyFields {
