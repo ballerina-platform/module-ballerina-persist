@@ -16,12 +16,17 @@
 
 import ballerina/time;
 
+public enum Gender {
+    MALE,
+    FEMALE
+}
+
 public type Employee record {|
     readonly string empNo;
     string firstName;
     string lastName;
     time:Date birthDate;
-    string gender;
+    Gender gender;
     time:Date hireDate;
     string departmentDeptNo;
     string workspaceWorkspaceId;
@@ -32,7 +37,7 @@ public type EmployeeOptionalized record {|
     string firstName?;
     string lastName?;
     time:Date birthDate?;
-    string gender?;
+    Gender gender?;
     time:Date hireDate?;
     string departmentDeptNo?;
     string workspaceWorkspaceId?;
@@ -52,7 +57,7 @@ public type EmployeeUpdate record {|
     string firstName?;
     string lastName?;
     time:Date birthDate?;
-    string gender?;
+    Gender gender?;
     time:Date hireDate?;
     string departmentDeptNo?;
     string workspaceWorkspaceId?;

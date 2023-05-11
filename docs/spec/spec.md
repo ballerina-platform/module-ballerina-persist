@@ -98,6 +98,7 @@ Simple Types are mapped to native data source types as follows:
     | decimal | DECIMAL(65,30) |
     | string | VARCHAR(191) |
     | byte[] | LONGBLOB |
+    | enum | ENUM |
     | time:Date | DATE |
     | time:TimeOfDay | TIME |
     | time:Utc | TIMESTAMP |

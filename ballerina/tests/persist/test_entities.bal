@@ -1,5 +1,12 @@
 import ballerina/time;
 
+enum EnumType {
+    TYPE_1,
+    TYPE_2,
+    TYPE_3,
+    TYPE_4
+}
+
 type AllTypes record {|
     readonly int id;
     boolean booleanType;
@@ -22,6 +29,8 @@ type AllTypes record {|
     time:TimeOfDay? timeOfDayTypeOptional;
     time:Utc? utcTypeOptional;
     time:Civil? civilTypeOptional;
+    EnumType enumType;
+    EnumType? enumTypeOptional;
 |};
 
 type StringIdRecord record {|

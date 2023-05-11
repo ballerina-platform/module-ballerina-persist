@@ -2,6 +2,11 @@ import ballerina/time;
 import ballerinax/mysql;
 import ballerina/persist as _;
 
+public enum Gender {
+    M,
+    F
+}
+
 public type MedicalNeed record {|
     readonly int needId;
     boolean booleanTest;
@@ -25,4 +30,7 @@ public type MedicalNeed record {|
 
     mysql:Client clientType;
     mysql:Client[] clientArrayType;
+
+    Gender gender;
+    Gender[] genderArray;
 |};
