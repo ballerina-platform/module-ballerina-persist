@@ -25,84 +25,73 @@ const BOOLEAN_ID_RECORD = "booleanidrecords";
 const COMPOSITE_ASSOCIATION_RECORD = "compositeassociationrecords";
 const ALL_TYPES_ID_RECORD = "alltypesidrecords";
 
-table<AllTypes> key(id) alltypes = table [];
-table<StringIdRecord> key(id) stringidrecords = table [];
-table<IntIdRecord> key(id) intidrecords = table [];
-table<FloatIdRecord> key(id) floatidrecords = table [];
-table<DecimalIdRecord> key(id) decimalidrecords = table [];
-table<BooleanIdRecord> key(id) booleanidrecords = table [];
-table<CompositeAssociationRecord> key(id) compositeassociationrecords = table [];
-table<AllTypesIdRecord> key(booleanType, intType, floatType, decimalType, stringType) alltypesidrecords = table [];
+final isolated table<AllTypes> key(id) alltypesTable = table [];
+final isolated table<StringIdRecord> key(id) stringidrecordsTable = table [];
+final isolated table<IntIdRecord> key(id) intidrecordsTable = table [];
+final isolated table<FloatIdRecord> key(id) floatidrecordsTable = table [];
+final isolated table<DecimalIdRecord> key(id) decimalidrecordsTable = table [];
+final isolated table<BooleanIdRecord> key(id) booleanidrecordsTable = table [];
+final isolated table<CompositeAssociationRecord> key(id) compositeassociationrecordsTable = table [];
+final isolated table<AllTypesIdRecord> key(booleanType, intType, floatType, decimalType, stringType) alltypesidrecordsTable = table [];
 
-public client class InMemoryTestEntitiesClient {
+public isolated client class InMemoryTestEntitiesClient {
     *AbstractPersistClient;
 
-    private final map<InMemoryClient> persistClients;
-
-    table<AllTypes> key(id) alltypes = alltypes;
-    table<StringIdRecord> key(id) stringidrecords = stringidrecords;
-    table<IntIdRecord> key(id) intidrecords = intidrecords;
-    table<FloatIdRecord> key(id) floatidrecords = floatidrecords;
-    table<DecimalIdRecord> key(id) decimalidrecords = decimalidrecords;
-    table<BooleanIdRecord> key(id) booleanidrecords = booleanidrecords;
-    table<CompositeAssociationRecord> key(id) compositeassociationrecords = compositeassociationrecords;
-    table<AllTypesIdRecord> key(booleanType, intType, floatType, decimalType, stringType) alltypesidrecords = alltypesidrecords;
+    private final map<InMemoryClient> persistClients = {};
 
     public function init() returns Error? {
 
         final map<TableMetadata> metadata = {
             [ALL_TYPES] : {
                 keyFields: ["id"],
-                query: self.queryAllTypes,
-                queryOne: self.queryOneAllTypes
+                query: queryAllTypes,
+                queryOne: queryOneAllTypes
             },
             [STRING_ID_RECORD] : {
                 keyFields: ["id"],
-                query: self.queryStringIdRecord,
-                queryOne: self.queryOneStringIdRecord
+                query: queryStringIdRecord,
+                queryOne: queryOneStringIdRecord
             },
             [INT_ID_RECORD] : {
                 keyFields: ["id"],
-                query: self.queryIntIdRecord,
-                queryOne: self.queryOneIntIdRecord
+                query: queryIntIdRecord,
+                queryOne: queryOneIntIdRecord
             },
             [FLOAT_ID_RECORD] : {
                 keyFields: ["id"],
-                query: self.queryFloatIdRecord,
-                queryOne: self.queryOneFloatIdRecord
+                query: queryFloatIdRecord,
+                queryOne: queryOneFloatIdRecord
             },
             [DECIMAL_ID_RECORD] : {
                 keyFields: ["id"],
-                query: self.queryDecimalIdRecord,
-                queryOne: self.queryOneDecimalIdRecord
+                query: queryDecimalIdRecord,
+                queryOne: queryOneDecimalIdRecord
             },
             [BOOLEAN_ID_RECORD] : {
                 keyFields: ["id"],
-                query: self.queryBooleanIdRecord,
-                queryOne: self.queryOneBooleanIdRecord
+                query: queryBooleanIdRecord,
+                queryOne: queryOneBooleanIdRecord
             },
             [COMPOSITE_ASSOCIATION_RECORD] : {
                 keyFields: ["id"],
-                query: self.queryCompositeAssociationRecords,
-                queryOne: self.queryOneCompositeAssociationRecords
+                query: queryCompositeAssociationRecords,
+                queryOne: queryOneCompositeAssociationRecords
             },
             [ALL_TYPES_ID_RECORD] : {
                 keyFields: ["booleanType", "intType", "floatType", "decimalType", "stringType"],
-                query: self.queryAllTypesIdRecords,
-                queryOne: self.queryOneAllTypesIdRecords
+                query: queryAllTypesIdRecords,
+                queryOne: queryOneAllTypesIdRecords
             }
         };
 
-        self.persistClients = {
-            [ALL_TYPES] : check new (metadata.get(ALL_TYPES)),
-            [STRING_ID_RECORD] : check new (metadata.get(STRING_ID_RECORD)),
-            [INT_ID_RECORD] : check new (metadata.get(INT_ID_RECORD)),
-            [FLOAT_ID_RECORD] : check new (metadata.get(FLOAT_ID_RECORD)),
-            [DECIMAL_ID_RECORD] : check new (metadata.get(DECIMAL_ID_RECORD)),
-            [BOOLEAN_ID_RECORD] : check new (metadata.get(BOOLEAN_ID_RECORD)),
-            [COMPOSITE_ASSOCIATION_RECORD] : check new (metadata.get(COMPOSITE_ASSOCIATION_RECORD)),
-            [ALL_TYPES_ID_RECORD] : check new (metadata.get(ALL_TYPES_ID_RECORD))
-        };
+        self.persistClients[ALL_TYPES] = check new (metadata.get(ALL_TYPES));
+        self.persistClients[STRING_ID_RECORD] = check new (metadata.get(STRING_ID_RECORD));
+        self.persistClients[INT_ID_RECORD] = check new (metadata.get(INT_ID_RECORD));
+        self.persistClients[FLOAT_ID_RECORD] = check new (metadata.get(FLOAT_ID_RECORD));
+        self.persistClients[DECIMAL_ID_RECORD] = check new (metadata.get(DECIMAL_ID_RECORD));
+        self.persistClients[BOOLEAN_ID_RECORD] = check new (metadata.get(BOOLEAN_ID_RECORD));
+        self.persistClients[COMPOSITE_ASSOCIATION_RECORD] = check new (metadata.get(COMPOSITE_ASSOCIATION_RECORD));
+        self.persistClients[ALL_TYPES_ID_RECORD] = check new (metadata.get(ALL_TYPES_ID_RECORD));
     };
 
     isolated resource function get alltypes(AllTypesTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
@@ -118,33 +107,39 @@ public client class InMemoryTestEntitiesClient {
     isolated resource function post alltypes(AllTypesInsert[] data) returns int[]|Error {
         int[] keys = [];
         foreach AllTypesInsert value in data {
-            if self.alltypes.hasKey(value.id) {
-                return <DuplicateKeyError>error("Duplicate key: " + value.id.toString());
+            lock {
+                if alltypesTable.hasKey(value.id) {
+                    return <DuplicateKeyError>error("Duplicate key: " + value.id.toString());
+                }
+                alltypesTable.put(value.clone());
             }
-            self.alltypes.put(value.clone());
             keys.push(value.id);
         }
         return keys;
     }
 
     isolated resource function put alltypes/[int id](AllTypesUpdate value) returns AllTypes|Error {
-        if !self.alltypes.hasKey(id) {
-            return <InvalidKeyError>error("Not found: " + id.toString());
-        }
-        AllTypes alltypes = self.alltypes.get(id);
-        foreach var [k, v] in value.entries() {
-            alltypes[k] = v;
-        }
+        lock {
+            if !alltypesTable.hasKey(id) {
+                return <InvalidKeyError>error("Not found: " + id.toString());
+            }
+            AllTypes alltypes = alltypesTable.get(id);
+            foreach var [k, v] in value.clone().entries() {
+                alltypes[k] = v;
+            }
 
-        self.alltypes.put(alltypes);
-        return alltypes;
+            alltypesTable.put(alltypes);
+            return alltypes.clone();
+        }
     }
 
     isolated resource function delete alltypes/[int id]() returns AllTypes|Error {
-        if !self.alltypes.hasKey(id) {
-            return <InvalidKeyError>error("Not found: " + id.toString());
+        lock {
+            if !alltypesTable.hasKey(id) {
+                return <InvalidKeyError>error("Not found: " + id.toString());
+            }
+            return alltypesTable.remove(id).clone();
         }
-        return self.alltypes.remove(id);
     }
 
     isolated resource function get stringidrecords(StringIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
@@ -160,33 +155,39 @@ public client class InMemoryTestEntitiesClient {
     isolated resource function post stringidrecords(StringIdRecordInsert[] data) returns string[]|Error {
         string[] keys = [];
         foreach StringIdRecordInsert value in data {
-            if self.stringidrecords.hasKey(value.id) {
-                return <DuplicateKeyError>error("Duplicate key: " + value.id.toString());
+            lock {
+                if stringidrecordsTable.hasKey(value.id) {
+                    return <DuplicateKeyError>error("Duplicate key: " + value.id.toString());
+                }
+                stringidrecordsTable.put(value.clone());
             }
-            self.stringidrecords.put(value.clone());
             keys.push(value.id);
         }
         return keys;
     }
 
     isolated resource function put stringidrecords/[string id](StringIdRecordUpdate value) returns StringIdRecord|Error {
-        if !self.stringidrecords.hasKey(id) {
-            return <InvalidKeyError>error("Not found: " + id.toString());
-        }
-        StringIdRecord stringidrecord = self.stringidrecords.get(id);
-        foreach var [k, v] in value.entries() {
-            stringidrecord[k] = v;
-        }
+        lock {
+            if !stringidrecordsTable.hasKey(id) {
+                return <InvalidKeyError>error("Not found: " + id.toString());
+            }
+            StringIdRecord stringidrecord = stringidrecordsTable.get(id);
+            foreach var [k, v] in value.clone().entries() {
+                stringidrecord[k] = v;
+            }
 
-        self.stringidrecords.put(stringidrecord);
-        return stringidrecord;
+            stringidrecordsTable.put(stringidrecord);
+            return stringidrecord.clone();
+        }
     }
 
     isolated resource function delete stringidrecords/[string id]() returns StringIdRecord|Error {
-        if !self.stringidrecords.hasKey(id) {
-            return <InvalidKeyError>error("Not found: " + id.toString());
+        lock {
+            if !stringidrecordsTable.hasKey(id) {
+                return <InvalidKeyError>error("Not found: " + id.toString());
+            }
+            return stringidrecordsTable.remove(id).clone();
         }
-        return self.stringidrecords.remove(id);
     }
 
     isolated resource function get intidrecords(IntIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
@@ -202,33 +203,39 @@ public client class InMemoryTestEntitiesClient {
     isolated resource function post intidrecords(IntIdRecordInsert[] data) returns int[]|Error {
         int[] keys = [];
         foreach IntIdRecordInsert value in data {
-            if self.intidrecords.hasKey(value.id) {
-                return <DuplicateKeyError>error("Duplicate key: " + value.id.toString());
+            lock {
+                if intidrecordsTable.hasKey(value.id) {
+                    return <DuplicateKeyError>error("Duplicate key: " + value.id.toString());
+                }
+                intidrecordsTable.put(value.clone());
             }
-            self.intidrecords.put(value.clone());
             keys.push(value.id);
         }
         return keys;
     }
 
     isolated resource function put intidrecords/[int id](IntIdRecordUpdate value) returns IntIdRecord|Error {
-        if !self.intidrecords.hasKey(id) {
-            return <InvalidKeyError>error("Not found: " + id.toString());
-        }
-        IntIdRecord intidrecord = self.intidrecords.get(id);
-        foreach var [k, v] in value.entries() {
-            intidrecord[k] = v;
-        }
+        lock {
+            if !intidrecordsTable.hasKey(id) {
+                return <InvalidKeyError>error("Not found: " + id.toString());
+            }
+            IntIdRecord intidrecord = intidrecordsTable.get(id);
+            foreach var [k, v] in value.clone().entries() {
+                intidrecord[k] = v;
+            }
 
-        self.intidrecords.put(intidrecord);
-        return intidrecord;
+            intidrecordsTable.put(intidrecord);
+            return intidrecord.clone();
+        }
     }
 
     isolated resource function delete intidrecords/[int id]() returns IntIdRecord|Error {
-        if !self.intidrecords.hasKey(id) {
-            return <InvalidKeyError>error("Not found: " + id.toString());
+        lock {
+            if !intidrecordsTable.hasKey(id) {
+                return <InvalidKeyError>error("Not found: " + id.toString());
+            }
+            return intidrecordsTable.remove(id).clone();
         }
-        return self.intidrecords.remove(id);
     }
 
     isolated resource function get floatidrecords(FloatIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
@@ -244,33 +251,39 @@ public client class InMemoryTestEntitiesClient {
     isolated resource function post floatidrecords(FloatIdRecordInsert[] data) returns float[]|Error {
         float[] keys = [];
         foreach FloatIdRecordInsert value in data {
-            if self.floatidrecords.hasKey(value.id) {
-                return <DuplicateKeyError>error("Duplicate key: " + value.id.toString());
+            lock {
+                if floatidrecordsTable.hasKey(value.id) {
+                    return <DuplicateKeyError>error("Duplicate key: " + value.id.toString());
+                }
+                floatidrecordsTable.put(value.clone());
             }
-            self.floatidrecords.put(value.clone());
             keys.push(value.id);
         }
         return keys;
     }
 
     isolated resource function put floatidrecords/[float id](FloatIdRecordUpdate value) returns FloatIdRecord|Error {
-        if !self.floatidrecords.hasKey(id) {
-            return <InvalidKeyError>error("Not found: " + id.toString());
-        }
-        FloatIdRecord floatidrecord = self.floatidrecords.get(id);
-        foreach var [k, v] in value.entries() {
-            floatidrecord[k] = v;
-        }
+        lock {
+            if !floatidrecordsTable.hasKey(id) {
+                return <InvalidKeyError>error("Not found: " + id.toString());
+            }
+            FloatIdRecord floatidrecord = floatidrecordsTable.get(id);
+            foreach var [k, v] in value.clone().entries() {
+                floatidrecord[k] = v;
+            }
 
-        self.floatidrecords.put(floatidrecord);
-        return floatidrecord;
+            floatidrecordsTable.put(floatidrecord);
+            return floatidrecord.clone();
+        }
     }
 
     isolated resource function delete floatidrecords/[float id]() returns FloatIdRecord|Error {
-        if !self.floatidrecords.hasKey(id) {
-            return <InvalidKeyError>error("Not found: " + id.toString());
+        lock {
+            if !floatidrecordsTable.hasKey(id) {
+                return <InvalidKeyError>error("Not found: " + id.toString());
+            }
+            return floatidrecordsTable.remove(id).clone();
         }
-        return self.floatidrecords.remove(id);
     }
 
     isolated resource function get decimalidrecords(DecimalIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
@@ -286,33 +299,39 @@ public client class InMemoryTestEntitiesClient {
     isolated resource function post decimalidrecords(DecimalIdRecordInsert[] data) returns decimal[]|Error {
         decimal[] keys = [];
         foreach DecimalIdRecordInsert value in data {
-            if self.decimalidrecords.hasKey(value.id) {
-                return <DuplicateKeyError>error("Duplicate key: " + value.id.toString());
+            lock {
+                if decimalidrecordsTable.hasKey(value.id) {
+                    return <DuplicateKeyError>error("Duplicate key: " + value.id.toString());
+                }
+                decimalidrecordsTable.put(value.clone());
             }
-            self.decimalidrecords.put(value.clone());
             keys.push(value.id);
         }
         return keys;
     }
 
     isolated resource function put decimalidrecords/[decimal id](DecimalIdRecordUpdate value) returns DecimalIdRecord|Error {
-        if !self.decimalidrecords.hasKey(id) {
-            return <InvalidKeyError>error("Not found: " + id.toString());
-        }
-        DecimalIdRecord decimalidrecord = self.decimalidrecords.get(id);
-        foreach var [k, v] in value.entries() {
-            decimalidrecord[k] = v;
-        }
+        lock {
+            if !decimalidrecordsTable.hasKey(id) {
+                return <InvalidKeyError>error("Not found: " + id.toString());
+            }
+            DecimalIdRecord decimalidrecord = decimalidrecordsTable.get(id);
+            foreach var [k, v] in value.clone().entries() {
+                decimalidrecord[k] = v;
+            }
 
-        self.decimalidrecords.put(decimalidrecord);
-        return decimalidrecord;
+            decimalidrecordsTable.put(decimalidrecord);
+            return decimalidrecord.clone();
+        }
     }
 
     isolated resource function delete decimalidrecords/[decimal id]() returns DecimalIdRecord|Error {
-        if !self.decimalidrecords.hasKey(id) {
-            return <InvalidKeyError>error("Not found: " + id.toString());
+        lock {
+            if !decimalidrecordsTable.hasKey(id) {
+                return <InvalidKeyError>error("Not found: " + id.toString());
+            }
+            return decimalidrecordsTable.remove(id).clone();
         }
-        return self.decimalidrecords.remove(id);
     }
 
     isolated resource function get booleanidrecords(BooleanIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
@@ -328,33 +347,39 @@ public client class InMemoryTestEntitiesClient {
     isolated resource function post booleanidrecords(BooleanIdRecordInsert[] data) returns boolean[]|Error {
         boolean[] keys = [];
         foreach BooleanIdRecordInsert value in data {
-            if self.booleanidrecords.hasKey(value.id) {
-                return <DuplicateKeyError>error("Duplicate key: " + value.id.toString());
+            lock {
+                if booleanidrecordsTable.hasKey(value.id) {
+                    return <DuplicateKeyError>error("Duplicate key: " + value.id.toString());
+                }
+                booleanidrecordsTable.put(value.clone());
             }
-            self.booleanidrecords.put(value.clone());
             keys.push(value.id);
         }
         return keys;
     }
 
     isolated resource function put booleanidrecords/[boolean id](BooleanIdRecordUpdate value) returns BooleanIdRecord|Error {
-        if !self.booleanidrecords.hasKey(id) {
-            return <InvalidKeyError>error("Not found: " + id.toString());
-        }
-        BooleanIdRecord booleanidrecord = self.booleanidrecords.get(id);
-        foreach var [k, v] in value.entries() {
-            booleanidrecord[k] = v;
-        }
+        lock {
+            if !booleanidrecordsTable.hasKey(id) {
+                return <InvalidKeyError>error("Not found: " + id.toString());
+            }
+            BooleanIdRecord booleanidrecord = booleanidrecordsTable.get(id);
+            foreach var [k, v] in value.clone().entries() {
+                booleanidrecord[k] = v;
+            }
 
-        self.booleanidrecords.put(booleanidrecord);
-        return booleanidrecord;
+            booleanidrecordsTable.put(booleanidrecord);
+            return booleanidrecord.clone();
+        }
     }
 
     isolated resource function delete booleanidrecords/[boolean id]() returns BooleanIdRecord|Error {
-        if !self.booleanidrecords.hasKey(id) {
-            return <InvalidKeyError>error("Not found: " + id.toString());
+        lock {
+            if !booleanidrecordsTable.hasKey(id) {
+                return <InvalidKeyError>error("Not found: " + id.toString());
+            }
+            return booleanidrecordsTable.remove(id).clone();
         }
-        return self.booleanidrecords.remove(id);
     }
 
     isolated resource function get compositeassociationrecords(CompositeAssociationRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
@@ -370,33 +395,39 @@ public client class InMemoryTestEntitiesClient {
     isolated resource function post compositeassociationrecords(CompositeAssociationRecordInsert[] data) returns string[]|Error {
         string[] keys = [];
         foreach CompositeAssociationRecordInsert value in data {
-            if self.compositeassociationrecords.hasKey(value.id) {
-                return <DuplicateKeyError>error("Duplicate key: " + value.id.toString());
+            lock {
+                if compositeassociationrecordsTable.hasKey(value.id) {
+                    return <DuplicateKeyError>error("Duplicate key: " + value.id.toString());
+                }
+                compositeassociationrecordsTable.put(value.clone());
             }
-            self.compositeassociationrecords.put(value.clone());
             keys.push(value.id);
         }
         return keys;
     }
 
     isolated resource function put compositeassociationrecords/[string id](CompositeAssociationRecordUpdate value) returns CompositeAssociationRecord|Error {
-        if !self.compositeassociationrecords.hasKey(id) {
-            return <InvalidKeyError>error("Not found: " + id.toString());
-        }
-        CompositeAssociationRecord compositeassociationrecords = self.compositeassociationrecords.get(id);
-        foreach var [k, v] in value.entries() {
-            compositeassociationrecords[k] = v;
-        }
+        lock {
+            if !compositeassociationrecordsTable.hasKey(id) {
+                return <InvalidKeyError>error("Not found: " + id.toString());
+            }
+            CompositeAssociationRecord compositeassociationrecords = compositeassociationrecordsTable.get(id);
+            foreach var [k, v] in value.clone().entries() {
+                compositeassociationrecords[k] = v;
+            }
 
-        self.compositeassociationrecords.put(compositeassociationrecords);
-        return compositeassociationrecords;
+            compositeassociationrecordsTable.put(compositeassociationrecords);
+            return compositeassociationrecords.clone();
+        }
     }
 
     isolated resource function delete compositeassociationrecords/[string id]() returns CompositeAssociationRecord|Error {
-        if !self.compositeassociationrecords.hasKey(id) {
-            return <InvalidKeyError>error("Not found: " + id.toString());
+        lock {
+            if !compositeassociationrecordsTable.hasKey(id) {
+                return <InvalidKeyError>error("Not found: " + id.toString());
+            }
+            return compositeassociationrecordsTable.remove(id).clone();
         }
-        return self.compositeassociationrecords.remove(id);
     }
 
     isolated resource function get alltypesidrecords(AllTypesIdRecordTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
@@ -412,202 +443,299 @@ public client class InMemoryTestEntitiesClient {
     isolated resource function post alltypesidrecords(AllTypesIdRecordInsert[] data) returns [boolean, int, float, decimal, string][]|Error {
         [boolean, int, float, decimal, string][] keys = [];
         foreach AllTypesIdRecordInsert value in data {
-            if self.alltypesidrecords.hasKey([value.booleanType, value.intType, value.floatType, value.decimalType, value.stringType]) {
-                return <DuplicateKeyError>error("Duplicate key: " + [value.booleanType, value.intType, value.floatType, value.decimalType, value.stringType].toString());
+            lock {
+                if alltypesidrecordsTable.hasKey([value.booleanType, value.intType, value.floatType, value.decimalType, value.stringType]) {
+                    return <DuplicateKeyError>error("Duplicate key: " + [value.booleanType, value.intType, value.floatType, value.decimalType, value.stringType].toString());
+                }
+                alltypesidrecordsTable.put(value.clone());
             }
-            self.alltypesidrecords.put(value.clone());
             keys.push([value.booleanType, value.intType, value.floatType, value.decimalType, value.stringType]);
         }
         return keys;
     }
 
     isolated resource function put alltypesidrecords/[boolean booleanType]/[int intType]/[float floatType]/[decimal decimalType]/[string stringType](AllTypesIdRecordUpdate value) returns AllTypesIdRecord|Error {
-        if !self.alltypesidrecords.hasKey([booleanType, intType, floatType, decimalType, stringType]) {
-            return <InvalidKeyError>error("Not found: " + [booleanType, intType, floatType, decimalType, stringType].toString());
-        }
-        AllTypesIdRecord alltypesidrecords = self.alltypesidrecords.get([booleanType, intType, floatType, decimalType, stringType]);
-        foreach var [k, v] in value.entries() {
-            alltypesidrecords[k] = v;
-        }
+        lock {
+            if !alltypesidrecordsTable.hasKey([booleanType, intType, floatType, decimalType, stringType]) {
+                return <InvalidKeyError>error("Not found: " + [booleanType, intType, floatType, decimalType, stringType].toString());
+            }
+            AllTypesIdRecord alltypesidrecords = alltypesidrecordsTable.get([booleanType, intType, floatType, decimalType, stringType]);
+            foreach var [k, v] in value.clone().entries() {
+                alltypesidrecords[k] = v;
+            }
 
-        self.alltypesidrecords.put(alltypesidrecords);
-        return alltypesidrecords;
+            alltypesidrecordsTable.put(alltypesidrecords);
+            return alltypesidrecords.clone();
+        }
     }
 
     isolated resource function delete alltypesidrecords/[boolean booleanType]/[int intType]/[float floatType]/[decimal decimalType]/[string stringType]() returns AllTypesIdRecord|Error {
-        if !self.alltypesidrecords.hasKey([booleanType, intType, floatType, decimalType, stringType]) {
-            return <InvalidKeyError>error("Not found: " + [booleanType, intType, floatType, decimalType, stringType].toString());
+        lock {
+            if !alltypesidrecordsTable.hasKey([booleanType, intType, floatType, decimalType, stringType]) {
+                return <InvalidKeyError>error("Not found: " + [booleanType, intType, floatType, decimalType, stringType].toString());
+            }
+            return alltypesidrecordsTable.remove([booleanType, intType, floatType, decimalType, stringType]).clone();
         }
-        return self.alltypesidrecords.remove([booleanType, intType, floatType, decimalType, stringType]);
     }
 
     public function close() returns Error? {
         return ();
     }
+}
 
-    private isolated function queryAllTypes(string[] fields) returns stream<record {}, Error?> {
-        return from record {} 'object in self.alltypes
-            select filterRecord(
+isolated function queryAllTypes(string[] fields) returns stream<record {}, Error?> {
+    table<AllTypes> key(id) alltypesClonedTable;
+    lock {
+        alltypesClonedTable = alltypesTable.clone();
+    }
+
+    return from record {} 'object in alltypesClonedTable
+        select filterRecord(
                 {
-                ...'object
-            }, fields);
+            ...'object
+        }, fields);
+}
+
+isolated function queryOneAllTypes(anydata key) returns record {}|InvalidKeyError {
+    table<AllTypes> key(id) alltypesClonedTable;
+    lock {
+        alltypesClonedTable = alltypesTable.clone();
     }
 
-    private isolated function queryOneAllTypes(anydata key) returns record {}|InvalidKeyError {
-        from record {} 'object in self.alltypes
-        where self.persistClients.get(ALL_TYPES).getKey('object) == key
-        do {
-            return {
-                ...'object
-            };
+    from record {} 'object in alltypesClonedTable
+    where getKey('object, ["id"]) == key
+    do {
+        return {
+            ...'object
         };
-        return <InvalidKeyError>error("Invalid key: " + key.toString());
+    };
+    return <InvalidKeyError>error("Invalid key: " + key.toString());
+}
+
+isolated function queryStringIdRecord(string[] fields) returns stream<record {}, Error?> {
+    table<StringIdRecord> key(id) stringidrecordsClonedTable;
+    lock {
+        stringidrecordsClonedTable = stringidrecordsTable.clone();
     }
 
-    private isolated function queryStringIdRecord(string[] fields) returns stream<record {}, Error?> {
-        return from record {} 'object in self.stringidrecords
-            select filterRecord(
+    return from record {} 'object in stringidrecordsClonedTable
+        select filterRecord(
                 {
-                ...'object
-            }, fields);
+            ...'object
+        }, fields);
+}
+
+isolated function queryOneStringIdRecord(anydata key) returns record {}|InvalidKeyError {
+    table<StringIdRecord> key(id) stringidrecordsClonedTable;
+    lock {
+        stringidrecordsClonedTable = stringidrecordsTable.clone();
     }
 
-    private isolated function queryOneStringIdRecord(anydata key) returns record {}|InvalidKeyError {
-        from record {} 'object in self.stringidrecords
-        where self.persistClients.get(STRING_ID_RECORD).getKey('object) == key
-        do {
-            return {
-                ...'object
-            };
+    from record {} 'object in stringidrecordsClonedTable
+    where getKey('object, ["id"]) == key
+    do {
+        return {
+            ...'object
         };
-        return <InvalidKeyError>error("Invalid key: " + key.toString());
+    };
+    return <InvalidKeyError>error("Invalid key: " + key.toString());
+}
+
+isolated function queryIntIdRecord(string[] fields) returns stream<record {}, Error?> {
+    table<IntIdRecord> key(id) intidrecordsClonedTable;
+    lock {
+        intidrecordsClonedTable = intidrecordsTable.clone();
     }
 
-    private isolated function queryIntIdRecord(string[] fields) returns stream<record {}, Error?> {
-        return from record {} 'object in self.intidrecords
-            select filterRecord(
+    return from record {} 'object in intidrecordsClonedTable
+        select filterRecord(
                 {
-                ...'object
-            }, fields);
+            ...'object
+        }, fields);
+}
+
+isolated function queryOneIntIdRecord(anydata key) returns record {}|InvalidKeyError {
+    table<IntIdRecord> key(id) intidrecordsClonedTable;
+    lock {
+        intidrecordsClonedTable = intidrecordsTable.clone();
     }
 
-    private isolated function queryOneIntIdRecord(anydata key) returns record {}|InvalidKeyError {
-        from record {} 'object in self.intidrecords
-        where self.persistClients.get(INT_ID_RECORD).getKey('object) == key
-        do {
-            return {
-                ...'object
-            };
+    from record {} 'object in intidrecordsClonedTable
+    where getKey('object, ["id"]) == key
+    do {
+        return {
+            ...'object
         };
-        return <InvalidKeyError>error("Invalid key: " + key.toString());
+    };
+    return <InvalidKeyError>error("Invalid key: " + key.toString());
+}
+
+isolated function queryFloatIdRecord(string[] fields) returns stream<record {}, Error?> {
+    table<FloatIdRecord> key(id) floatidrecordsClonedTable;
+    lock {
+        floatidrecordsClonedTable = floatidrecordsTable.clone();
     }
 
-    private isolated function queryFloatIdRecord(string[] fields) returns stream<record {}, Error?> {
-        return from record {} 'object in self.floatidrecords
-            select filterRecord(
+    return from record {} 'object in floatidrecordsClonedTable
+        select filterRecord(
                 {
-                ...'object
-            }, fields);
+            ...'object
+        }, fields);
+}
+
+isolated function queryOneFloatIdRecord(anydata key) returns record {}|InvalidKeyError {
+    table<FloatIdRecord> key(id) floatidrecordsClonedTable;
+    lock {
+        floatidrecordsClonedTable = floatidrecordsTable.clone();
     }
 
-    private isolated function queryOneFloatIdRecord(anydata key) returns record {}|InvalidKeyError {
-        from record {} 'object in self.floatidrecords
-        where self.persistClients.get(FLOAT_ID_RECORD).getKey('object) == key
-        do {
-            return {
-                ...'object
-            };
+    from record {} 'object in floatidrecordsClonedTable
+    where getKey('object, ["id"]) == key
+    do {
+        return {
+            ...'object
         };
-        return <InvalidKeyError>error("Invalid key: " + key.toString());
+    };
+    return <InvalidKeyError>error("Invalid key: " + key.toString());
+}
+
+isolated function queryDecimalIdRecord(string[] fields) returns stream<record {}, Error?> {
+    table<DecimalIdRecord> key(id) decimalidrecordsClonedTable;
+    lock {
+        decimalidrecordsClonedTable = decimalidrecordsTable.clone();
     }
 
-    private isolated function queryDecimalIdRecord(string[] fields) returns stream<record {}, Error?> {
-        return from record {} 'object in self.decimalidrecords
-            select filterRecord(
+    return from record {} 'object in decimalidrecordsClonedTable
+        select filterRecord(
                 {
-                ...'object
-            }, fields);
+            ...'object
+        }, fields);
+}
+
+isolated function queryOneDecimalIdRecord(anydata key) returns record {}|InvalidKeyError {
+    table<DecimalIdRecord> key(id) decimalidrecordsClonedTable;
+    lock {
+        decimalidrecordsClonedTable = decimalidrecordsTable.clone();
     }
 
-    private isolated function queryOneDecimalIdRecord(anydata key) returns record {}|InvalidKeyError {
-        from record {} 'object in self.decimalidrecords
-        where self.persistClients.get(DECIMAL_ID_RECORD).getKey('object) == key
-        do {
-            return {
-                ...'object
-            };
+    from record {} 'object in decimalidrecordsClonedTable
+    where getKey('object, ["id"]) == key
+    do {
+        return {
+            ...'object
         };
-        return <InvalidKeyError>error("Invalid key: " + key.toString());
+    };
+    return <InvalidKeyError>error("Invalid key: " + key.toString());
+}
+
+isolated function queryBooleanIdRecord(string[] fields) returns stream<record {}, Error?> {
+    table<BooleanIdRecord> key(id) booleanidrecordsClonedTable;
+    lock {
+        booleanidrecordsClonedTable = booleanidrecordsTable.clone();
     }
 
-    private isolated function queryBooleanIdRecord(string[] fields) returns stream<record {}, Error?> {
-        return from record {} 'object in self.booleanidrecords
-            select filterRecord(
+    return from record {} 'object in booleanidrecordsClonedTable
+        select filterRecord(
                 {
-                ...'object
-            }, fields);
+            ...'object
+        }, fields);
+}
+
+isolated function queryOneBooleanIdRecord(anydata key) returns record {}|InvalidKeyError {
+    table<BooleanIdRecord> key(id) booleanidrecordsClonedTable;
+    lock {
+        booleanidrecordsClonedTable = booleanidrecordsTable.clone();
     }
 
-    private isolated function queryOneBooleanIdRecord(anydata key) returns record {}|InvalidKeyError {
-        from record {} 'object in self.booleanidrecords
-        where self.persistClients.get(BOOLEAN_ID_RECORD).getKey('object) == key
-        do {
-            return {
-                ...'object
-            };
+    from record {} 'object in booleanidrecordsClonedTable
+    where getKey('object, ["id"]) == key
+    do {
+        return {
+            ...'object
         };
-        return <InvalidKeyError>error("Invalid key: " + key.toString());
+    };
+    return <InvalidKeyError>error("Invalid key: " + key.toString());
+}
+
+isolated function queryCompositeAssociationRecords(string[] fields) returns stream<record {}, Error?> {
+    table<CompositeAssociationRecord> key(id) compositeassociationrecordsClonedTable;
+    table<AllTypesIdRecord> key(booleanType, intType, floatType, decimalType, stringType) alltypesidrecordsClonedTable;
+    lock {
+        compositeassociationrecordsClonedTable = compositeassociationrecordsTable.clone();
+    }
+    lock {
+        alltypesidrecordsClonedTable = alltypesidrecordsTable.clone();
     }
 
-    private isolated function queryCompositeAssociationRecords(string[] fields) returns stream<record {}, Error?> {
-        return from record {} 'object in self.compositeassociationrecords
-            outer join var alltypesidrecord in self.alltypesidrecords
+    return from record {} 'object in compositeassociationrecordsClonedTable
+        outer join var alltypesidrecord in alltypesidrecordsClonedTable
             on ['object.alltypesidrecordBooleanType, 'object.alltypesidrecordIntType, 'object.alltypesidrecordFloatType, 'object.alltypesidrecordDecimalType, 'object.alltypesidrecordStringType]
             equals [alltypesidrecord?.booleanType, alltypesidrecord?.intType, alltypesidrecord?.floatType, alltypesidrecord?.decimalType, alltypesidrecord?.stringType]
-            select filterRecord(
+        select filterRecord(
                 {
-                ...'object,
-                "allTypesIdRecord": alltypesidrecord
-            }, fields);
+            ...'object,
+            "allTypesIdRecord": alltypesidrecord
+        }, fields);
+}
+
+isolated function queryOneCompositeAssociationRecords(anydata key) returns record {}|InvalidKeyError {
+    table<CompositeAssociationRecord> key(id) compositeassociationrecordsClonedTable;
+    table<AllTypesIdRecord> key(booleanType, intType, floatType, decimalType, stringType) alltypesidrecordsClonedTable;
+    lock {
+        compositeassociationrecordsClonedTable = compositeassociationrecordsTable.clone();
+    }
+    lock {
+        alltypesidrecordsClonedTable = alltypesidrecordsTable.clone();
     }
 
-    private isolated function queryOneCompositeAssociationRecords(anydata key) returns record {}|InvalidKeyError {
-        from record {} 'object in self.compositeassociationrecords
-        where self.persistClients.get(COMPOSITE_ASSOCIATION_RECORD).getKey('object) == key
-        outer join var alltypesidrecord in self.alltypesidrecords
+    from record {} 'object in compositeassociationrecordsClonedTable
+    where getKey('object, ["id"]) == key
+    outer join var alltypesidrecord in alltypesidrecordsClonedTable
             on ['object.alltypesidrecordBooleanType, 'object.alltypesidrecordIntType, 'object.alltypesidrecordFloatType, 'object.alltypesidrecordDecimalType, 'object.alltypesidrecordStringType]
             equals [alltypesidrecord?.booleanType, alltypesidrecord?.intType, alltypesidrecord?.floatType, alltypesidrecord?.decimalType, alltypesidrecord?.stringType]
-        do {
-            return {
-                ...'object,
-                "allTypesIdRecord": alltypesidrecord
-            };
+    do {
+        return {
+            ...'object,
+            "allTypesIdRecord": alltypesidrecord
         };
-        return <InvalidKeyError>error("Invalid key: " + key.toString());
+    };
+    return <InvalidKeyError>error("Invalid key: " + key.toString());
+}
+
+isolated function queryAllTypesIdRecords(string[] fields) returns stream<record {}, Error?> {
+    table<AllTypesIdRecord> key(booleanType, intType, floatType, decimalType, stringType) alltypesidrecordsClonedTable;
+    lock {
+        alltypesidrecordsClonedTable = alltypesidrecordsTable.clone();
     }
 
-    private isolated function queryAllTypesIdRecords(string[] fields) returns stream<record {}, Error?> {
-        return from record {} 'object in self.alltypesidrecords
-            select filterRecord(
+    return from record {} 'object in alltypesidrecordsClonedTable
+        select filterRecord(
                 {
-                ...'object
-            }, fields);
+            ...'object
+        }, fields);
+}
+
+isolated function queryOneAllTypesIdRecords(anydata key) returns record {}|InvalidKeyError {
+    table<AllTypesIdRecord> key(booleanType, intType, floatType, decimalType, stringType) alltypesidrecordsClonedTable;
+    table<CompositeAssociationRecord> key(id) compositeassociationrecordsClonedTable;
+    lock {
+        alltypesidrecordsClonedTable = alltypesidrecordsTable.clone();
+    }
+    lock {
+        compositeassociationrecordsClonedTable = compositeassociationrecordsTable.clone();
     }
 
-    private isolated function queryOneAllTypesIdRecords(anydata key) returns record {}|InvalidKeyError {
-        from record {} 'object in self.alltypesidrecords
-        where self.persistClients.get(ALL_TYPES_ID_RECORD).getKey('object) == key
-        outer join var compositeassociationrecord in self.compositeassociationrecords
+    from record {} 'object in alltypesidrecordsClonedTable
+    where getKey('object, ["booleanType", "intType", "floatType", "decimalType", "stringType"]) == key
+    outer join var compositeassociationrecord in compositeassociationrecordsClonedTable
             on ['object.booleanType, 'object.intType, 'object.floatType, 'object.decimalType, 'object.stringType]
             equals [compositeassociationrecord?.alltypesidrecordBooleanType, compositeassociationrecord?.alltypesidrecordIntType, compositeassociationrecord?.alltypesidrecordFloatType, compositeassociationrecord?.alltypesidrecordDecimalType, compositeassociationrecord?.alltypesidrecordStringType]
-        do {
-            return {
-                ...'object,
-                "compositeAssociationRecord": compositeassociationrecord
-            };
+    do {
+        return {
+            ...'object,
+            "compositeAssociationRecord": compositeassociationrecord
         };
-        return <InvalidKeyError>error("Invalid key: " + key.toString());
-    }
-
+    };
+    return <InvalidKeyError>error("Invalid key: " + key.toString());
 }
 
