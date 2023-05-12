@@ -147,7 +147,8 @@ def checkTestDockerContainerStatus(dockerName) {
 
 task pullBallerinaxSheetsDependancy(type: Exec) {
     if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
-        commandLine 'sh', '-c', "bal pull ballerinax/googleapis.sheets"
+        String distributionBinPath = project.projectDir.absolutePath + "/build/jballerina-tools-${project.extensions.ballerina.langVersion}/bin"
+        commandLine 'sh', '-c', "$distributionBinPath/bal pull ballerinax/googleapis.sheets"
     }
 }
 
@@ -188,6 +189,7 @@ task stopTestDockerContainer() {
 }
 
 updateTomlFiles.dependsOn copyStdlibs
+pullBallerinaxSheetsDependancy.dependsOn unpackJballerinaTools
 startTestDockerContainer.dependsOn createTestDockerImage
 
 build.dependsOn "generatePomFileForMavenPublication"
