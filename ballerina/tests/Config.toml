@@ -4,6 +4,8 @@ host="localhost"
 port=3305
 database="test"
 
+spreadsheetId = "1N_8oTHS8x-mFbhQrUCBhJW6RcZ3iF6jPVlld37JOyiM"
+
 [connectionOptions]
 connectTimeout = 50.0
 socketTimeout = 30.0
