@@ -148,7 +148,8 @@ def checkTestDockerContainerStatus(dockerName) {
 task pullBallerinaxSheetsDependancy(type: Exec) {
     if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
         String distributionBinPath = project.projectDir.absolutePath + "/build/jballerina-tools-${project.extensions.ballerina.langVersion}/bin"
-        commandLine 'sh', '-c', "$distributionBinPath/bal build"
+        commandLine 'sh', '-c', "$distributionBinPath/bal pull ballerina/http"
+        commandLine 'sh', '-c', "$distributionBinPath/bal pull ballerinax/googleapis.sheets"
     }
 }
 
