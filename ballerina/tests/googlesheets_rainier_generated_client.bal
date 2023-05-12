@@ -24,7 +24,7 @@ const BUILDING = "buildings";
 const DEPARTMENT = "departments";
 const ORDER_ITEM = "orderitems";
 
-public client class Client {
+public client class GoogleSheetsRainierClient {
     *AbstractPersistClient;
 
     private final sheets:Client googleSheetClient;
@@ -98,7 +98,7 @@ public client class Client {
                     deptNo: {columnName: "deptNo", columnId: "A"},
                     deptName: {columnName: "deptName", columnId: "C"}
                 },
-                range: "A:D",
+                range: "A:C",
                 dataTypes: {deptNo: "string", deptName: "string"},
                 keyFields: ["deptNo"],
                 query: self.queryDepartments,

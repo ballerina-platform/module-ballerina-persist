@@ -102,7 +102,7 @@ public isolated function getSheetIds(sheets:Client googleSheetClient, record {|S
     foreach string key in metadata.keys() {
         sheet = googleSheetClient->getSheetByName(spreadsheetId, metadata.get(key).tableName);
         if sheet is error {
-            return <Error>error(string `Error: sheet cannot be found : ${metadata.get(key).tableName}`);
+            return <Error>error(sheet.message());
         }
         sheetIds[key] = sheet.properties.sheetId;
     }
