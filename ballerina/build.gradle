@@ -190,6 +190,9 @@ task stopTestDockerContainer() {
 
 updateTomlFiles.dependsOn copyStdlibs
 pullBallerinaxSheetsDependancy.dependsOn unpackJballerinaTools
+pullBallerinaxSheetsDependancy.dependsOn "generatePomFileForMavenPublication"
+pullBallerinaxSheetsDependancy.dependsOn ":${packageName}-compiler-plugin:build"
+pullBallerinaxSheetsDependancy.dependsOn ":${packageName}-native:build"
 startTestDockerContainer.dependsOn createTestDockerImage
 
 build.dependsOn "generatePomFileForMavenPublication"
