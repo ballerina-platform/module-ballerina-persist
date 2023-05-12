@@ -22,11 +22,11 @@ const DEPARTMENT = "departments";
 const BUILDING = "buildings";
 const ORDER_ITEM = "orderitems";
 
-final isolated table<Building> key(buildingCode) buildings = table [];
-final isolated table<Department> key(deptNo) departments = table [];
-final isolated table<Workspace> key(workspaceId) workspaces = table [];
-final isolated table<Employee> key(empNo) employees = table [];
-final isolated table<OrderItem> key(orderId, itemId) orderItems = table [];
+final isolated table<Building> key(buildingCode) buildingsTable = table [];
+final isolated table<Department> key(deptNo) departmentsTable = table [];
+final isolated table<Workspace> key(workspaceId) workspacesTable = table [];
+final isolated table<Employee> key(empNo) employeesTable = table [];
+final isolated table<OrderItem> key(orderId, itemId) orderItemsTable = table [];
 
 public isolated client class InMemoryRainierClient {
     *AbstractPersistClient;
@@ -34,6 +34,7 @@ public isolated client class InMemoryRainierClient {
     private final map<InMemoryClient> persistClients = {};
 
     public function init() returns Error? {
+
         final map<TableMetadata> metadata = {
             [BUILDING] : {
                 keyFields: ["buildingCode"],
@@ -71,11 +72,11 @@ public isolated client class InMemoryRainierClient {
             }
         };
 
-        self.persistClients[BUILDING] = check new(metadata.get(BUILDING));
-        self.persistClients[DEPARTMENT] = check new(metadata.get(DEPARTMENT));
-        self.persistClients[WORKSPACE] = check new(metadata.get(WORKSPACE));
-        self.persistClients[EMPLOYEE] = check new(metadata.get(EMPLOYEE));
-        self.persistClients[ORDER_ITEM] = check new(metadata.get(ORDER_ITEM));
+        self.persistClients[BUILDING] = check new (metadata.get(BUILDING));
+        self.persistClients[DEPARTMENT] = check new (metadata.get(DEPARTMENT));
+        self.persistClients[WORKSPACE] = check new (metadata.get(WORKSPACE));
+        self.persistClients[EMPLOYEE] = check new (metadata.get(EMPLOYEE));
+        self.persistClients[ORDER_ITEM] = check new (metadata.get(ORDER_ITEM));
     }
 
     isolated resource function get buildings(BuildingTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
@@ -89,41 +90,41 @@ public isolated client class InMemoryRainierClient {
     } external;
 
     isolated resource function post buildings(BuildingInsert[] data) returns string[]|Error {
-        lock {
-            string[] keys = [];
-            foreach BuildingInsert value in data.clone() {
-                if buildings.hasKey(value.buildingCode) {
+        string[] keys = [];
+        foreach BuildingInsert value in data.clone() {
+            lock {
+                if buildingsTable.hasKey(value.buildingCode) {
                     return <DuplicateKeyError>error("Duplicate key: " + value.buildingCode);
                 }
-                buildings.put(value.clone());
-                keys.push(value.buildingCode);
+                buildingsTable.put(value.clone());
             }
-            return keys.clone();
+            keys.push(value.buildingCode);
         }
+        return keys.clone();
     }
 
     isolated resource function put buildings/[string buildingCode](BuildingUpdate value) returns Building|Error {
         lock {
-            if !buildings.hasKey(buildingCode) {
+            if !buildingsTable.hasKey(buildingCode) {
                 return <InvalidKeyError>error("Not found: " + buildingCode);
             }
 
-            Building building = buildings.get(buildingCode);
+            Building building = buildingsTable.get(buildingCode);
             foreach var [k, v] in value.clone().entries() {
                 building[k] = v;
             }
 
-            buildings.put(building);
+            buildingsTable.put(building);
             return building.clone();
         }
     }
 
     isolated resource function delete buildings/[string buildingCode]() returns Building|Error {
         lock {
-            if !buildings.hasKey(buildingCode) {
+            if !buildingsTable.hasKey(buildingCode) {
                 return <InvalidKeyError>error("Not found: " + buildingCode);
             }
-            return buildings.remove(buildingCode).clone();
+            return buildingsTable.remove(buildingCode).clone();
         }
     }
 
@@ -138,41 +139,41 @@ public isolated client class InMemoryRainierClient {
     } external;
 
     isolated resource function post departments(DepartmentInsert[] data) returns string[]|Error {
-        lock {
-            string[] keys = [];
-            foreach DepartmentInsert value in data.clone() {
-                if departments.hasKey(value.deptNo) {
+        string[] keys = [];
+        foreach DepartmentInsert value in data.clone() {
+            lock {
+                if departmentsTable.hasKey(value.deptNo) {
                     return <DuplicateKeyError>error("Duplicate key: " + value.deptNo);
                 }
-                departments.put(value.clone());
-                keys.push(value.deptNo);
+                departmentsTable.put(value.clone());
             }
-            return keys.clone();
+            keys.push(value.deptNo);
         }
+        return keys.clone();
     }
 
     isolated resource function put departments/[string deptNo](DepartmentUpdate value) returns Department|Error {
         lock {
-            if !departments.hasKey(deptNo) {
+            if !departmentsTable.hasKey(deptNo) {
                 return <InvalidKeyError>error("Not found: " + deptNo);
             }
 
-            Department department = departments.get(deptNo);
+            Department department = departmentsTable.get(deptNo);
             foreach var [k, v] in value.clone().entries() {
                 department[k] = v;
             }
 
-            departments.put(department);
+            departmentsTable.put(department);
             return department.clone();
         }
     }
 
     isolated resource function delete departments/[string deptNo]() returns Department|Error {
         lock {
-            if !departments.hasKey(deptNo) {
+            if !departmentsTable.hasKey(deptNo) {
                 return <InvalidKeyError>error("Not found: " + deptNo);
             }
-            return departments.remove(deptNo).clone();
+            return departmentsTable.remove(deptNo).clone();
         }
     }
 
@@ -187,41 +188,41 @@ public isolated client class InMemoryRainierClient {
     } external;
 
     isolated resource function post workspaces(WorkspaceInsert[] data) returns string[]|Error {
-        lock {
-            string[] keys = [];
-            foreach WorkspaceInsert value in data.clone() {
-                if workspaces.hasKey(value.workspaceId) {
+        string[] keys = [];
+        foreach WorkspaceInsert value in data.clone() {
+            lock {
+                if workspacesTable.hasKey(value.workspaceId) {
                     return <DuplicateKeyError>error("Duplicate key: " + value.workspaceId);
                 }
-                workspaces.put(value.clone());
-                keys.push(value.workspaceId);
+                workspacesTable.put(value.clone());
             }
-            return keys.clone();
+            keys.push(value.workspaceId);
         }
+        return keys.clone();
     }
 
     isolated resource function put workspaces/[string workspaceId](WorkspaceUpdate value) returns Workspace|Error {
         lock {
-            if !workspaces.hasKey(workspaceId) {
+            if !workspacesTable.hasKey(workspaceId) {
                 return <InvalidKeyError>error("Not found: " + workspaceId);
             }
 
-            Workspace workspace = workspaces.get(workspaceId);
+            Workspace workspace = workspacesTable.get(workspaceId);
             foreach var [k, v] in value.clone().entries() {
                 workspace[k] = v;
             }
 
-            workspaces.put(workspace);
+            workspacesTable.put(workspace);
             return workspace.clone();
-       }
+        }
     }
 
     isolated resource function delete workspaces/[string workspaceId]() returns Workspace|Error {
         lock {
-            if !workspaces.hasKey(workspaceId) {
+            if !workspacesTable.hasKey(workspaceId) {
                 return <InvalidKeyError>error("Not found: " + workspaceId);
             }
-            return workspaces.remove(workspaceId).clone();
+            return workspacesTable.remove(workspaceId).clone();
         }
     }
 
@@ -236,41 +237,41 @@ public isolated client class InMemoryRainierClient {
     } external;
 
     isolated resource function post employees(EmployeeInsert[] data) returns string[]|Error {
-        lock {
-            string[] keys = [];
-            foreach EmployeeInsert value in data.clone() {
-                if employees.hasKey(value.empNo) {
+        string[] keys = [];
+        foreach EmployeeInsert value in data.clone() {
+            lock {
+                if employeesTable.hasKey(value.empNo) {
                     return <DuplicateKeyError>error("Duplicate key: " + value.empNo);
                 }
-                employees.put(value.clone());
-                keys.push(value.empNo);
+                employeesTable.put(value.clone());
             }
-            return keys.clone();
+            keys.push(value.empNo);
         }
+        return keys.clone();
     }
 
     isolated resource function put employees/[string empNo](EmployeeUpdate value) returns Employee|Error {
         lock {
-            if !employees.hasKey(empNo) {
+            if !employeesTable.hasKey(empNo) {
                 return <InvalidKeyError>error("Not found: " + empNo);
             }
 
-            Employee employee = employees.get(empNo);
+            Employee employee = employeesTable.get(empNo);
             foreach var [k, v] in value.clone().entries() {
                 employee[k] = v;
             }
 
-            employees.put(employee);
+            employeesTable.put(employee);
             return employee.clone();
         }
     }
 
     isolated resource function delete employees/[string empNo]() returns Employee|Error {
         lock {
-            if !employees.hasKey(empNo) {
+            if !employeesTable.hasKey(empNo) {
                 return <InvalidKeyError>error("Not found: " + empNo);
             }
-            return employees.remove(empNo).clone();
+            return employeesTable.remove(empNo).clone();
         }
     }
 
@@ -289,64 +290,64 @@ public isolated client class InMemoryRainierClient {
     } external;
 
     isolated resource function post orderitems(OrderItemInsert[] data) returns [string, string][]|Error {
-        lock {
-            [string, string][] keys = [];
-            foreach OrderItemInsert value in data.clone() {
-                if orderItems.hasKey([value.orderId, value.itemId]) {
+        [string, string][] keys = [];
+        foreach OrderItemInsert value in data.clone() {
+            lock {
+                if orderItemsTable.hasKey([value.orderId, value.itemId]) {
                     return <DuplicateKeyError>error("Duplicate key: " + [value.orderId, value.itemId].toString());
                 }
-                orderItems.put(value.clone());
-                keys.push([value.orderId, value.itemId]);
+                orderItemsTable.put(value.clone());
             }
-            return keys.clone();
+            keys.push([value.orderId, value.itemId]);
         }
+        return keys.clone();
     }
 
     isolated resource function put orderitems/[string orderId]/[string itemId](OrderItemUpdate value) returns OrderItem|Error {
         lock {
-            if !orderItems.hasKey([orderId, itemId]) {
+            if !orderItemsTable.hasKey([orderId, itemId]) {
                 return <InvalidKeyError>error("Not found: " + [orderId, itemId].toString());
             }
 
-            OrderItem orderItem = orderItems.get([orderId, itemId]);
+            OrderItem orderItem = orderItemsTable.get([orderId, itemId]);
             foreach var [k, v] in value.clone().entries() {
                 orderItem[k] = v;
             }
 
-            orderItems.put(orderItem);
+            orderItemsTable.put(orderItem);
             return orderItem.clone();
         }
     }
 
     isolated resource function delete orderitems/[string orderId]/[string itemId]() returns OrderItem|Error {
         lock {
-            if !orderItems.hasKey([orderId, itemId]) {
+            if !orderItemsTable.hasKey([orderId, itemId]) {
                 return <InvalidKeyError>error("Not found: " + [orderId, itemId].toString());
             }
-            return orderItems.remove([orderId, itemId]).clone();
+            return orderItemsTable.remove([orderId, itemId]).clone();
         }
     }
 
 }
 
 isolated function queryEmployees(string[] fields) returns stream<record {}, Error?> {
-    table<Employee> key(empNo) employeesTable;
-    table<Department> key(deptNo) departmentsTable;
-    table<Workspace> key(workspaceId) workspacesTable;
+    table<Employee> key(empNo) employeesClonedTable;
+    table<Department> key(deptNo) departmentsClonedTable;
+    table<Workspace> key(workspaceId) workspacesClonedTable;
     lock {
-        employeesTable = employees.clone();
+        employeesClonedTable = employeesTable.clone();
     }
     lock {
-        departmentsTable = departments.clone();
+        departmentsClonedTable = departmentsTable.clone();
     }
     lock {
-        workspacesTable = workspaces.clone();
+        workspacesClonedTable = workspacesTable.clone();
     }
 
-    return from record {} 'object in employeesTable
-        outer join var department in departmentsTable
+    return from record {} 'object in employeesClonedTable
+        outer join var department in departmentsClonedTable
         on 'object.departmentDeptNo equals department?.deptNo
-        outer join var workspace in workspacesTable
+        outer join var workspace in workspacesClonedTable
         on 'object.workspaceWorkspaceId equals workspace?.workspaceId
         select filterRecord(
             {
@@ -357,24 +358,24 @@ isolated function queryEmployees(string[] fields) returns stream<record {}, Erro
 }
 
 isolated function queryOneEmployees(anydata key) returns record {}|InvalidKeyError {
-    table<Employee> key(empNo) employeesTable;
-    table<Department> key(deptNo) departmentsTable;
-    table<Workspace> key(workspaceId) workspacesTable;
+    table<Employee> key(empNo) employeesClonedTable;
+    table<Department> key(deptNo) departmentsClonedTable;
+    table<Workspace> key(workspaceId) workspacesClonedTable;
     lock {
-        employeesTable = employees.clone();
+        employeesClonedTable = employeesTable.clone();
     }
     lock {
-        departmentsTable = departments.clone();
+        departmentsClonedTable = departmentsTable.clone();
     }
     lock {
-        workspacesTable = workspaces.clone();
+        workspacesClonedTable = workspacesTable.clone();
     }
 
-    from record {} 'object in employeesTable
+    from record {} 'object in employeesClonedTable
     where getKey('object, ["empNo"]) == key
-    outer join var department in departmentsTable
+    outer join var department in departmentsClonedTable
         on 'object.departmentDeptNo equals department?.deptNo
-    outer join var workspace in workspacesTable
+    outer join var workspace in workspacesClonedTable
         on 'object.workspaceWorkspaceId equals workspace?.workspaceId
     do {
         return {
@@ -387,24 +388,24 @@ isolated function queryOneEmployees(anydata key) returns record {}|InvalidKeyErr
 }
 
 isolated function queryBuildings(string[] fields) returns stream<record {}, Error?> {
-    table<Building> key(buildingCode) buildingsTable;
+    table<Building> key(buildingCode) buildingsClonedTable;
     lock {
-        buildingsTable = buildings.clone();
+        buildingsClonedTable = buildingsTable.clone();
     }
 
-    return from record {} 'object in buildingsTable
+    return from record {} 'object in buildingsClonedTable
         select filterRecord({
             ...'object
         }, fields);
 }
 
 isolated function queryOneBuildings(anydata key) returns record {}|InvalidKeyError {
-    table<Building> key(buildingCode) buildingsTable;
+    table<Building> key(buildingCode) buildingsClonedTable;
     lock {
-        buildingsTable = buildings.clone();
+        buildingsClonedTable = buildingsTable.clone();
     }
 
-    from record {} 'object in buildingsTable
+    from record {} 'object in buildingsClonedTable
     where getKey('object, ["buildingCode"]) == key
     do {
         return {
@@ -415,12 +416,12 @@ isolated function queryOneBuildings(anydata key) returns record {}|InvalidKeyErr
 }
 
 isolated function queryBuildingsWorkspaces(record {} value, string[] fields) returns record {}[] {
-    table<Workspace> key(workspaceId) workspacesTable;
+    table<Workspace> key(workspaceId) workspacesClonedTable;
     lock {
-        workspacesTable = workspaces.clone();
+        workspacesClonedTable = workspacesTable.clone();
     }
 
-    return from record {} 'object in workspacesTable
+    return from record {} 'object in workspacesClonedTable
         where 'object.locationBuildingCode == value["buildingCode"]
         select filterRecord({
             ...'object
@@ -428,24 +429,24 @@ isolated function queryBuildingsWorkspaces(record {} value, string[] fields) ret
 }
 
 isolated function queryDepartments(string[] fields) returns stream<record {}, Error?> {
-    table<Department> key(deptNo) departmentsTable;
+    table<Department> key(deptNo) departmentsClonedTable;
     lock {
-        departmentsTable = departments.clone();
+        departmentsClonedTable = departmentsTable.clone();
     }
 
-    return from record {} 'object in departmentsTable
+    return from record {} 'object in departmentsClonedTable
         select filterRecord({
             ...'object
         }, fields);
 }
 
 isolated function queryOneDepartments(anydata key) returns record {}|InvalidKeyError {
-    table<Department> key(deptNo) departmentsTable;
+    table<Department> key(deptNo) departmentsClonedTable;
     lock {
-        departmentsTable = departments.clone();
+        departmentsClonedTable = departmentsTable.clone();
     }
 
-    from record {} 'object in departmentsTable
+    from record {} 'object in departmentsClonedTable
     where getKey('object, ["deptNo"]) == key
     do {
         return {
@@ -456,12 +457,12 @@ isolated function queryOneDepartments(anydata key) returns record {}|InvalidKeyE
 }
 
 isolated function queryDepartmentsEmployees(record {} value, string[] fields) returns record {}[] {
-    table<Employee> key(empNo) employeesTable;
+    table<Employee> key(empNo) employeesClonedTable;
     lock {
-        employeesTable = employees.clone();
+        employeesClonedTable = employeesTable.clone();
     }
 
-    return from record {} 'object in employeesTable
+    return from record {} 'object in employeesClonedTable
         where 'object.departmentDeptNo == value["deptNo"]
         select filterRecord({
             ...'object
@@ -469,17 +470,17 @@ isolated function queryDepartmentsEmployees(record {} value, string[] fields) re
 }
 
 isolated function queryWorkspaces(string[] fields) returns stream<record {}, Error?> {
-    table<Workspace> key(workspaceId) workspacesTable;
-    table<Building> key(buildingCode) buildingsTable;
+    table<Workspace> key(workspaceId) workspacesClonedTable;
+    table<Building> key(buildingCode) buildingsClonedTable;
     lock {
-        workspacesTable = workspaces.clone();
+        workspacesClonedTable = workspacesTable.clone();
     }
     lock {
-        buildingsTable = buildings.clone();
+        buildingsClonedTable = buildingsTable.clone();
     }
 
-    return from record {} 'object in workspacesTable
-        outer join var location in buildingsTable
+    return from record {} 'object in workspacesClonedTable
+        outer join var location in buildingsClonedTable
         on 'object.locationBuildingCode equals location?.buildingCode
         select filterRecord({
             ...'object,
@@ -488,17 +489,17 @@ isolated function queryWorkspaces(string[] fields) returns stream<record {}, Err
 }
 
 isolated function queryOneWorkspaces(anydata key) returns record {}|InvalidKeyError {
-    table<Workspace> key(workspaceId) workspacesTable;
-    table<Building> key(buildingCode) buildingsTable;
+    table<Workspace> key(workspaceId) workspacesClonedTable;
+    table<Building> key(buildingCode) buildingsClonedTable;
     lock {
-        workspacesTable = workspaces.clone();
+        workspacesClonedTable = workspacesTable.clone();
     }
     lock {
-        buildingsTable = buildings.clone();
+        buildingsClonedTable = buildingsTable.clone();
     }
-    from record {} 'object in workspacesTable
+    from record {} 'object in workspacesClonedTable
     where getKey('object, ["workspaceId"]) == key
-    outer join var location in buildingsTable
+    outer join var location in buildingsClonedTable
         on 'object.locationBuildingCode equals location?.buildingCode
     do {
         return {
@@ -510,11 +511,11 @@ isolated function queryOneWorkspaces(anydata key) returns record {}|InvalidKeyEr
 }
 
 isolated function queryWorkspacesEmployees(record {} value, string[] fields) returns record {}[] {
-    table<Employee> key(empNo) employeesTable;
+    table<Employee> key(empNo) employeesClonedTable;
     lock {
-        employeesTable = employees.clone();
+        employeesClonedTable = employeesTable.clone();
     }
-    return from record {} 'object in employeesTable
+    return from record {} 'object in employeesClonedTable
         where 'object.workspaceWorkspaceId == value["workspaceId"]
         select filterRecord({
             ...'object
@@ -522,24 +523,24 @@ isolated function queryWorkspacesEmployees(record {} value, string[] fields) ret
 }
 
 isolated function queryOrderItems(string[] fields) returns stream<record {}, Error?> {
-    table<OrderItem> key(orderId, itemId) orderItemsTable;
+    table<OrderItem> key(orderId, itemId) orderItemsClonedTable;
     lock {
-        orderItemsTable = orderItems.clone();
+        orderItemsClonedTable = orderItemsTable.clone();
     }
 
-    return from record {} 'object in orderItemsTable
+    return from record {} 'object in orderItemsClonedTable
         select filterRecord({
             ...'object
         }, fields);
 }
 
 isolated function queryOneOrderItems(anydata key) returns record {}|InvalidKeyError {
-    table<OrderItem> key(orderId, itemId) orderItemsTable;
+    table<OrderItem> key(orderId, itemId) orderItemsClonedTable;
     lock {
-        orderItemsTable = orderItems.clone();
+        orderItemsClonedTable = orderItemsTable.clone();
     }
 
-    from record {} 'object in orderItemsTable
+    from record {} 'object in orderItemsClonedTable
     where getKey('object, ["orderId", "itemId"]) == key
     do {
         return {

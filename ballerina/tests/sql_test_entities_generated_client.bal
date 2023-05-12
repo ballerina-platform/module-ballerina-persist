@@ -26,12 +26,12 @@ const BOOLEAN_ID_RECORD = "booleanidrecords";
 const COMPOSITE_ASSOCIATION_RECORD = "compositeassociationrecords";
 const ALL_TYPES_ID_RECORD = "alltypesidrecords";
 
-public client class SQLTestEntitiesClient {
+public isolated client class SQLTestEntitiesClient {
     *AbstractPersistClient;
 
     private final mysql:Client dbClient;
 
-    private final map<SQLClient> persistClients;
+    private final map<SQLClient> persistClients = {};
 
     private final record {|SQLMetadata...;|} metadata = {
         [ALL_TYPES] : {
@@ -156,16 +156,16 @@ public client class SQLTestEntitiesClient {
             return <Error>error(dbClient.message());
         }
         self.dbClient = dbClient;
-        self.persistClients = {
-            [ALL_TYPES] : check new (self.dbClient, self.metadata.get(ALL_TYPES)),
-            [STRING_ID_RECORD] : check new (self.dbClient, self.metadata.get(STRING_ID_RECORD)),
-            [INT_ID_RECORD] : check new (self.dbClient, self.metadata.get(INT_ID_RECORD)),
-            [FLOAT_ID_RECORD] : check new (self.dbClient, self.metadata.get(FLOAT_ID_RECORD)),
-            [DECIMAL_ID_RECORD] : check new (self.dbClient, self.metadata.get(DECIMAL_ID_RECORD)),
-            [BOOLEAN_ID_RECORD] : check new (self.dbClient, self.metadata.get(BOOLEAN_ID_RECORD)),
-            [COMPOSITE_ASSOCIATION_RECORD] : check new (self.dbClient, self.metadata.get(COMPOSITE_ASSOCIATION_RECORD)),
-            [ALL_TYPES_ID_RECORD] : check new (self.dbClient, self.metadata.get(ALL_TYPES_ID_RECORD))
-        };
+        lock {
+            self.persistClients[ALL_TYPES] = check new (self.dbClient, self.metadata.get(ALL_TYPES));
+            self.persistClients[STRING_ID_RECORD] = check new (self.dbClient, self.metadata.get(STRING_ID_RECORD));
+            self.persistClients[INT_ID_RECORD] = check new (self.dbClient, self.metadata.get(INT_ID_RECORD));
+            self.persistClients[FLOAT_ID_RECORD] = check new (self.dbClient, self.metadata.get(FLOAT_ID_RECORD));
+            self.persistClients[DECIMAL_ID_RECORD] = check new (self.dbClient, self.metadata.get(DECIMAL_ID_RECORD));
+            self.persistClients[BOOLEAN_ID_RECORD] = check new (self.dbClient, self.metadata.get(BOOLEAN_ID_RECORD));
+            self.persistClients[COMPOSITE_ASSOCIATION_RECORD] = check new (self.dbClient, self.metadata.get(COMPOSITE_ASSOCIATION_RECORD));
+            self.persistClients[ALL_TYPES_ID_RECORD] = check new (self.dbClient, self.metadata.get(ALL_TYPES_ID_RECORD));
+        }
     }
 
     isolated resource function get alltypes(AllTypesTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
@@ -179,19 +179,25 @@ public client class SQLTestEntitiesClient {
     } external;
 
     isolated resource function post alltypes(AllTypesInsert[] data) returns int[]|Error {
-        _ = check self.persistClients.get(ALL_TYPES).runBatchInsertQuery(data);
+        lock {
+            _ = check self.persistClients.get(ALL_TYPES).runBatchInsertQuery(data.clone());
+        }
         return from AllTypesInsert inserted in data
             select inserted.id;
     }
 
     isolated resource function put alltypes/[int id](AllTypesUpdate value) returns AllTypes|Error {
-        _ = check self.persistClients.get(ALL_TYPES).runUpdateQuery(id, value);
+        lock {
+            _ = check self.persistClients.get(ALL_TYPES).runUpdateQuery(id, value.clone());
+        }
         return self->/alltypes/[id].get();
     }
 
     isolated resource function delete alltypes/[int id]() returns AllTypes|Error {
         AllTypes result = check self->/alltypes/[id].get();
-        _ = check self.persistClients.get(ALL_TYPES).runDeleteQuery(id);
+        lock {
+            _ = check self.persistClients.get(ALL_TYPES).runDeleteQuery(id);
+        }
         return result;
     }
 
@@ -206,19 +212,25 @@ public client class SQLTestEntitiesClient {
     } external;
 
     isolated resource function post stringidrecords(StringIdRecordInsert[] data) returns string[]|Error {
-        _ = check self.persistClients.get(STRING_ID_RECORD).runBatchInsertQuery(data);
+        lock {
+            _ = check self.persistClients.get(STRING_ID_RECORD).runBatchInsertQuery(data.clone());
+        }
         return from StringIdRecordInsert inserted in data
             select inserted.id;
     }
 
     isolated resource function put stringidrecords/[string id](StringIdRecordUpdate value) returns StringIdRecord|Error {
-        _ = check self.persistClients.get(STRING_ID_RECORD).runUpdateQuery(id, value);
+        lock {
+            _ = check self.persistClients.get(STRING_ID_RECORD).runUpdateQuery(id, value.clone());
+        }
         return self->/stringidrecords/[id].get();
     }
 
     isolated resource function delete stringidrecords/[string id]() returns StringIdRecord|Error {
         StringIdRecord result = check self->/stringidrecords/[id].get();
-        _ = check self.persistClients.get(STRING_ID_RECORD).runDeleteQuery(id);
+        lock {
+            _ = check self.persistClients.get(STRING_ID_RECORD).runDeleteQuery(id);
+        }
         return result;
     }
 
@@ -233,19 +245,25 @@ public client class SQLTestEntitiesClient {
     } external;
 
     isolated resource function post intidrecords(IntIdRecordInsert[] data) returns int[]|Error {
-        _ = check self.persistClients.get(INT_ID_RECORD).runBatchInsertQuery(data);
+        lock {
+            _ = check self.persistClients.get(INT_ID_RECORD).runBatchInsertQuery(data.clone());
+        }
         return from IntIdRecordInsert inserted in data
             select inserted.id;
     }
 
     isolated resource function put intidrecords/[int id](IntIdRecordUpdate value) returns IntIdRecord|Error {
-        _ = check self.persistClients.get(INT_ID_RECORD).runUpdateQuery(id, value);
+        lock {
+            _ = check self.persistClients.get(INT_ID_RECORD).runUpdateQuery(id, value.clone());
+        }
         return self->/intidrecords/[id].get();
     }
 
     isolated resource function delete intidrecords/[int id]() returns IntIdRecord|Error {
         IntIdRecord result = check self->/intidrecords/[id].get();
-        _ = check self.persistClients.get(INT_ID_RECORD).runDeleteQuery(id);
+        lock {
+            _ = check self.persistClients.get(INT_ID_RECORD).runDeleteQuery(id);
+        }
         return result;
     }
 
@@ -260,19 +278,25 @@ public client class SQLTestEntitiesClient {
     } external;
 
     isolated resource function post floatidrecords(FloatIdRecordInsert[] data) returns float[]|Error {
-        _ = check self.persistClients.get(FLOAT_ID_RECORD).runBatchInsertQuery(data);
+        lock {
+            _ = check self.persistClients.get(FLOAT_ID_RECORD).runBatchInsertQuery(data.clone());
+        }
         return from FloatIdRecordInsert inserted in data
             select inserted.id;
     }
 
     isolated resource function put floatidrecords/[float id](FloatIdRecordUpdate value) returns FloatIdRecord|Error {
-        _ = check self.persistClients.get(FLOAT_ID_RECORD).runUpdateQuery(id, value);
+        lock {
+            _ = check self.persistClients.get(FLOAT_ID_RECORD).runUpdateQuery(id, value.clone());
+        }
         return self->/floatidrecords/[id].get();
     }
 
     isolated resource function delete floatidrecords/[float id]() returns FloatIdRecord|Error {
         FloatIdRecord result = check self->/floatidrecords/[id].get();
-        _ = check self.persistClients.get(FLOAT_ID_RECORD).runDeleteQuery(id);
+        lock {
+            _ = check self.persistClients.get(FLOAT_ID_RECORD).runDeleteQuery(id);
+        }
         return result;
     }
 
@@ -287,19 +311,25 @@ public client class SQLTestEntitiesClient {
     } external;
 
     isolated resource function post decimalidrecords(DecimalIdRecordInsert[] data) returns decimal[]|Error {
-        _ = check self.persistClients.get(DECIMAL_ID_RECORD).runBatchInsertQuery(data);
+        lock {
+            _ = check self.persistClients.get(DECIMAL_ID_RECORD).runBatchInsertQuery(data.clone());
+        }
         return from DecimalIdRecordInsert inserted in data
             select inserted.id;
     }
 
     isolated resource function put decimalidrecords/[decimal id](DecimalIdRecordUpdate value) returns DecimalIdRecord|Error {
-        _ = check self.persistClients.get(DECIMAL_ID_RECORD).runUpdateQuery(id, value);
+        lock {
+            _ = check self.persistClients.get(DECIMAL_ID_RECORD).runUpdateQuery(id, value.clone());
+        }
         return self->/decimalidrecords/[id].get();
     }
 
     isolated resource function delete decimalidrecords/[decimal id]() returns DecimalIdRecord|Error {
         DecimalIdRecord result = check self->/decimalidrecords/[id].get();
-        _ = check self.persistClients.get(DECIMAL_ID_RECORD).runDeleteQuery(id);
+        lock {
+            _ = check self.persistClients.get(DECIMAL_ID_RECORD).runDeleteQuery(id);
+        }
         return result;
     }
 
@@ -314,19 +344,25 @@ public client class SQLTestEntitiesClient {
     } external;
 
     isolated resource function post booleanidrecords(BooleanIdRecordInsert[] data) returns boolean[]|Error {
-        _ = check self.persistClients.get(BOOLEAN_ID_RECORD).runBatchInsertQuery(data);
+        lock {
+            _ = check self.persistClients.get(BOOLEAN_ID_RECORD).runBatchInsertQuery(data.clone());
+        }
         return from BooleanIdRecordInsert inserted in data
             select inserted.id;
     }
 
     isolated resource function put booleanidrecords/[boolean id](BooleanIdRecordUpdate value) returns BooleanIdRecord|Error {
-        _ = check self.persistClients.get(BOOLEAN_ID_RECORD).runUpdateQuery(id, value);
+        lock {
+            _ = check self.persistClients.get(BOOLEAN_ID_RECORD).runUpdateQuery(id, value.clone());
+        }
         return self->/booleanidrecords/[id].get();
     }
 
     isolated resource function delete booleanidrecords/[boolean id]() returns BooleanIdRecord|Error {
         BooleanIdRecord result = check self->/booleanidrecords/[id].get();
-        _ = check self.persistClients.get(BOOLEAN_ID_RECORD).runDeleteQuery(id);
+        lock {
+            _ = check self.persistClients.get(BOOLEAN_ID_RECORD).runDeleteQuery(id);
+        }
         return result;
     }
 
@@ -341,19 +377,25 @@ public client class SQLTestEntitiesClient {
     } external;
 
     isolated resource function post compositeassociationrecords(CompositeAssociationRecordInsert[] data) returns string[]|Error {
-        _ = check self.persistClients.get(COMPOSITE_ASSOCIATION_RECORD).runBatchInsertQuery(data);
+        lock {
+            _ = check self.persistClients.get(COMPOSITE_ASSOCIATION_RECORD).runBatchInsertQuery(data.clone());
+        }
         return from CompositeAssociationRecordInsert inserted in data
             select inserted.id;
     }
 
     isolated resource function put compositeassociationrecords/[string id](CompositeAssociationRecordUpdate value) returns CompositeAssociationRecord|Error {
-        _ = check self.persistClients.get(COMPOSITE_ASSOCIATION_RECORD).runUpdateQuery(id, value);
+        lock {
+            _ = check self.persistClients.get(COMPOSITE_ASSOCIATION_RECORD).runUpdateQuery(id, value.clone());
+        }
         return self->/compositeassociationrecords/[id].get();
     }
 
     isolated resource function delete compositeassociationrecords/[string id]() returns CompositeAssociationRecord|Error {
         CompositeAssociationRecord result = check self->/compositeassociationrecords/[id].get();
-        _ = check self.persistClients.get(COMPOSITE_ASSOCIATION_RECORD).runDeleteQuery(id);
+        lock {
+            _ = check self.persistClients.get(COMPOSITE_ASSOCIATION_RECORD).runDeleteQuery(id);
+        }
         return result;
     }
 
@@ -368,19 +410,25 @@ public client class SQLTestEntitiesClient {
     } external;
 
     isolated resource function post alltypesidrecords(AllTypesIdRecordInsert[] data) returns [boolean, int, float, decimal, string][]|Error {
-        _ = check self.persistClients.get(ALL_TYPES_ID_RECORD).runBatchInsertQuery(data);
+        lock {
+            _ = check self.persistClients.get(ALL_TYPES_ID_RECORD).runBatchInsertQuery(data.clone());
+        }
         return from AllTypesIdRecordInsert inserted in data
             select [inserted.booleanType, inserted.intType, inserted.floatType, inserted.decimalType, inserted.stringType];
     }
 
     isolated resource function put alltypesidrecords/[boolean booleanType]/[int intType]/[float floatType]/[decimal decimalType]/[string stringType](AllTypesIdRecordUpdate value) returns AllTypesIdRecord|Error {
-        _ = check self.persistClients.get(ALL_TYPES_ID_RECORD).runUpdateQuery({"booleanType": booleanType, "intType": intType, "floatType": floatType, "decimalType": decimalType, "stringType": stringType}, value);
+        lock {
+            _ = check self.persistClients.get(ALL_TYPES_ID_RECORD).runUpdateQuery({"booleanType": booleanType, "intType": intType, "floatType": floatType, "decimalType": decimalType, "stringType": stringType}, value.clone());
+        }
         return self->/alltypesidrecords/[booleanType]/[intType]/[floatType]/[decimalType]/[stringType].get();
     }
 
     isolated resource function delete alltypesidrecords/[boolean booleanType]/[int intType]/[float floatType]/[decimal decimalType]/[string stringType]() returns AllTypesIdRecord|Error {
         AllTypesIdRecord result = check self->/alltypesidrecords/[booleanType]/[intType]/[floatType]/[decimalType]/[stringType].get();
-        _ = check self.persistClients.get(ALL_TYPES_ID_RECORD).runDeleteQuery({"booleanType": booleanType, "intType": intType, "floatType": floatType, "decimalType": decimalType, "stringType": stringType});
+        lock {
+            _ = check self.persistClients.get(ALL_TYPES_ID_RECORD).runDeleteQuery({"booleanType": booleanType, "intType": intType, "floatType": floatType, "decimalType": decimalType, "stringType": stringType});
+        }
         return result;
     }
 
