@@ -26,7 +26,7 @@ function gsheetsEmployeeCreateTest() returns error? {
 
     Employee employeeRetrieved = check rainierClient->/employees/[employee1.empNo].get();
     test:assertEquals(employeeRetrieved, employee1);
-    check rainierClient.close();
+    
 }
 
 @test:Config {
@@ -43,7 +43,7 @@ function gsheetsEmployeeCreateTest2() returns error? {
 
     employeeRetrieved = check rainierClient->/employees/[employee3.empNo].get();
     test:assertEquals(employeeRetrieved, employee3);
-    check rainierClient.close();
+    
 }
 
 @test:Config {
@@ -53,7 +53,7 @@ function gsheetsEmployeeCreateTest2() returns error? {
 function gsheetsEmployeeReadOneTest() returns error? {
     Employee employeeRetrieved = check rainierClient->/employees/[employee1.empNo].get();
     test:assertEquals(employeeRetrieved, employee1);
-    check rainierClient.close();
+    
 }
 
 @test:Config {
@@ -67,7 +67,7 @@ function gsheetsEmployeeReadOneTestNegative() returns error? {
     } else {
         test:assertFail("InvalidKeyError expected.");
     }
-    check rainierClient.close();
+    
 }
 
 @test:Config {
@@ -80,7 +80,7 @@ function gsheetsEmployeeReadManyTest() returns error? {
         select employee;
 
     test:assertEquals(employees, [employee1, employee2, employee3]);
-    check rainierClient.close();
+    
 }
 
 @test:Config {
@@ -97,7 +97,7 @@ function gsheetsEmployeeReadManyDependentTest1() returns error? {
         {firstName: employee2.firstName, lastName: employee2.lastName},
         {firstName: employee3.firstName, lastName: employee3.lastName}
     ]);
-    check rainierClient.close();
+    
 }
 
 @test:Config {
@@ -114,7 +114,7 @@ function gsheetsEmployeeReadManyDependentTest2() returns error? {
         {empNo: employee2.empNo, birthDate: employee2.birthDate, departmentDeptNo: employee2.departmentDeptNo, workspaceWorkspaceId: employee2.workspaceWorkspaceId},
         {empNo: employee3.empNo, birthDate: employee3.birthDate, departmentDeptNo: employee3.departmentDeptNo, workspaceWorkspaceId: employee3.workspaceWorkspaceId}
     ]);
-    check rainierClient.close();
+    
 }
 
 @test:Config {
@@ -132,7 +132,7 @@ function gsheetsEmployeeUpdateTest() returns error? {
 
     Employee employeeRetrieved = check rainierClient->/employees/[employee1.empNo].get();
     test:assertEquals(employeeRetrieved, updatedEmployee1);
-    check rainierClient.close();
+    
 }
 
 @test:Config {
@@ -149,7 +149,7 @@ function gsheetsEmployeeUpdateTestNegative1() returns error? {
     } else {
         test:assertFail("InvalidKeyError expected.");
     }
-    check rainierClient.close();
+    
 }
 
 @test:Config {
@@ -165,7 +165,7 @@ function gsheetsEmployeeDeleteTest() returns error? {
         select employee2;
 
     test:assertEquals(employees, [employee2, employee3]);
-    check rainierClient.close();
+    
 }
 
 @test:Config {
@@ -180,5 +180,5 @@ function gsheetsEmployeeDeleteTestNegative() returns error? {
     } else {
         test:assertFail("InvalidKeyError expected.");
     }
-    check rainierClient.close();
+    
 }

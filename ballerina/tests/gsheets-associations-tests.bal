@@ -78,7 +78,7 @@ function gsheetsEmployeeRelationsTest() returns error? {
 
     test:assertTrue(employees.indexOf(expected) is int, "Expected EmployeeInfo not found.");
     test:assertEquals(retrieved, expected);
-    check rainierClient.close();
+    
 }
 
 @test:Config {
@@ -156,7 +156,7 @@ function gsheetsDepartmentRelationsTest() returns error? {
 
     test:assertTrue(departments.indexOf(expected) is int, "Expected DepartmentInfo not found.");
     test:assertEquals(retrieved, expected);
-    check rainierClient.close();
+    
 }
 
 @test:Config {
@@ -229,8 +229,6 @@ function gsheetsWorkspaceRelationsTest() returns error? {
     }
 
     test:assertEquals(retrieved, expected);
-
-    check rainierClient.close();
 }
 
 @test:Config {
@@ -276,5 +274,4 @@ function gsheetsBuildingRelationsTest() returns error? {
 
     test:assertEquals(retrieved, expected);
 
-    check rainierClient.close();
 }

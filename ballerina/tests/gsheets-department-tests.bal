@@ -27,7 +27,7 @@ function gsheetsDepartmentCreateTest() returns error? {
 
     Department departmentRetrieved = check rainierClient->/departments/[department1.deptNo].get();
     test:assertEquals(departmentRetrieved, department1);
-    check rainierClient.close();
+
 }
 
 @test:Config {
@@ -45,7 +45,7 @@ function gsheetsDepartmentCreateTest2() returns error? {
 
     departmentRetrieved = check rainierClient->/departments/[department3.deptNo].get();
     test:assertEquals(departmentRetrieved, department3);
-    check rainierClient.close();
+
 }
 
 @test:Config {
@@ -56,7 +56,7 @@ function gsheetsDepartmentReadOneTest() returns error? {
 
     Department departmentRetrieved = check rainierClient->/departments/[department1.deptNo].get();
     test:assertEquals(departmentRetrieved, department1);
-    check rainierClient.close();
+
 }
 
 @test:Config {
@@ -70,7 +70,7 @@ function gsheetsDepartmentReadOneTestNegative() returns error? {
     } else {
         test:assertFail("InvalidKeyError expected.");
     }
-    check rainierClient.close();
+
 }
 
 @test:Config {
@@ -83,7 +83,7 @@ function gsheetsDepartmentReadManyTest() returns error? {
         select department;
 
     test:assertEquals(departments, [department1, department2, department3]);
-    check rainierClient.close();
+
 }
 
 @test:Config {
@@ -101,7 +101,7 @@ function gsheetsDepartmentReadManyTestDependent() returns error? {
         {deptName: department2.deptName},
         {deptName: department3.deptName}
     ]);
-    check rainierClient.close();
+
 }
 
 @test:Config {
@@ -118,7 +118,7 @@ function gsheetsDepartmentUpdateTest() returns error? {
 
     Department departmentRetrieved = check rainierClient->/departments/[department1.deptNo].get();
     test:assertEquals(departmentRetrieved, updatedDepartment1);
-    check rainierClient.close();
+
 }
 
 @test:Config {
@@ -136,7 +136,7 @@ function gsheetsDepartmentUpdateTestNegative1() returns error? {
     } else {
         test:assertFail("InvalidKeyError expected.");
     }
-    check rainierClient.close();
+
 }
 
 @test:Config {
@@ -153,7 +153,7 @@ function gsheetsDepartmentDeleteTest() returns error? {
         select department2;
 
     test:assertEquals(departments, [department2, department3]);
-    check rainierClient.close();
+
 }
 
 @test:Config {
@@ -168,5 +168,5 @@ function gsheetsDepartmentDeleteTestNegative() returns error? {
     } else {
         test:assertFail("InvalidKeyError expected.");
     }
-    check rainierClient.close();
+
 }

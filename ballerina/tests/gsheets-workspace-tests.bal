@@ -41,7 +41,7 @@ function gsheetsWorkspaceCreateTest2() returns error? {
 
     workspaceRetrieved = check rainierClient->/workspaces/[workspace3.workspaceId].get();
     test:assertEquals(workspaceRetrieved, workspace3);
-    check rainierClient.close();
+    
 }
 
 @test:Config {
@@ -51,7 +51,7 @@ function gsheetsWorkspaceCreateTest2() returns error? {
 function gsheetsWorkspaceReadOneTest() returns error? {
     Workspace workspaceRetrieved = check rainierClient->/workspaces/[workspace1.workspaceId].get();
     test:assertEquals(workspaceRetrieved, workspace1);
-    check rainierClient.close();
+    
 }
 
 @test:Config {
@@ -66,7 +66,7 @@ function gsheetsWorkspaceReadOneDependentTest() returns error? {
         locationBuildingCode: workspace1.locationBuildingCode
     }
     );
-    check rainierClient.close();
+    
 }
 
 @test:Config {
@@ -80,7 +80,7 @@ function gsheetsWorkspaceReadOneTestNegative() returns error? {
     } else {
         test:assertFail("InvalidKeyError expected.");
     }
-    check rainierClient.close();
+    
 }
 
 @test:Config {
@@ -93,7 +93,7 @@ function gsheetsWorkspaceReadManyTest() returns error? {
         select workspace;
 
     test:assertEquals(workspaces, [workspace1, workspace2, workspace3]);
-    check rainierClient.close();
+    
 }
 
 @test:Config {
@@ -110,7 +110,7 @@ function gsheetsWorkspaceReadManyDependentTest() returns error? {
         {workspaceType: workspace2.workspaceType, locationBuildingCode: workspace2.locationBuildingCode},
         {workspaceType: workspace3.workspaceType, locationBuildingCode: workspace3.locationBuildingCode}
     ]);
-    check rainierClient.close();
+    
 }
 
 @test:Config {
@@ -126,7 +126,7 @@ function gsheetsWorkspaceUpdateTest() returns error? {
 
     Workspace workspaceRetrieved = check rainierClient->/workspaces/[workspace1.workspaceId].get();
     test:assertEquals(workspaceRetrieved, updatedWorkspace1);
-    check rainierClient.close();
+    
 }
 
 @test:Config {
@@ -143,7 +143,7 @@ function gsheetsWorkspaceUpdateTestNegative1() returns error? {
     } else {
         test:assertFail("InvalidKeyError expected.");
     }
-    check rainierClient.close();
+    
 }
 
 @test:Config {
@@ -159,7 +159,7 @@ function gsheetsWorkspaceDeleteTest() returns error? {
         select workspace2;
 
     test:assertEquals(workspaces, [workspace2, workspace3]);
-    check rainierClient.close();
+    
 }
 
 @test:Config {
@@ -174,5 +174,5 @@ function gsheetsWorkspaceDeleteTestNegative() returns error? {
     } else {
         test:assertFail("InvalidKeyError expected.");
     }
-    check rainierClient.close();
+    
 }

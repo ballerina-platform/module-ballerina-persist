@@ -16,12 +16,12 @@
 
 import ballerina/test;
 
+GoogleSheetsRainierClient rainierClient = check new ();
+
 @test:Config {
     groups: ["composite-key", "google-sheets"]
 }
 function gsheetsCompositeKeyCreateTest() returns error? {
-    GoogleSheetsRainierClient rainierClient = check new ();
-
     [string, string][] ids = check rainierClient->/orderitems.post([orderItem1, orderItem2]);
     test:assertEquals(ids, [[orderItem1.orderId, orderItem1.itemId], [orderItem2.orderId, orderItem2.itemId]]);
 
@@ -30,8 +30,6 @@ function gsheetsCompositeKeyCreateTest() returns error? {
 
     orderItemRetrieved = check rainierClient->/orderitems/[orderItem2.orderId]/[orderItem2.itemId].get();
     test:assertEquals(orderItemRetrieved, orderItem2);
-
-    check rainierClient.close();
 }
 
 @test:Config {
@@ -39,7 +37,7 @@ function gsheetsCompositeKeyCreateTest() returns error? {
     dependsOn: [gsheetsCompositeKeyCreateTest]
 }
 function gsheetsCmpositeKeyCreateTestNegative() returns error? {
-    GoogleSheetsRainierClient rainierClient = check new ();
+    
 
     [string, string][]|error ids = rainierClient->/orderitems.post([orderItem1]);
     if ids is DuplicateKeyError {
@@ -47,8 +45,7 @@ function gsheetsCmpositeKeyCreateTestNegative() returns error? {
     } else {
         test:assertFail("DuplicateKeyError expected");
     }
-
-    check rainierClient.close();
+    
 }
 
 @test:Config {
@@ -56,14 +53,14 @@ function gsheetsCmpositeKeyCreateTestNegative() returns error? {
     dependsOn: [gsheetsCompositeKeyCreateTest]
 }
 function gsheetsCompositeKeyReadManyTest() returns error? {
-    GoogleSheetsRainierClient rainierClient = check new ();
+    
 
     stream<OrderItem, error?> orderItemStream = rainierClient->/orderitems.get();
     OrderItem[] orderitem = check from OrderItem orderItem in orderItemStream
         select orderItem;
 
     test:assertEquals(orderitem, [orderItem1, orderItem2]);
-    check rainierClient.close();
+    
 }
 
 @test:Config {
@@ -71,10 +68,10 @@ function gsheetsCompositeKeyReadManyTest() returns error? {
     dependsOn: [gsheetsCompositeKeyCreateTest]
 }
 function gsheetsCompositeKeyReadOneTest() returns error? {
-    GoogleSheetsRainierClient rainierClient = check new ();
+    
     OrderItem orderItem = check rainierClient->/orderitems/[orderItem1.orderId]/[orderItem1.itemId].get();
     test:assertEquals(orderItem, orderItem1);
-    check rainierClient.close();
+    
 }
 
 @test:Config {
@@ -82,10 +79,10 @@ function gsheetsCompositeKeyReadOneTest() returns error? {
     dependsOn: [gsheetsCompositeKeyCreateTest]
 }
 function gsheetsCompositeKeyReadOneTest2() returns error? {
-    GoogleSheetsRainierClient rainierClient = check new ();
+    
     OrderItem orderItem = check rainierClient->/orderitems/[orderItem1.orderId]/[orderItem1.itemId].get();
     test:assertEquals(orderItem, orderItem1);
-    check rainierClient.close();
+    
 }
 
 @test:Config {
@@ -93,7 +90,7 @@ function gsheetsCompositeKeyReadOneTest2() returns error? {
     dependsOn: [gsheetsCompositeKeyCreateTest]
 }
 function gsheetsCompositeKeyReadOneTestNegative1() returns error? {
-    GoogleSheetsRainierClient rainierClient = check new ();
+    
     OrderItem|error orderItem = rainierClient->/orderitems/["invalid-order-id"]/[orderItem1.itemId].get();
 
     if orderItem is InvalidKeyError {
@@ -102,7 +99,7 @@ function gsheetsCompositeKeyReadOneTestNegative1() returns error? {
         test:assertFail("Error expected.");
     }
 
-    check rainierClient.close();
+    
 }
 
 @test:Config {
@@ -110,7 +107,7 @@ function gsheetsCompositeKeyReadOneTestNegative1() returns error? {
     dependsOn: [gsheetsCompositeKeyCreateTest]
 }
 function gsheetsCompositeKeyReadOneTestNegative2() returns error? {
-    GoogleSheetsRainierClient rainierClient = check new ();
+    
     OrderItem|error orderItem = rainierClient->/orderitems/[orderItem1.orderId]/["invalid-item-id"].get();
 
     if orderItem is InvalidKeyError {
@@ -119,7 +116,7 @@ function gsheetsCompositeKeyReadOneTestNegative2() returns error? {
         test:assertFail("Error expected.");
     }
 
-    check rainierClient.close();
+    
 }
 
 @test:Config {
@@ -127,7 +124,7 @@ function gsheetsCompositeKeyReadOneTestNegative2() returns error? {
     dependsOn: [gsheetsCompositeKeyCreateTest, gsheetsCompositeKeyReadOneTest, gsheetsCompositeKeyReadManyTest, gsheetsCompositeKeyReadOneTest2]
 }
 function gsheetsCompositeKeyUpdateTest() returns error? {
-    GoogleSheetsRainierClient rainierClient = check new ();
+    
 
     OrderItem orderItem = check rainierClient->/orderitems/[orderItem2.orderId]/[orderItem2.itemId].put({
         quantity: orderItem2Updated.quantity,
@@ -138,7 +135,7 @@ function gsheetsCompositeKeyUpdateTest() returns error? {
     orderItem = check rainierClient->/orderitems/[orderItem2.orderId]/[orderItem2.itemId].get();
     test:assertEquals(orderItem, orderItem2Updated);
 
-    check rainierClient.close();
+    
 }
 
 @test:Config {
@@ -146,7 +143,7 @@ function gsheetsCompositeKeyUpdateTest() returns error? {
     dependsOn: [gsheetsCompositeKeyCreateTest, gsheetsCompositeKeyReadOneTest, gsheetsCompositeKeyReadManyTest, gsheetsCompositeKeyReadOneTest2]
 }
 function gsheetsCompositeKeyUpdateTestNegative() returns error? {
-    GoogleSheetsRainierClient rainierClient = check new ();
+    
 
     OrderItem|error orderItem = rainierClient->/orderitems/[orderItem1.orderId]/[orderItem2.itemId].put({
         quantity: 239,
@@ -158,7 +155,7 @@ function gsheetsCompositeKeyUpdateTestNegative() returns error? {
         test:assertFail("Error expected.");
     }
 
-    check rainierClient.close();
+    
 }
 
 @test:Config {
@@ -166,15 +163,13 @@ function gsheetsCompositeKeyUpdateTestNegative() returns error? {
     dependsOn: [gsheetsCompositeKeyUpdateTest]
 }
 function gsheetsCompositeKeyDeleteTest() returns error? {
-    GoogleSheetsRainierClient rainierClient = check new ();
-
     OrderItem orderItem = check rainierClient->/orderitems/[orderItem2.orderId]/[orderItem2.itemId].delete();
     test:assertEquals(orderItem, orderItem2Updated);
 
     OrderItem|error orderItemRetrieved = rainierClient->/orderitems/[orderItem2.orderId]/[orderItem2.itemId].get();
     test:assertTrue(orderItemRetrieved is InvalidKeyError);
 
-    check rainierClient.close();
+    
 }
 
 @test:Config {
@@ -182,7 +177,7 @@ function gsheetsCompositeKeyDeleteTest() returns error? {
     dependsOn: [gsheetsCompositeKeyDeleteTest]
 }
 function gsheetsCompositeKeyDeleteTestNegative() returns error? {
-    GoogleSheetsRainierClient rainierClient = check new ();
+    
 
     OrderItem|error orderItem = rainierClient->/orderitems/["invalid-order-id"]/[orderItem2.itemId].delete();
     if orderItem is InvalidKeyError {
@@ -191,5 +186,5 @@ function gsheetsCompositeKeyDeleteTestNegative() returns error? {
         test:assertFail("Error expected.");
     }
 
-    check rainierClient.close();
+    
 }
