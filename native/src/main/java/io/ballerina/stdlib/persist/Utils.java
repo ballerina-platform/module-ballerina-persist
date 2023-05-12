@@ -26,11 +26,13 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
@@ -41,6 +43,7 @@ import io.ballerina.runtime.transactions.TransactionResourceManager;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static io.ballerina.runtime.api.utils.StringUtils.fromString;
@@ -59,6 +62,12 @@ public class Utils {
 
     public static BString getEntity(Environment env) {
         String entity = env.getFunctionName().split("\\$")[2];
+        return fromString(entity);
+    }
+
+    public static BString getEntityFromStreamMethod(Environment env) {
+        String functionName = env.getFunctionName();
+        String entity = functionName.substring(5, functionName.length() - 6).toLowerCase(Locale.ENGLISH);
         return fromString(entity);
     }
 
@@ -111,6 +120,21 @@ public class Utils {
         }
 
         return new BArray[]{fieldsArray, includeArray, typeDescriptionArray};
+    }
+
+    public static BMap<BString, Object> getFieldTypes(RecordType recordType) {
+        MapType stringMapType = TypeCreator.createMapType(PredefinedTypes.TYPE_STRING);
+        //TODO: use PredefinedTypes.TYPE_TYPEDESC once NPE issue is resolved
+
+        BMap<BString, Object> typeMap = ValueCreator.createMapValue(stringMapType);
+        Map<String, Field> fieldsMap = recordType.getFields();
+        for (Field field : fieldsMap.values()) {
+
+            Type type = field.getFieldType();
+            String fieldName = field.getFieldName();
+            typeMap.put(StringUtils.fromString(fieldName), StringUtils.fromString(type.getName()));
+        }
+        return typeMap;
     }
 
     private static BArray getInnerFieldsArray(Type type) {

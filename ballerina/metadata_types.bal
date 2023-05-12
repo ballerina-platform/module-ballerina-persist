@@ -31,6 +31,7 @@ public type SQLMetadata record {|
     map<JoinMetadata> joinMetadata?;
 |};
 
+
 public type TableMetadata record {|
     string[] keyFields;
     function (string[]) returns stream<record {}, Error?> query;
@@ -38,11 +39,25 @@ public type TableMetadata record {|
     map<function (record {}, string[]) returns record {}[]> associationsMethods = {};
 |};
 
+public type SheetMetadata record {|
+    string entityName;
+    string tableName;
+    map<SheetFieldMetadata> fieldMetadata;
+    string[] keyFields;
+    string range;
+    map<string> dataTypes = {};
+    function (string[]) returns stream<record {}, Error?>|Error query;
+    function (anydata) returns record {}|InvalidKeyError queryOne;
+    map<function (record {}, string[]) returns record {}[]|Error> associationsMethods = {};
+|};
+
 # Represents the metadata associated with a simple field in the entity record.
 #
 # + columnName - The name of the SQL table column to which the field is mapped
-public type SimpleFieldMetadata record {|
+# + columnId - The alphabetical Id of the column
+public type SimpleSheetFieldMetadata record {|
     string columnName;
+    string columnId;
 |};
 
 # Represents the metadata associated with a field from a related entity.
@@ -55,7 +70,39 @@ public type EntityFieldMetadata record {|
 # Represents the metadata associated with a field of an entity.
 # Only used by the generated persist clients and `persist:SQLClient`.
 #
+public type SheetFieldMetadata SimpleSheetFieldMetadata;//|SheetEntityFieldMetadata;
+
+# Represents the metadata associated with a simple field in the entity record.
+#
+# + columnName - The name of the SQL table column to which the field is mapped
+public type SimpleFieldMetadata record {|
+    string columnName;
+|};
+
+# Represents the metadata associated with a field from a related entity.
+#
+# + relation - The relational metadata associated with the field
+public type SheetEntityFieldMetadata record {|
+    SheetRelationMetadata relation;
+|};
+
+# Represents the metadata associated with a field of an entity.
+# Only used by the generated persist clients and `persist:SQLClient`.
+#
 public type FieldMetadata SimpleFieldMetadata|EntityFieldMetadata;
+
+# Represents the metadata associated with a relation.
+# Only used by the generated persist clients and `persist:SQLClient`.
+#
+# + entityName - The name of the entity represented in the relation  
+# + refField - The name of the referenced column in the soogle sheets table
+# + columnId - The alphabetical Id of the column
+
+public type SheetRelationMetadata record {|
+    string entityName;
+    string refField;
+    string columnId;
+|};
 
 # Represents the metadata associated with a relation.
 # Only used by the generated persist clients and `persist:SQLClient`.

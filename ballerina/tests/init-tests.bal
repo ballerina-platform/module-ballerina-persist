@@ -18,6 +18,9 @@ import ballerina/test;
 import ballerinax/mysql;
 import ballerinax/mysql.driver as _;
 import ballerina/time;
+import ballerinax/googleapis.sheets;
+import ballerina/os;
+import ballerina/io;
 
 configurable int port = ?;
 configurable string host = ?;
@@ -26,8 +29,33 @@ configurable string database = ?;
 configurable string password = ?;
 configurable mysql:Options connectionOptions = {};
 
+configurable string clientId = os:getEnv("CLIENT_ID");
+configurable string clientSecret = os:getEnv("CLIENT_SECRET");
+configurable string refreshToken = os:getEnv("REFRESH_TOKEN");
+configurable string spreadsheetId = ?;
+
 @test:BeforeSuite
 function truncate() returns error? {
+    sheets:ConnectionConfig sheetsClientConfig = {
+            auth: {
+                clientId: clientId,
+                clientSecret: clientSecret,
+                refreshUrl: sheets:REFRESH_URL,
+                refreshToken: refreshToken
+            }
+        };
+    sheets:Client|error googleSheetClient = new (sheetsClientConfig);
+    if googleSheetClient is error {
+        io:println("Error: Client initialization failed. ");
+        io:println(googleSheetClient);
+    } else {
+        sheets:Spreadsheet|error spreadsheet = googleSheetClient->createSpreadsheet("moduleBallerinaPersistTestSpreadSheet");
+        if spreadsheet !is error {
+            io:println(string `Spreadsheet ID is : ${spreadsheet.spreadsheetId}`);
+        } else {
+            io:println(spreadsheet);
+        }
+    }
     mysql:Client dbClient = check new (host = host, user = user, password = password, database = database, port = port);
     _ = check dbClient->execute(`SET FOREIGN_KEY_CHECKS = 0`);
     _ = check dbClient->execute(`TRUNCATE Employee`);
