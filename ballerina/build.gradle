@@ -154,14 +154,14 @@ task pullBallerinaxSheetsDependancy(type: Exec) {
             String distributionBinPath = project.projectDir.absolutePath + "/build/jballerina-tools-${project.extensions.ballerina.langVersion}/bin"
             commandLine 'sh', '-c', "$distributionBinPath/bal pull ballerinax/googleapis.sheets"
         } catch (all) {
-            println('Gradle task failed, but continuing with the build')
+            return 1
         }
     } else {
         try {
             String distributionBinPath = project.projectDir.absolutePath + "/build/jballerina-tools-${project.extensions.ballerina.langVersion}/bin"
             commandLine 'cmd', '/c', "$distributionBinPath/bal.bat pull ballerinax/googleapis.sheets"
         } catch (all) {
-            println('Gradle task failed, but continuing with the build')
+            return 1
         }
     }
 }
@@ -204,9 +204,6 @@ task stopTestDockerContainer() {
 
 updateTomlFiles.dependsOn copyStdlibs
 pullBallerinaxSheetsDependancy.dependsOn unpackJballerinaTools
-pullBallerinaxSheetsDependancy.dependsOn "generatePomFileForMavenPublication"
-pullBallerinaxSheetsDependancy.dependsOn ":${packageName}-compiler-plugin:build"
-pullBallerinaxSheetsDependancy.dependsOn ":${packageName}-native:build"
 startTestDockerContainer.dependsOn createTestDockerImage
 
 build.dependsOn "generatePomFileForMavenPublication"
