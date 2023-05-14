@@ -38,6 +38,9 @@ jobs:
           packagePAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
           publishUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
           publishPAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
         run: |
           ./gradlew clean build publishAllPublicationsToGitHubPackagesRepository --scan --no-daemon
       - name: Generate CodeCov Report
