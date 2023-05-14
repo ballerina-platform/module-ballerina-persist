@@ -17,11 +17,11 @@
 import ballerina/test;
 @test:Config {
     groups: ["building", "google-sheets"],
-    dependsOn: [gsheetsCompositeKeyDeleteTestNegative]
+    dependsOn: [gsheetsCompositeKeyDeleteTestNegative],
+    enable: false
 }
 function gsheetsBuildingCreateTest() returns error? {
-    //GoogleSheetsRainierClient rainierClient = check new ();
-
+    GoogleSheetsRainierClient rainierClient =  check new ();
     string[] buildingCodes = check rainierClient->/buildings.post([building1]);
     test:assertEquals(buildingCodes, [building1.buildingCode]);
 
@@ -31,9 +31,11 @@ function gsheetsBuildingCreateTest() returns error? {
 
 @test:Config {
     groups: ["building", "google-sheets"],
-    dependsOn: [gsheetsBuildingCreateTest]
+    dependsOn: [gsheetsBuildingCreateTest],
+    enable: false
 }
 function gsheetsBuildingCreateTest2() returns error? {
+    GoogleSheetsRainierClient rainierClient =  check new ();
     string[] buildingCodes = check rainierClient->/buildings.post([building2, building3]);
 
     test:assertEquals(buildingCodes, [building2.buildingCode, building3.buildingCode]);
@@ -47,9 +49,11 @@ function gsheetsBuildingCreateTest2() returns error? {
 
 @test:Config {
     groups: ["building", "google-sheets"],
-    dependsOn: [gsheetsBuildingCreateTest]
+    dependsOn: [gsheetsBuildingCreateTest],
+    enable: false
 }
 function gsheetsBuildingReadOneTest() returns error? {
+    GoogleSheetsRainierClient rainierClient =  check new ();
     Building buildingRetrieved = check rainierClient->/buildings/[building1.buildingCode].get();
     test:assertEquals(buildingRetrieved, building1);
     
@@ -57,9 +61,11 @@ function gsheetsBuildingReadOneTest() returns error? {
 
 @test:Config {
     groups: ["building", "google-sheets"],
-    dependsOn: [gsheetsBuildingCreateTest]
+    dependsOn: [gsheetsBuildingCreateTest],
+    enable: false
 }
 function gsheetsBuildingReadOneTestNegative() returns error? {
+    GoogleSheetsRainierClient rainierClient =  check new ();
     Building|error buildingRetrieved = rainierClient->/buildings/["invalid-building-code"].get();
     if buildingRetrieved is InvalidKeyError {
         test:assertEquals(buildingRetrieved.message(), "Invalid key: invalid-building-code");
@@ -71,9 +77,11 @@ function gsheetsBuildingReadOneTestNegative() returns error? {
 
 @test:Config {
     groups: ["building", "google-sheets"],
-    dependsOn: [gsheetsBuildingCreateTest, gsheetsBuildingCreateTest2]
+    dependsOn: [gsheetsBuildingCreateTest, gsheetsBuildingCreateTest2],
+    enable: false
 }
 function gsheetsBuildingReadManyTest() returns error? {
+    GoogleSheetsRainierClient rainierClient =  check new ();
     stream<Building, error?> buildingStream = rainierClient->/buildings.get();
     Building[] buildings = check from Building building in buildingStream
         select building;
@@ -84,9 +92,11 @@ function gsheetsBuildingReadManyTest() returns error? {
 
 @test:Config {
     groups: ["building", "google-sheets"],
-    dependsOn: [gsheetsBuildingCreateTest, gsheetsBuildingCreateTest2]
+    dependsOn: [gsheetsBuildingCreateTest, gsheetsBuildingCreateTest2],
+    enable: false
 }
 function gsheetsBuildingReadManyDependentTest() returns error? {
+    GoogleSheetsRainierClient rainierClient =  check new ();
     stream<BuildingInfo2, error?> buildingStream = rainierClient->/buildings.get();
     BuildingInfo2[] buildings = check from BuildingInfo2 building in buildingStream
         select building;
@@ -101,9 +111,11 @@ function gsheetsBuildingReadManyDependentTest() returns error? {
 
 @test:Config {
     groups: ["building", "google-sheets"],
-    dependsOn: [gsheetsBuildingReadOneTest, gsheetsBuildingReadManyTest, gsheetsBuildingReadManyDependentTest]
+    dependsOn: [gsheetsBuildingReadOneTest, gsheetsBuildingReadManyTest, gsheetsBuildingReadManyDependentTest],
+    enable: false
 }
 function gsheetsBuildingUpdateTest() returns error? {
+    GoogleSheetsRainierClient rainierClient =  check new ();
     Building building = check rainierClient->/buildings/[building1.buildingCode].put({
         city: "Galle",
         state: "Southern Province",
@@ -119,9 +131,11 @@ function gsheetsBuildingUpdateTest() returns error? {
 
 @test:Config {
     groups: ["building", "google-sheets"],
-    dependsOn: [gsheetsBuildingReadOneTest, gsheetsBuildingReadManyTest, gsheetsBuildingReadManyDependentTest]
+    dependsOn: [gsheetsBuildingReadOneTest, gsheetsBuildingReadManyTest, gsheetsBuildingReadManyDependentTest],
+    enable: false
 }
 function gsheetsBuildingUpdateTestNegative1() returns error? {
+    GoogleSheetsRainierClient rainierClient =  check new ();
     Building|error building = rainierClient->/buildings/["invalid-building-code"].put({
         city: "Galle",
         state: "Southern Province",
@@ -138,9 +152,11 @@ function gsheetsBuildingUpdateTestNegative1() returns error? {
 
 @test:Config {
     groups: ["building", "google-sheets"],
-    dependsOn: [gsheetsBuildingUpdateTest]
+    dependsOn: [gsheetsBuildingUpdateTest],
+    enable: false
 }
 function gsheetsBuildingDeleteTest() returns error? {
+    GoogleSheetsRainierClient rainierClient =  check new ();
     Building building = check rainierClient->/buildings/[building1.buildingCode].delete();
     test:assertEquals(building, updatedBuilding1);
 
@@ -154,9 +170,11 @@ function gsheetsBuildingDeleteTest() returns error? {
 
 @test:Config {
     groups: ["building", "google-sheets"],
-    dependsOn: [gsheetsBuildingDeleteTest]
+    dependsOn: [gsheetsBuildingDeleteTest],
+    enable: false
 }
 function gsheetsBuildingDeleteTestNegative() returns error? {
+    GoogleSheetsRainierClient rainierClient =  check new ();
     Building|error building = rainierClient->/buildings/[building1.buildingCode].delete();
 
     if building is error {

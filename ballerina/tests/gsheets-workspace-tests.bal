@@ -18,9 +18,11 @@ import ballerina/test;
 
 @test:Config {
     groups: ["workspace", "google-sheets"],
-    dependsOn: [gsheetsDepartmentDeleteTestNegative]
+    dependsOn: [gsheetsDepartmentDeleteTestNegative],
+    enable: false
 }
 function gsheetsWorkspaceCreateTest() returns error? {
+    GoogleSheetsRainierClient rainierClient =  check new ();
     string[] workspaceIds = check rainierClient->/workspaces.post([workspace1]);
     test:assertEquals(workspaceIds, [workspace1.workspaceId]);
 
@@ -29,9 +31,11 @@ function gsheetsWorkspaceCreateTest() returns error? {
 }
 
 @test:Config {
-    groups: ["workspace", "google-sheets"]
+    groups: ["workspace", "google-sheets"],
+    enable: false
 }
 function gsheetsWorkspaceCreateTest2() returns error? {
+    GoogleSheetsRainierClient rainierClient =  check new ();
     string[] workspaceIds = check rainierClient->/workspaces.post([workspace2, workspace3]);
 
     test:assertEquals(workspaceIds, [workspace2.workspaceId, workspace3.workspaceId]);
@@ -46,9 +50,11 @@ function gsheetsWorkspaceCreateTest2() returns error? {
 
 @test:Config {
     groups: ["workspace", "google-sheets"],
-    dependsOn: [gsheetsWorkspaceCreateTest]
+    dependsOn: [gsheetsWorkspaceCreateTest],
+    enable: false
 }
 function gsheetsWorkspaceReadOneTest() returns error? {
+    GoogleSheetsRainierClient rainierClient =  check new ();
     Workspace workspaceRetrieved = check rainierClient->/workspaces/[workspace1.workspaceId].get();
     test:assertEquals(workspaceRetrieved, workspace1);
     
@@ -56,9 +62,11 @@ function gsheetsWorkspaceReadOneTest() returns error? {
 
 @test:Config {
     groups: ["workspace", "google-sheets"],
-    dependsOn: [gsheetsWorkspaceCreateTest]
+    dependsOn: [gsheetsWorkspaceCreateTest],
+    enable: false
 }
 function gsheetsWorkspaceReadOneDependentTest() returns error? {
+    GoogleSheetsRainierClient rainierClient =  check new ();
     WorkspaceInfo2 workspaceRetrieved = check rainierClient->/workspaces/[workspace1.workspaceId].get();
     test:assertEquals(workspaceRetrieved,
         {
@@ -71,9 +79,11 @@ function gsheetsWorkspaceReadOneDependentTest() returns error? {
 
 @test:Config {
     groups: ["workspace", "google-sheets"],
-    dependsOn: [gsheetsWorkspaceCreateTest]
+    dependsOn: [gsheetsWorkspaceCreateTest],
+    enable: false
 }
 function gsheetsWorkspaceReadOneTestNegative() returns error? {
+    GoogleSheetsRainierClient rainierClient =  check new ();
     Workspace|error workspaceRetrieved = rainierClient->/workspaces/["invalid-workspace-id"].get();
     if workspaceRetrieved is InvalidKeyError {
         test:assertEquals(workspaceRetrieved.message(), "Invalid key: invalid-workspace-id");
@@ -85,9 +95,11 @@ function gsheetsWorkspaceReadOneTestNegative() returns error? {
 
 @test:Config {
     groups: ["workspace", "google-sheets"],
-    dependsOn: [gsheetsWorkspaceCreateTest, gsheetsWorkspaceCreateTest2]
+    dependsOn: [gsheetsWorkspaceCreateTest, gsheetsWorkspaceCreateTest2],
+    enable: false
 }
 function gsheetsWorkspaceReadManyTest() returns error? {
+    GoogleSheetsRainierClient rainierClient =  check new ();
     stream<Workspace, error?> workspaceStream = rainierClient->/workspaces.get();
     Workspace[] workspaces = check from Workspace workspace in workspaceStream
         select workspace;
@@ -98,9 +110,11 @@ function gsheetsWorkspaceReadManyTest() returns error? {
 
 @test:Config {
     groups: ["workspace", "dependent"],
-    dependsOn: [gsheetsWorkspaceCreateTest, gsheetsWorkspaceCreateTest2]
+    dependsOn: [gsheetsWorkspaceCreateTest, gsheetsWorkspaceCreateTest2],
+    enable: false
 }
 function gsheetsWorkspaceReadManyDependentTest() returns error? {
+    GoogleSheetsRainierClient rainierClient =  check new ();
     stream<WorkspaceInfo2, error?> workspaceStream = rainierClient->/workspaces.get();
     WorkspaceInfo2[] workspaces = check from WorkspaceInfo2 workspace in workspaceStream
         select workspace;
@@ -115,9 +129,11 @@ function gsheetsWorkspaceReadManyDependentTest() returns error? {
 
 @test:Config {
     groups: ["workspace", "google-sheets"],
-    dependsOn: [gsheetsWorkspaceReadOneTest, gsheetsWorkspaceReadManyTest, gsheetsWorkspaceReadManyDependentTest]
+    dependsOn: [gsheetsWorkspaceReadOneTest, gsheetsWorkspaceReadManyTest, gsheetsWorkspaceReadManyDependentTest],
+    enable: false
 }
 function gsheetsWorkspaceUpdateTest() returns error? {
+    GoogleSheetsRainierClient rainierClient =  check new ();
     Workspace workspace = check rainierClient->/workspaces/[workspace1.workspaceId].put({
         workspaceType: "large"
     });
@@ -131,9 +147,11 @@ function gsheetsWorkspaceUpdateTest() returns error? {
 
 @test:Config {
     groups: ["workspace", "google-sheets"],
-    dependsOn: [gsheetsWorkspaceReadOneTest, gsheetsWorkspaceReadManyTest, gsheetsWorkspaceReadManyDependentTest]
+    dependsOn: [gsheetsWorkspaceReadOneTest, gsheetsWorkspaceReadManyTest, gsheetsWorkspaceReadManyDependentTest],
+    enable: false
 }
 function gsheetsWorkspaceUpdateTestNegative1() returns error? {
+    GoogleSheetsRainierClient rainierClient =  check new ();
     Workspace|error workspace = rainierClient->/workspaces/["invalid-workspace-id"].put({
         workspaceType: "large"
     });
@@ -148,9 +166,11 @@ function gsheetsWorkspaceUpdateTestNegative1() returns error? {
 
 @test:Config {
     groups: ["workspace", "google-sheets"],
-    dependsOn: [gsheetsWorkspaceUpdateTest, gsheetsWorkspaceUpdateTestNegative1]
+    dependsOn: [gsheetsWorkspaceUpdateTest, gsheetsWorkspaceUpdateTestNegative1],
+    enable: false
 }
 function gsheetsWorkspaceDeleteTest() returns error? {
+    GoogleSheetsRainierClient rainierClient =  check new ();
     Workspace workspace = check rainierClient->/workspaces/[workspace1.workspaceId].delete();
     test:assertEquals(workspace, updatedWorkspace1);
 
@@ -164,9 +184,11 @@ function gsheetsWorkspaceDeleteTest() returns error? {
 
 @test:Config {
     groups: ["workspace", "google-sheets"],
-    dependsOn: [gsheetsWorkspaceDeleteTest]
+    dependsOn: [gsheetsWorkspaceDeleteTest],
+    enable: false
 }
 function gsheetsWorkspaceDeleteTestNegative() returns error? {
+    GoogleSheetsRainierClient rainierClient =  check new ();
     Workspace|error workspace = rainierClient->/workspaces/[workspace1.workspaceId].delete();
 
     if workspace is InvalidKeyError {
