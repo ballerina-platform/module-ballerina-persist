@@ -152,7 +152,7 @@ task pullBallerinaxSheetsDependancy(type: Exec) {
     if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
         try {
             String distributionBinPath = project.projectDir.absolutePath + "/build/jballerina-tools-${project.extensions.ballerina.langVersion}/bin"
-            commandLine 'sh', '-c', "$distributionBinPath/bal build"
+            commandLine 'sh', '-c', "$distributionBinPath/bal pull googleapis.sheets"
         } catch (all) {
             println('Gradle task failed, but continuing with the build')
         }
