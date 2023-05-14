@@ -63,6 +63,9 @@ jobs:
           publishPAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
           nexusUser: ${{ secrets.NEXUS_USERNAME }}
           nexusPassword: ${{ secrets.NEXUS_PASSWORD }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
         run: |
           ./gradlew clean release -Prelease.useAutomaticVersion=true
           ./gradlew -Pversion=${VERSION} publish -x test -PpublishToCentral=true
