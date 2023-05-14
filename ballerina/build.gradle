@@ -148,6 +148,7 @@ def checkTestDockerContainerStatus(dockerName) {
 }
 
 task pullBallerinaxSheetsDependancy(type: Exec) {
+    ignoreExitValue(true)
     if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
         try {
             String distributionBinPath = project.projectDir.absolutePath + "/build/jballerina-tools-${project.extensions.ballerina.langVersion}/bin"
