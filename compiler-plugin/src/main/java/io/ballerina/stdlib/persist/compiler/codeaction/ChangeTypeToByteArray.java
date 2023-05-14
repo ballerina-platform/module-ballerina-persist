@@ -23,6 +23,7 @@ import java.util.List;
 import static io.ballerina.stdlib.persist.compiler.Constants.ARRAY;
 import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.BYTE;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_305;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_306;
 import static io.ballerina.stdlib.persist.compiler.codeaction.PersistCodeActionName.CHANGE_TYPE_TO_BYTE_ARRAY;
 
 /**
@@ -36,7 +37,7 @@ public class ChangeTypeToByteArray extends AbstractChangeToSupportedType {
 
     @Override
     protected List<String> getSupportedDiagnosticCodes() {
-        return List.of(PERSIST_305.getCode());
+        return List.of(PERSIST_305.getCode(), PERSIST_306.getCode());
     }
 
     @Override

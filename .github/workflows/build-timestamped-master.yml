@@ -24,6 +24,8 @@ jobs:
           java-version: 11
       - name: Change to Timestamped Version
         run: |
+          initialVersion=$((grep -w 'version' | cut -d= -f2) < gradle.properties )
+          echo "Initial_Version=$initialVersion" >> $GITHUB_ENV
           startTime=$(TZ="Asia/Kolkata" date +'%Y%m%d-%H%M00')
           latestCommit=$(git log -n 1 --pretty=format:"%h")
           VERSION=$((grep -w 'version' | cut -d= -f2) < gradle.properties | rev | cut --complement -d- -f1 | rev)
@@ -37,7 +39,7 @@ jobs:
           publishUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
           publishPAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
         run: |
-          ./gradlew publish --scan --no-daemon
+          ./gradlew clean build publishAllPublicationsToGitHubPackagesRepository --scan --no-daemon
       - name: Generate CodeCov Report
         uses: codecov/codecov-action@v2
       - name: Upload Artifact
@@ -45,3 +47,15 @@ jobs:
         with:
           name: ballerina-runtime
           path: target/ballerina-runtime/
+      - name: Revert to SNAPSHOT Version
+        run: |
+          echo "version=${{ env.Initial_Version }}"
+          sed -i "s/version=\(.*\)/version=${{ env.Initial_Version }}/g" gradle.properties
+      - name: Publish to Nexus
+        env:
+          packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
+          packagePAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          nexusUser: ${{ secrets.NEXUS_USERNAME }}
+          nexusPassword: ${{ secrets.NEXUS_PASSWORD }}
+        run: |
+          ./gradlew clean publishMavenJavaPublicationToWSO2NexusRepository -x test --scan --no-daemon

@@ -1,0 +1,7 @@
+[package]
+org = "root"
+name = "project_4"
+version = "0.1.0"
+
+[persist]
+datastore = "inmemory"

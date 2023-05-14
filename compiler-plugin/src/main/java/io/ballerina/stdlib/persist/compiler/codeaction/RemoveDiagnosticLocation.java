@@ -27,7 +27,6 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_101;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_301;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_303;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_401;
-import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_403;
 import static io.ballerina.stdlib.persist.compiler.codeaction.PersistCodeActionName.REMOVE_DIAGNOSTIC_LOCATION;
 
 /**
@@ -46,8 +45,7 @@ public class RemoveDiagnosticLocation extends AbstractRemoveUnsupportedSyntax {
                 PERSIST_101.getCode(),
                 PERSIST_301.getCode(),
                 PERSIST_303.getCode(),
-                PERSIST_401.getCode(),
-                PERSIST_403.getCode()
+                PERSIST_401.getCode()
         );
     }
 
@@ -60,10 +58,8 @@ public class RemoveDiagnosticLocation extends AbstractRemoveUnsupportedSyntax {
             return "Remove rest descriptor field";
         } else if (code.equals(PERSIST_303.getCode())) {
             return "Remove inherited field";
-        } else if (code.equals(PERSIST_401.getCode())) {
-            return "Remove self-referenced field";
         } else {
-            return "Remove duplicate relation field";
+            return "Remove self-referenced field";
         }
     }
 

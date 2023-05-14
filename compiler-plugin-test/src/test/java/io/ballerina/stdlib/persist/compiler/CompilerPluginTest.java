@@ -62,8 +62,8 @@ import static io.ballerina.stdlib.persist.compiler.TestUtils.getEnvironmentBuild
  */
 public class CompilerPluginTest {
 
-    private Package loadPersistModelFile(String name) {
-        Path projectDirPath = Paths.get("src", "test", "resources", "project_2", "persist").
+    private Package loadPersistModelFile(String directory, String name) {
+        Path projectDirPath = Paths.get("src", "test", "resources", directory, "persist").
                 toAbsolutePath().resolve(name);
         SingleFileProject project = SingleFileProject.load(getEnvironmentBuilder(), projectDirPath);
         return project.currentPackage();
@@ -98,14 +98,14 @@ public class CompilerPluginTest {
 
     @Test
     public void identifyModelFileSuccess() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("valid-persist-model-path.bal", 1);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "valid-persist-model-path.bal", 1);
         testDiagnostic(
                 diagnostics,
                 new String[]{
                         PERSIST_101.getCode()
                 },
                 new String[]{
-                        "persist model definition only supports record definitions"
+                        "persist model definition only supports record and enum definitions"
                 },
                 new String[]{
                         "(2:0,3:1)"
@@ -115,7 +115,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateEntityRecordProperties() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("record-properties.bal", 1);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "record-properties.bal", 1);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -125,14 +125,14 @@ public class CompilerPluginTest {
                         "an entity should be a closed record"
                 },
                 new String[]{
-                        "(11:25,17:1)"
+                        "(17:25,23:1)"
                 }
         );
     }
 
     @Test
     public void validateEntityFieldProperties() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("field-properties.bal", 4);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "field-properties.bal", 4);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -157,37 +157,103 @@ public class CompilerPluginTest {
     }
 
     @Test
-    public void validateEntityFieldType() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("field-types.bal", 5);
+    public void validateEntityFieldTypeForMysql() {
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "field-types.bal", 10);
         testDiagnostic(
                 diagnostics,
                 new String[]{
                         PERSIST_306.getCode(),
                         PERSIST_305.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_305.getCode(),
                         PERSIST_305.getCode(),
                         PERSIST_306.getCode(),
-                        PERSIST_305.getCode()
+                        PERSIST_305.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_306.getCode(),
                 },
                 new String[]{
                         "an entity does not support boolean array field type",
                         "an entity does not support json-typed field",
-                        "an entity does not support json[]-typed field",
+                        "an entity does not support json array field type",
                         "an entity does not support time:Civil array field type",
-                        "an entity does not support union-typed field"
+                        "an entity does not support union-typed field",
+                        "an entity does not support error-typed field",
+                        "an entity does not support error array field type",
+                        "an entity does not support mysql:Client-typed field",
+                        "an entity does not support mysql:Client array field type",
+                        "an entity does not support enum array field type"
                 },
                 new String[]{
-                        "(12:4,12:13)",
-                        "(14:4,14:8)",
-                        "(15:4,15:10)",
-                        "(18:4,18:16)",
-                        "(19:4,19:21)"
+                        "(18:4,18:13)",
+                        "(20:4,20:8)",
+                        "(21:4,21:10)",
+                        "(24:4,24:16)",
+                        "(25:4,25:21)",
+                        "(27:4,27:9)",
+                        "(28:4,28:11)",
+                        "(30:4,30:16)",
+                        "(31:4,31:18)",
+                        "(34:4,34:12)"
+                }
+        );
+    }
+    @Test
+    public void validateEntityFieldTypeForGoogleSheets() {
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_3", "field-types.bal", 11);
+        testDiagnostic(
+                diagnostics,
+                new String[]{
+                        PERSIST_306.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_306.getCode()
+                },
+                new String[]{
+                        "an entity does not support byte array field type",
+                        "an entity does not support boolean array field type",
+                        "an entity does not support json-typed field",
+                        "an entity does not support json array field type",
+                        "an entity does not support time:Civil array field type",
+                        "an entity does not support union-typed field",
+                        "an entity does not support error-typed field",
+                        "an entity does not support error array field type",
+                        "an entity does not support mysql:Client-typed field",
+                        "an entity does not support mysql:Client array field type",
+                        "an entity does not support enum array field type"
+                },
+                new String[]{
+                        "(16:4,16:10)",
+                        "(18:4,18:13)",
+                        "(20:4,20:8)",
+                        "(21:4,21:10)",
+                        "(24:4,24:16)",
+                        "(25:4,25:21)",
+                        "(27:4,27:9)",
+                        "(28:4,28:11)",
+                        "(30:4,30:16)",
+                        "(31:4,31:18)",
+                        "(34:4,34:12)"
                 }
         );
     }
 
     @Test
+    public void validateEntityFieldTypeForInMemory() {
+        getErrorDiagnostics("project_4", "field-types.bal", 0);
+    }
+
+    @Test
     public void validateReadonlyFieldCount() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("readonly-field.bal", 1);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "readonly-field.bal", 1);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -204,7 +270,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateIdentityFieldProperties() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("identifier-field-properties.bal", 3);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "identifier-field-properties.bal", 3);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -229,7 +295,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateSelfReferencedEntity() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("self-referenced-entity.bal", 1);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "self-referenced-entity.bal", 1);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -246,13 +312,15 @@ public class CompilerPluginTest {
 
     @Test
     public void validateNillableRelationField() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("nillable-relation-field.bal", 4);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "nillable-relation-field.bal", 6);
         testDiagnostic(
                 diagnostics,
                 new String[]{
                         PERSIST_406.getCode(),
                         PERSIST_406.getCode(),
                         PERSIST_404.getCode(),
+                        PERSIST_404.getCode(),
+                        PERSIST_405.getCode(),
                         PERSIST_405.getCode()
                 },
                 new String[]{
@@ -260,77 +328,103 @@ public class CompilerPluginTest {
                         "1-n relationship does not support nillable relation field",
                         "1-1 relationship should have at least one relation field nillable " +
                                 "to indicate non-owner of the relationship",
+                        "1-1 relationship should have at least one relation field nillable " +
+                                "to indicate non-owner of the relationship",
+                        "1-1 relationship should have only one nillable relation field",
                         "1-1 relationship should have only one nillable relation field"
                 },
                 new String[]{
                         "(14:4,14:23)",
                         "(29:4,29:29)",
                         "(44:4,44:23)",
-                        "(59:4,59:27)"
+                        "(38:4,38:26)",
+                        "(59:4,59:27)",
+                        "(50:4,50:24)"
                 }
         );
     }
 
     @Test
     public void validateManyToManyRelationship() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("many-to-many.bal", 1);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "many-to-many.bal", 2);
         testDiagnostic(
                 diagnostics,
                 new String[]{
+                        PERSIST_420.getCode(),
                         PERSIST_420.getCode()
                 },
                 new String[]{
+                        "many-to-many relation is not supported yet",
                         "many-to-many relation is not supported yet"
                 },
                 new String[]{
-                        "(14:4,14:24)"
+                        "(14:4,14:24)",
+                        "(8:4,8:27)"
                 }
         );
     }
 
     @Test
     public void validateMandatoryRelationField() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("mandatory-relation-field.bal", 2);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "mandatory-relation-field.bal", 4);
         testDiagnostic(
                 diagnostics,
                 new String[]{
                         PERSIST_402.getCode(),
+                        PERSIST_402.getCode(),
+                        PERSIST_402.getCode(),
                         PERSIST_402.getCode()
                 },
                 new String[]{
-                        "the related entity 'Workspace' does not have the Building-typed relation field",
-                        "the related entity 'Building1' does not have the Workspace2-typed relation field"
+                        "the related entity 'Workspace' does not have the corresponding relation field",
+                        "the related entity 'Building1' does not have the corresponding relation field",
+                        "the related entity 'Building3' does not have the corresponding relation field",
+                        "the related entity 'Workspace4' does not have the corresponding relation field"
                 },
                 new String[]{
                         "(8:4,8:27)",
-                        "(27:4,27:23)"
+                        "(27:4,27:23)",
+                        "(58:4,58:24)",
+                        "(68:4,68:27)"
                 }
         );
     }
 
     @Test
-    public void validateDuplicatedRelationField() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("duplicated-relations-field.bal", 2);
+    public void validateMandatoryMultipleRelationField() {
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "mandatory-relation-multiple-field.bal", 6);
         testDiagnostic(
                 diagnostics,
                 new String[]{
-                        PERSIST_403.getCode(),
-                        PERSIST_403.getCode()
+                        PERSIST_402.getCode(),
+                        PERSIST_402.getCode(),
+                        PERSIST_402.getCode(),
+                        PERSIST_402.getCode(),
+                        PERSIST_402.getCode(),
+                        PERSIST_402.getCode()
                 },
                 new String[]{
-                        "the entity does not support duplicated relations to 'Workspace' entity",
-                        "the entity does not support duplicated relations to 'Building1' entity"
+                        "the related entity 'Workspace' does not have the corresponding relation field",
+                        "the related entity 'Workspace' does not have the corresponding relation field",
+                        "the related entity 'Building1' does not have the corresponding relation field",
+                        "the related entity 'Building1' does not have the corresponding relation field",
+                        "the related entity 'Building3' does not have the corresponding relation field",
+                        "the related entity 'Workspace4' does not have the corresponding relation field"
                 },
                 new String[]{
-                        "(9:4,9:28)",
-                        "(31:4,31:24)"
+                        "(8:4,8:27)",
+                        "(9:4,9:24)",
+                        "(28:4,28:23)",
+                        "(29:4,29:23)",
+                        "(64:4,64:27)",
+                        "(75:4,75:28)"
                 }
         );
     }
 
     @Test
     public void validatePresenceOfForeignKeyField() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("foreign-key-present.bal", 4);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "foreign-key-present.bal", 4);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -343,15 +437,15 @@ public class CompilerPluginTest {
                         "the entity should not contain foreign key field " +
                                 "'buildingBuildingCode' for relation 'Building'",
                         "the entity should not contain foreign key field " +
-                                "'building2BuildingCode' for relation 'Building2'",
+                                "'locationBuildingCode' for relation 'Building2'",
                         "the entity should not contain foreign key field " +
-                                "'workspace3WorkspaceId' for relation 'Workspace3'",
+                                "'workspacesWorkspaceId' for relation 'Workspace3'",
                         "the entity should not contain foreign key field " +
-                                "'workspace4WorkspaceId' for relation 'Workspace4'"
+                                "'workspacesWorkspaceId' for relation 'Workspace4'"
                 },
                 new String[]{
                         "(15:4,15:32)",
-                        "(22:4,22:33)",
+                        "(22:4,22:32)",
                         "(42:4,42:33)",
                         "(66:4,66:33)"
                 }
@@ -360,16 +454,16 @@ public class CompilerPluginTest {
 
     @Test
     public void validateInvalidRelations() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("invalid-relation.bal", 2);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "invalid-relation.bal", 2);
         testDiagnostic(
                 diagnostics,
                 new String[]{
                         PERSIST_101.getCode(),
-                        PERSIST_305.getCode()
+                        PERSIST_306.getCode()
                 },
                 new String[]{
-                        "persist model definition only supports record definitions",
-                        "an entity does not support Integer[]-typed field"
+                        "persist model definition only supports record and enum definitions",
+                        "an entity does not support Integer array field type"
                 },
                 new String[]{
                         "(2:0,2:17)",
@@ -379,15 +473,60 @@ public class CompilerPluginTest {
     }
 
     @Test
+    public void validateDifferentOwners() {
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "different-owners.bal", 10);
+        testDiagnostic(
+                diagnostics,
+                new String[]{
+                        PERSIST_403.getCode(),
+                        PERSIST_403.getCode(),
+                        PERSIST_403.getCode(),
+                        PERSIST_403.getCode(),
+                        PERSIST_403.getCode(),
+                        PERSIST_403.getCode(),
+                        PERSIST_403.getCode(),
+                        PERSIST_403.getCode(),
+                        PERSIST_403.getCode(),
+                        PERSIST_403.getCode()
+                },
+                new String[]{
+                        "All relation between two entities should have a single owner",
+                        "All relation between two entities should have a single owner",
+                        "All relation between two entities should have a single owner",
+                        "All relation between two entities should have a single owner",
+                        "All relation between two entities should have a single owner",
+                        "All relation between two entities should have a single owner",
+                        "All relation between two entities should have a single owner",
+                        "All relation between two entities should have a single owner",
+                        "All relation between two entities should have a single owner",
+                        "All relation between two entities should have a single owner"
+                },
+                new String[]{
+                        "(15:4,15:22)",
+                        "(8:4,8:27)",
+                        "(16:4,16:23)",
+                        "(9:4,9:24)",
+                        "(33:4,33:23)",
+                        "(25:4,25:27)",
+                        "(34:4,34:25)",
+                        "(26:4,26:25)",
+                        "(35:4,35:24)",
+                        "(27:4,27:28)",
+
+                }
+        );
+    }
+
+    @Test
     public void validateUseOfEscapeCharacters() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("usage-of-escape-characters.bal", 1);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "usage-of-escape-characters.bal", 1);
         testDiagnostic(
                 diagnostics,
                 new String[]{
                         PERSIST_422.getCode()
                 },
                 new String[]{
-                        "the entity should not contain foreign key field 'buildingBuildingCode' for relation 'Building'"
+                        "the entity should not contain foreign key field 'locationBuildingCode' for relation 'Building'"
                 },
                 new String[]{
                         "(18:4,18:33)"
@@ -397,7 +536,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateUseOfImportPrefix() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("usage-of-import-prefix.bal", 2);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "usage-of-import-prefix.bal", 2);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -417,7 +556,7 @@ public class CompilerPluginTest {
 
     @Test
     public void validateEntityNamesCaseSensitivity() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("case-sensitive-entities.bal", 2);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "case-sensitive-entities.bal", 2);
         testDiagnostic(
                 diagnostics,
                 new String[]{
@@ -435,13 +574,15 @@ public class CompilerPluginTest {
         );
     }
 
-    private List<Diagnostic> getErrorDiagnostics(String modelFileName, int count) {
-        DiagnosticResult diagnosticResult = loadPersistModelFile(modelFileName).getCompilation().diagnosticResult();
+    private List<Diagnostic> getErrorDiagnostics(String modelDirectory, String modelFileName, int count) {
+        DiagnosticResult diagnosticResult = loadPersistModelFile(modelDirectory, modelFileName).getCompilation()
+                .diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().filter
                 (r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).collect(Collectors.toList());
         Assert.assertEquals(errorDiagnosticsList.size(), count);
         return errorDiagnosticsList;
     }
+
 
     private void testDiagnostic(List<Diagnostic> errorDiagnosticsList, String[] codes, String[] messages,
                                 String[] locations) {

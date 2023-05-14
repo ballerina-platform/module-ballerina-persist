@@ -12,8 +12,8 @@ CREATE TABLE test.Building (
 CREATE TABLE test.Workspace (
     workspaceId VARCHAR(36) PRIMARY KEY,
     workspaceType VARCHAR(10),
-    buildingBuildingCode VARCHAR(36),
-    FOREIGN KEY (buildingBuildingCode) REFERENCES test.Building(buildingCode)
+    locationBuildingCode VARCHAR(36),
+    FOREIGN KEY (locationBuildingCode) REFERENCES test.Building(buildingCode)
 );
 
 CREATE TABLE test.Department (
@@ -26,7 +26,7 @@ CREATE TABLE test.Employee (
     firstName VARCHAR(30),
     lastName VARCHAR(30),
     birthDate DATE,
-    gender CHAR(1),
+    gender ENUM('MALE', 'FEMALE') NOT NULL,
     hireDate DATE,
     departmentDeptNo VARCHAR(36),
     workspaceWorkspaceId VARCHAR(36),
@@ -61,6 +61,8 @@ CREATE TABLE test.AllTypes (
 	dateTypeOptional DATE,
 	timeOfDayTypeOptional TIME,
 	civilTypeOptional DATETIME,
+	enumType ENUM('TYPE_1', 'TYPE_2', 'TYPE_3', 'TYPE_4') NOT NULL,
+	enumTypeOptional ENUM('TYPE_1', 'TYPE_2', 'TYPE_3', 'TYPE_4'),
 	PRIMARY KEY(id)
 );
 

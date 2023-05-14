@@ -60,17 +60,12 @@ public class CodeActionTest {
         return new Object[][]{
                 {"valid-persist-model-path.bal", LinePosition.from(2, 1), "valid-persist-model-path.bal",
                         "PERSIST_101", "REMOVE_DIAGNOSTIC_LOCATION", "Remove unsupported member"},
+
                 {"usage-of-import-prefix.bal", LinePosition.from(0, 25), "usage-of-import-prefix.bal",
                         "PERSIST_102", "REMOVE_TEXT_RANGE", "Remove import prefix"},
-                {"identifier-field-properties.bal", LinePosition.from(4, 14), "identifier-field-properties-nil.bal",
-                        "PERSIST_502", "REMOVE_TEXT_RANGE", "Change to 'int' type"},
-                {"identifier-field-properties.bal", LinePosition.from(16, 16),
-                        "identifier-field-properties-rm-readonly.bal",
-                        "PERSIST_503", "REMOVE_TEXT_RANGE", "Change to non-identity field"},
-                {"self-referenced-entity.bal", LinePosition.from(8, 10), "self-referenced-entity.bal",
-                        "PERSIST_401", "REMOVE_DIAGNOSTIC_LOCATION", "Remove self-referenced field"},
-                {"duplicated-relations-field.bal", LinePosition.from(9, 11), "duplicated-relations-field.bal",
-                        "PERSIST_403", "REMOVE_DIAGNOSTIC_LOCATION", "Remove duplicate relation field"},
+
+                {"record-properties.bal", LinePosition.from(18, 6), "record-properties.bal",
+                        "PERSIST_201", "CHANGE_TO_CLOSED_RECORD", "Change to closed record"},
 
                 {"field-properties.bal", LinePosition.from(22, 9), "field-properties-rest-descriptor.bal",
                         "PERSIST_301", "REMOVE_DIAGNOSTIC_LOCATION", "Remove rest descriptor field"},
@@ -80,24 +75,59 @@ public class CodeActionTest {
                         "PERSIST_302", "REMOVE_TEXT_RANGE", "Remove default value"},
                 {"field-properties.bal", LinePosition.from(13, 27), "field-properties-optional-field.bal",
                         "PERSIST_304", "REMOVE_TEXT_RANGE", "Make field mandatory"},
-                {"field-types.bal", LinePosition.from(18, 12), "field-types-unsupported-array.bal",
+
+                {"field-types-valid.bal", LinePosition.from(15, 6), "field-types-boolean.bal",
+                        "PERSIST_306", "CHANGE_TYPE_TO_BOOLEAN", "Change to 'boolean' type"},
+                {"field-types-valid.bal", LinePosition.from(15, 6), "field-types-byte[].bal",
+                        "PERSIST_306", "CHANGE_TYPE_TO_BYTE_ARRAY", "Change to 'byte[]' type"},
+                {"field-types-valid.bal", LinePosition.from(15, 6), "field-types-decimal.bal",
+                        "PERSIST_306", "CHANGE_TYPE_TO_DECIMAL", "Change to 'decimal' type"},
+                {"field-types-valid.bal", LinePosition.from(15, 6), "field-types-float.bal",
+                        "PERSIST_306", "CHANGE_TYPE_TO_FLOAT", "Change to 'float' type"},
+                {"field-types-valid.bal", LinePosition.from(15, 6), "field-types-int.bal",
+                        "PERSIST_306", "CHANGE_TYPE_TO_INT", "Change to 'int' type"},
+                {"field-types-valid.bal", LinePosition.from(15, 6), "field-types-string.bal",
+                        "PERSIST_306", "CHANGE_TYPE_TO_STRING", "Change to 'string' type"},
+
+                {"field-types-valid.bal", LinePosition.from(18, 12), "field-types-unsupported-array.bal",
                         "PERSIST_306", "REMOVE_TEXT_RANGE", "Change to 'time:Civil' type"},
 
-                {"record-properties.bal", LinePosition.from(14, 6), "record-properties.bal",
-                        "PERSIST_201", "CHANGE_TO_CLOSED_RECORD", "Change to closed record"},
-                {"mandatory-relation-field.bal", LinePosition.from(8, 21), "mandatory-relation-field.bal",
-                        "PERSIST_402", "ADD_SINGLE_TEXT", "Add 'Building'-typed field in 'Workspace' entity"},
-                {"mandatory-relation-field.bal", LinePosition.from(27, 19), "mandatory-relation-field2.bal",
-                        "PERSIST_402", "ADD_SINGLE_TEXT", "Add 'Workspace2'-typed field in 'Building1' entity"},
-                {"nillable-relation-field.bal", LinePosition.from(14, 9), "nillable-relation-field.bal",
-                        "PERSIST_406", "REMOVE_TEXT_RANGE", "Change to 'Building' type"},
-                {"nillable-relation-field.bal", LinePosition.from(59, 11),
-                        "nillable-relation-field-1-1-both-optional.bal",
-                        "PERSIST_003", "REMOVE_TEXT_RANGE", "Change 'Workspace4.location' to non-nillable field"},
-                {"nillable-relation-field.bal", LinePosition.from(59, 11),
-                        "nillable-relation-field-1-1-both-optional2.bal",
-                        "PERSIST_003", "REMOVE_TEXT_RANGE", "Change 'Building4.workspaces' to non-nillable field"},
+                {"self-referenced-entity.bal", LinePosition.from(8, 10), "self-referenced-entity.bal",
+                        "PERSIST_401", "REMOVE_DIAGNOSTIC_LOCATION", "Remove self-referenced field"},
 
+                {"mandatory-relation-field.bal", LinePosition.from(8, 21), "mandatory-relation-entity[]-type.bal",
+                        "PERSIST_005", "ADD_SINGLE_TEXT", "Add corresponding relation field in 'Workspace' entity"},
+                {"mandatory-relation-field.bal", LinePosition.from(27, 19), "mandatory-relation-entity-type-1.bal",
+                        "PERSIST_005", "ADD_SINGLE_TEXT", "Add corresponding 1-1 relation field in 'Building1' entity"},
+                {"mandatory-relation-field.bal", LinePosition.from(27, 19), "mandatory-relation-entity-type-2.bal",
+                        "PERSIST_005", "ADD_SINGLE_TEXT", "Add corresponding 1-n relation field in 'Building1' entity"},
+                {"mandatory-relation-field.bal", LinePosition.from(58, 10),
+                        "mandatory-relation-entity-optional-type.bal",
+                        "PERSIST_005", "ADD_SINGLE_TEXT", "Add corresponding relation field in 'Building3' entity"},
+                {"mandatory-relation-multiple-field-1.bal", LinePosition.from(13, 10),
+                        "mandatory-relation-multiple-field-1.bal",
+                        "PERSIST_005", "ADD_SINGLE_TEXT", "Add corresponding 1-n relation field in 'User' entity"},
+                {"mandatory-relation-multiple-field-2.bal", LinePosition.from(13, 10),
+                        "mandatory-relation-multiple-field-2.bal",
+                        "PERSIST_005", "ADD_SINGLE_TEXT", "Add corresponding 1-1 relation field in 'User' entity"},
+                {"mandatory-relation-multiple-field-3.bal", LinePosition.from(15, 10),
+                        "mandatory-relation-multiple-field-3.bal",
+                        "PERSIST_005", "ADD_SINGLE_TEXT", "Add corresponding 1-1 relation field in 'User' entity"},
+                {"mandatory-relation-multiple-field-4.bal", LinePosition.from(11, 10),
+                        "mandatory-relation-multiple-field-4.bal",
+                        "PERSIST_005", "ADD_SINGLE_TEXT", "Add corresponding 1-1 relation field in 'User' entity"},
+
+                // PERSIST_403
+                {"different-owners.bal", LinePosition.from(9, 9), "different-owners-building.bal",
+                        "PERSIST_004", "SWITCH_RELATION_OWNER", "Make 'Building' entity relation owner"},
+                {"different-owners.bal", LinePosition.from(15, 11), "different-owners-workspace.bal",
+                        "PERSIST_004", "SWITCH_RELATION_OWNER", "Make 'Workspace' entity relation owner"},
+                {"different-owners.bal", LinePosition.from(35, 11), "different-owners-building2.bal",
+                        "PERSIST_004", "SWITCH_RELATION_OWNER", "Make 'Building2' entity relation owner"},
+                {"different-owners.bal", LinePosition.from(27, 11), "different-owners-workspace2.bal",
+                        "PERSIST_004", "SWITCH_RELATION_OWNER", "Make 'Workspace2' entity relation owner"},
+
+                // PERSIST_404
                 {"nillable-relation-field.bal", LinePosition.from(44, 9),
                         "nillable-relation-field-building3-owner.bal",
                         "PERSIST_002", "ADD_SINGLE_TEXT", "Make 'Building3' entity relation owner"},
@@ -105,27 +135,32 @@ public class CodeActionTest {
                         "nillable-relation-field-workspace3-owner.bal",
                         "PERSIST_002", "ADD_SINGLE_TEXT", "Make 'Workspace3' entity relation owner"},
 
-                {"field-types.bal", LinePosition.from(15, 6), "field-types-boolean.bal",
-                        "PERSIST_305", "CHANGE_TYPE_TO_BOOLEAN", "Change to 'boolean' type"},
-                {"field-types.bal", LinePosition.from(15, 6), "field-types-byte[].bal",
-                        "PERSIST_305", "CHANGE_TYPE_TO_BYTE_ARRAY", "Change to 'byte[]' type"},
-                {"field-types.bal", LinePosition.from(15, 6), "field-types-decimal.bal",
-                        "PERSIST_305", "CHANGE_TYPE_TO_DECIMAL", "Change to 'decimal' type"},
-                {"field-types.bal", LinePosition.from(15, 6), "field-types-float.bal",
-                        "PERSIST_305", "CHANGE_TYPE_TO_FLOAT", "Change to 'float' type"},
-                {"field-types.bal", LinePosition.from(15, 6), "field-types-int.bal",
-                        "PERSIST_305", "CHANGE_TYPE_TO_INT", "Change to 'int' type"},
-                {"field-types.bal", LinePosition.from(15, 6), "field-types-string.bal",
-                        "PERSIST_305", "CHANGE_TYPE_TO_STRING", "Change to 'string' type"},
-                {"identifier-field-properties.bal", LinePosition.from(16, 15), "identifier-field-properties.bal",
-                        "PERSIST_503", "CHANGE_TYPE_TO_STRING", "Change to 'string' type"},
+                // PERSIST_405
+                {"nillable-relation-field.bal", LinePosition.from(59, 11),
+                        "nillable-relation-field-1-1-both-optional.bal",
+                        "PERSIST_003", "REMOVE_TEXT_RANGE", "Change 'Workspace4.location' to non-nillable field"},
+                {"nillable-relation-field.bal", LinePosition.from(59, 11),
+                        "nillable-relation-field-1-1-both-optional2.bal",
+                        "PERSIST_003", "REMOVE_TEXT_RANGE", "Change 'Building4.workspaces' to non-nillable field"},
+                {"nillable-relation-field.bal", LinePosition.from(14, 9), "nillable-relation-field.bal",
+                        "PERSIST_406", "REMOVE_TEXT_RANGE", "Change to 'Building' type"},
 
+                // PERSIST_501
                 {"readonly-field.bal", LinePosition.from(3, 16), "readonly-field-beneficiaryId.bal",
                         "PERSIST_001", "ADD_SINGLE_TEXT", "Mark field 'beneficiaryId' as identity field"},
                 {"readonly-field.bal", LinePosition.from(3, 16), "readonly-field-needId.bal",
                         "PERSIST_001", "ADD_SINGLE_TEXT", "Mark field 'needId' as identity field"},
                 {"readonly-field.bal", LinePosition.from(3, 16), "readonly-field-quantity.bal",
                         "PERSIST_001", "ADD_SINGLE_TEXT", "Mark field 'quantity' as identity field"},
+
+                {"identifier-field-properties.bal", LinePosition.from(4, 14), "identifier-field-properties-nil.bal",
+                        "PERSIST_502", "REMOVE_TEXT_RANGE", "Change to 'int' type"},
+                {"identifier-field-properties.bal", LinePosition.from(16, 16),
+                        "identifier-field-properties-rm-readonly.bal",
+                        "PERSIST_503", "REMOVE_TEXT_RANGE", "Change to non-identity field"},
+
+                {"identifier-field-properties.bal", LinePosition.from(16, 15), "identifier-field-properties.bal",
+                        "PERSIST_503", "CHANGE_TYPE_TO_STRING", "Change to 'string' type"},
         };
     }
 
@@ -148,16 +183,9 @@ public class CodeActionTest {
             throws IOException {
         Project project = ProjectLoader.loadProject(filePath, getEnvironmentBuilder());
         List<CodeActionInfo> codeActions = getCodeActions(filePath, cursorPos, project);
-        Assert.assertTrue(codeActions.size() > 0, "Expected at least 1 code action");
+        CodeActionInfo codeAction = validateCodeAction(codeActions, expected);
+        List<DocumentEdit> actualEdits = executeCodeAction(project, filePath, codeAction);
 
-        Optional<CodeActionInfo> found = codeActions.stream()
-                // Code action args are not validated due to intermittent order change when converting to json
-                .filter((codeActionInfo) -> expected.getTitle().equals(codeActionInfo.getTitle()) &&
-                        expected.getProviderName().equals(codeActionInfo.getProviderName()))
-                .findFirst();
-        Assert.assertTrue(found.isPresent(), "Code action not found:" + expected);
-
-        List<DocumentEdit> actualEdits = executeCodeAction(project, filePath, found.get());
         // Changes to 1 file expected
         Assert.assertEquals(actualEdits.size(), 1, "Expected changes to 1 file");
 
@@ -172,6 +200,17 @@ public class CodeActionTest {
         String expectedSourceCode = Files.readString(expectedSrc);
         Assert.assertEquals(modifiedSourceCode, expectedSourceCode,
                 "Actual source code didn't match expected source code");
+    }
+
+    private CodeActionInfo validateCodeAction(List<CodeActionInfo> found, CodeActionInfo expected) {
+        Assert.assertTrue(found.size() > 0, "Expected at least 1 code action");
+        Optional<CodeActionInfo> foundCodeAction = found.stream()
+                // Code action args are not validated due to intermittent order change when converting to json
+                .filter((codeActionInfo) -> expected.getTitle().equals(codeActionInfo.getTitle()) &&
+                        expected.getProviderName().equals(codeActionInfo.getProviderName()))
+                .findFirst();
+        Assert.assertTrue(foundCodeAction.isPresent(), "Code action not found:" + expected);
+        return foundCodeAction.get();
     }
 
     private List<CodeActionInfo> getCodeActions(Path filePath, LinePosition cursorPos, Project project) {

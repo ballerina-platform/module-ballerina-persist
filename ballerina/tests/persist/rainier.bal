@@ -1,11 +1,16 @@
 import ballerina/time;
 
+enum Gender {
+    MALE,
+    FEMALE
+}
+
 type Employee record {|
     readonly string empNo;
     string firstName;
     string lastName;
     time:Date birthDate;
-    string gender;
+    Gender gender;
     time:Date hireDate;
 
     Department department;
@@ -17,7 +22,7 @@ type Workspace record {|
     string workspaceType;
 
     Building location;
-    Employee employee;
+    Employee[] employees;
 |};
 
 type Building record {|

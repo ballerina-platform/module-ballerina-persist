@@ -32,6 +32,47 @@ clean {
     }
 }
 
+def tomlVersion = stripBallerinaExtensionVersion("${project.version}")
+
+def stripBallerinaExtensionVersion(String extVersion) {
+    if (extVersion.matches(project.ext.timestampedVersionRegex)) {
+        def splitVersion = extVersion.split('-')
+        if (splitVersion.length > 3) {
+            def strippedValues = splitVersion[0..-4]
+            return strippedValues.join('-')
+        } else {
+            return extVersion
+        }
+    } else {
+        return extVersion.replace("${project.ext.snapshotVersion}", '')
+    }
+}
+
+task updateTomlFiles {
+    examples.each { example ->
+        def ballerinaTomlFilePlaceHolder = new File("${project.rootDir}/examples/build-config/${example}/Ballerina.toml")
+        def ballerinaTomlFile = new File("${project.rootDir}/examples/${example}/Ballerina.toml")
+
+        def newConfig = ballerinaTomlFilePlaceHolder.text.replace('@project.version@', project.version.toString())
+        newConfig = newConfig.replace('@toml.version@', tomlVersion)
+        ballerinaTomlFile.text = newConfig
+    }
+}
+
+task commitTomlFiles {
+    doLast {
+        project.exec {
+            ignoreExitValue true
+            workingDir "${project.rootDir}/examples"
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                commandLine 'cmd', '/c', "git commit -m \"[Automated] Update native jar versions in exmaple toml files\" */Ballerina.toml"
+            } else {
+                commandLine 'sh', '-c', "git commit -m \"[Automated] Update native jar versions in exmaple toml files\" */Ballerina.toml"
+            }
+        }
+    }
+}
+
 task testExamples {
     doLast {
         examples.each { example ->
@@ -79,6 +120,10 @@ task buildExamples {
 
 buildExamples.dependsOn ":persist-ballerina:build"
 testExamples.dependsOn ":persist-ballerina:build"
+
+buildExamples.dependsOn updateTomlFiles
+testExamples.dependsOn updateTomlFiles
+updateTomlFiles.finalizedBy commitTomlFiles
 
 build.dependsOn buildExamples
 test.dependsOn testExamples
