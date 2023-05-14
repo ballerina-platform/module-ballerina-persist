@@ -29,9 +29,9 @@ configurable string database = ?;
 configurable string password = ?;
 configurable mysql:Options connectionOptions = {};
 
-configurable string clientId = os:getEnv("CLIENT_ID");
-configurable string clientSecret = os:getEnv("CLIENT_SECRET");
-configurable string refreshToken = os:getEnv("REFRESH_TOKEN");
+configurable string & readonly clientId = os:getEnv("CLIENT_ID");
+configurable string & readonly clientSecret = os:getEnv("CLIENT_SECRET");
+configurable string & readonly refreshToken = os:getEnv("REFRESH_TOKEN");
 configurable string spreadsheetId = ?;
 
 @test:BeforeSuite
