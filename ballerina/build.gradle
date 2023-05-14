@@ -17,6 +17,8 @@
 
 import org.apache.tools.ant.taskdefs.condition.Os
 
+import java.nio.channels.ScatteringByteChannel
+
 buildscript {
     repositories {
         maven {
@@ -147,9 +149,13 @@ def checkTestDockerContainerStatus(dockerName) {
 
 task pullBallerinaxSheetsDependancy(type: Exec) {
     if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
-        String distributionBinPath = project.projectDir.absolutePath + "/build/jballerina-tools-${project.extensions.ballerina.langVersion}/bin"
-        commandLine 'sh', '-c', "$distributionBinPath/bal pull ballerina/http"
-        commandLine 'sh', '-c', "$distributionBinPath/bal pull ballerinax/googleapis.sheets"
+        try {
+            String distributionBinPath = project.projectDir.absolutePath + "/build/jballerina-tools-${project.extensions.ballerina.langVersion}/bin"
+            commandLine 'sh', '-c', "$distributionBinPath/bal pull ballerina/http"
+            commandLine 'sh', '-c', "$distributionBinPath/bal pull ballerinax/googleapis.sheets"
+        } catch (all) {
+            println('Gradle task failed, but continuing with the build')
+        }
     }
 }
 
