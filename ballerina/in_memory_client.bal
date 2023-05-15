@@ -17,9 +17,9 @@
 public client class InMemoryClient {
 
     private string[] keyFields;
-    private function (string[]) returns stream<record {}, Error?> query;
-    private function (anydata) returns record {}|InvalidKeyError queryOne;
-    private map<function (record {}, string[]) returns record {}[]> associationsMethods;
+    private isolated function (string[]) returns stream<record {}, Error?> query;
+    private isolated function (anydata) returns record {}|InvalidKeyError queryOne;
+    private map<isolated function (record {}, string[]) returns record {}[]> associationsMethods;
 
     public function init(TableMetadata metadata) returns Error? {
         self.keyFields = metadata.keyFields;
