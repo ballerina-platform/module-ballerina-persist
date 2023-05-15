@@ -133,11 +133,9 @@ public client class GoogleSheetsClient {
     # + return - A record in the `rowType` type or a `persist:Error` if the operation fails
     public isolated function runReadByKeyQuery(typedesc<record {}> rowType, typedesc<record {}> rowTypeWithIdFields, map<anydata> typeMap, anydata key, string[] fields = [], string[] include = [], typedesc<record {}>[] typeDescriptions = []) returns record {}|Error {
         record {} 'object = check self.queryOne(key);
-
         'object = filterRecord('object, self.addKeyFields(fields));
         check self.getManyRelations('object, fields, include, typeDescriptions);
         self.removeUnwantedFields('object, fields);
-
         do {
             return check 'object.cloneWithType(rowType);
         } on fail error e {
@@ -229,115 +227,74 @@ public client class GoogleSheetsClient {
     public isolated function runUpdateQuery(anydata key, record {} updateRecord) returns Error? {
         string[] entityKeys = self.fieldMetadata.keys();
         GoogleSheetBasicType[] values = [];
-        if key is string|int|decimal|float {
-            sheets:DeveloperMetadataLookupFilter filter = {locationType: "ROW", metadataKey: self.tableName, metadataValue: key.toString()};
-            sheets:ValueRange[]|error rows = self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
-            if rows is error {
-                return <Error> error(rows.message());
-            }
-            if rows.length() == 0 {
-                return <InvalidKeyError>error(string `Not found: ${key.toString()}`);
-            } else if rows.length() > 1 {
-                return <Error>error(string `Multiple elements found for given key: ${key.toString()}`);
-            }
-            foreach string entityKey in entityKeys {
-                if !updateRecord.hasKey(entityKey) && self.keyFields.indexOf(entityKey) != () {
-                    values.push(key);
-                } else if !updateRecord.hasKey(entityKey) && self.keyFields.indexOf(entityKey) == () {
-                    int indexOfKey = <int>self.fieldMetadata.keys().indexOf(entityKey, 0);
-                    string dataType = self.dataTypes.get(entityKey).toString();
-                    if dataType == "boolean" || dataType == "int" || dataType == "float" || dataType == "decimal" {
-                        GoogleSheetNumericType|error value = self.valuesFromString(rows[0].values[indexOfKey].toString(), dataType);
-                        if value is error {
-                            return <Error>error(value.message());
-                        }
-                        values.push(value);
-                    } else {
-                        values.push(rows[0].values[indexOfKey]);
-                    }
-                    
-                } else {
-                    GoogleSheetBasicType|error value;
-                    string dataType = self.dataTypes.get(entityKey).toString();
-                    if dataType == "time:Date" || dataType == "time:TimeOfDay" ||dataType == "time:Civil" || dataType == "time:Utc" {
-                        GoogleSheetTimeType|error timeValue = updateRecord.get(entityKey).ensureType();
-                        if timeValue is error {
-                            return <Error> error(timeValue.message());
-                        } 
-                        value = self.timeToString(timeValue);
-                        if value is error {
-                            return <Error> error(value.message());
-                        } 
-                        values.push(value);
-                    } else {
-                        value = updateRecord.get(entityKey).ensureType();
-                        if value is error {
-                            return <Error> error(value.message());
-                        }
-                        values.push(value);
-                    }
-                }
-            }
-            error? response = self.googleSheetClient->updateRowByDataFilter(self.spreadsheetId, self.sheetId, filter, values, "USER_ENTERED");
-            if response is error {
-                return <Error> error(response.message());
-            }
-        } else if key is map<anydata> {
-            string metadataValue = self.generateMetadataValue(self.keyFields, key);
-            sheets:DeveloperMetadataLookupFilter filter = {locationType: "ROW", metadataKey: self.tableName, metadataValue: metadataValue};
-            sheets:ValueRange[]|error rows = self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
-            if rows is error {
-                return <Error> error(rows.message());
-            }
-            if rows.length() == 0 {
+        string metadataValue;
+        if key is map<anydata> {
+            metadataValue = self.generateMetadataValue(self.keyFields, key);
+        } else {
+            metadataValue = key.toString();
+        }
+        sheets:DeveloperMetadataLookupFilter filter = {locationType: "ROW", metadataKey: self.tableName, metadataValue: metadataValue};
+        sheets:ValueRange[]|error rows = self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
+        if rows is error {
+            return <Error>error(rows.message());
+        }
+        if rows.length() == 0 {
+            if key is map<anydata> {
                 return <InvalidKeyError>error(string `Not found: ${self.generateKeyArrayString(self.keyFields, key)}`);
+            } else {
+                return <InvalidKeyError>error(string `Not found: ${key.toString()}`);
             }
-            foreach string entityKey in entityKeys {
-                if !updateRecord.hasKey(entityKey) && (self.keyFields.indexOf(entityKey) != ()) {
+        } else if rows.length() > 1 {
+            return <Error>error(string `Multiple elements found for given key: ${key.toString()}`);
+        }
+        foreach string entityKey in entityKeys {
+            if !updateRecord.hasKey(entityKey) && self.keyFields.indexOf(entityKey) != () {
+                if key is map<anydata> {
                     (int|string|decimal)|error value = key.get(entityKey).ensureType();
                     if value is error {
-                        return <Error> error(value.message());
+                        return <Error>error(value.message());
                     }
                     values.push(value);
-                } else if !updateRecord.hasKey(entityKey) && self.keyFields.indexOf(entityKey) == () {
-                    int indexOfKey = <int>self.fieldMetadata.keys().indexOf(entityKey, 0);
-                    string dataType = self.dataTypes.get(entityKey).toString();
-                    if dataType == "boolean" || dataType == "int" || dataType == "float" || dataType == "decimal" {
-                        GoogleSheetNumericType|error value = self.valuesFromString(rows[0].values[indexOfKey].toString(), dataType);
-                        if value is error {
-                            return <Error>error(value.message());
-                        }
-                        values.push(value);
-                    } else {
-                        values.push(rows[0].values[indexOfKey]);
+                } else if (key is int|string|decimal|float) {
+                    values.push(key);
+                }
+            } else if !updateRecord.hasKey(entityKey) && self.keyFields.indexOf(entityKey) == () {
+                int indexOfKey = <int>self.fieldMetadata.keys().indexOf(entityKey, 0);
+                string dataType = self.dataTypes.get(entityKey).toString();
+                if dataType == "boolean" || dataType == "int" || dataType == "float" || dataType == "decimal" {
+                    GoogleSheetNumericType|error value = self.valuesFromString(rows[0].values[indexOfKey].toString(), dataType);
+                    if value is error {
+                        return <Error>error(value.message());
                     }
+                    values.push(value);
                 } else {
-                    GoogleSheetBasicType|error value;
-                    string dataType = self.dataTypes.get(entityKey).toString();
-                    if dataType == "time:Date" || dataType == "time:TimeOfDay" ||dataType == "time:Civil" || dataType == "time:Utc" {
-                        GoogleSheetTimeType|error timeValue = updateRecord.get(entityKey).ensureType();
-                        if timeValue is error {
-                            return <Error> error(timeValue.message());
-                        } 
-                        value = self.timeToString(timeValue);
-                        if value is error {
-                            return <Error> error(value.message());
-                        } 
-                        values.push(value);
-                    } else {
-                        value = updateRecord.get(entityKey).ensureType();
-                        if value is error {
-                            return <Error> error(value.message());
-                        }
-                        values.push(value);
+                    values.push(rows[0].values[indexOfKey]);
+                }
+            } else {
+                GoogleSheetBasicType|error value;
+                string dataType = self.dataTypes.get(entityKey).toString();
+                if dataType == "time:Date" || dataType == "time:TimeOfDay" || dataType == "time:Civil" || dataType == "time:Utc" {
+                    GoogleSheetTimeType|error timeValue = updateRecord.get(entityKey).ensureType();
+                    if timeValue is error {
+                        return <Error>error(timeValue.message());
                     }
+                    value = self.timeToString(timeValue);
+                    if value is error {
+                        return <Error>error(value.message());
+                    }
+                    values.push(value);
+                } else {
+                    value = updateRecord.get(entityKey).ensureType();
+                    if value is error {
+                        return <Error>error(value.message());
+                    }
+                    values.push(value);
                 }
             }
-            error? response = self.googleSheetClient->updateRowByDataFilter(self.spreadsheetId, self.sheetId, filter, values, "USER_ENTERED");
-            if response is error {
-                return <Error> error(response.message());
-            }
-
+        }
+        error? response = self.googleSheetClient->updateRowByDataFilter(self.spreadsheetId, self.sheetId, filter, values, "USER_ENTERED");
+        if response is error {
+            return <Error>error(response.message());
         }
     }
 
@@ -346,35 +303,27 @@ public client class GoogleSheetsClient {
     # + deleteKey - The key used to delete an entity record
     # + return - `()` if the operation is performed successfully or a `persist:Error` if the operation fails
     public isolated function runDeleteQuery(anydata deleteKey) returns Error? {
-        if deleteKey is string|int|decimal {
-            sheets:DeveloperMetadataLookupFilter filter = {locationType: "ROW", metadataKey: self.tableName, metadataValue: deleteKey.toString()};
-            sheets:ValueRange[]|error rows = self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
-            if rows is error {
-                return <Error>error(rows.message());
-            }
-            if rows.length() == 0 {
-                return <Error>error("no element found for delete");
-            }
-            error? response = self.googleSheetClient->deleteRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
-            if response is error {
-                return <Error> error(response.message());
-            }
-            
-        } else if deleteKey is map<anydata> {
-            string metadataValue = self.generateMetadataValue(self.keyFields, deleteKey);
-            sheets:DeveloperMetadataLookupFilter filter = {locationType: "ROW", metadataKey: self.tableName, metadataValue: metadataValue};
-            sheets:ValueRange[]|error rows = self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
-            if rows is error {
+        string metadataValue;
+        if deleteKey is map<anydata> {
+            metadataValue = self.generateMetadataValue(self.keyFields, deleteKey);
+        } else {
+            metadataValue = deleteKey.toString();
+        }
+        sheets:DeveloperMetadataLookupFilter filter = {locationType: "ROW", metadataKey: self.tableName, metadataValue: metadataValue};
+        sheets:ValueRange[]|error rows = self.googleSheetClient->getRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
+        if rows is error {
+            if (deleteKey is map<anydata>) {
                 return <Error>error(string `Not found: ${self.generateKeyArrayString(self.keyFields, deleteKey)}`);
+            } else {
+                return <Error>error(string `Not found: ${deleteKey.toString()}`);
             }
-            if rows.length() == 0 {
-                return <Error>error("no element found for update");
-            }
-            error? response = self.googleSheetClient->deleteRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
-            if response is error {
-                return <Error> error(response.message());
-            }
-
+        }
+        if rows.length() == 0 {
+            return <Error>error("no element found for delete");
+        }
+        error? response = self.googleSheetClient->deleteRowByDataFilter(self.spreadsheetId, self.sheetId, filter);
+        if response is error {
+            return <Error>error(response.message());
         }
     }
 
@@ -426,7 +375,7 @@ public client class GoogleSheetsClient {
         }
     }
 
-    private isolated function generateMetadataValue(string[] keyFields, record {}|map<anydata> rowValues) returns string {
+    private isolated function generateMetadataValue(string[] keyFields, map<anydata> rowValues) returns string {
         string metadataValue = "";
         foreach string key in keyFields {
             if metadataValue != "" {
@@ -437,7 +386,7 @@ public client class GoogleSheetsClient {
         return metadataValue;
     }
 
-    private isolated function generateKeyArrayString(string[] keyFields, record {}|map<anydata> rowValues) returns string {
+    private isolated function generateKeyArrayString(string[] keyFields, map<anydata> rowValues) returns string {
         string metadataValue = "";
         foreach string key in keyFields {
             if metadataValue != "" {
