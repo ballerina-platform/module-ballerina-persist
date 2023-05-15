@@ -33,11 +33,13 @@ public final class Constants {
 
     public static final BString PERSIST_CLIENTS = fromString("persistClients");
     public static final String PERSIST_SQL_STREAM = "PersistSQLStream";
+    public static final String PERSIST_GOOGLE_SHEETS_STREAM = "PersistGoogleSheetsStream";
     public static final String PERSIST_IN_MEMORY_STREAM = "PersistInMemoryStream";
     public static final BString KEY_FIELDS = fromString("keyFields");
     public static final String ERROR = "Error";
 
     public static final String RUN_READ_QUERY_METHOD = "runReadQuery";
+    public static final String RUN_READ_TABLE_AS_STREAM_METHOD = "readTableAsStream";
     public static final String RUN_READ_BY_KEY_QUERY_METHOD = "runReadByKeyQuery";
     public static final Module BALLERINA_ANNOTATIONS_MODULE = new Module("ballerina", "lang.annotations", "0.0.0");
     public static final String DEFAULT_STREAM_CONSTRAINT_NAME = "$stream$anon$constraint$";

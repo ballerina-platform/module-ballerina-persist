@@ -26,6 +26,11 @@ configurable string database = ?;
 configurable string password = ?;
 configurable mysql:Options connectionOptions = {};
 
+configurable string clientId = ?;
+configurable string clientSecret = ?;
+configurable string refreshToken = ?;
+configurable string spreadsheetId = ?;
+
 @test:BeforeSuite
 function truncate() returns error? {
     mysql:Client dbClient = check new (host = host, user = user, password = password, database = database, port = port);
@@ -46,6 +51,30 @@ function truncate() returns error? {
     _ = check dbClient->execute(`SET FOREIGN_KEY_CHECKS = 1`);
     check dbClient.close();
 }
+
+// @test:BeforeSuite  // Uncomment this after github secrets are added
+// function initSpreadsheet() {
+//     sheets:ConnectionConfig sheetsClientConfig = {
+//             auth: {
+//                 clientId: clientId,
+//                 clientSecret: clientSecret,
+//                 refreshUrl: sheets:REFRESH_URL,
+//                 refreshToken: refreshToken
+//             }
+//         };
+//     sheets:Client|error googleSheetClient = new (sheetsClientConfig);
+//     if googleSheetClient is error {
+//         io:println("Error: Client initialization failed. ");
+//         io:println(googleSheetClient);
+//     } else {
+//         sheets:Spreadsheet|error spreadsheet = googleSheetClient->createSpreadsheet("moduleBallerinaPersistTestSpreadSheet");
+//         if spreadsheet !is error {
+//             io:println(string `Spreadsheet ID is : ${spreadsheet.spreadsheetId}`);
+//         } else {
+//             io:println(spreadsheet);
+//         }
+//     }
+// }
 
 AllTypes allTypes1 = {
     id: 1,

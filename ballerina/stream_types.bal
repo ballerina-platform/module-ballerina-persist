@@ -78,6 +78,70 @@ public class PersistSQLStream {
     }
 }
 
+
+public class PersistGoogleSheetsStream {
+
+    private stream<record {}, sql:Error?>? anydataStream;
+    private Error? err;
+    private string[] fields;
+    private string[] include;
+    private typedesc<record {}>[] typeDescriptions;
+    private GoogleSheetsClient? persistClient;
+    private typedesc<record {}> targetType;
+
+    public isolated function init(stream<record {}, sql:Error?>? anydataStream, typedesc<record {}> targetType, string[] fields, string[] include, any[] typeDescriptions, GoogleSheetsClient persistClient, Error? err = ()) {
+        self.anydataStream = anydataStream;
+        self.fields = fields;
+        self.include = include;
+        self.targetType = targetType;
+
+        typedesc<record {}>[] typeDescriptionsArray = [];
+        foreach any typeDescription in typeDescriptions {
+            typeDescriptionsArray.push(<typedesc<record {}>>typeDescription);
+        }
+        self.typeDescriptions = typeDescriptionsArray;
+
+        self.persistClient = persistClient;
+        self.err = err;
+    }
+
+    public isolated function next() returns record {|record {} value;|}|Error? {
+        if self.err is Error {
+            return <Error>self.err;
+        } else if self.anydataStream is stream<record {}, sql:Error?> {
+            var anydataStream = <stream<record {}, sql:Error?>>self.anydataStream;
+            var streamValue = anydataStream.next();
+            if streamValue is () {
+                return streamValue;
+            } else if (streamValue is sql:Error) {
+                return <Error>error(streamValue.message());
+            } else {
+                record {}|error value = streamValue.value;
+                if value is error {
+                    return <Error>error(value.message());
+                }
+                check (<GoogleSheetsClient>self.persistClient).getManyRelations(value, self.fields, self.include, self.typeDescriptions);
+
+                string[] keyFields = (<GoogleSheetsClient>self.persistClient).getKeyFields();
+                foreach string keyField in keyFields {
+                    if self.fields.indexOf(keyField) is () {
+                        _ = value.remove(keyField);
+                    }
+                }
+
+                record {|record {} value;|} nextRecord = {value: checkpanic value.cloneWithType(self.targetType)};
+                return nextRecord;
+            }
+        } else {
+            return ();
+        }
+    }
+
+    public isolated function close() returns Error? {
+        check closeEntityStream(self.anydataStream);
+    }
+}
+
 public class PersistInMemoryStream {
 
     private stream<record {}, error?>? anydataStream;
