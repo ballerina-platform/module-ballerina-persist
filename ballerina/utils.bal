@@ -108,3 +108,20 @@ public isolated function getSheetIds(sheets:Client googleSheetClient, record {|S
     }
     return sheetIds;
 }
+
+public isolated function getKey(anydata|record {} 'object, string[] keyFields) returns anydata|record {} {
+    record {} keyRecord = {};
+
+    if keyFields.length() == 1 && 'object is record {} {
+        return 'object[keyFields[0]];
+    }
+
+    if 'object is record {} {
+        foreach string key in keyFields {
+            keyRecord[key] = 'object[key];
+        }
+    } else {
+        keyRecord[keyFields[0]] = 'object;
+    }
+    return keyRecord;
+}
