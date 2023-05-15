@@ -73,13 +73,6 @@ jacocoTestReport {
     reports {
         xml.enabled true
     }
-    jacocoTestReport {
-    afterEvaluate {
-        classDirectories = files(classDirectories.files.collect {
-            fileTree(dir: "$it/../ballerina", exclude: '**/googlesheets_client.bal')
-        })
-    }
-}
 }
 
 spotbugsMain {

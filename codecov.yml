@@ -1,3 +1,6 @@
+ignore:
+  - "ballerina/googlesheets_client.bal"
+
 coverage:
   precision: 2
   round: down
