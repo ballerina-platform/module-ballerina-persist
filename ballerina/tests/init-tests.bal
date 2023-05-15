@@ -30,7 +30,6 @@ configurable string clientId = ?;
 configurable string clientSecret = ?;
 configurable string refreshToken = ?;
 configurable string spreadsheetId = ?;
-configurable string refreshUrl = ?;
 
 @test:BeforeSuite
 function truncate() returns error? {
