@@ -31,7 +31,6 @@ public type SQLMetadata record {|
     map<JoinMetadata> joinMetadata?;
 |};
 
-
 public type TableMetadata record {|
     string[] keyFields;
     function (string[]) returns stream<record {}, Error?> query;
@@ -70,7 +69,7 @@ public type EntityFieldMetadata record {|
 # Represents the metadata associated with a field of an entity.
 # Only used by the generated persist clients and `persist:SQLClient`.
 #
-public type SheetFieldMetadata SimpleSheetFieldMetadata;//|SheetEntityFieldMetadata;
+public type SheetFieldMetadata SimpleSheetFieldMetadata;
 
 # Represents the metadata associated with a simple field in the entity record.
 #

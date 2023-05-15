@@ -107,6 +107,4 @@ public isolated function getSheetIds(sheets:Client googleSheetClient, record {|S
         sheetIds[key] = sheet.properties.sheetId;
     }
     return sheetIds;
-    
-    
 }

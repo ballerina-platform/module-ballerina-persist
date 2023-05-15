@@ -126,7 +126,7 @@ public class GoogleSheetsProcessor {
 
         Future balFuture = env.markAsync();
         env.getRuntime().invokeMethodAsyncSequentially(
-                persistClient, Constants.RUN_READ_AS_TABLE_QUERY_METHOD,
+                persistClient, Constants.RUN_READ_TABLE_AS_STREAM_METHOD,
                 null, null, new Callback() {
                     @Override
                     public void notifySuccess(Object o) {
@@ -195,5 +195,3 @@ public class GoogleSheetsProcessor {
         return null;
     }
 }
-
-

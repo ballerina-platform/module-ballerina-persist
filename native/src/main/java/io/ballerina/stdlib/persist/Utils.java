@@ -124,8 +124,6 @@ public class Utils {
 
     public static BMap<BString, Object> getFieldTypes(RecordType recordType) {
         MapType stringMapType = TypeCreator.createMapType(PredefinedTypes.TYPE_STRING);
-        //TODO: use PredefinedTypes.TYPE_TYPEDESC once NPE issue is resolved
-
         BMap<BString, Object> typeMap = ValueCreator.createMapValue(stringMapType);
         Map<String, Field> fieldsMap = recordType.getFields();
         for (Field field : fieldsMap.values()) {
