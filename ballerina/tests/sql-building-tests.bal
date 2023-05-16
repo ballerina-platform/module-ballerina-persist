@@ -84,10 +84,10 @@ function sqlBuildingReadOneTestNegative() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     Building|error buildingRetrieved = rainierClient->/buildings/["invalid-building-code"].get();
-    if buildingRetrieved is InvalidKeyError {
+    if buildingRetrieved is NotFoundError {
         test:assertEquals(buildingRetrieved.message(), "A record does not exist for 'Building' for key \"invalid-building-code\".");
     } else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
     check rainierClient.close();
 }
@@ -160,10 +160,10 @@ function sqlBuildingUpdateTestNegative1() returns error? {
         postalCode: "10890"
     });
 
-    if building is InvalidKeyError {
+    if building is NotFoundError {
         test:assertEquals(building.message(), "A record does not exist for 'Building' for key \"invalid-building-code\".");
     } else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
     check rainierClient.close();
 }
@@ -184,7 +184,7 @@ function sqlBuildingUpdateTestNegative2() returns error? {
     if building is Error {
         test:assertTrue(building.message().includes("Data truncation: Data too long for column 'city' at row 1."));
     } else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
     check rainierClient.close();
 }
@@ -219,7 +219,7 @@ function sqlBuildingDeleteTestNegative() returns error? {
     if building is error {
         test:assertEquals(building.message(), string `A record does not exist for 'Building' for key "${building1.buildingCode}".`);
     } else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
     check rainierClient.close();
 }

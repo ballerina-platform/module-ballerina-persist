@@ -18,13 +18,10 @@
 public type Error distinct error;
 
 # Represents an error that occurs when an attempt is made to perform an operation, which violates a foreign key constraint.
-public type ForeignKeyConstraintViolationError distinct Error;
+public type ConstraintViolationError distinct Error;
 
 # Represents an error that occurs when an attempt is made to retrieve a record using a non-existing key.
-public type InvalidKeyError distinct Error;
+public type NotFoundError distinct Error;
 
 # Represents an error that occurs when the user attempts to create a record which already exists in the database.
-public type DuplicateKeyError distinct Error;
-
-# Represents an error that occurs when an attempt is made to manipulate a field, which does not exist in an entity.
-public type FieldDoesNotExistError distinct Error;
+public type AlreadyExistsError distinct Error;

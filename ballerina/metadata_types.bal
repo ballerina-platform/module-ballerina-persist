@@ -34,7 +34,7 @@ public type SQLMetadata record {|
 public type TableMetadata record {|
     string[] keyFields;
     function (string[]) returns stream<record {}, Error?> query;
-    function (anydata) returns record {}|InvalidKeyError queryOne;
+    function (anydata) returns record {}|NotFoundError queryOne;
     map<function (record {}, string[]) returns record {}[]> associationsMethods = {};
 |};
 
