@@ -18,7 +18,7 @@ import ballerina/sql;
 
 # The client used by the generated persist clients to abstract and 
 # execute SQL queries that are required to perform CRUD operations.
-public client class SQLClient {
+public isolated client class SQLClient {
 
     private final sql:Client dbClient;
 
@@ -33,9 +33,9 @@ public client class SQLClient {
     # + dbClient - The `sql:Client`, which is used to execute SQL queries
     # + metadata - Metadata of the entity
     # + return - A `persist:Error` if the client creation fails
-    public function init(sql:Client dbClient, SQLMetadata metadata) returns Error? {
+    public function init(sql:Client dbClient, SQLMetadata & readonly metadata) returns Error? {
         self.entityName = metadata.entityName;
-        self.tableName = metadata.tableName;
+        self.tableName = stringToParameterizedQuery(metadata.tableName);
         self.fieldMetadata = metadata.fieldMetadata;
         self.keyFields = metadata.keyFields;
         self.dbClient = dbClient;

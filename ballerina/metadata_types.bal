@@ -25,7 +25,7 @@ import ballerina/sql;
 # + joinMetadata - Metadata of the fields that are used for `JOIN` operations
 public type SQLMetadata record {|
     string entityName;
-    sql:ParameterizedQuery tableName;
+    string tableName;
     map<FieldMetadata> fieldMetadata;
     string[] keyFields;
     map<JoinMetadata> joinMetadata?;

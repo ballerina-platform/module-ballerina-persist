@@ -33,7 +33,7 @@ public isolated client class InMemoryRainierClient {
 
     private final map<InMemoryClient> persistClients = {};
 
-    public function init() returns Error? {
+    public isolated function init() returns Error? {
 
         final map<TableMetadata> metadata = {
             [BUILDING] : {
@@ -72,11 +72,11 @@ public isolated client class InMemoryRainierClient {
             }
         };
 
-        self.persistClients[BUILDING] = check new (metadata.get(BUILDING));
-        self.persistClients[DEPARTMENT] = check new (metadata.get(DEPARTMENT));
-        self.persistClients[WORKSPACE] = check new (metadata.get(WORKSPACE));
-        self.persistClients[EMPLOYEE] = check new (metadata.get(EMPLOYEE));
-        self.persistClients[ORDER_ITEM] = check new (metadata.get(ORDER_ITEM));
+        self.persistClients[BUILDING] = check new (metadata.get(BUILDING).cloneReadOnly());
+        self.persistClients[DEPARTMENT] = check new (metadata.get(DEPARTMENT).cloneReadOnly());
+        self.persistClients[WORKSPACE] = check new (metadata.get(WORKSPACE).cloneReadOnly());
+        self.persistClients[EMPLOYEE] = check new (metadata.get(EMPLOYEE).cloneReadOnly());
+        self.persistClients[ORDER_ITEM] = check new (metadata.get(ORDER_ITEM).cloneReadOnly());
     }
 
     isolated resource function get buildings(BuildingTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {

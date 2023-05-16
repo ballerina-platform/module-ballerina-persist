@@ -36,7 +36,7 @@ public isolated client class SQLTestEntitiesClient {
     private final record {|SQLMetadata...;|} metadata = {
         [ALL_TYPES] : {
             entityName: "AllTypes",
-            tableName: `AllTypes`,
+            tableName: "AllTypes",
             fieldMetadata: {
                 id: {columnName: "id"},
                 booleanType: {columnName: "booleanType"},
@@ -63,7 +63,7 @@ public isolated client class SQLTestEntitiesClient {
         },
         [STRING_ID_RECORD] : {
             entityName: "StringIdRecord",
-            tableName: `StringIdRecord`,
+            tableName: "StringIdRecord",
             fieldMetadata: {
                 id: {columnName: "id"},
                 randomField: {columnName: "randomField"}
@@ -72,7 +72,7 @@ public isolated client class SQLTestEntitiesClient {
         },
         [INT_ID_RECORD] : {
             entityName: "IntIdRecord",
-            tableName: `IntIdRecord`,
+            tableName: "IntIdRecord",
             fieldMetadata: {
                 id: {columnName: "id"},
                 randomField: {columnName: "randomField"}
@@ -81,7 +81,7 @@ public isolated client class SQLTestEntitiesClient {
         },
         [FLOAT_ID_RECORD] : {
             entityName: "FloatIdRecord",
-            tableName: `FloatIdRecord`,
+            tableName: "FloatIdRecord",
             fieldMetadata: {
                 id: {columnName: "id"},
                 randomField: {columnName: "randomField"}
@@ -90,7 +90,7 @@ public isolated client class SQLTestEntitiesClient {
         },
         [DECIMAL_ID_RECORD] : {
             entityName: "DecimalIdRecord",
-            tableName: `DecimalIdRecord`,
+            tableName: "DecimalIdRecord",
             fieldMetadata: {
                 id: {columnName: "id"},
                 randomField: {columnName: "randomField"}
@@ -99,7 +99,7 @@ public isolated client class SQLTestEntitiesClient {
         },
         [BOOLEAN_ID_RECORD] : {
             entityName: "BooleanIdRecord",
-            tableName: `BooleanIdRecord`,
+            tableName: "BooleanIdRecord",
             fieldMetadata: {
                 id: {columnName: "id"},
                 randomField: {columnName: "randomField"}
@@ -108,7 +108,7 @@ public isolated client class SQLTestEntitiesClient {
         },
         [COMPOSITE_ASSOCIATION_RECORD] : {
             entityName: "CompositeAssociationRecord",
-            tableName: `CompositeAssociationRecord`,
+            tableName: "CompositeAssociationRecord",
             fieldMetadata: {
                 id: {columnName: "id"},
                 randomField: {columnName: "randomField"},
@@ -129,7 +129,7 @@ public isolated client class SQLTestEntitiesClient {
         },
         [ALL_TYPES_ID_RECORD] : {
             entityName: "AllTypesIdRecord",
-            tableName: `AllTypesIdRecord`,
+            tableName: "AllTypesIdRecord",
             fieldMetadata: {
                 booleanType: {columnName: "booleanType"},
                 intType: {columnName: "intType"},
@@ -150,21 +150,21 @@ public isolated client class SQLTestEntitiesClient {
         }
     };
 
-    public function init() returns Error? {
+    public isolated function init() returns Error? {
         mysql:Client|error dbClient = new (host = host, user = user, password = password, database = database, port = port);
         if dbClient is error {
             return <Error>error(dbClient.message());
         }
         self.dbClient = dbClient;
         lock {
-            self.persistClients[ALL_TYPES] = check new (self.dbClient, self.metadata.get(ALL_TYPES));
-            self.persistClients[STRING_ID_RECORD] = check new (self.dbClient, self.metadata.get(STRING_ID_RECORD));
-            self.persistClients[INT_ID_RECORD] = check new (self.dbClient, self.metadata.get(INT_ID_RECORD));
-            self.persistClients[FLOAT_ID_RECORD] = check new (self.dbClient, self.metadata.get(FLOAT_ID_RECORD));
-            self.persistClients[DECIMAL_ID_RECORD] = check new (self.dbClient, self.metadata.get(DECIMAL_ID_RECORD));
-            self.persistClients[BOOLEAN_ID_RECORD] = check new (self.dbClient, self.metadata.get(BOOLEAN_ID_RECORD));
-            self.persistClients[COMPOSITE_ASSOCIATION_RECORD] = check new (self.dbClient, self.metadata.get(COMPOSITE_ASSOCIATION_RECORD));
-            self.persistClients[ALL_TYPES_ID_RECORD] = check new (self.dbClient, self.metadata.get(ALL_TYPES_ID_RECORD));
+            self.persistClients[ALL_TYPES] = check new (self.dbClient, self.metadata.get(ALL_TYPES).cloneReadOnly());
+            self.persistClients[STRING_ID_RECORD] = check new (self.dbClient, self.metadata.get(STRING_ID_RECORD).cloneReadOnly());
+            self.persistClients[INT_ID_RECORD] = check new (self.dbClient, self.metadata.get(INT_ID_RECORD).cloneReadOnly());
+            self.persistClients[FLOAT_ID_RECORD] = check new (self.dbClient, self.metadata.get(FLOAT_ID_RECORD).cloneReadOnly());
+            self.persistClients[DECIMAL_ID_RECORD] = check new (self.dbClient, self.metadata.get(DECIMAL_ID_RECORD).cloneReadOnly());
+            self.persistClients[BOOLEAN_ID_RECORD] = check new (self.dbClient, self.metadata.get(BOOLEAN_ID_RECORD).cloneReadOnly());
+            self.persistClients[COMPOSITE_ASSOCIATION_RECORD] = check new (self.dbClient, self.metadata.get(COMPOSITE_ASSOCIATION_RECORD).cloneReadOnly());
+            self.persistClients[ALL_TYPES_ID_RECORD] = check new (self.dbClient, self.metadata.get(ALL_TYPES_ID_RECORD).cloneReadOnly());
         }
     }
 

@@ -14,22 +14,21 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public client class InMemoryClient {
+public isolated client class InMemoryClient {
 
     private string[] keyFields;
     private isolated function (string[]) returns stream<record {}, Error?> query;
     private isolated function (anydata) returns record {}|InvalidKeyError queryOne;
     private map<isolated function (record {}, string[]) returns record {}[]> associationsMethods;
 
-    public function init(TableMetadata metadata) returns Error? {
+    public isolated function init(TableMetadata & readonly metadata) returns Error? {
         self.keyFields = metadata.keyFields;
         self.query = metadata.query;
         self.queryOne = metadata.queryOne;
         self.associationsMethods = metadata.associationsMethods;
     }
 
-    public isolated function runReadQuery(string[] fields = [])
-    returns stream<record {}, Error?> {
+    public isolated function runReadQuery(string[] fields = []) returns stream<record {}, Error?> {
         return self.query(self.addKeyFields(fields));
     }
 
@@ -58,7 +57,11 @@ public client class InMemoryClient {
                 continue;
             }
 
-            function (record {}, string[]) returns record {}[] associationsMethod = self.associationsMethods.get(entity);
+            function (record {}, string[]) returns record {}[] associationsMethod;
+            lock {
+                associationsMethod = self.associationsMethods.get(entity).clone();
+            }
+
             record {}[] relations = associationsMethod('object, relationFields);
             'object[entity] = relations;
         }
@@ -67,28 +70,39 @@ public client class InMemoryClient {
     public isolated function getKey(anydata|record {} 'object) returns anydata|record {} {
         record {} keyRecord = {};
 
-        if self.keyFields.length() == 1 && 'object is record {} {
-            return 'object[self.keyFields[0]];
+        string[] keyFields;
+        lock {
+            keyFields = self.keyFields.clone();
+        }
+
+        if keyFields.length() == 1 && 'object is record {} {
+            return 'object[keyFields[0]];
         }
 
         if 'object is record {} {
-            foreach string key in self.keyFields {
+            foreach string key in keyFields {
                 keyRecord[key] = 'object[key];
             }
         } else {
-            keyRecord[self.keyFields[0]] = 'object;
+            keyRecord[keyFields[0]] = 'object;
         }
         return keyRecord;
     }
 
     public isolated function getKeyFields() returns string[] {
-        return self.keyFields;
+        lock {
+            return self.keyFields.clone();
+        }
     }
 
     public isolated function addKeyFields(string[] fields) returns string[] {
         string[] updatedFields = fields.clone();
+        string[] keyFields;
+        lock {
+            keyFields = self.keyFields.clone();
+        }
 
-        foreach string key in self.keyFields {
+        foreach string key in keyFields {
             if updatedFields.indexOf(key) is () {
                 updatedFields.push(key);
             }
@@ -97,7 +111,12 @@ public client class InMemoryClient {
     }
 
     private isolated function removeUnwantedFields(record {} 'object, string[] fields) {
-        foreach string keyField in self.keyFields {
+        string[] keyFields;
+        lock {
+            keyFields = self.keyFields.clone();
+        }
+
+        foreach string keyField in keyFields {
             if fields.indexOf(keyField) is () {
                 _ = 'object.remove(keyField);
             }

@@ -33,7 +33,7 @@ public isolated client class SQLRainierClient {
     private final record {|SQLMetadata...;|} metadata = {
         [EMPLOYEE] : {
             entityName: "Employee",
-            tableName: `Employee`,
+            tableName: "Employee",
             fieldMetadata: {
                 empNo: {columnName: "empNo"},
                 firstName: {columnName: "firstName"},
@@ -57,7 +57,7 @@ public isolated client class SQLRainierClient {
         },
         [WORKSPACE] : {
             entityName: "Workspace",
-            tableName: `Workspace`,
+            tableName: "Workspace",
             fieldMetadata: {
                 workspaceId: {columnName: "workspaceId"},
                 workspaceType: {columnName: "workspaceType"},
@@ -85,7 +85,7 @@ public isolated client class SQLRainierClient {
         },
         [BUILDING] : {
             entityName: "Building",
-            tableName: `Building`,
+            tableName: "Building",
             fieldMetadata: {
                 buildingCode: {columnName: "buildingCode"},
                 city: {columnName: "city"},
@@ -102,7 +102,7 @@ public isolated client class SQLRainierClient {
         },
         [DEPARTMENT] : {
             entityName: "Department",
-            tableName: `Department`,
+            tableName: "Department",
             fieldMetadata: {
                 deptNo: {columnName: "deptNo"},
                 deptName: {columnName: "deptName"},
@@ -120,7 +120,7 @@ public isolated client class SQLRainierClient {
         },
         [ORDER_ITEM] : {
             entityName: "OrderItem",
-            tableName: `OrderItem`,
+            tableName: "OrderItem",
             fieldMetadata: {
                 orderId: {columnName: "orderId"},
                 itemId: {columnName: "itemId"},
@@ -131,19 +131,18 @@ public isolated client class SQLRainierClient {
         }
     };
 
-    public function init() returns Error? {
+    public isolated function init() returns Error? {
         mysql:Client|error dbClient = new (host = host, user = user, password = password, database = database, port = port);
         if dbClient is error {
             return <Error>error(dbClient.message());
         }
         self.dbClient = dbClient;
-        lock {
-            self.persistClients[EMPLOYEE] = check new (self.dbClient, self.metadata.get(EMPLOYEE));
-            self.persistClients[WORKSPACE] = check new (self.dbClient, self.metadata.get(WORKSPACE));
-            self.persistClients[BUILDING] = check new (self.dbClient, self.metadata.get(BUILDING));
-            self.persistClients[DEPARTMENT] = check new (self.dbClient, self.metadata.get(DEPARTMENT));
-            self.persistClients[ORDER_ITEM] = check new (self.dbClient, self.metadata.get(ORDER_ITEM));
-        }
+        
+        self.persistClients[EMPLOYEE] = check new (dbClient, self.metadata.get(EMPLOYEE).cloneReadOnly());
+        self.persistClients[WORKSPACE] = check new (self.dbClient, self.metadata.get(WORKSPACE).cloneReadOnly());
+        self.persistClients[BUILDING] = check new (self.dbClient, self.metadata.get(BUILDING).cloneReadOnly());
+        self.persistClients[DEPARTMENT] = check new (self.dbClient, self.metadata.get(DEPARTMENT).cloneReadOnly());
+        self.persistClients[ORDER_ITEM] = check new (self.dbClient, self.metadata.get(ORDER_ITEM).cloneReadOnly());
     }
 
     isolated resource function get employees(EmployeeTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
