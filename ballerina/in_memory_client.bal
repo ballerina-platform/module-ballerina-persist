@@ -58,7 +58,7 @@ public client class InMemoryClient {
                 continue;
             }
 
-            function (record {}, string[]) returns record {}[] associationsMethod = self.associationsMethods.get(entity);
+            isolated function (record {}, string[]) returns record {}[] associationsMethod = self.associationsMethods.get(entity);
             record {}[] relations = associationsMethod('object, relationFields);
             'object[entity] = relations;
         }
