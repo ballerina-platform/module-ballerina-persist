@@ -345,7 +345,7 @@ public client class GoogleSheetsRainierClient {
         return outputArray.toStream();
     }
 
-    private isolated function queryOneEmployees(anydata key) returns record {}|InvalidKeyError {
+    private isolated function queryOneEmployees(anydata key) returns record {}|NotFoundError {
         stream<Employee, Error?> employeesStream = self.queryEmployeesStream();
         stream<Department, Error?> departmenttStream = self.queryDepartmentsStream();
         stream<Workspace, Error?> workspacesStream = self.queryWorkspacesStream();
@@ -363,9 +363,9 @@ public client class GoogleSheetsRainierClient {
                 };
             };
         if unionResult is error {
-            return <InvalidKeyError>error(unionResult.message());
+            return <NotFoundError>error(unionResult.message());
         }
-        return <InvalidKeyError>error("Invalid key: " + key.toString());
+        return <NotFoundError>error("Invalid key: " + key.toString());
     }
     private isolated function queryBuildings(string[] fields) returns stream<record {}, Error?>|Error {
         stream<Building, Error?> buildingsStream = self.queryBuildingsStream();
@@ -376,7 +376,7 @@ public client class GoogleSheetsRainierClient {
         return outputArray.toStream();
     }
 
-    private isolated function queryOneBuildings(anydata key) returns record {}|InvalidKeyError {
+    private isolated function queryOneBuildings(anydata key) returns record {}|NotFoundError {
         stream<Building, Error?> buildingsStream = self.queryBuildingsStream();
         error? unionResult = from record {} 'object in buildingsStream
             where self.persistClients.get(BUILDING).getKey('object) == key
@@ -386,9 +386,9 @@ public client class GoogleSheetsRainierClient {
                 };
             };
         if unionResult is error {
-            return <InvalidKeyError>error(unionResult.message());
+            return <NotFoundError>error(unionResult.message());
         }
-        return <InvalidKeyError>error("Invalid key: " + key.toString());
+        return <NotFoundError>error("Invalid key: " + key.toString());
     }
 
     private isolated function queryBuildingsWorkspaces(record {} value, string[] fields) returns record {}[]|Error {
@@ -409,7 +409,7 @@ public client class GoogleSheetsRainierClient {
         return outputArray.toStream();
     }
 
-    private isolated function queryOneDepartments(anydata key) returns record {}|InvalidKeyError {
+    private isolated function queryOneDepartments(anydata key) returns record {}|NotFoundError {
         stream<Department, Error?> departmenttStream = self.queryDepartmentsStream();
         error? unionResult = from record {} 'object in departmenttStream
             where self.persistClients.get(DEPARTMENT).getKey('object) == key
@@ -419,9 +419,9 @@ public client class GoogleSheetsRainierClient {
                 };
             };
         if unionResult is error {
-            return <InvalidKeyError>error(unionResult.message());
+            return <NotFoundError>error(unionResult.message());
         }
-        return <InvalidKeyError>error("Invalid key: " + key.toString());
+        return <NotFoundError>error("Invalid key: " + key.toString());
     }
 
     private isolated function queryDepartmentsEmployees(record {} value, string[] fields) returns record {}[]|Error {
@@ -446,7 +446,7 @@ public client class GoogleSheetsRainierClient {
         return outputArray.toStream();
     }
 
-    private isolated function queryOneWorkspaces(anydata key) returns record {}|InvalidKeyError {
+    private isolated function queryOneWorkspaces(anydata key) returns record {}|NotFoundError {
         stream<Workspace, Error?> workspacesStream = self.queryWorkspacesStream();
         stream<Building, Error?> buildingsStream = self.queryBuildingsStream();
         error? unionResult = from record {} 'object in workspacesStream
@@ -460,9 +460,9 @@ public client class GoogleSheetsRainierClient {
                 };
             };
         if unionResult is error {
-            return <InvalidKeyError>error(unionResult.message());
+            return <NotFoundError>error(unionResult.message());
         }
-        return <InvalidKeyError>error("Invalid key: " + key.toString());
+        return <NotFoundError>error("Invalid key: " + key.toString());
     }
 
     private isolated function queryWorkspacesEmployees(record {} value, string[] fields) returns record {}[]|Error {
@@ -483,7 +483,7 @@ public client class GoogleSheetsRainierClient {
         return outputArray.toStream();
     }
 
-    private isolated function queryOneOrderItems(anydata key) returns record {}|InvalidKeyError {
+    private isolated function queryOneOrderItems(anydata key) returns record {}|NotFoundError {
         stream<OrderItem, Error?> orderItemsStream = self.queryOrderItemsStream();
         error? unionResult = from record {} 'object in orderItemsStream
             where self.persistClients.get(ORDER_ITEM).getKey('object) == key
@@ -493,9 +493,9 @@ public client class GoogleSheetsRainierClient {
                 };
             };
         if unionResult is error {
-            return <InvalidKeyError>error(unionResult.message());
+            return <NotFoundError>error(unionResult.message());
         }
-        return <InvalidKeyError>error("Invalid key: " + key.toString());
+        return <NotFoundError>error("Invalid key: " + key.toString());
     }
 
 }
