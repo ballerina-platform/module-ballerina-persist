@@ -85,10 +85,10 @@ function sqlEmployeeReadOneTestNegative() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     Employee|error employeeRetrieved = rainierClient->/employees/["invalid-employee-id"].get();
-    if employeeRetrieved is InvalidKeyError {
+    if employeeRetrieved is NotFoundError {
         test:assertEquals(employeeRetrieved.message(), "A record does not exist for 'Employee' for key \"invalid-employee-id\".");
     } else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
     check rainierClient.close();
 }
@@ -177,10 +177,10 @@ function sqlEmployeeUpdateTestNegative1() returns error? {
         lastName: "Jones"
     });
 
-    if employee is InvalidKeyError {
+    if employee is NotFoundError {
         test:assertEquals(employee.message(), "A record does not exist for 'Employee' for key \"invalid-employee-id\".");
     } else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
     check rainierClient.close();
 }
@@ -199,7 +199,7 @@ function sqlEmployeeUpdateTestNegative2() returns error? {
     if employee is Error {
         test:assertTrue(employee.message().includes("Data truncation: Data too long for column 'firstName' at row 1."));
     } else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
     check rainierClient.close();
 }
@@ -215,11 +215,11 @@ function sqlEmployeeUpdateTestNegative3() returns error? {
         workspaceWorkspaceId: "invalid-workspaceWorkspaceId"
     });
 
-    if employee is ForeignKeyConstraintViolationError {
+    if employee is ConstraintViolationError {
         test:assertTrue(employee.message().includes("Cannot add or update a child row: a foreign key constraint fails (`test`.`Employee`, " +
             "CONSTRAINT `Employee_ibfk_2` FOREIGN KEY (`workspaceWorkspaceId`) REFERENCES `Workspace` (`workspaceId`))."));
     } else {
-        test:assertFail("ForeignKeyConstraintViolationError expected.");
+        test:assertFail("ConstraintViolationError expected.");
     }
     check rainierClient.close();
 }
@@ -251,10 +251,10 @@ function sqlEmployeeDeleteTestNegative() returns error? {
 
     Employee|error employee = rainierClient->/employees/[employee1.empNo].delete();
 
-    if employee is InvalidKeyError {
+    if employee is NotFoundError {
         test:assertEquals(employee.message(), string `A record does not exist for 'Employee' for key "${employee1.empNo}".`);
     } else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
     check rainierClient.close();
 }

@@ -85,10 +85,10 @@ function inMemoryWorkspaceReadOneTestNegative() returns error? {
     InMemoryRainierClient rainierClient = check new ();
 
     Workspace|error workspaceRetrieved = rainierClient->/workspaces/["invalid-workspace-id"].get();
-    if workspaceRetrieved is InvalidKeyError {
+    if workspaceRetrieved is NotFoundError {
         test:assertEquals(workspaceRetrieved.message(), "Invalid key: invalid-workspace-id");
     } else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
     check rainierClient.close();
 }
@@ -156,10 +156,10 @@ function inMemoryWorkspaceUpdateTestNegative1() returns error? {
         workspaceType: "large"
     });
 
-    if workspace is InvalidKeyError {
+    if workspace is NotFoundError {
         test:assertEquals(workspace.message(), "Not found: invalid-workspace-id");
     } else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
     check rainierClient.close();
 }
@@ -191,10 +191,10 @@ function inMemoryWorkspaceDeleteTestNegative() returns error? {
 
     Workspace|error workspace = rainierClient->/workspaces/[workspace1.workspaceId].delete();
 
-    if workspace is InvalidKeyError {
+    if workspace is NotFoundError {
         test:assertEquals(workspace.message(), string `Not found: workspace-1`);
     } else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
     check rainierClient.close();
 }

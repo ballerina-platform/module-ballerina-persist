@@ -42,10 +42,10 @@ function inMemoryCmpositeKeyCreateTestNegative() returns error? {
     InMemoryRainierClient rainierClient = check new ();
 
     [string, string][]|error ids = rainierClient->/orderitems.post([orderItem1]);
-    if ids is DuplicateKeyError {
+    if ids is AlreadyExistsError {
         test:assertEquals(ids.message(), "Duplicate key: [\"order-1\",\"item-1\"]");
     } else {
-        test:assertFail("DuplicateKeyError expected");
+        test:assertFail("AlreadyExistsError expected");
     }
 
     check rainierClient.close();
@@ -96,7 +96,7 @@ function inMemoryCompositeKeyReadOneTestNegative1() returns error? {
     InMemoryRainierClient rainierClient = check new ();
     OrderItem|error orderItem = rainierClient->/orderitems/["invalid-order-id"]/[orderItem1.itemId].get();
 
-    if orderItem is InvalidKeyError {
+    if orderItem is NotFoundError {
         test:assertEquals(orderItem.message(), "Invalid key: {\"orderId\":\"invalid-order-id\",\"itemId\":\"item-1\"}");
     } else {
         test:assertFail("Error expected.");
@@ -113,7 +113,7 @@ function inMemoryCompositeKeyReadOneTestNegative2() returns error? {
     InMemoryRainierClient rainierClient = check new ();
     OrderItem|error orderItem = rainierClient->/orderitems/[orderItem1.orderId]/["invalid-item-id"].get();
 
-    if orderItem is InvalidKeyError {
+    if orderItem is NotFoundError {
         test:assertEquals(orderItem.message(), "Invalid key: {\"orderId\":\"order-1\",\"itemId\":\"invalid-item-id\"}");
     } else {
         test:assertFail("Error expected.");
@@ -152,7 +152,7 @@ function inMemoryCompositeKeyUpdateTestNegative() returns error? {
         quantity: 239,
         notes: "updated notes"
     });
-    if orderItem is InvalidKeyError {
+    if orderItem is NotFoundError {
         test:assertEquals(orderItem.message(), "Not found: [\"order-1\",\"item-2\"]");
     } else {
         test:assertFail("Error expected.");
@@ -172,7 +172,7 @@ function inMemoryCompositeKeyDeleteTest() returns error? {
     test:assertEquals(orderItem, orderItem2Updated);
 
     OrderItem|error orderItemRetrieved = rainierClient->/orderitems/[orderItem2.orderId]/[orderItem2.itemId].get();
-    test:assertTrue(orderItemRetrieved is InvalidKeyError);
+    test:assertTrue(orderItemRetrieved is NotFoundError);
 
     check rainierClient.close();
 }
@@ -185,7 +185,7 @@ function inMemoryCompositeKeyDeleteTestNegative() returns error? {
     InMemoryRainierClient rainierClient = check new ();
 
     OrderItem|error orderItem = rainierClient->/orderitems/["invalid-order-id"]/[orderItem2.itemId].delete();
-    if orderItem is InvalidKeyError {
+    if orderItem is NotFoundError {
         test:assertEquals(orderItem.message(), "Not found: [\"invalid-order-id\",\"item-2\"]");
     } else {
         test:assertFail("Error expected.");

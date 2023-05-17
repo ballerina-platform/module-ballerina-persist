@@ -55,8 +55,8 @@ public client class SQLClient {
 
         if result is sql:Error {
             if result.message().indexOf("Duplicate entry ") != () {
-                string duplicateKey = check getKeyFromDuplicateKeyErrorMessage(result.message());
-                return <DuplicateKeyError>error(string `A ${self.entityName} entity with the key '${duplicateKey}' already exists.`);
+                string duplicateKey = check getKeyFromAlreadyExistsErrorMessage(result.message());
+                return <AlreadyExistsError>error(string `A ${self.entityName} entity with the key '${duplicateKey}' already exists.`);
             }
 
             return <Error>error(result.message());
@@ -86,7 +86,7 @@ public client class SQLClient {
         record {}|error result = self.dbClient->queryRow(query, rowTypeWithIdFields);
 
         if result is sql:NoRowsError {
-            return <InvalidKeyError>error(string `A record does not exist for '${self.entityName}' for key ${key.toBalString()}.`);
+            return <NotFoundError>error(string `A record does not exist for '${self.entityName}' for key ${key.toBalString()}.`);
         }
 
         if result is record {} {
@@ -125,16 +125,16 @@ public client class SQLClient {
     # + key - the key of the entity
     # + updateRecord - the record to be updated
     # + return - `()` if the operation is performed successfully.
-    # A `ForeignKeyConstraintViolationError` if the operation violates a foreign key constraint.
+    # A `ConstraintViolationError` if the operation violates a foreign key constraint.
     # A `persist:Error` if the operation fails due to another reason.
-    public isolated function runUpdateQuery(anydata key, record {} updateRecord) returns ForeignKeyConstraintViolationError|Error? {
+    public isolated function runUpdateQuery(anydata key, record {} updateRecord) returns ConstraintViolationError|Error? {
         sql:ParameterizedQuery query = check self.getUpdateQuery(updateRecord);
         query = sql:queryConcat(query, check self.getWhereQuery(self.getKey(key)));
 
         sql:ExecutionResult|sql:Error? e = self.dbClient->execute(query);
         if e is sql:Error {
             if e.message().indexOf("a foreign key constraint fails ") is int {
-                return <ForeignKeyConstraintViolationError>error(e.message());
+                return <ConstraintViolationError>error(e.message());
             }
             else {
                 return <Error>error(e.message());
@@ -340,7 +340,7 @@ public client class SQLClient {
         return fieldMetadata.columnName;
     }
 
-    private isolated function getFieldFromColumn(string columnName) returns string|FieldDoesNotExistError {
+    private isolated function getFieldFromColumn(string columnName) returns string|NotFoundError {
         foreach string key in self.fieldMetadata.keys() {
             FieldMetadata fieldMetadata = self.fieldMetadata.get(key);
             if fieldMetadata is EntityFieldMetadata {
@@ -352,7 +352,7 @@ public client class SQLClient {
             }
         }
 
-        return <FieldDoesNotExistError>error(string `A field corresponding to column '${columnName}' does not exist in entity '${self.entityName}'.`);
+        return <NotFoundError>error(string `A field corresponding to column '${columnName}' does not exist in entity '${self.entityName}'.`);
     }
 
     private isolated function getFieldFromKey(string key) returns string {

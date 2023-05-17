@@ -24,7 +24,7 @@ isolated function stringToParameterizedQuery(string queryStr) returns sql:Parame
     return query;
 }
 
-isolated function getKeyFromDuplicateKeyErrorMessage(string errorMessage) returns string|Error {
+isolated function getKeyFromAlreadyExistsErrorMessage(string errorMessage) returns string|Error {
     int? startIndex = errorMessage.indexOf(".Duplicate entry '");
     int? endIndex = errorMessage.indexOf("' for key");
 

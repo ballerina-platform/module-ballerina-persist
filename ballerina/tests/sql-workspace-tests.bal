@@ -100,10 +100,10 @@ function sqlWorkspaceReadOneTestNegative() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     Workspace|error workspaceRetrieved = rainierClient->/workspaces/["invalid-workspace-id"].get();
-    if workspaceRetrieved is InvalidKeyError {
+    if workspaceRetrieved is NotFoundError {
         test:assertEquals(workspaceRetrieved.message(), "A record does not exist for 'Workspace' for key \"invalid-workspace-id\".");
     } else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
     check rainierClient.close();
 }
@@ -171,10 +171,10 @@ function sqlWorkspaceUpdateTestNegative1() returns error? {
         workspaceType: "large"
     });
 
-    if workspace is InvalidKeyError {
+    if workspace is NotFoundError {
         test:assertEquals(workspace.message(), "A record does not exist for 'Workspace' for key \"invalid-workspace-id\".");
     } else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
     check rainierClient.close();
 }
@@ -193,7 +193,7 @@ function sqlWorkspaceUpdateTestNegative2() returns error? {
     if workspace is Error {
         test:assertTrue(workspace.message().includes("Data truncation: Data too long for column 'workspaceType' at row 1."));
     } else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
     check rainierClient.close();
 }
@@ -225,10 +225,10 @@ function sqlWorkspaceDeleteTestNegative() returns error? {
 
     Workspace|error workspace = rainierClient->/workspaces/[workspace1.workspaceId].delete();
 
-    if workspace is InvalidKeyError {
+    if workspace is NotFoundError {
         test:assertEquals(workspace.message(), string `A record does not exist for 'Workspace' for key "${workspace1.workspaceId}".`);
     } else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
     check rainierClient.close();
 }
