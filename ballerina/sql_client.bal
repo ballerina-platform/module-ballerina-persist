@@ -15,32 +15,35 @@
 // under the License.
 
 import ballerina/sql;
+import ballerinax/mysql;
 
 # The client used by the generated persist clients to abstract and 
 # execute SQL queries that are required to perform CRUD operations.
 public isolated client class SQLClient {
 
-    private final sql:Client dbClient;
+    private final mysql:Client dbClient;
 
-    private string entityName;
-    private sql:ParameterizedQuery tableName;
-    private map<FieldMetadata> fieldMetadata;
-    private string[] keyFields;
-    private map<JoinMetadata> joinMetadata = {};
+    private final string & readonly entityName;
+    private final string & readonly tableName;
+    private final map<FieldMetadata> & readonly fieldMetadata;
+    private final string[] & readonly keyFields;
+    private final map<JoinMetadata> & readonly joinMetadata;
 
     # Initializes the `SQLClient`.
     #
     # + dbClient - The `sql:Client`, which is used to execute SQL queries
     # + metadata - Metadata of the entity
     # + return - A `persist:Error` if the client creation fails
-    public function init(sql:Client dbClient, SQLMetadata & readonly metadata) returns Error? {
+    public isolated function init(mysql:Client dbClient, SQLMetadata & readonly metadata) returns Error? {
         self.entityName = metadata.entityName;
-        self.tableName = stringToParameterizedQuery(metadata.tableName);
+        self.tableName = metadata.tableName;
         self.fieldMetadata = metadata.fieldMetadata;
         self.keyFields = metadata.keyFields;
         self.dbClient = dbClient;
         if metadata.joinMetadata is map<JoinMetadata> {
-            self.joinMetadata = <map<JoinMetadata>>metadata.joinMetadata;
+            self.joinMetadata = <map<JoinMetadata> & readonly>metadata.joinMetadata;
+        } else {
+            self.joinMetadata = {};
         }
     }
 
@@ -365,12 +368,12 @@ public isolated client class SQLClient {
 
     private isolated function getInsertQueries(record {}[] insertRecords) returns sql:ParameterizedQuery[] {
         return from record {} insertRecord in insertRecords
-            select sql:queryConcat(`INSERT INTO `, self.tableName, ` (`, self.getInsertColumnNames(), ` ) `, `VALUES `, self.getInsertQueryParams(insertRecord));
+            select sql:queryConcat(`INSERT INTO `, stringToParameterizedQuery(self.tableName), ` (`, self.getInsertColumnNames(), ` ) `, `VALUES `, self.getInsertQueryParams(insertRecord));
     }
 
     private isolated function getSelectQuery(string[] fields) returns sql:ParameterizedQuery {
         return sql:queryConcat(
-            `SELECT `, self.getSelectColumnNames(fields), ` FROM `, self.tableName, ` AS `, stringToParameterizedQuery(self.entityName)
+            `SELECT `, self.getSelectColumnNames(fields), ` FROM `, stringToParameterizedQuery(self.tableName), ` AS `, stringToParameterizedQuery(self.entityName)
         );
     }
 
@@ -379,11 +382,11 @@ public isolated client class SQLClient {
     }
 
     private isolated function getUpdateQuery(record {} updateRecord) returns sql:ParameterizedQuery|Error {
-        return sql:queryConcat(`UPDATE `, self.tableName, stringToParameterizedQuery(" " + self.entityName), ` SET `, check self.getSetClauses(updateRecord));
+        return sql:queryConcat(`UPDATE `, stringToParameterizedQuery(self.tableName), stringToParameterizedQuery(" " + self.entityName), ` SET `, check self.getSetClauses(updateRecord));
     }
 
     private isolated function getDeleteQuery() returns sql:ParameterizedQuery {
-        return sql:queryConcat(`DELETE FROM `, self.tableName, stringToParameterizedQuery(" " + self.entityName));
+        return sql:queryConcat(`DELETE FROM `, stringToParameterizedQuery(self.tableName), stringToParameterizedQuery(" " + self.entityName));
     }
 
     private isolated function getJoinFields(string[] include) returns string[] {

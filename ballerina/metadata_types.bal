@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/sql;
-
 # Represents the metadata of an entity.
 #
 # + entityName - Name of the entity

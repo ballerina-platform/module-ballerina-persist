@@ -28,9 +28,9 @@ public isolated client class SQLRainierClient {
 
     private final mysql:Client dbClient;
 
-    private final map<SQLClient> persistClients = {};
+    private final map<SQLClient> persistClients;
 
-    private final record {|SQLMetadata...;|} metadata = {
+    private final record {|SQLMetadata...;|} & readonly metadata = {
         [EMPLOYEE] : {
             entityName: "Employee",
             tableName: "Employee",
@@ -137,12 +137,14 @@ public isolated client class SQLRainierClient {
             return <Error>error(dbClient.message());
         }
         self.dbClient = dbClient;
-        
-        self.persistClients[EMPLOYEE] = check new (dbClient, self.metadata.get(EMPLOYEE).cloneReadOnly());
-        self.persistClients[WORKSPACE] = check new (self.dbClient, self.metadata.get(WORKSPACE).cloneReadOnly());
-        self.persistClients[BUILDING] = check new (self.dbClient, self.metadata.get(BUILDING).cloneReadOnly());
-        self.persistClients[DEPARTMENT] = check new (self.dbClient, self.metadata.get(DEPARTMENT).cloneReadOnly());
-        self.persistClients[ORDER_ITEM] = check new (self.dbClient, self.metadata.get(ORDER_ITEM).cloneReadOnly());
+
+        self.persistClients = {
+            [EMPLOYEE] : check new (dbClient, self.metadata.get(EMPLOYEE)),
+            [WORKSPACE] : check new (dbClient, self.metadata.get(WORKSPACE)),
+            [BUILDING] : check new (dbClient, self.metadata.get(BUILDING)),
+            [DEPARTMENT] : check new (dbClient, self.metadata.get(DEPARTMENT)),
+            [ORDER_ITEM] : check new (dbClient, self.metadata.get(ORDER_ITEM))
+        };
     }
 
     isolated resource function get employees(EmployeeTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
@@ -156,25 +158,31 @@ public isolated client class SQLRainierClient {
     } external;
 
     isolated resource function post employees(EmployeeInsert[] data) returns string[]|Error {
+        SQLClient sqlClient;
         lock {
-            _ = check self.persistClients.get(EMPLOYEE).runBatchInsertQuery(data.clone());
+            sqlClient = self.persistClients.get(EMPLOYEE);
         }
+        _ = check sqlClient.runBatchInsertQuery(data);
         return from EmployeeInsert inserted in data
             select inserted.empNo;
     }
 
     isolated resource function put employees/[string empNo](EmployeeUpdate value) returns Employee|Error {
+        SQLClient sqlClient;
         lock {
-            _ = check self.persistClients.get(EMPLOYEE).runUpdateQuery(empNo, value.clone());
+            sqlClient = self.persistClients.get(EMPLOYEE);
         }
+        _ = check sqlClient.runUpdateQuery(empNo, value);
         return self->/employees/[empNo].get();
     }
 
     isolated resource function delete employees/[string empNo]() returns Employee|Error {
         Employee result = check self->/employees/[empNo].get();
+        SQLClient sqlClient;
         lock {
-            _ = check self.persistClients.get(EMPLOYEE).runDeleteQuery(empNo);
+            sqlClient = self.persistClients.get(EMPLOYEE);
         }
+        _ = check sqlClient.runDeleteQuery(empNo);
         return result;
     }
 
@@ -189,25 +197,31 @@ public isolated client class SQLRainierClient {
     } external;
 
     isolated resource function post workspaces(WorkspaceInsert[] data) returns string[]|Error {
+        SQLClient sqlClient;
         lock {
-            _ = check self.persistClients.get(WORKSPACE).runBatchInsertQuery(data.clone());
+            sqlClient = self.persistClients.get(WORKSPACE);
         }
+        _ = check sqlClient.runBatchInsertQuery(data);
         return from WorkspaceInsert inserted in data
             select inserted.workspaceId;
     }
 
     isolated resource function put workspaces/[string workspaceId](WorkspaceUpdate value) returns Workspace|Error {
+        SQLClient sqlClient;
         lock {
-            _ = check self.persistClients.get(WORKSPACE).runUpdateQuery(workspaceId, value.clone());
+            sqlClient = self.persistClients.get(WORKSPACE);
         }
+        _ = check sqlClient.runUpdateQuery(workspaceId, value);
         return self->/workspaces/[workspaceId].get();
     }
 
     isolated resource function delete workspaces/[string workspaceId]() returns Workspace|Error {
         Workspace result = check self->/workspaces/[workspaceId].get();
+        SQLClient sqlClient;
         lock {
-            _ = check self.persistClients.get(WORKSPACE).runDeleteQuery(workspaceId);
+            sqlClient = self.persistClients.get(WORKSPACE);
         }
+        _ = check sqlClient.runDeleteQuery(workspaceId);
         return result;
     }
 
@@ -222,25 +236,31 @@ public isolated client class SQLRainierClient {
     } external;
 
     isolated resource function post buildings(BuildingInsert[] data) returns string[]|Error {
+        SQLClient sqlClient;
         lock {
-            _ = check self.persistClients.get(BUILDING).runBatchInsertQuery(data.clone());
+            sqlClient = self.persistClients.get(BUILDING);
         }
+        _ = check sqlClient.runBatchInsertQuery(data);
         return from BuildingInsert inserted in data
             select inserted.buildingCode;
     }
 
     isolated resource function put buildings/[string buildingCode](BuildingUpdate value) returns Building|Error {
+        SQLClient sqlClient;
         lock {
-            _ = check self.persistClients.get(BUILDING).runUpdateQuery(buildingCode, value.clone());
+            sqlClient = self.persistClients.get(BUILDING);
         }
+        _ = check sqlClient.runUpdateQuery(buildingCode, value);
         return self->/buildings/[buildingCode].get();
     }
 
     isolated resource function delete buildings/[string buildingCode]() returns Building|Error {
         Building result = check self->/buildings/[buildingCode].get();
+        SQLClient sqlClient;
         lock {
-            _ = check self.persistClients.get(BUILDING).runDeleteQuery(buildingCode);
+            sqlClient = self.persistClients.get(BUILDING);
         }
+        _ = check sqlClient.runDeleteQuery(buildingCode);
         return result;
     }
 
@@ -255,25 +275,31 @@ public isolated client class SQLRainierClient {
     } external;
 
     isolated resource function post departments(DepartmentInsert[] data) returns string[]|Error {
+        SQLClient sqlClient;
         lock {
-            _ = check self.persistClients.get(DEPARTMENT).runBatchInsertQuery(data.clone());
+            sqlClient = self.persistClients.get(DEPARTMENT);
         }
+        _ = check sqlClient.runBatchInsertQuery(data);
         return from DepartmentInsert inserted in data
             select inserted.deptNo;
     }
 
     isolated resource function put departments/[string deptNo](DepartmentUpdate value) returns Department|Error {
+        SQLClient sqlClient;
         lock {
-            _ = check self.persistClients.get(DEPARTMENT).runUpdateQuery(deptNo, value.clone());
+            sqlClient = self.persistClients.get(DEPARTMENT);
         }
+        _ = check sqlClient.runUpdateQuery(deptNo, value);
         return self->/departments/[deptNo].get();
     }
 
     isolated resource function delete departments/[string deptNo]() returns Department|Error {
         Department result = check self->/departments/[deptNo].get();
+        SQLClient sqlClient;
         lock {
-            _ = check self.persistClients.get(DEPARTMENT).runDeleteQuery(deptNo);
+            sqlClient = self.persistClients.get(DEPARTMENT);
         }
+        _ = check sqlClient.runDeleteQuery(deptNo);
         return result;
     }
 
@@ -288,29 +314,35 @@ public isolated client class SQLRainierClient {
     } external;
 
     isolated resource function post orderitems(OrderItemInsert[] data) returns [string, string][]|Error {
+        SQLClient sqlClient;
         lock {
-            _ = check self.persistClients.get(ORDER_ITEM).runBatchInsertQuery(data.clone());
+            sqlClient = self.persistClients.get(ORDER_ITEM);
         }
+        _ = check sqlClient.runBatchInsertQuery(data);
         return from OrderItemInsert inserted in data
             select [inserted.orderId, inserted.itemId];
     }
 
     isolated resource function put orderitems/[string orderId]/[string itemId](OrderItemUpdate value) returns OrderItem|Error {
+        SQLClient sqlClient;
         lock {
-            _ = check self.persistClients.get(ORDER_ITEM).runUpdateQuery({"orderId": orderId, "itemId": itemId}, value.clone());
+            sqlClient = self.persistClients.get(ORDER_ITEM);
         }
+        _ = check sqlClient.runUpdateQuery({"orderId": orderId, "itemId": itemId}, value);
         return self->/orderitems/[orderId]/[itemId].get();
     }
 
     isolated resource function delete orderitems/[string orderId]/[string itemId]() returns OrderItem|Error {
         OrderItem result = check self->/orderitems/[orderId]/[itemId].get();
+        SQLClient sqlClient;
         lock {
-            _ = check self.persistClients.get(ORDER_ITEM).runDeleteQuery({"orderId": orderId, "itemId": itemId});
+            sqlClient = self.persistClients.get(ORDER_ITEM);
         }
+        _ = check sqlClient.runDeleteQuery({"orderId": orderId, "itemId": itemId});
         return result;
     }
 
-    public function close() returns Error? {
+    public isolated function close() returns Error? {
         error? result = self.dbClient.close();
         if result is error {
             return <Error>error(result.message());

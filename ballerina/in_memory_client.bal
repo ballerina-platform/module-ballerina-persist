@@ -16,10 +16,10 @@
 
 public isolated client class InMemoryClient {
 
-    private string[] keyFields;
-    private isolated function (string[]) returns stream<record {}, Error?> query;
-    private isolated function (anydata) returns record {}|InvalidKeyError queryOne;
-    private map<isolated function (record {}, string[]) returns record {}[]> associationsMethods;
+    private final string[] & readonly keyFields;
+    private final (isolated function (string[]) returns stream<record {}, Error?>) & readonly query;
+    private final (isolated function (anydata) returns record {}|InvalidKeyError) & readonly queryOne;
+    private final (map<(isolated function (record {}, string[]) returns record {}[]) & readonly> & readonly) associationsMethods;
 
     public isolated function init(TableMetadata & readonly metadata) returns Error? {
         self.keyFields = metadata.keyFields;
@@ -57,11 +57,7 @@ public isolated client class InMemoryClient {
                 continue;
             }
 
-            function (record {}, string[]) returns record {}[] associationsMethod;
-            lock {
-                associationsMethod = self.associationsMethods.get(entity).clone();
-            }
-
+            isolated function (record {}, string[]) returns record {}[] associationsMethod = self.associationsMethods.get(entity);
             record {}[] relations = associationsMethod('object, relationFields);
             'object[entity] = relations;
         }
@@ -70,10 +66,7 @@ public isolated client class InMemoryClient {
     public isolated function getKey(anydata|record {} 'object) returns anydata|record {} {
         record {} keyRecord = {};
 
-        string[] keyFields;
-        lock {
-            keyFields = self.keyFields.clone();
-        }
+        string[] keyFields = self.keyFields;
 
         if keyFields.length() == 1 && 'object is record {} {
             return 'object[keyFields[0]];
@@ -90,19 +83,13 @@ public isolated client class InMemoryClient {
     }
 
     public isolated function getKeyFields() returns string[] {
-        lock {
-            return self.keyFields.clone();
-        }
+        return self.keyFields;
     }
 
     public isolated function addKeyFields(string[] fields) returns string[] {
         string[] updatedFields = fields.clone();
-        string[] keyFields;
-        lock {
-            keyFields = self.keyFields.clone();
-        }
 
-        foreach string key in keyFields {
+        foreach string key in self.keyFields {
             if updatedFields.indexOf(key) is () {
                 updatedFields.push(key);
             }
@@ -111,10 +98,7 @@ public isolated client class InMemoryClient {
     }
 
     private isolated function removeUnwantedFields(record {} 'object, string[] fields) {
-        string[] keyFields;
-        lock {
-            keyFields = self.keyFields.clone();
-        }
+        string[] keyFields = self.keyFields;
 
         foreach string keyField in keyFields {
             if fields.indexOf(keyField) is () {

@@ -65,7 +65,7 @@ function inMemoryAllTypesReadTest() returns error? {
 }
 
 @test:Config {
-    groups: ["all-types", "dependent", "in-memory"],
+    groups: ["all-types", "dependent", "in-memory", "x"],
     dependsOn: [inMemoryAllTypesCreateTest, inMemoryAllTypesCreateOptionalTest]
 }
 function inMemoryAllTypesReadDependentTest() returns error? {
