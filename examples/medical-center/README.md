@@ -55,7 +55,7 @@ First, clone this repository, and then run the following commands to run this ex
    
    Created item id: 1
    Retrieved item: {"itemId":1,"name":"item name","type":"type1","unit":"ml"}
-   Retrieved non-existence item: error InvalidKeyError ("A record does not exist for 'MedicalItem' for key 5.")
+   Retrieved non-existence item: error NotFoundError ("A record does not exist for 'MedicalItem' for key 5.")
    
    ========== type1 ==========
    {"itemId":1,"name":"item name","type":"type1","unit":"ml"}

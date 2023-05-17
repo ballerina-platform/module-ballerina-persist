@@ -83,10 +83,10 @@ function sqlDepartmentReadOneTestNegative() returns error? {
     SQLRainierClient rainierClient = check new ();
 
     Department|error departmentRetrieved = rainierClient->/departments/["invalid-department-id"].get();
-    if departmentRetrieved is InvalidKeyError {
+    if departmentRetrieved is NotFoundError {
         test:assertEquals(departmentRetrieved.message(), "A record does not exist for 'Department' for key \"invalid-department-id\".");
     } else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
     check rainierClient.close();
 }
@@ -153,10 +153,10 @@ function sqlDepartmentUpdateTestNegative1() returns error? {
         deptName: "Human Resources"
     });
 
-    if department is InvalidKeyError {
+    if department is NotFoundError {
         test:assertEquals(department.message(), "A record does not exist for 'Department' for key \"invalid-department-id\".");
     } else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
     check rainierClient.close();
 }
@@ -175,7 +175,7 @@ function sqlDepartmentUpdateTestNegative2() returns error? {
     if department is Error {
         test:assertTrue(department.message().includes("Data truncation: Data too long for column 'deptName' at row 1."));
     } else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
     check rainierClient.close();
 }
@@ -207,10 +207,10 @@ function sqlDepartmentDeleteTestNegative() returns error? {
 
     Department|error department = rainierClient->/departments/[department1.deptNo].delete();
 
-    if department is InvalidKeyError {
+    if department is NotFoundError {
         test:assertEquals(department.message(), string `A record does not exist for 'Department' for key "${department1.deptNo}".`);
     } else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
     check rainierClient.close();
 }
