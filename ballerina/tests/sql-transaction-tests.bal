@@ -66,14 +66,14 @@ function sqlTransactionTest() returns error? {
         buildingCodes = check rainierClient->/buildings.post([building31]);
         check commit;
     } on fail error e {
-        test:assertTrue(e is DuplicateKeyError, "DuplicateKeyError expected");
+        test:assertTrue(e is AlreadyExistsError, "AlreadyExistsError expected");
     }
 
     Building|Error buildingRetrieved = rainierClient->/buildings/[building31.buildingCode].get();
-    test:assertTrue(buildingRetrieved is InvalidKeyError, "InvalidKeyError expected");
+    test:assertTrue(buildingRetrieved is NotFoundError, "NotFoundError expected");
 
     buildingRetrieved = rainierClient->/buildings/[building32.buildingCode].get();
-    test:assertTrue(buildingRetrieved is InvalidKeyError, "InvalidKeyError expected");
+    test:assertTrue(buildingRetrieved is NotFoundError, "NotFoundError expected");
 
     check rainierClient.close();
 }

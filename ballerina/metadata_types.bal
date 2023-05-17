@@ -32,7 +32,7 @@ public type SQLMetadata record {|
 public type TableMetadata record {|
     string[] keyFields;
     isolated function (string[]) returns stream<record {}, Error?> query;
-    isolated function (anydata) returns record {}|InvalidKeyError queryOne;
+    isolated function (anydata) returns record {}|NotFoundError queryOne;
     map<isolated function (record {}, string[]) returns record {}[]> associationsMethods = {};
 |};
 
