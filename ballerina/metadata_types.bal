@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/sql;
-
 # Represents the metadata of an entity.
 #
 # + entityName - Name of the entity
@@ -25,7 +23,7 @@ import ballerina/sql;
 # + joinMetadata - Metadata of the fields that are used for `JOIN` operations
 public type SQLMetadata record {|
     string entityName;
-    sql:ParameterizedQuery tableName;
+    string tableName;
     map<FieldMetadata> fieldMetadata;
     string[] keyFields;
     map<JoinMetadata> joinMetadata?;
