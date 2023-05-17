@@ -37,9 +37,9 @@ final isolated table<AllTypesIdRecord> key(booleanType, intType, floatType, deci
 public isolated client class InMemoryTestEntitiesClient {
     *AbstractPersistClient;
 
-    private final map<InMemoryClient> persistClients = {};
+    private final map<InMemoryClient> persistClients;
 
-    public function init() returns Error? {
+    public isolated function init() returns Error? {
 
         final map<TableMetadata> metadata = {
             [ALL_TYPES] : {
@@ -84,14 +84,16 @@ public isolated client class InMemoryTestEntitiesClient {
             }
         };
 
-        self.persistClients[ALL_TYPES] = check new (metadata.get(ALL_TYPES));
-        self.persistClients[STRING_ID_RECORD] = check new (metadata.get(STRING_ID_RECORD));
-        self.persistClients[INT_ID_RECORD] = check new (metadata.get(INT_ID_RECORD));
-        self.persistClients[FLOAT_ID_RECORD] = check new (metadata.get(FLOAT_ID_RECORD));
-        self.persistClients[DECIMAL_ID_RECORD] = check new (metadata.get(DECIMAL_ID_RECORD));
-        self.persistClients[BOOLEAN_ID_RECORD] = check new (metadata.get(BOOLEAN_ID_RECORD));
-        self.persistClients[COMPOSITE_ASSOCIATION_RECORD] = check new (metadata.get(COMPOSITE_ASSOCIATION_RECORD));
-        self.persistClients[ALL_TYPES_ID_RECORD] = check new (metadata.get(ALL_TYPES_ID_RECORD));
+        self.persistClients = {
+            [ALL_TYPES] : check new (metadata.get(ALL_TYPES).cloneReadOnly()),
+            [STRING_ID_RECORD] : check new (metadata.get(STRING_ID_RECORD).cloneReadOnly()),
+            [INT_ID_RECORD] : check new (metadata.get(INT_ID_RECORD).cloneReadOnly()),
+            [FLOAT_ID_RECORD] : check new (metadata.get(FLOAT_ID_RECORD).cloneReadOnly()),
+            [DECIMAL_ID_RECORD] : check new (metadata.get(DECIMAL_ID_RECORD).cloneReadOnly()),
+            [BOOLEAN_ID_RECORD] : check new (metadata.get(BOOLEAN_ID_RECORD).cloneReadOnly()),
+            [COMPOSITE_ASSOCIATION_RECORD] : check new (metadata.get(COMPOSITE_ASSOCIATION_RECORD).cloneReadOnly()),
+            [ALL_TYPES_ID_RECORD] : check new (metadata.get(ALL_TYPES_ID_RECORD).cloneReadOnly())
+        };
     };
 
     isolated resource function get alltypes(AllTypesTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
@@ -478,7 +480,7 @@ public isolated client class InMemoryTestEntitiesClient {
         }
     }
 
-    public function close() returns Error? {
+    public isolated function close() returns Error? {
         return ();
     }
 }

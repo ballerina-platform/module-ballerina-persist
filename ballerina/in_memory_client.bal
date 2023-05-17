@@ -14,22 +14,21 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public client class InMemoryClient {
+public isolated client class InMemoryClient {
 
-    private string[] keyFields;
-    private isolated function (string[]) returns stream<record {}, Error?> query;
-    private isolated function (anydata) returns record {}|NotFoundError queryOne;
-    private map<isolated function (record {}, string[]) returns record {}[]> associationsMethods;
+    private final string[] & readonly keyFields;
+    private final (isolated function (string[]) returns stream<record {}, Error?>) & readonly query;
+    private final (isolated function (anydata) returns record {}|NotFoundError) & readonly queryOne;
+    private final (map<(isolated function (record {}, string[]) returns record {}[]) & readonly> & readonly) associationsMethods;
 
-    public function init(TableMetadata metadata) returns Error? {
+    public isolated function init(TableMetadata & readonly metadata) returns Error? {
         self.keyFields = metadata.keyFields;
         self.query = metadata.query;
         self.queryOne = metadata.queryOne;
         self.associationsMethods = metadata.associationsMethods;
     }
 
-    public isolated function runReadQuery(string[] fields = [])
-    returns stream<record {}, Error?> {
+    public isolated function runReadQuery(string[] fields = []) returns stream<record {}, Error?> {
         return self.query(self.addKeyFields(fields));
     }
 
@@ -67,16 +66,18 @@ public client class InMemoryClient {
     public isolated function getKey(anydata|record {} 'object) returns anydata|record {} {
         record {} keyRecord = {};
 
-        if self.keyFields.length() == 1 && 'object is record {} {
-            return 'object[self.keyFields[0]];
+        string[] keyFields = self.keyFields;
+
+        if keyFields.length() == 1 && 'object is record {} {
+            return 'object[keyFields[0]];
         }
 
         if 'object is record {} {
-            foreach string key in self.keyFields {
+            foreach string key in keyFields {
                 keyRecord[key] = 'object[key];
             }
         } else {
-            keyRecord[self.keyFields[0]] = 'object;
+            keyRecord[keyFields[0]] = 'object;
         }
         return keyRecord;
     }
@@ -97,7 +98,9 @@ public client class InMemoryClient {
     }
 
     private isolated function removeUnwantedFields(record {} 'object, string[] fields) {
-        foreach string keyField in self.keyFields {
+        string[] keyFields = self.keyFields;
+
+        foreach string keyField in keyFields {
             if fields.indexOf(keyField) is () {
                 _ = 'object.remove(keyField);
             }
