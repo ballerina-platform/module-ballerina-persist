@@ -6,21 +6,22 @@
 import ballerina/persist;
 import ballerina/jballerina.java;
 import ballerinax/mysql;
+import ballerinax/mysql.driver as _;
 
 const MEDICAL_ITEM = "medicalitems";
 const MEDICAL_NEED = "medicalneeds";
 
-public client class Client {
+public isolated client class Client {
     *persist:AbstractPersistClient;
 
     private final mysql:Client dbClient;
 
     private final map<persist:SQLClient> persistClients;
 
-    private final record {|persist:SQLMetadata...;|} metadata = {
-        [MEDICAL_ITEM]: {
+    private final record {|persist:SQLMetadata...;|} & readonly metadata = {
+        [MEDICAL_ITEM] : {
             entityName: "MedicalItem",
-            tableName: `MedicalItem`,
+            tableName: "MedicalItem",
             fieldMetadata: {
                 itemId: {columnName: "itemId"},
                 name: {columnName: "name"},
@@ -29,9 +30,9 @@ public client class Client {
             },
             keyFields: ["itemId"]
         },
-        [MEDICAL_NEED]: {
+        [MEDICAL_NEED] : {
             entityName: "MedicalNeed",
-            tableName: `MedicalNeed`,
+            tableName: "MedicalNeed",
             fieldMetadata: {
                 needId: {columnName: "needId"},
                 beneficiaryId: {columnName: "beneficiaryId"},
@@ -43,15 +44,15 @@ public client class Client {
         }
     };
 
-    public function init() returns persist:Error? {
-        mysql:Client|error dbClient = new (host = host, user = user, password = password, database = database, port = port);
+    public isolated function init() returns persist:Error? {
+        mysql:Client|error dbClient = new (host = host, user = user, password = password, database = database, port = port, options = connectionOptions);
         if dbClient is error {
             return <persist:Error>error(dbClient.message());
         }
         self.dbClient = dbClient;
         self.persistClients = {
-            [MEDICAL_ITEM]: check new (self.dbClient, self.metadata.get(MEDICAL_ITEM)),
-            [MEDICAL_NEED]: check new (self.dbClient, self.metadata.get(MEDICAL_NEED))
+            [MEDICAL_ITEM] : check new (dbClient, self.metadata.get(MEDICAL_ITEM)),
+            [MEDICAL_NEED] : check new (dbClient, self.metadata.get(MEDICAL_NEED))
         };
     }
 
@@ -66,19 +67,31 @@ public client class Client {
     } external;
 
     isolated resource function post medicalitems(MedicalItemInsert[] data) returns int[]|persist:Error {
-        _ = check self.persistClients.get(MEDICAL_ITEM).runBatchInsertQuery(data);
+        persist:SQLClient sqlClient;
+        lock {
+            sqlClient = self.persistClients.get(MEDICAL_ITEM);
+        }
+        _ = check sqlClient.runBatchInsertQuery(data);
         return from MedicalItemInsert inserted in data
             select inserted.itemId;
     }
 
     isolated resource function put medicalitems/[int itemId](MedicalItemUpdate value) returns MedicalItem|persist:Error {
-        _ = check self.persistClients.get(MEDICAL_ITEM).runUpdateQuery(itemId, value);
+        persist:SQLClient sqlClient;
+        lock {
+            sqlClient = self.persistClients.get(MEDICAL_ITEM);
+        }
+        _ = check sqlClient.runUpdateQuery(itemId, value);
         return self->/medicalitems/[itemId].get();
     }
 
     isolated resource function delete medicalitems/[int itemId]() returns MedicalItem|persist:Error {
         MedicalItem result = check self->/medicalitems/[itemId].get();
-        _ = check self.persistClients.get(MEDICAL_ITEM).runDeleteQuery(itemId);
+        persist:SQLClient sqlClient;
+        lock {
+            sqlClient = self.persistClients.get(MEDICAL_ITEM);
+        }
+        _ = check sqlClient.runDeleteQuery(itemId);
         return result;
     }
 
@@ -93,23 +106,35 @@ public client class Client {
     } external;
 
     isolated resource function post medicalneeds(MedicalNeedInsert[] data) returns int[]|persist:Error {
-        _ = check self.persistClients.get(MEDICAL_NEED).runBatchInsertQuery(data);
+        persist:SQLClient sqlClient;
+        lock {
+            sqlClient = self.persistClients.get(MEDICAL_NEED);
+        }
+        _ = check sqlClient.runBatchInsertQuery(data);
         return from MedicalNeedInsert inserted in data
             select inserted.needId;
     }
 
     isolated resource function put medicalneeds/[int needId](MedicalNeedUpdate value) returns MedicalNeed|persist:Error {
-        _ = check self.persistClients.get(MEDICAL_NEED).runUpdateQuery(needId, value);
+        persist:SQLClient sqlClient;
+        lock {
+            sqlClient = self.persistClients.get(MEDICAL_NEED);
+        }
+        _ = check sqlClient.runUpdateQuery(needId, value);
         return self->/medicalneeds/[needId].get();
     }
 
     isolated resource function delete medicalneeds/[int needId]() returns MedicalNeed|persist:Error {
         MedicalNeed result = check self->/medicalneeds/[needId].get();
-        _ = check self.persistClients.get(MEDICAL_NEED).runDeleteQuery(needId);
+        persist:SQLClient sqlClient;
+        lock {
+            sqlClient = self.persistClients.get(MEDICAL_NEED);
+        }
+        _ = check sqlClient.runDeleteQuery(needId);
         return result;
     }
 
-    public function close() returns persist:Error? {
+    public isolated function close() returns persist:Error? {
         error? result = self.dbClient.close();
         if result is error {
             return <persist:Error>error(result.message());
