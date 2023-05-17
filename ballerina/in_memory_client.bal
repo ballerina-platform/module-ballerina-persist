@@ -18,7 +18,7 @@ public isolated client class InMemoryClient {
 
     private final string[] & readonly keyFields;
     private final (isolated function (string[]) returns stream<record {}, Error?>) & readonly query;
-    private final (isolated function (anydata) returns record {}|InvalidKeyError) & readonly queryOne;
+    private final (isolated function (anydata) returns record {}|NotFoundError) & readonly queryOne;
     private final (map<(isolated function (record {}, string[]) returns record {}[]) & readonly> & readonly) associationsMethods;
 
     public isolated function init(TableMetadata & readonly metadata) returns Error? {
