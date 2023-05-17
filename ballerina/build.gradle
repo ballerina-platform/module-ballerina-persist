@@ -145,6 +145,25 @@ def checkTestDockerContainerStatus(dockerName) {
     }
 }
 
+task pullGoogleSheetsDependency(type: Exec) {
+    ignoreExitValue(true)
+    if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
+        try {
+            String distributionBinPath = project.projectDir.absolutePath + "/build/jballerina-tools-${project.extensions.ballerina.langVersion}/bin"
+            commandLine 'sh', '-c', "$distributionBinPath/bal pull ballerinax/googleapis.sheets"
+        } catch (all) {
+            return 1
+        }
+    } else {
+        try {
+            String distributionBinPath = project.projectDir.absolutePath + "/build/jballerina-tools-${project.extensions.ballerina.langVersion}/bin"
+            commandLine 'cmd', '/c', "$distributionBinPath/bal.bat pull ballerinax/googleapis.sheets"
+        } catch (all) {
+            return 1
+        }
+    }
+}
+
 task startTestDockerContainer(type: Exec) {
     if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
         def standardOutput = new ByteArrayOutputStream()
@@ -183,10 +202,12 @@ task stopTestDockerContainer() {
 
 updateTomlFiles.dependsOn copyStdlibs
 startTestDockerContainer.dependsOn createTestDockerImage
+pullGoogleSheetsDependency.dependsOn unpackJballerinaTools
 
 build.dependsOn "generatePomFileForMavenPublication"
 build.dependsOn ":${packageName}-compiler-plugin:build"
 build.dependsOn ":${packageName}-native:build"
+build.dependsOn pullGoogleSheetsDependency
 build.finalizedBy stopTestDockerContainer
 
 test.dependsOn ":${packageName}-compiler-plugin:build"

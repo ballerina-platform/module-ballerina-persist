@@ -4,6 +4,11 @@ host="localhost"
 port=3305
 database="test"
 
+clientId=""
+clientSecret=""
+refreshToken=""
+spreadsheetId=""
+
 [connectionOptions]
 connectTimeout = 50.0
 socketTimeout = 30.0

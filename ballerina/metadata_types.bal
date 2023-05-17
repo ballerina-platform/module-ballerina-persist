@@ -36,11 +36,25 @@ public type TableMetadata record {|
     map<isolated function (record {}, string[]) returns record {}[]> associationsMethods = {};
 |};
 
+public type SheetMetadata record {|
+    string entityName;
+    string tableName;
+    map<SheetFieldMetadata> fieldMetadata;
+    string[] keyFields;
+    string range;
+    map<string> dataTypes = {};
+    function (string[]) returns stream<record {}, Error?>|Error query;
+    function (anydata) returns record {}|NotFoundError queryOne;
+    map<function (record {}, string[]) returns record {}[]|Error> associationsMethods = {};
+|};
+
 # Represents the metadata associated with a simple field in the entity record.
 #
-# + columnName - The name of the SQL table column to which the field is mapped
-public type SimpleFieldMetadata record {|
+# + columnName - The name of the spreadsheet column to which the field is mapped
+# + columnId - The alphabetical Id of the column
+public type SimpleSheetFieldMetadata record {|
     string columnName;
+    string columnId;
 |};
 
 # Represents the metadata associated with a field from a related entity.
@@ -48,6 +62,18 @@ public type SimpleFieldMetadata record {|
 # + relation - The relational metadata associated with the field
 public type EntityFieldMetadata record {|
     RelationMetadata relation;
+|};
+
+# Represents the metadata associated with a field of an entity.
+# Only used by the generated persist clients and `persist:GoogleSheetsClient`.
+#
+public type SheetFieldMetadata SimpleSheetFieldMetadata;
+
+# Represents the metadata associated with a simple field in the entity record.
+#
+# + columnName - The name of the SQL table column to which the field is mapped
+public type SimpleFieldMetadata record {|
+    string columnName;
 |};
 
 # Represents the metadata associated with a field of an entity.
