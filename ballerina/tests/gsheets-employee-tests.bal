@@ -70,10 +70,10 @@ function gsheetsEmployeeReadOneTest() returns error? {
 function gsheetsEmployeeReadOneTestNegative() returns error? {
     GoogleSheetsRainierClient rainierClient =  check new ();
     Employee|error employeeRetrieved = rainierClient->/employees/["invalid-employee-id"].get();
-    if employeeRetrieved is InvalidKeyError {
+    if employeeRetrieved is NotFoundError {
         test:assertEquals(employeeRetrieved.message(), "Invalid key: invalid-employee-id");
     } else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
     
 }
@@ -162,10 +162,10 @@ function gsheetsEmployeeUpdateTestNegative1() returns error? {
         lastName: "Jones"
     });
 
-    if employee is InvalidKeyError {
+    if employee is NotFoundError {
         test:assertEquals(employee.message(), "Not found: invalid-employee-id");
     } else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
     
 }
@@ -197,10 +197,10 @@ function gsheetsEmployeeDeleteTestNegative() returns error? {
     GoogleSheetsRainierClient rainierClient =  check new ();
     Employee|error employee = rainierClient->/employees/[employee1.empNo].delete();
 
-    if employee is InvalidKeyError {
+    if employee is NotFoundError {
         test:assertEquals(employee.message(), string `Invalid key: employee-1`);
     } else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
     
 }

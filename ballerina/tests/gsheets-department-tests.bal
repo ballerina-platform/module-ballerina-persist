@@ -70,10 +70,10 @@ function gsheetsDepartmentReadOneTest() returns error? {
 function gsheetsDepartmentReadOneTestNegative() returns error? {
     GoogleSheetsRainierClient rainierClient =  check new ();
     Department|error departmentRetrieved = rainierClient->/departments/["invalid-department-id"].get();
-    if departmentRetrieved is InvalidKeyError {
+    if departmentRetrieved is NotFoundError {
         test:assertEquals(departmentRetrieved.message(), "Invalid key: invalid-department-id");
     } else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
 
 }
@@ -141,10 +141,10 @@ function gsheetsDepartmentUpdateTestNegative1() returns error? {
         deptName: "Human Resources"
     });
 
-    if department is InvalidKeyError {
+    if department is NotFoundError {
         test:assertEquals(department.message(), "Not found: invalid-department-id");
     } else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
 
 }
@@ -176,10 +176,10 @@ function gsheetsDepartmentDeleteTestNegative() returns error? {
     GoogleSheetsRainierClient rainierClient =  check new ();
     Department|error department = rainierClient->/departments/[department1.deptNo].delete();
 
-    if department is InvalidKeyError {
+    if department is NotFoundError {
         test:assertEquals(department.message(), string `Invalid key: department-1`);
     } else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
 
 }

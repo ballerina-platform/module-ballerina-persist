@@ -44,7 +44,7 @@ public client class GoogleSheetsClient {
     private map<string> dataTypes;
     private string[] keyFields;
     private function (string[]) returns stream<record {}, Error?>|Error query;
-    private function (anydata) returns record {}|InvalidKeyError queryOne;
+    private function (anydata) returns record {}|NotFoundError queryOne;
     private map<function (record {}, string[]) returns record {}[]|error> associationsMethods;
 
     # Initializes the `GSheetClient`.
@@ -85,7 +85,7 @@ public client class GoogleSheetsClient {
                 return <Error>error(output.message());
             }
             if output.length() > 0 {
-                return <DuplicateKeyError>error(string `Duplicate key: ${self.generateKeyArrayString(self.keyFields, rowValues)}`);
+                return <AlreadyExistsError>error(string `Duplicate key: ${self.generateKeyArrayString(self.keyFields, rowValues)}`);
             }
             GoogleSheetBasicType[] values = [];
             foreach string key in fieldMetadataKeys {
@@ -222,7 +222,7 @@ public client class GoogleSheetsClient {
     # + key - the key of the entity
     # + updateRecord - the record to be updated
     # + return - `()` if the operation is performed successfully.
-    # A `ForeignKeyConstraintViolationError` if the operation violates a foreign key constraint.
+    # A `ForeignKeyViolationError` if the operation violates a foreign key constraint.
     # A `persist:Error` if the operation fails due to another reason.
     public isolated function runUpdateQuery(anydata key, record {} updateRecord) returns Error? {
         string[] entityKeys = self.fieldMetadata.keys();
@@ -240,9 +240,9 @@ public client class GoogleSheetsClient {
         }
         if rows.length() == 0 {
             if key is map<anydata> {
-                return <InvalidKeyError>error(string `Not found: ${self.generateKeyArrayString(self.keyFields, key)}`);
+                return <NotFoundError>error(string `Not found: ${self.generateKeyArrayString(self.keyFields, key)}`);
             } else {
-                return <InvalidKeyError>error(string `Not found: ${key.toString()}`);
+                return <NotFoundError>error(string `Not found: ${key.toString()}`);
             }
         } else if rows.length() > 1 {
             return <Error>error(string `Multiple elements found for given key: ${key.toString()}`);
