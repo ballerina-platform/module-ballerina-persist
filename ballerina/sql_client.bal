@@ -15,13 +15,12 @@
 // under the License.
 
 import ballerina/sql;
-import ballerinax/mysql;
 
 # The client used by the generated persist clients to abstract and 
 # execute SQL queries that are required to perform CRUD operations.
 public isolated client class SQLClient {
 
-    private final mysql:Client dbClient;
+    private final sql:Client dbClient;
 
     private final string & readonly entityName;
     private final string & readonly tableName;
@@ -34,7 +33,7 @@ public isolated client class SQLClient {
     # + dbClient - The `sql:Client`, which is used to execute SQL queries
     # + metadata - Metadata of the entity
     # + return - A `persist:Error` if the client creation fails
-    public isolated function init(mysql:Client dbClient, SQLMetadata & readonly metadata) returns Error? {
+    public isolated function init(sql:Client dbClient, SQLMetadata & readonly metadata) returns Error? {
         self.entityName = metadata.entityName;
         self.tableName = metadata.tableName;
         self.fieldMetadata = metadata.fieldMetadata;
