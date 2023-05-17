@@ -68,10 +68,10 @@ function inMemoryDepartmentReadOneTestNegative() returns error? {
     InMemoryRainierClient rainierClient = check new ();
 
     Department|error departmentRetrieved = rainierClient->/departments/["invalid-department-id"].get();
-    if departmentRetrieved is InvalidKeyError {
+    if departmentRetrieved is NotFoundError {
         test:assertEquals(departmentRetrieved.message(), "Invalid key: invalid-department-id");
     } else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
     check rainierClient.close();
 }
@@ -138,10 +138,10 @@ function inMemoryDepartmentUpdateTestNegative1() returns error? {
         deptName: "Human Resources"
     });
 
-    if department is InvalidKeyError {
+    if department is NotFoundError {
         test:assertEquals(department.message(), "Not found: invalid-department-id");
     } else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
     check rainierClient.close();
 }
@@ -173,10 +173,10 @@ function inMemoryDepartmentDeleteTestNegative() returns error? {
 
     Department|error department = rainierClient->/departments/[department1.deptNo].delete();
 
-    if department is InvalidKeyError {
+    if department is NotFoundError {
         test:assertEquals(department.message(), string `Not found: department-1`);
     } else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
     check rainierClient.close();
 }

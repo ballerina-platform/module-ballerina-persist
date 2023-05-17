@@ -69,10 +69,10 @@ function inMemoryBuildingReadOneTestNegative() returns error? {
     InMemoryRainierClient rainierClient = check new ();
 
     Building|error buildingRetrieved = rainierClient->/buildings/["invalid-building-code"].get();
-    if buildingRetrieved is InvalidKeyError {
+    if buildingRetrieved is NotFoundError {
         test:assertEquals(buildingRetrieved.message(), "Invalid key: invalid-building-code");
     } else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
     check rainierClient.close();
 }
@@ -145,10 +145,10 @@ function inMemoryBuildingUpdateTestNegative1() returns error? {
         postalCode: "10890"
     });
 
-    if building is InvalidKeyError {
+    if building is NotFoundError {
         test:assertEquals(building.message(), "Not found: invalid-building-code");
     } else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
     check rainierClient.close();
 }
@@ -183,7 +183,7 @@ function inMemoryBuildingDeleteTestNegative() returns error? {
     if building is error {
         test:assertEquals(building.message(), string `Not found: ${building1.buildingCode}`);
     } else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
     check rainierClient.close();
 }

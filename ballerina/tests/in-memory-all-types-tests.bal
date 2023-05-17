@@ -163,11 +163,11 @@ function inMemoryAllTypesReadOneTestNegative() returns error? {
     InMemoryTestEntitiesClient testEntitiesClient = check new ();
 
     AllTypes|Error allTypesRetrieved = testEntitiesClient->/alltypes/[4].get();
-    if allTypesRetrieved is InvalidKeyError {
+    if allTypesRetrieved is NotFoundError {
         test:assertEquals(allTypesRetrieved.message(), "Invalid key: 4");
     }
     else {
-        test:assertFail("InvalidKeyError expected.");
+        test:assertFail("NotFoundError expected.");
     }
 
     check testEntitiesClient.close();

@@ -18,7 +18,7 @@ public client class InMemoryClient {
 
     private string[] keyFields;
     private isolated function (string[]) returns stream<record {}, Error?> query;
-    private isolated function (anydata) returns record {}|InvalidKeyError queryOne;
+    private isolated function (anydata) returns record {}|NotFoundError queryOne;
     private map<isolated function (record {}, string[]) returns record {}[]> associationsMethods;
 
     public function init(TableMetadata metadata) returns Error? {
