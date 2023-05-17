@@ -15,18 +15,18 @@
 // under the License.
 import ballerina/time;
 
-# Generic type that can usec to store any of the types supported by google sheets
+# Generic type that can used to store any of the types supported by google sheets
 #
-public type GoogleSheetCellType string|int|decimal|float|time:Date|time:TimeOfDay|time:Civil|time:Utc;
+public type SheetFieldType string|int|decimal|float|time:Date|time:TimeOfDay|time:Civil|time:Utc;
 
-# Generic type that can usec to store any of time types supported by sheets
+# Generic type that can used to store any of time types supported by sheets
 #
-public type GoogleSheetTimeType time:Date|time:TimeOfDay|time:Civil|time:Utc;
+public type SheetTimeType time:Date|time:TimeOfDay|time:Civil|time:Utc;
 
-# Generic type that can usec to store any of basic numeric types supported by sheets
+# Generic type that can used to store any of basic numeric types supported by sheets
 #
-public type GoogleSheetNumericType int|decimal|boolean|float;
+public type SheetNumericType int|decimal|boolean|float;
 
-# Generic type that can usec to store any of basic types supported by sheets
+# Generic type that can used to store any of basic types supported by sheets
 #
-public type GoogleSheetBasicType int|string|decimal|boolean|float;
+public type SheetBasicType int|string|decimal|boolean|float;

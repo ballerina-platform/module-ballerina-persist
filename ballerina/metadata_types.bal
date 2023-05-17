@@ -52,7 +52,7 @@ public type SheetMetadata record {|
 
 # Represents the metadata associated with a simple field in the entity record.
 #
-# + columnName - The name of the SQL table column to which the field is mapped
+# + columnName - The name of the spreadsheet column to which the field is mapped
 # + columnId - The alphabetical Id of the column
 public type SimpleSheetFieldMetadata record {|
     string columnName;
@@ -67,7 +67,7 @@ public type EntityFieldMetadata record {|
 |};
 
 # Represents the metadata associated with a field of an entity.
-# Only used by the generated persist clients and `persist:SQLClient`.
+# Only used by the generated persist clients and `persist:GoogleSheetsClient`.
 #
 public type SheetFieldMetadata SimpleSheetFieldMetadata;
 
@@ -78,30 +78,10 @@ public type SimpleFieldMetadata record {|
     string columnName;
 |};
 
-# Represents the metadata associated with a field from a related entity.
-#
-# + relation - The relational metadata associated with the field
-public type SheetEntityFieldMetadata record {|
-    SheetRelationMetadata relation;
-|};
-
 # Represents the metadata associated with a field of an entity.
 # Only used by the generated persist clients and `persist:SQLClient`.
 #
 public type FieldMetadata SimpleFieldMetadata|EntityFieldMetadata;
-
-# Represents the metadata associated with a relation.
-# Only used by the generated persist clients and `persist:SQLClient`.
-#
-# + entityName - The name of the entity represented in the relation  
-# + refField - The name of the referenced column in the soogle sheets table
-# + columnId - The alphabetical Id of the column
-
-public type SheetRelationMetadata record {|
-    string entityName;
-    string refField;
-    string columnId;
-|};
 
 # Represents the metadata associated with a relation.
 # Only used by the generated persist clients and `persist:SQLClient`.

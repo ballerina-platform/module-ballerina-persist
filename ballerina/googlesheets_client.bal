@@ -87,24 +87,24 @@ public client class GoogleSheetsClient {
             if output.length() > 0 {
                 return <AlreadyExistsError>error(string `Duplicate key: ${self.generateKeyArrayString(self.keyFields, rowValues)}`);
             }
-            GoogleSheetBasicType[] values = [];
+            SheetBasicType[] values = [];
             foreach string key in fieldMetadataKeys {
                 string dataType = self.dataTypes.get(key).toString();
                 if dataType == "time:Date" || dataType == "time:TimeOfDay" ||dataType == "time:Civil" || dataType == "time:Utc" {
-                    GoogleSheetTimeType|error timeValue = rowValues.get(key).ensureType();
+                    SheetTimeType|error timeValue = rowValues.get(key).ensureType();
                     if timeValue is error {
                         return <Error> error(timeValue.message());
-                    } 
+                    }
                     string|error value = self.timeToString(timeValue);
                     if value is error {
                         return <Error> error(value.message());
-                    } 
+                    }
                     values.push(value);
                 } else {
-                    GoogleSheetBasicType|error value = rowValues.get(key).ensureType();
+                    SheetBasicType|error value = rowValues.get(key).ensureType();
                     if value is error {
                         return <Error> error(value.message());
-                    } 
+                    }
                     values.push(value);
                 }
             }
@@ -188,7 +188,7 @@ public client class GoogleSheetsClient {
                     string value = re `"`.replaceAll(rowValue, "");
                     string dataType = self.dataTypes.get(columnName).toString();
                     if dataType == "time:Date" || dataType == "time:TimeOfDay" ||dataType == "time:Civil" || dataType == "time:Utc" {
-                        GoogleSheetCellType|error typedValue = self.dataConverter(value, dataType);
+                        SheetFieldType|error typedValue = self.dataConverter(value, dataType);
                         if typedValue is error {
                             return <Error>error(typedValue.message());
                         } else if typedValue is time:Date {
@@ -201,7 +201,7 @@ public client class GoogleSheetsClient {
                             rowArray[columnName] = <time:Utc>typedValue;
                         }
                     } else {
-                        GoogleSheetCellType|error typedValue = self.dataConverter(value, dataType);
+                        SheetFieldType|error typedValue = self.dataConverter(value, dataType);
                         if typedValue is error {
                             return <Error>error(typedValue.message());
                         }
@@ -226,7 +226,7 @@ public client class GoogleSheetsClient {
     # A `persist:Error` if the operation fails due to another reason.
     public isolated function runUpdateQuery(anydata key, record {} updateRecord) returns Error? {
         string[] entityKeys = self.fieldMetadata.keys();
-        GoogleSheetBasicType[] values = [];
+        SheetBasicType[] values = [];
         string metadataValue;
         if key is map<anydata> {
             metadataValue = self.generateMetadataValue(self.keyFields, key);
@@ -262,7 +262,7 @@ public client class GoogleSheetsClient {
                 int indexOfKey = <int>self.fieldMetadata.keys().indexOf(entityKey, 0);
                 string dataType = self.dataTypes.get(entityKey).toString();
                 if dataType == "boolean" || dataType == "int" || dataType == "float" || dataType == "decimal" {
-                    GoogleSheetNumericType|error value = self.valuesFromString(rows[0].values[indexOfKey].toString(), dataType);
+                    SheetNumericType|error value = self.valuesFromString(rows[0].values[indexOfKey].toString(), dataType);
                     if value is error {
                         return <Error>error(value.message());
                     }
@@ -271,10 +271,10 @@ public client class GoogleSheetsClient {
                     values.push(rows[0].values[indexOfKey]);
                 }
             } else {
-                GoogleSheetBasicType|error value;
+                SheetBasicType|error value;
                 string dataType = self.dataTypes.get(entityKey).toString();
                 if dataType == "time:Date" || dataType == "time:TimeOfDay" || dataType == "time:Civil" || dataType == "time:Utc" {
-                    GoogleSheetTimeType|error timeValue = updateRecord.get(entityKey).ensureType();
+                    SheetTimeType|error timeValue = updateRecord.get(entityKey).ensureType();
                     if timeValue is error {
                         return <Error>error(timeValue.message());
                     }
@@ -359,7 +359,7 @@ public client class GoogleSheetsClient {
         return updatedFields;
     }
 
-    private isolated function dataConverter(json value, string dataType) returns GoogleSheetCellType|error {
+    private isolated function dataConverter(json value, string dataType) returns SheetFieldType|error {
         if dataType == "int" {
             return int:fromString(value.toString());
         } else if dataType == "time:Date" || dataType == "time:TimeOfDay" ||dataType == "time:Civil" || dataType == "time:Utc" {
@@ -422,29 +422,29 @@ public client class GoogleSheetsClient {
         }
     }
 
-    private isolated function timeToString(GoogleSheetTimeType timeValue) returns string|error {
+    private isolated function timeToString(SheetTimeType timeValue) returns string|error {
 
         if timeValue is time:Date {
             return string `${timeValue.day}-${timeValue.month}-${timeValue.year}`;
-        } 
-        
+        }
+
         if timeValue is time:TimeOfDay {
             return string `${timeValue.hour}-${timeValue.minute}-${(timeValue.second).toString()}`;
-        } 
-        
+        }
+
         if timeValue is time:Civil {
             return time:civilToString(timeValue);
-        } 
-        
+        }
+
         if timeValue is time:Utc {
             return time:utcToString(timeValue);
-        } 
-        
+        }
+
         return <Error>error("Error: unsupported time format");
-        
+
     }
 
-    private isolated function valuesFromString(string value, string dataType) returns GoogleSheetNumericType|error {
+    private isolated function valuesFromString(string value, string dataType) returns SheetNumericType|error {
 
         match dataType {
             "int" => {
@@ -466,7 +466,7 @@ public client class GoogleSheetsClient {
         }
     }
 
-    private isolated function stringToTime(string timeValue, string dataType) returns GoogleSheetTimeType|error {
+    private isolated function stringToTime(string timeValue, string dataType) returns SheetTimeType|error {
         if dataType == "time:TimeOfDay" {
             string[] timeValues =  re `-`.split(timeValue);
             time:TimeOfDay output = {hour: check int:fromString(timeValues[0]), minute: check int:fromString(timeValues[1]), second: check decimal:fromString(timeValues[2])};
