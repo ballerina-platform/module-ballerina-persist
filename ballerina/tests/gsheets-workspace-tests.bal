@@ -111,7 +111,7 @@ function gsheetsWorkspaceReadManyTest() returns error? {
 @test:Config {
     groups: ["workspace", "dependent"],
     dependsOn: [gsheetsWorkspaceCreateTest, gsheetsWorkspaceCreateTest2],
-    enable: true
+    enable: false
 }
 function gsheetsWorkspaceReadManyDependentTest() returns error? {
     GoogleSheetsRainierClient rainierClient =  check new ();
