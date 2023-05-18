@@ -4,10 +4,10 @@ host="localhost"
 port=3305
 database="test"
 
-clientId=""
-clientSecret=""
-refreshToken=""
-spreadsheetId=""
+spreadsheetId = ""
+clientId = ""
+clientSecret = ""
+refreshToken = ""
 
 [connectionOptions]
 connectTimeout = 50.0

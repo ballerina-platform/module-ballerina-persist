@@ -129,7 +129,6 @@ public class PersistGoogleSheetsStream {
                         _ = value.remove(keyField);
                     }
                 }
-
                 record {|record {} value;|} nextRecord = {value: checkpanic value.cloneWithType(self.targetType)};
                 return nextRecord;
             }

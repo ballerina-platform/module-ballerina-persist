@@ -31,21 +31,21 @@ type RowValues record {
 
 # The client used by the generated persist clients to abstract and
 # execute API calls that are required to perform CRUD operations.
-public client class GoogleSheetsClient {
+public isolated client class GoogleSheetsClient {
 
     private final sheets:Client googleSheetClient;
     private final http:Client httpClient;
-    private string spreadsheetId;
-    private int sheetId;
-    private string entityName;
-    private string tableName;
-    private string range;
-    private map<SheetFieldMetadata> fieldMetadata;
-    private map<string> dataTypes;
-    private string[] keyFields;
-    private function (string[]) returns stream<record {}, Error?>|Error query;
-    private function (anydata) returns record {}|NotFoundError queryOne;
-    private map<function (record {}, string[]) returns record {}[]|error> associationsMethods;
+    private final string spreadsheetId;
+    private final int sheetId;
+    private final string entityName;
+    private final string tableName;
+    private final string range;
+    private final map<SheetFieldMetadata> & readonly fieldMetadata;
+    private final map<string> & readonly dataTypes;
+    private final string[] & readonly keyFields;
+    private isolated function (string[]) returns stream<record {}, Error?>|Error query;
+    private isolated function (anydata) returns record {}|NotFoundError queryOne;
+    private final (map<isolated function (record {}, string[]) returns record {}[]|Error>) & readonly associationsMethods;
 
     # Initializes the `GSheetClient`.
     #
@@ -55,7 +55,7 @@ public client class GoogleSheetsClient {
     # + spreadsheetId - Id of the spreadsheet
     # + sheetId - Id of the sheet
     # + return - A `persist:Error` if the client creation fails
-    public function init(sheets:Client googleSheetClient, http:Client httpClient, SheetMetadata sheetMetadata, string spreadsheetId, int sheetId) returns Error? {
+    public isolated function init(sheets:Client googleSheetClient, http:Client httpClient, SheetMetadata & readonly sheetMetadata, string & readonly spreadsheetId, int & readonly sheetId) returns Error? {
         self.entityName = sheetMetadata.entityName;
         self.spreadsheetId = spreadsheetId;
         self.tableName = sheetMetadata.tableName;
@@ -340,7 +340,7 @@ public client class GoogleSheetsClient {
             if relationFields.length() is 0 {
                 continue;
             }
-            function (record {}, string[]) returns record {}[]|error associationsMethod = self.associationsMethods.get(entity);
+            isolated function (record {}, string[]) returns record {}[]|error associationsMethod = self.associationsMethods.get(entity);
             record {}[]|error relations = associationsMethod('object, relationFields);
             if relations is error {
                 return <Error>error("unsupported data format");

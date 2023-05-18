@@ -24,7 +24,7 @@ const BUILDING = "buildings";
 const DEPARTMENT = "departments";
 const ORDER_ITEM = "orderitems";
 
-public client class GoogleSheetsRainierClient {
+public isolated client class GoogleSheetsRainierClient {
     *AbstractPersistClient;
 
     private final sheets:Client googleSheetClient;
@@ -32,9 +32,9 @@ public client class GoogleSheetsRainierClient {
 
     private final map<GoogleSheetsClient> persistClients;
 
-    public function init() returns Error? {
+    public isolated function init() returns Error? {
 
-        final record {|SheetMetadata...;|} metadata = {
+        final record {|SheetMetadata...;|} & readonly metadata = {
             [EMPLOYEE] : {
                 entityName: "Employee",
                 tableName: "Employee",
@@ -52,7 +52,8 @@ public client class GoogleSheetsRainierClient {
                 range: "A:I",
                 dataTypes: {empNo: "string", firstName: "string", lastName: "string", birthDate: "time:Date", gender: "string", hireDate: "time:Date", departmentDeptNo: "string", workspaceWorkspaceId: "string"},
                 queryOne: self.queryOneEmployees,
-                query: self.queryEmployees
+                query: self.queryEmployees,
+                associationsMethods: {}
             },
             [WORKSPACE] : {
                 entityName: "Workspace",
@@ -120,7 +121,8 @@ public client class GoogleSheetsRainierClient {
                 dataTypes: {orderId: "string", itemId: "string", quantity: "int", notes: "string"},
                 keyFields: ["orderId", "itemId"],
                 query: self.queryOrderItems,
-                queryOne: self.queryOneOrderItems
+                queryOne: self.queryOneOrderItems,
+                associationsMethods: {}
             }
         };
         sheets:ConnectionConfig sheetsClientConfig = {
@@ -153,11 +155,11 @@ public client class GoogleSheetsRainierClient {
         self.httpClient = httpClient;
         map<int> sheetIds = check getSheetIds(self.googleSheetClient, metadata, spreadsheetId);
         self.persistClients = {
-            [EMPLOYEE] : check new (self.googleSheetClient, self.httpClient, metadata.get(EMPLOYEE), spreadsheetId, sheetIds.get(EMPLOYEE)),
-            [WORKSPACE] : check new (self.googleSheetClient, self.httpClient, metadata.get(WORKSPACE), spreadsheetId, sheetIds.get(WORKSPACE)),
-            [BUILDING] : check new (self.googleSheetClient, self.httpClient, metadata.get(BUILDING), spreadsheetId, sheetIds.get(BUILDING)),
-            [DEPARTMENT] : check new (self.googleSheetClient, self.httpClient, metadata.get(DEPARTMENT), spreadsheetId, sheetIds.get(DEPARTMENT)),
-            [ORDER_ITEM] : check new (self.googleSheetClient, self.httpClient, metadata.get(ORDER_ITEM), spreadsheetId, sheetIds.get(ORDER_ITEM))
+            [EMPLOYEE] : check new (self.googleSheetClient, self.httpClient, metadata.get(EMPLOYEE).cloneReadOnly(), spreadsheetId.cloneReadOnly(), sheetIds.get(EMPLOYEE).cloneReadOnly()),
+            [WORKSPACE] : check new (self.googleSheetClient, self.httpClient, metadata.get(WORKSPACE).cloneReadOnly(), spreadsheetId.cloneReadOnly(), sheetIds.get(WORKSPACE).cloneReadOnly()),
+            [BUILDING] : check new (self.googleSheetClient, self.httpClient, metadata.get(BUILDING).cloneReadOnly(), spreadsheetId.cloneReadOnly(), sheetIds.get(BUILDING).cloneReadOnly()),
+            [DEPARTMENT] : check new (self.googleSheetClient, self.httpClient, metadata.get(DEPARTMENT).cloneReadOnly(), spreadsheetId.cloneReadOnly(), sheetIds.get(DEPARTMENT).cloneReadOnly()),
+            [ORDER_ITEM] : check new (self.googleSheetClient, self.httpClient, metadata.get(ORDER_ITEM).cloneReadOnly(), spreadsheetId.cloneReadOnly(), sheetIds.get(ORDER_ITEM).cloneReadOnly())
         };
     }
 
@@ -172,19 +174,31 @@ public client class GoogleSheetsRainierClient {
     } external;
 
     isolated resource function post employees(EmployeeInsert[] data) returns string[]|Error {
-        _ = check self.persistClients.get(EMPLOYEE).runBatchInsertQuery(data);
+        GoogleSheetsClient googleSheetsClient;
+        lock {
+            googleSheetsClient = self.persistClients.get(EMPLOYEE);
+        }
+        _ = check googleSheetsClient.runBatchInsertQuery(data);
         return from EmployeeInsert inserted in data
             select inserted.empNo;
     }
 
     isolated resource function put employees/[string empNo](EmployeeUpdate value) returns Employee|Error {
-        _ = check self.persistClients.get(EMPLOYEE).runUpdateQuery(empNo, value);
+        GoogleSheetsClient googleSheetsClient;
+        lock {
+            googleSheetsClient = self.persistClients.get(EMPLOYEE);
+        }
+        _ = check googleSheetsClient.runUpdateQuery(empNo, value);
         return self->/employees/[empNo].get();
     }
 
     isolated resource function delete employees/[string empNo]() returns Employee|Error {
         Employee result = check self->/employees/[empNo].get();
-        _ = check self.persistClients.get(EMPLOYEE).runDeleteQuery(empNo);
+        GoogleSheetsClient googleSheetsClient;
+        lock {
+            googleSheetsClient = self.persistClients.get(EMPLOYEE);
+        }
+        _ = check googleSheetsClient.runDeleteQuery(empNo);
         return result;
     }
 
@@ -199,19 +213,31 @@ public client class GoogleSheetsRainierClient {
     } external;
 
     isolated resource function post workspaces(WorkspaceInsert[] data) returns string[]|Error {
-        _ = check self.persistClients.get(WORKSPACE).runBatchInsertQuery(data);
+        GoogleSheetsClient googleSheetsClient;
+        lock {
+            googleSheetsClient = self.persistClients.get(WORKSPACE);
+        }
+        _ = check googleSheetsClient.runBatchInsertQuery(data);
         return from WorkspaceInsert inserted in data
             select inserted.workspaceId;
     }
 
     isolated resource function put workspaces/[string workspaceId](WorkspaceUpdate value) returns Workspace|Error {
-        _ = check self.persistClients.get(WORKSPACE).runUpdateQuery(workspaceId, value);
+        GoogleSheetsClient googleSheetsClient;
+        lock {
+            googleSheetsClient = self.persistClients.get(WORKSPACE);
+        }
+        _ = check googleSheetsClient.runUpdateQuery(workspaceId, value);
         return self->/workspaces/[workspaceId].get();
     }
 
     isolated resource function delete workspaces/[string workspaceId]() returns Workspace|Error {
         Workspace result = check self->/workspaces/[workspaceId].get();
-        _ = check self.persistClients.get(WORKSPACE).runDeleteQuery(workspaceId);
+        GoogleSheetsClient googleSheetsClient;
+        lock {
+            googleSheetsClient = self.persistClients.get(WORKSPACE);
+        }
+        _ = check googleSheetsClient.runDeleteQuery(workspaceId);
         return result;
     }
 
@@ -226,19 +252,31 @@ public client class GoogleSheetsRainierClient {
     } external;
 
     isolated resource function post buildings(BuildingInsert[] data) returns string[]|Error {
-        _ = check self.persistClients.get(BUILDING).runBatchInsertQuery(data);
+        GoogleSheetsClient googleSheetsClient;
+        lock {
+            googleSheetsClient = self.persistClients.get(BUILDING);
+        }
+        _ = check googleSheetsClient.runBatchInsertQuery(data);
         return from BuildingInsert inserted in data
             select inserted.buildingCode;
     }
 
     isolated resource function put buildings/[string buildingCode](BuildingUpdate value) returns Building|Error {
-        _ = check self.persistClients.get(BUILDING).runUpdateQuery(buildingCode, value);
+        GoogleSheetsClient googleSheetsClient;
+        lock {
+            googleSheetsClient = self.persistClients.get(BUILDING);
+        }
+        _ = check googleSheetsClient.runUpdateQuery(buildingCode, value);
         return self->/buildings/[buildingCode].get();
     }
 
     isolated resource function delete buildings/[string buildingCode]() returns Building|Error {
         Building result = check self->/buildings/[buildingCode].get();
-        _ = check self.persistClients.get(BUILDING).runDeleteQuery(buildingCode);
+        GoogleSheetsClient googleSheetsClient;
+        lock {
+            googleSheetsClient = self.persistClients.get(BUILDING);
+        }
+        _ = check googleSheetsClient.runDeleteQuery(buildingCode);
         return result;
     }
 
@@ -253,19 +291,31 @@ public client class GoogleSheetsRainierClient {
     } external;
 
     isolated resource function post departments(DepartmentInsert[] data) returns string[]|Error {
-        _ = check self.persistClients.get(DEPARTMENT).runBatchInsertQuery(data);
+        GoogleSheetsClient googleSheetsClient;
+        lock {
+            googleSheetsClient = self.persistClients.get(DEPARTMENT);
+        }
+        _ = check googleSheetsClient.runBatchInsertQuery(data);
         return from DepartmentInsert inserted in data
             select inserted.deptNo;
     }
 
     isolated resource function put departments/[string deptNo](DepartmentUpdate value) returns Department|Error {
-        _ = check self.persistClients.get(DEPARTMENT).runUpdateQuery(deptNo, value);
+        GoogleSheetsClient googleSheetsClient;
+        lock {
+            googleSheetsClient = self.persistClients.get(DEPARTMENT);
+        }
+        _ = check googleSheetsClient.runUpdateQuery(deptNo, value);
         return self->/departments/[deptNo].get();
     }
 
     isolated resource function delete departments/[string deptNo]() returns Department|Error {
         Department result = check self->/departments/[deptNo].get();
-        _ = check self.persistClients.get(DEPARTMENT).runDeleteQuery(deptNo);
+        GoogleSheetsClient googleSheetsClient;
+        lock {
+            googleSheetsClient = self.persistClients.get(DEPARTMENT);
+        }
+        _ = check googleSheetsClient.runDeleteQuery(deptNo);
         return result;
     }
 
@@ -280,58 +330,44 @@ public client class GoogleSheetsRainierClient {
     } external;
 
     isolated resource function post orderitems(OrderItemInsert[] data) returns [string, string][]|Error {
-        _ = check self.persistClients.get(ORDER_ITEM).runBatchInsertQuery(data);
+        GoogleSheetsClient googleSheetsClient;
+        lock {
+            googleSheetsClient = self.persistClients.get(ORDER_ITEM);
+        }
+        _ = check googleSheetsClient.runBatchInsertQuery(data);
         return from OrderItemInsert inserted in data
             select [inserted.orderId, inserted.itemId];
     }
 
     isolated resource function put orderitems/[string orderId]/[string itemId](OrderItemUpdate value) returns OrderItem|Error {
-        _ = check self.persistClients.get(ORDER_ITEM).runUpdateQuery({"orderId": orderId, "itemId": itemId}, value);
+        GoogleSheetsClient googleSheetsClient;
+        lock {
+            googleSheetsClient = self.persistClients.get(ORDER_ITEM);
+        }
+        _ = check googleSheetsClient.runUpdateQuery({"orderId": orderId, "itemId": itemId}, value);
         return self->/orderitems/[orderId]/[itemId].get();
     }
 
     isolated resource function delete orderitems/[string orderId]/[string itemId]() returns OrderItem|Error {
         OrderItem result = check self->/orderitems/[orderId]/[itemId].get();
-        _ = check self.persistClients.get(ORDER_ITEM).runDeleteQuery({"orderId": orderId, "itemId": itemId});
+        GoogleSheetsClient googleSheetsClient;
+        lock {
+            googleSheetsClient = self.persistClients.get(ORDER_ITEM);
+        }
+        _ = check googleSheetsClient.runDeleteQuery({"orderId": orderId, "itemId": itemId});
         return result;
     }
 
-    public function close() returns Error? {
+    public isolated function close() returns Error? {
         return ();
     }
 
-
-    private isolated function queryEmployeesStream(EmployeeTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
-        'class: "io.ballerina.stdlib.persist.datastore.GoogleSheetsProcessor",
-        name: "queryStream"
-    } external;
-
-    private isolated function queryBuildingsStream(BuildingTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
-        'class: "io.ballerina.stdlib.persist.datastore.GoogleSheetsProcessor",
-        name: "queryStream"
-    } external;
-
-    private isolated function queryDepartmentsStream(DepartmentTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
-        'class: "io.ballerina.stdlib.persist.datastore.GoogleSheetsProcessor",
-        name: "queryStream"
-    } external;
-
-    private isolated function queryWorkspacesStream(WorkspaceTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
-        'class: "io.ballerina.stdlib.persist.datastore.GoogleSheetsProcessor",
-        name: "queryStream"
-    } external;
-
-    private isolated function queryOrderItemsStream(OrderItemTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
-        'class: "io.ballerina.stdlib.persist.datastore.GoogleSheetsProcessor",
-        name: "queryStream"
-    } external;
-
-    private isolated function queryEmployees(string[] fields) returns stream<record {}, Error?>|Error{
+    private isolated function queryEmployees(string[] fields) returns stream<record {}, Error?>|Error {
         stream<Employee, Error?> employeesStream = self.queryEmployeesStream();
         stream<Department, Error?> departmentStream = self.queryDepartmentsStream();
         stream<Workspace, Error?> workspacesStream = self.queryWorkspacesStream();
 
-        record{}[] outputArray = check from record {} 'object in employeesStream
+        record {}[] outputArray = check from record {} 'object in employeesStream
             outer join var department in departmentStream
             on 'object.departmentDeptNo equals department?.deptNo
             outer join var workspace in workspacesStream
@@ -350,7 +386,7 @@ public client class GoogleSheetsRainierClient {
         stream<Department, Error?> departmenttStream = self.queryDepartmentsStream();
         stream<Workspace, Error?> workspacesStream = self.queryWorkspacesStream();
         error? unionResult = from record {} 'object in employeesStream
-            where self.persistClients.get(EMPLOYEE).getKey('object) == key
+            where getKey('object, ["empNo"]) == key
             outer join var department in departmenttStream
             on 'object.departmentDeptNo equals department?.deptNo
             outer join var workspace in workspacesStream
@@ -367,9 +403,10 @@ public client class GoogleSheetsRainierClient {
         }
         return <NotFoundError>error("Invalid key: " + key.toString());
     }
+
     private isolated function queryBuildings(string[] fields) returns stream<record {}, Error?>|Error {
         stream<Building, Error?> buildingsStream = self.queryBuildingsStream();
-        record{}[] outputArray = check from record {} 'object in buildingsStream
+        record {}[] outputArray = check from record {} 'object in buildingsStream
             select filterRecord({
                 ...'object
             }, fields);
@@ -379,7 +416,7 @@ public client class GoogleSheetsRainierClient {
     private isolated function queryOneBuildings(anydata key) returns record {}|NotFoundError {
         stream<Building, Error?> buildingsStream = self.queryBuildingsStream();
         error? unionResult = from record {} 'object in buildingsStream
-            where self.persistClients.get(BUILDING).getKey('object) == key
+            where getKey('object, ["buildingCode"]) == key
             do {
                 return {
                     ...'object
@@ -401,8 +438,9 @@ public client class GoogleSheetsRainierClient {
     }
 
     private isolated function queryDepartments(string[] fields) returns stream<record {}, Error?>|Error {
+        
         stream<Department, Error?> departmenttStream = self.queryDepartmentsStream();
-        record{}[] outputArray = check from record {} 'object in departmenttStream
+        record {}[] outputArray = check from record {} 'object in departmenttStream
             select filterRecord({
                 ...'object
             }, fields);
@@ -412,7 +450,7 @@ public client class GoogleSheetsRainierClient {
     private isolated function queryOneDepartments(anydata key) returns record {}|NotFoundError {
         stream<Department, Error?> departmenttStream = self.queryDepartmentsStream();
         error? unionResult = from record {} 'object in departmenttStream
-            where self.persistClients.get(DEPARTMENT).getKey('object) == key
+            where getKey('object, ["deptNo"]) == key
             do {
                 return {
                     ...'object
@@ -436,7 +474,7 @@ public client class GoogleSheetsRainierClient {
     private isolated function queryWorkspaces(string[] fields) returns stream<record {}, Error?>|Error {
         stream<Workspace, Error?> workspacesStream = self.queryWorkspacesStream();
         stream<Building, Error?> buildingsStream = self.queryBuildingsStream();
-        record{}[] outputArray = check from record {} 'object in workspacesStream
+        record {}[] outputArray = check from record {} 'object in workspacesStream
             outer join var location in buildingsStream
             on 'object.locationBuildingCode equals location?.buildingCode
             select filterRecord({
@@ -450,7 +488,7 @@ public client class GoogleSheetsRainierClient {
         stream<Workspace, Error?> workspacesStream = self.queryWorkspacesStream();
         stream<Building, Error?> buildingsStream = self.queryBuildingsStream();
         error? unionResult = from record {} 'object in workspacesStream
-            where self.persistClients.get(WORKSPACE).getKey('object) == key
+            where getKey('object, ["workspaceId"]) == key
             outer join var location in buildingsStream
             on 'object.locationBuildingCode equals location?.buildingCode
             do {
@@ -476,7 +514,7 @@ public client class GoogleSheetsRainierClient {
 
     private isolated function queryOrderItems(string[] fields) returns stream<record {|anydata...;|}, Error?>|Error {
         stream<OrderItem, Error?> orderItemsStream = self.queryOrderItemsStream();
-        record{}[] outputArray = check from record {} 'object in orderItemsStream
+        record {}[] outputArray = check from record {} 'object in orderItemsStream
             select filterRecord({
                 ...'object
             }, fields);
@@ -486,7 +524,7 @@ public client class GoogleSheetsRainierClient {
     private isolated function queryOneOrderItems(anydata key) returns record {}|NotFoundError {
         stream<OrderItem, Error?> orderItemsStream = self.queryOrderItemsStream();
         error? unionResult = from record {} 'object in orderItemsStream
-            where self.persistClients.get(ORDER_ITEM).getKey('object) == key
+            where getKey('object, ["orderId", "itemId"]) == key
             do {
                 return {
                     ...'object
@@ -498,5 +536,28 @@ public client class GoogleSheetsRainierClient {
         return <NotFoundError>error("Invalid key: " + key.toString());
     }
 
-}
+    private isolated function queryEmployeesStream(EmployeeTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.datastore.GoogleSheetsProcessor",
+        name: "queryStream"
+    } external;
 
+    private isolated function queryBuildingsStream(BuildingTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.datastore.GoogleSheetsProcessor",
+        name: "queryStream"
+    } external;
+
+    private isolated function queryDepartmentsStream(DepartmentTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.datastore.GoogleSheetsProcessor",
+        name: "queryStream"
+    } external;
+
+    private isolated function queryWorkspacesStream(WorkspaceTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.datastore.GoogleSheetsProcessor",
+        name: "queryStream"
+    } external;
+
+    private isolated function queryOrderItemsStream(OrderItemTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.datastore.GoogleSheetsProcessor",
+        name: "queryStream"
+    } external;
+}

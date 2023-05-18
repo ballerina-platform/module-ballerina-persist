@@ -57,6 +57,7 @@ import static io.ballerina.stdlib.persist.Utils.getRecordTypeWithKeyFields;
  */
 
 public class GoogleSheetsProcessor {
+
     private GoogleSheetsProcessor() {};
 
     public static BStream query(Environment env, BObject client, BTypedesc targetType) {
