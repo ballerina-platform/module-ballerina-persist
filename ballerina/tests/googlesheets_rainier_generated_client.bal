@@ -207,7 +207,7 @@ public isolated client class GoogleSheetsRainierClient {
         name: "query"
     } external;
 
-    isolated resource function get workspaces/[string workspaceId](WorkspaceTargetType targetType = <>) returns targetType|error = @java:Method {
+    isolated resource function get workspaces/[string workspaceId](WorkspaceTargetType targetType = <>) returns targetType|Error = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.GoogleSheetsProcessor",
         name: "queryOne"
     } external;
@@ -222,7 +222,7 @@ public isolated client class GoogleSheetsRainierClient {
             select inserted.workspaceId;
     }
 
-    isolated resource function put workspaces/[string workspaceId](WorkspaceUpdate value) returns Workspace|error {
+    isolated resource function put workspaces/[string workspaceId](WorkspaceUpdate value) returns Workspace|Error {
         GoogleSheetsClient googleSheetsClient;
         lock {
             googleSheetsClient = self.persistClients.get(WORKSPACE);
@@ -231,7 +231,7 @@ public isolated client class GoogleSheetsRainierClient {
         return self->/workspaces/[workspaceId].get();
     }
 
-    isolated resource function delete workspaces/[string workspaceId]() returns Workspace|error {
+    isolated resource function delete workspaces/[string workspaceId]() returns Workspace|Error {
         Workspace result = check self->/workspaces/[workspaceId].get();
         GoogleSheetsClient googleSheetsClient;
         lock {
