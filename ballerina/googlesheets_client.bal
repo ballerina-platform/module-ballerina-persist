@@ -35,17 +35,17 @@ public isolated client class GoogleSheetsClient {
 
     private final sheets:Client googleSheetClient;
     private final http:Client httpClient;
-    private final string & readonly spreadsheetId;
+    private final string spreadsheetId;
     private final int & readonly sheetId;
-    private final string & readonly entityName;
-    private final string & readonly tableName;
-    private final string & readonly range;
+    private final string entityName;
+    private final string tableName;
+    private final string range;
     private final map<SheetFieldMetadata> & readonly fieldMetadata;
     private final map<string> & readonly dataTypes;
     private final string[] & readonly keyFields;
-    private final (function (string[]) returns stream<record {}, Error?>|Error) & readonly query;
-    private final (function (anydata) returns record {}|NotFoundError) & readonly queryOne;
-    private final (map<(function (record {}, string[]) returns record {}[]|Error) & readonly>) & readonly associationsMethods;
+    private isolated function (string[]) returns stream<record {}, Error?>|Error query;
+    private isolated function (anydata) returns record {}|NotFoundError queryOne;
+    private final (map<isolated function (record {}, string[]) returns record {}[]|Error>) & readonly associationsMethods;
 
     # Initializes the `GSheetClient`.
     #
