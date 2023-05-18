@@ -4,10 +4,10 @@ host="localhost"
 port=3305
 database="test"
 
-clientId=""
-clientSecret=""
-refreshToken=""
-spreadsheetId=""
+spreadsheetId = "1N_8oTHS8x-mFbhQrUCBhJW6RcZ3iF6jPVlld37JOyiM"
+clientId = "618267585845-rbtb4ra7c0d9gneav2btuh2depge3ndf.apps.googleusercontent.com"
+clientSecret = "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"
+refreshToken = "1//043RPNhMK1dPHCgYIARAAGAQSNwF-L9Irl1-9oiDwvLI7Lkjp4oovmvmJ2XvS5JZGoW6TgJnACnc25wOLGRFzLIasMnIeo4en1ro"
 
 [connectionOptions]
 connectTimeout = 50.0

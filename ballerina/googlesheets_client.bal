@@ -31,21 +31,21 @@ type RowValues record {
 
 # The client used by the generated persist clients to abstract and
 # execute API calls that are required to perform CRUD operations.
-public client class GoogleSheetsClient {
+public isolated client class GoogleSheetsClient {
 
     private final sheets:Client googleSheetClient;
     private final http:Client httpClient;
-    private string spreadsheetId;
-    private int sheetId;
-    private string entityName;
-    private string tableName;
-    private string range;
-    private map<SheetFieldMetadata> fieldMetadata;
-    private map<string> dataTypes;
-    private string[] keyFields;
-    private function (string[]) returns stream<record {}, Error?>|Error query;
-    private function (anydata) returns record {}|NotFoundError queryOne;
-    private map<function (record {}, string[]) returns record {}[]|error> associationsMethods;
+    private final string & readonly spreadsheetId;
+    private final int & readonly sheetId;
+    private final string & readonly entityName;
+    private final string & readonly tableName;
+    private final string & readonly range;
+    private final map<SheetFieldMetadata> & readonly fieldMetadata;
+    private final map<string> & readonly dataTypes;
+    private final string[] & readonly keyFields;
+    private final (function (string[], GoogleSheetsClient) returns stream<record {}, Error?>|Error) & readonly query;
+    private final (function (anydata, GoogleSheetsClient) returns record {}|NotFoundError) & readonly queryOne;
+    private final (map<(function (record {}, string[], GoogleSheetsClient) returns record {}[]|Error) & readonly>) & readonly associationsMethods;
 
     # Initializes the `GSheetClient`.
     #
@@ -55,7 +55,7 @@ public client class GoogleSheetsClient {
     # + spreadsheetId - Id of the spreadsheet
     # + sheetId - Id of the sheet
     # + return - A `persist:Error` if the client creation fails
-    public function init(sheets:Client googleSheetClient, http:Client httpClient, SheetMetadata sheetMetadata, string spreadsheetId, int sheetId) returns Error? {
+    public isolated function init(sheets:Client googleSheetClient, http:Client httpClient, SheetMetadata & readonly sheetMetadata, string & readonly spreadsheetId, int & readonly sheetId) returns Error? {
         self.entityName = sheetMetadata.entityName;
         self.spreadsheetId = spreadsheetId;
         self.tableName = sheetMetadata.tableName;
@@ -132,7 +132,7 @@ public client class GoogleSheetsClient {
     # + typeDescriptions - The type descriptions of the relations to be retrieved
     # + return - A record in the `rowType` type or a `persist:Error` if the operation fails
     public isolated function runReadByKeyQuery(typedesc<record {}> rowType, typedesc<record {}> rowTypeWithIdFields, map<anydata> typeMap, anydata key, string[] fields = [], string[] include = [], typedesc<record {}>[] typeDescriptions = []) returns record {}|Error {
-        record {} 'object = check self.queryOne(key);
+        record {} 'object = check self.queryOne(key, self);
         'object = filterRecord('object, self.addKeyFields(fields));
         check self.getManyRelations('object, fields, include, typeDescriptions);
         self.removeUnwantedFields('object, fields);
@@ -150,7 +150,7 @@ public client class GoogleSheetsClient {
     # + return - A stream of records in the `rowType` type or a `persist:Error` if the operation fails
     public isolated function runReadQuery(typedesc<record {}> rowType, map<anydata> typeMap, string[] fields = [], string[] include = [])
     returns stream<record {}, error?>|Error {
-        return self.query(self.addKeyFields(fields));
+        return self.query(self.addKeyFields(fields), self);
     }
 
     # + rowType - The type description of the entity to be retrieved
@@ -340,8 +340,8 @@ public client class GoogleSheetsClient {
             if relationFields.length() is 0 {
                 continue;
             }
-            function (record {}, string[]) returns record {}[]|error associationsMethod = self.associationsMethods.get(entity);
-            record {}[]|error relations = associationsMethod('object, relationFields);
+            function (record {}, string[], GoogleSheetsClient) returns record {}[]|error associationsMethod = self.associationsMethods.get(entity);
+            record {}[]|error relations = associationsMethod('object, relationFields, self);
             if relations is error {
                 return <Error>error("unsupported data format");
             }
