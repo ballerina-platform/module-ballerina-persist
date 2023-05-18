@@ -43,9 +43,9 @@ public isolated client class GoogleSheetsClient {
     private final map<SheetFieldMetadata> & readonly fieldMetadata;
     private final map<string> & readonly dataTypes;
     private final string[] & readonly keyFields;
-    private final (function (string[], GoogleSheetsClient) returns stream<record {}, Error?>|Error) & readonly query;
-    private final (function (anydata, GoogleSheetsClient) returns record {}|NotFoundError) & readonly queryOne;
-    private final (map<(function (record {}, string[], GoogleSheetsClient) returns record {}[]|Error) & readonly>) & readonly associationsMethods;
+    private final (function (string[]) returns stream<record {}, Error?>|Error) & readonly query;
+    private final (function (anydata) returns record {}|NotFoundError) & readonly queryOne;
+    private final (map<(function (record {}, string[]) returns record {}[]|Error) & readonly>) & readonly associationsMethods;
 
     # Initializes the `GSheetClient`.
     #
@@ -132,7 +132,7 @@ public isolated client class GoogleSheetsClient {
     # + typeDescriptions - The type descriptions of the relations to be retrieved
     # + return - A record in the `rowType` type or a `persist:Error` if the operation fails
     public isolated function runReadByKeyQuery(typedesc<record {}> rowType, typedesc<record {}> rowTypeWithIdFields, map<anydata> typeMap, anydata key, string[] fields = [], string[] include = [], typedesc<record {}>[] typeDescriptions = []) returns record {}|Error {
-        record {} 'object = check self.queryOne(key, self);
+        record {} 'object = check self.queryOne(key);
         'object = filterRecord('object, self.addKeyFields(fields));
         check self.getManyRelations('object, fields, include, typeDescriptions);
         self.removeUnwantedFields('object, fields);
@@ -150,7 +150,7 @@ public isolated client class GoogleSheetsClient {
     # + return - A stream of records in the `rowType` type or a `persist:Error` if the operation fails
     public isolated function runReadQuery(typedesc<record {}> rowType, map<anydata> typeMap, string[] fields = [], string[] include = [])
     returns stream<record {}, error?>|Error {
-        return self.query(self.addKeyFields(fields), self);
+        return self.query(self.addKeyFields(fields));
     }
 
     # + rowType - The type description of the entity to be retrieved
@@ -340,8 +340,8 @@ public isolated client class GoogleSheetsClient {
             if relationFields.length() is 0 {
                 continue;
             }
-            function (record {}, string[], GoogleSheetsClient) returns record {}[]|error associationsMethod = self.associationsMethods.get(entity);
-            record {}[]|error relations = associationsMethod('object, relationFields, self);
+            function (record {}, string[]) returns record {}[]|error associationsMethod = self.associationsMethods.get(entity);
+            record {}[]|error relations = associationsMethod('object, relationFields);
             if relations is error {
                 return <Error>error("unsupported data format");
             }

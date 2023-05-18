@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/sql;
 
 public class PersistSQLStream {
@@ -130,8 +129,6 @@ public class PersistGoogleSheetsStream {
                         _ = value.remove(keyField);
                     }
                 }
-                io:println(self.targetType);
-                io:println(value);
                 record {|record {} value;|} nextRecord = {value: checkpanic value.cloneWithType(self.targetType)};
                 return nextRecord;
             }

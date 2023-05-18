@@ -51,8 +51,8 @@ public isolated client class GoogleSheetsRainierClient {
                 keyFields: ["empNo"],
                 range: "A:I",
                 dataTypes: {empNo: "string", firstName: "string", lastName: "string", birthDate: "time:Date", gender: "string", hireDate: "time:Date", departmentDeptNo: "string", workspaceWorkspaceId: "string"},
-                queryOne: queryGSOneEmployees,
-                query: queryGSEmployees,
+                queryOne: self.queryGSOneEmployees,
+                query: self.queryGSEmployees,
                 associationsMethods: {}
             },
             [WORKSPACE] : {
@@ -66,10 +66,10 @@ public isolated client class GoogleSheetsRainierClient {
                 range: "A:D",
                 dataTypes: {workspaceId: "string", workspaceType: "string", locationBuildingCode: "string"},
                 keyFields: ["workspaceId"],
-                query: queryGSWorkspaces,
-                queryOne: queryGSOneWorkspaces,
+                query: self.queryGSWorkspaces,
+                queryOne: self.queryGSOneWorkspaces,
                 associationsMethods: {
-                    "employees": queryGSWorkspacesEmployees
+                    "employees": self.queryGSWorkspacesEmployees
                 }
             },
             [BUILDING] : {
@@ -86,10 +86,10 @@ public isolated client class GoogleSheetsRainierClient {
                 range: "A:G",
                 dataTypes: {buildingCode: "string", city: "string", state: "string", country: "string", postalCode: "string", 'type: "string"},
                 keyFields: ["buildingCode"],
-                query: queryGSBuildings,
-                queryOne: queryGSOneBuildings,
+                query: self.queryGSBuildings,
+                queryOne: self.queryGSOneBuildings,
                 associationsMethods: {
-                    "workspaces": queryGSBuildingsWorkspaces
+                    "workspaces": self.queryGSBuildingsWorkspaces
                 }
             },
             [DEPARTMENT] : {
@@ -102,10 +102,10 @@ public isolated client class GoogleSheetsRainierClient {
                 range: "A:C",
                 dataTypes: {deptNo: "string", deptName: "string"},
                 keyFields: ["deptNo"],
-                query: queryGSDepartments,
-                queryOne: queryGSOneDepartments,
+                query: self.queryGSDepartments,
+                queryOne: self.queryGSOneDepartments,
                 associationsMethods: {
-                    "employees": queryGSDepartmentsEmployees
+                    "employees": self.queryGSDepartmentsEmployees
                 }
             },
             [ORDER_ITEM] : {
@@ -120,8 +120,8 @@ public isolated client class GoogleSheetsRainierClient {
                 range: "A:E",
                 dataTypes: {orderId: "string", itemId: "string", quantity: "int", notes: "string"},
                 keyFields: ["orderId", "itemId"],
-                query: queryGSOrderItems,
-                queryOne: queryGSOneOrderItems,
+                query: self.queryGSOrderItems,
+                queryOne: self.queryGSOneOrderItems,
                 associationsMethods: {}
             }
         };
@@ -362,205 +362,202 @@ public isolated client class GoogleSheetsRainierClient {
         return ();
     }
 
-}
+    isolated function queryGSEmployees(string[] fields) returns stream<record {}, Error?>|Error {
+        stream<Employee, Error?> employeesStream = self.queryEmployeesStream();
+        stream<Department, Error?> departmentStream = self.queryDepartmentsStream();
+        stream<Workspace, Error?> workspacesStream = self.queryWorkspacesStream();
 
-isolated function queryEmployeesStream(GoogleSheetsClient googleSheetsClient, EmployeeTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
-    'class: "io.ballerina.stdlib.persist.datastore.GoogleSheetsProcessor",
-    name: "queryStream"
-} external;
-
-isolated function queryBuildingsStream(GoogleSheetsClient googleSheetsClient, BuildingTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
-    'class: "io.ballerina.stdlib.persist.datastore.GoogleSheetsProcessor",
-    name: "queryStream"
-} external;
-
-isolated function queryDepartmentsStream(GoogleSheetsClient googleSheetsClient, DepartmentTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
-    'class: "io.ballerina.stdlib.persist.datastore.GoogleSheetsProcessor",
-    name: "queryStream"
-} external;
-
-isolated function queryWorkspacesStream(GoogleSheetsClient googleSheetsClient, WorkspaceTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
-    'class: "io.ballerina.stdlib.persist.datastore.GoogleSheetsProcessor",
-    name: "queryStream"
-} external;
-
-isolated function queryOrderItemsStream(GoogleSheetsClient googleSheetsClient, OrderItemTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
-    'class: "io.ballerina.stdlib.persist.datastore.GoogleSheetsProcessor",
-    name: "queryStream"
-} external;
-
-isolated function queryGSEmployees(string[] fields, GoogleSheetsClient googleSheetsClient) returns stream<record {}, Error?>|Error {
-    stream<Employee, Error?> employeesStream = queryEmployeesStream(googleSheetsClient);
-    stream<Department, Error?> departmentStream = queryDepartmentsStream(googleSheetsClient);
-    stream<Workspace, Error?> workspacesStream = queryWorkspacesStream(googleSheetsClient);
-
-    record {}[] outputArray = check from record {} 'object in employeesStream
-        outer join var department in departmentStream
+        record {}[] outputArray = check from record {} 'object in employeesStream
+            outer join var department in departmentStream
             on 'object.departmentDeptNo equals department?.deptNo
-        outer join var workspace in workspacesStream
+            outer join var workspace in workspacesStream
             on 'object.workspaceWorkspaceId equals workspace?.workspaceId
-        select filterRecord(
+            select filterRecord(
                 {
-            ...'object,
-            "department": department,
-            "workspace": workspace
-        }, fields);
-    return outputArray.toStream();
-}
-
-isolated function queryGSOneEmployees(anydata key, GoogleSheetsClient googleSheetsClient) returns record {}|NotFoundError {
-    stream<Employee, Error?> employeesStream = queryEmployeesStream(googleSheetsClient);
-    stream<Department, Error?> departmenttStream = queryDepartmentsStream(googleSheetsClient);
-    stream<Workspace, Error?> workspacesStream = queryWorkspacesStream(googleSheetsClient);
-    error? unionResult = from record {} 'object in employeesStream
-        where getKey('object, ["empNo"]) == key
-        outer join var department in departmenttStream
-            on 'object.departmentDeptNo equals department?.deptNo
-        outer join var workspace in workspacesStream
-            on 'object.workspaceWorkspaceId equals workspace?.workspaceId
-        do {
-            return {
                 ...'object,
                 "department": department,
                 "workspace": workspace
-            };
-        };
-    if unionResult is error {
-        return <NotFoundError>error(unionResult.message());
+            }, fields);
+        return outputArray.toStream();
     }
-    return <NotFoundError>error("Invalid key: " + key.toString());
-}
 
-isolated function queryGSBuildings(string[] fields, GoogleSheetsClient googleSheetsClient) returns stream<record {}, Error?>|Error {
-    stream<Building, Error?> buildingsStream = queryBuildingsStream(googleSheetsClient);
-    record {}[] outputArray = check from record {} 'object in buildingsStream
-        select filterRecord({
-            ...'object
-        }, fields);
-    return outputArray.toStream();
-}
+    isolated function queryGSOneEmployees(anydata key) returns record {}|NotFoundError {
+        stream<Employee, Error?> employeesStream = self.queryEmployeesStream();
+        stream<Department, Error?> departmenttStream = self.queryDepartmentsStream();
+        stream<Workspace, Error?> workspacesStream = self.queryWorkspacesStream();
+        error? unionResult = from record {} 'object in employeesStream
+            where getKey('object, ["empNo"]) == key
+            outer join var department in departmenttStream
+            on 'object.departmentDeptNo equals department?.deptNo
+            outer join var workspace in workspacesStream
+            on 'object.workspaceWorkspaceId equals workspace?.workspaceId
+            do {
+                return {
+                    ...'object,
+                    "department": department,
+                    "workspace": workspace
+                };
+            };
+        if unionResult is error {
+            return <NotFoundError>error(unionResult.message());
+        }
+        return <NotFoundError>error("Invalid key: " + key.toString());
+    }
 
-isolated function queryGSOneBuildings(anydata key, GoogleSheetsClient googleSheetsClient) returns record {}|NotFoundError {
-    stream<Building, Error?> buildingsStream = queryBuildingsStream(googleSheetsClient);
-    error? unionResult = from record {} 'object in buildingsStream
-        where getKey('object, ["buildingCode"]) == key
-        do {
-            return {
+    isolated function queryGSBuildings(string[] fields) returns stream<record {}, Error?>|Error {
+        stream<Building, Error?> buildingsStream = self.queryBuildingsStream();
+        record {}[] outputArray = check from record {} 'object in buildingsStream
+            select filterRecord({
                 ...'object
-            };
-        };
-    if unionResult is error {
-        return <NotFoundError>error(unionResult.message());
+            }, fields);
+        return outputArray.toStream();
     }
-    return <NotFoundError>error("Invalid key: " + key.toString());
-}
 
-isolated function queryGSBuildingsWorkspaces(record {} value, string[] fields, GoogleSheetsClient googleSheetsClient) returns record {}[]|Error {
-    stream<Workspace, Error?> workspacesStream = queryWorkspacesStream(googleSheetsClient);
-    return from record {} 'object in workspacesStream
-        where 'object.locationBuildingCode == value["buildingCode"]
-        select filterRecord({
-            ...'object
-        }, fields);
-}
+    isolated function queryGSOneBuildings(anydata key) returns record {}|NotFoundError {
+        stream<Building, Error?> buildingsStream = self.queryBuildingsStream();
+        error? unionResult = from record {} 'object in buildingsStream
+            where getKey('object, ["buildingCode"]) == key
+            do {
+                return {
+                    ...'object
+                };
+            };
+        if unionResult is error {
+            return <NotFoundError>error(unionResult.message());
+        }
+        return <NotFoundError>error("Invalid key: " + key.toString());
+    }
 
-isolated function queryGSDepartments(string[] fields, GoogleSheetsClient googleSheetsClient) returns stream<record {}, Error?>|Error {
-    stream<Department, Error?> departmenttStream = queryDepartmentsStream(googleSheetsClient);
-    record {}[] outputArray = check from record {} 'object in departmenttStream
-        select filterRecord({
-            ...'object
-        }, fields);
-    return outputArray.toStream();
-}
-
-isolated function queryGSOneDepartments(anydata key, GoogleSheetsClient googleSheetsClient) returns record {}|NotFoundError {
-    stream<Department, Error?> departmenttStream = queryDepartmentsStream(googleSheetsClient);
-    error? unionResult = from record {} 'object in departmenttStream
-        where getKey('object, ["deptNo"]) == key
-        do {
-            return {
+    isolated function queryGSBuildingsWorkspaces(record {} value, string[] fields) returns record {}[]|Error {
+        stream<Workspace, Error?> workspacesStream = self.queryWorkspacesStream();
+        return from record {} 'object in workspacesStream
+            where 'object.locationBuildingCode == value["buildingCode"]
+            select filterRecord({
                 ...'object
-            };
-        };
-    if unionResult is error {
-        return <NotFoundError>error(unionResult.message());
+            }, fields);
     }
-    return <NotFoundError>error("Invalid key: " + key.toString());
-}
 
-isolated function queryGSDepartmentsEmployees(record {} value, string[] fields, GoogleSheetsClient googleSheetsClient) returns record {}[]|Error {
-    stream<Employee, Error?> employeesStream = queryEmployeesStream(googleSheetsClient);
-    return from record {} 'object in employeesStream
-        where 'object["departmentDeptNo"] == value["deptNo"]
-        select filterRecord({
-            ...'object
-        }, fields);
-}
+    isolated function queryGSDepartments(string[] fields) returns stream<record {}, Error?>|Error {
+        
+        stream<Department, Error?> departmenttStream = self.queryDepartmentsStream();
+        record {}[] outputArray = check from record {} 'object in departmenttStream
+            select filterRecord({
+                ...'object
+            }, fields);
+        return outputArray.toStream();
+    }
 
-isolated function queryGSWorkspaces(string[] fields, GoogleSheetsClient googleSheetsClient) returns stream<record {}, Error?>|Error {
-    stream<Workspace, Error?> workspacesStream = queryWorkspacesStream(googleSheetsClient);
-    stream<Building, Error?> buildingsStream = queryBuildingsStream(googleSheetsClient);
-    record {}[] outputArray = check from record {} 'object in workspacesStream
-        outer join var location in buildingsStream
+    isolated function queryGSOneDepartments(anydata key) returns record {}|NotFoundError {
+        stream<Department, Error?> departmenttStream = self.queryDepartmentsStream();
+        error? unionResult = from record {} 'object in departmenttStream
+            where getKey('object, ["deptNo"]) == key
+            do {
+                return {
+                    ...'object
+                };
+            };
+        if unionResult is error {
+            return <NotFoundError>error(unionResult.message());
+        }
+        return <NotFoundError>error("Invalid key: " + key.toString());
+    }
+
+    isolated function queryGSDepartmentsEmployees(record {} value, string[] fields) returns record {}[]|Error {
+        stream<Employee, Error?> employeesStream = self.queryEmployeesStream();
+        return from record {} 'object in employeesStream
+            where 'object["departmentDeptNo"] == value["deptNo"]
+            select filterRecord({
+                ...'object
+            }, fields);
+    }
+
+    isolated function queryGSWorkspaces(string[] fields) returns stream<record {}, Error?>|Error {
+        stream<Workspace, Error?> workspacesStream = self.queryWorkspacesStream();
+        stream<Building, Error?> buildingsStream = self.queryBuildingsStream();
+        record {}[] outputArray = check from record {} 'object in workspacesStream
+            outer join var location in buildingsStream
             on 'object.locationBuildingCode equals location?.buildingCode
-        select filterRecord({
-            ...'object,
-            "location": location
-        }, fields);
-    return outputArray.toStream();
-}
-
-isolated function queryGSOneWorkspaces(anydata key, GoogleSheetsClient googleSheetsClient) returns record {}|NotFoundError {
-    stream<Workspace, Error?> workspacesStream = queryWorkspacesStream(googleSheetsClient);
-    stream<Building, Error?> buildingsStream = queryBuildingsStream(googleSheetsClient);
-    error? unionResult = from record {} 'object in workspacesStream
-        where getKey('object, ["workspaceId"]) == key
-        outer join var location in buildingsStream
-            on 'object.locationBuildingCode equals location?.buildingCode
-        do {
-            return {
+            select filterRecord({
                 ...'object,
                 "location": location
-            };
-        };
-    if unionResult is error {
-        return <NotFoundError>error(unionResult.message());
+            }, fields);
+        return outputArray.toStream();
     }
-    return <NotFoundError>error("Invalid key: " + key.toString());
-}
 
-isolated function queryGSWorkspacesEmployees(record {} value, string[] fields, GoogleSheetsClient googleSheetsClient) returns record {}[]|Error {
-    stream<Employee, Error?> employeesStream = queryEmployeesStream(googleSheetsClient);
-    return from record {} 'object in employeesStream
-        where 'object.workspaceWorkspaceId == value["workspaceId"]
-        select filterRecord({
-            ...'object
-        }, fields);
-}
+    isolated function queryGSOneWorkspaces(anydata key) returns record {}|NotFoundError {
+        stream<Workspace, Error?> workspacesStream = self.queryWorkspacesStream();
+        stream<Building, Error?> buildingsStream = self.queryBuildingsStream();
+        error? unionResult = from record {} 'object in workspacesStream
+            where getKey('object, ["workspaceId"]) == key
+            outer join var location in buildingsStream
+            on 'object.locationBuildingCode equals location?.buildingCode
+            do {
+                return {
+                    ...'object,
+                    "location": location
+                };
+            };
+        if unionResult is error {
+            return <NotFoundError>error(unionResult.message());
+        }
+        return <NotFoundError>error("Invalid key: " + key.toString());
+    }
 
-isolated function queryGSOrderItems(string[] fields, GoogleSheetsClient googleSheetsClient) returns stream<record {|anydata...;|}, Error?>|Error {
-    stream<OrderItem, Error?> orderItemsStream = queryOrderItemsStream(googleSheetsClient);
-    record {}[] outputArray = check from record {} 'object in orderItemsStream
-        select filterRecord({
-            ...'object
-        }, fields);
-    return outputArray.toStream();
-}
-
-isolated function queryGSOneOrderItems(anydata key, GoogleSheetsClient googleSheetsClient) returns record {}|NotFoundError {
-    stream<OrderItem, Error?> orderItemsStream = queryOrderItemsStream(googleSheetsClient);
-    error? unionResult = from record {} 'object in orderItemsStream
-        where getKey('object, ["orderId", "itemId"]) == key
-        do {
-            return {
+    isolated function queryGSWorkspacesEmployees(record {} value, string[] fields) returns record {}[]|Error {
+        stream<Employee, Error?> employeesStream = self.queryEmployeesStream();
+        return from record {} 'object in employeesStream
+            where 'object.workspaceWorkspaceId == value["workspaceId"]
+            select filterRecord({
                 ...'object
-            };
-        };
-    if unionResult is error {
-        return <NotFoundError>error(unionResult.message());
+            }, fields);
     }
-    return <NotFoundError>error("Invalid key: " + key.toString());
+
+    isolated function queryGSOrderItems(string[] fields) returns stream<record {|anydata...;|}, Error?>|Error {
+        stream<OrderItem, Error?> orderItemsStream = self.queryOrderItemsStream();
+        record {}[] outputArray = check from record {} 'object in orderItemsStream
+            select filterRecord({
+                ...'object
+            }, fields);
+        return outputArray.toStream();
+    }
+
+    isolated function queryGSOneOrderItems(anydata key) returns record {}|NotFoundError {
+        stream<OrderItem, Error?> orderItemsStream = self.queryOrderItemsStream();
+        error? unionResult = from record {} 'object in orderItemsStream
+            where getKey('object, ["orderId", "itemId"]) == key
+            do {
+                return {
+                    ...'object
+                };
+            };
+        if unionResult is error {
+            return <NotFoundError>error(unionResult.message());
+        }
+        return <NotFoundError>error("Invalid key: " + key.toString());
+    }
+
+    isolated function queryEmployeesStream(EmployeeTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.datastore.GoogleSheetsProcessor",
+        name: "queryStream"
+    } external;
+
+    isolated function queryBuildingsStream(BuildingTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.datastore.GoogleSheetsProcessor",
+        name: "queryStream"
+    } external;
+
+    isolated function queryDepartmentsStream(DepartmentTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.datastore.GoogleSheetsProcessor",
+        name: "queryStream"
+    } external;
+
+    isolated function queryWorkspacesStream(WorkspaceTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.datastore.GoogleSheetsProcessor",
+        name: "queryStream"
+    } external;
+
+    isolated function queryOrderItemsStream(OrderItemTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
+        'class: "io.ballerina.stdlib.persist.datastore.GoogleSheetsProcessor",
+        name: "queryStream"
+    } external;
 }
-
-
-

@@ -43,6 +43,7 @@ import io.ballerina.stdlib.persist.ModuleUtils;
 import static io.ballerina.stdlib.persist.Constants.ERROR;
 import static io.ballerina.stdlib.persist.Constants.KEY_FIELDS;
 import static io.ballerina.stdlib.persist.Utils.getEntity;
+import static io.ballerina.stdlib.persist.Utils.getEntityFromStreamMethod;
 import static io.ballerina.stdlib.persist.Utils.getFieldTypes;
 import static io.ballerina.stdlib.persist.Utils.getKey;
 import static io.ballerina.stdlib.persist.Utils.getMetadata;
@@ -108,7 +109,8 @@ public class GoogleSheetsProcessor {
     }
 
     public static BStream queryStream(Environment env, BObject client, BTypedesc targetType) {
-        BObject persistClient = (BObject) client;
+        BString entity = getEntityFromStreamMethod(env);
+        BObject persistClient = getPersistClient(client, entity);
         BArray keyFields = (BArray) persistClient.get(KEY_FIELDS);
         RecordType recordType = (RecordType) targetType.getDescribingType();
 

@@ -43,9 +43,9 @@ public type SheetMetadata record {|
     string[] keyFields;
     string range;
     map<string> dataTypes;
-    function (string[], GoogleSheetsClient) returns stream<record {}, Error?>|Error query;
-    function (anydata, GoogleSheetsClient) returns record {}|NotFoundError queryOne;
-    map<function (record {}, string[], GoogleSheetsClient) returns record {}[]|Error> associationsMethods;
+    function (string[]) returns stream<record {}, Error?>|Error query;
+    function (anydata) returns record {}|NotFoundError queryOne;
+    map<function (record {}, string[]) returns record {}[]|Error> associationsMethods;
 |};
 
 # Represents the metadata associated with a simple field in the entity record.
