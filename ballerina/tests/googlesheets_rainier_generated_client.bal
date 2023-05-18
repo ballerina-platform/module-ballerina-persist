@@ -362,7 +362,7 @@ public isolated client class GoogleSheetsRainierClient {
         return ();
     }
 
-    isolated function queryEmployees(string[] fields) returns stream<record {}, Error?>|Error {
+    private isolated function queryEmployees(string[] fields) returns stream<record {}, Error?>|Error {
         stream<Employee, Error?> employeesStream = self.queryEmployeesStream();
         stream<Department, Error?> departmentStream = self.queryDepartmentsStream();
         stream<Workspace, Error?> workspacesStream = self.queryWorkspacesStream();
@@ -381,7 +381,7 @@ public isolated client class GoogleSheetsRainierClient {
         return outputArray.toStream();
     }
 
-    isolated function queryOneEmployees(anydata key) returns record {}|NotFoundError {
+    private isolated function queryOneEmployees(anydata key) returns record {}|NotFoundError {
         stream<Employee, Error?> employeesStream = self.queryEmployeesStream();
         stream<Department, Error?> departmenttStream = self.queryDepartmentsStream();
         stream<Workspace, Error?> workspacesStream = self.queryWorkspacesStream();
@@ -404,7 +404,7 @@ public isolated client class GoogleSheetsRainierClient {
         return <NotFoundError>error("Invalid key: " + key.toString());
     }
 
-    isolated function queryBuildings(string[] fields) returns stream<record {}, Error?>|Error {
+    private isolated function queryBuildings(string[] fields) returns stream<record {}, Error?>|Error {
         stream<Building, Error?> buildingsStream = self.queryBuildingsStream();
         record {}[] outputArray = check from record {} 'object in buildingsStream
             select filterRecord({
@@ -413,7 +413,7 @@ public isolated client class GoogleSheetsRainierClient {
         return outputArray.toStream();
     }
 
-    isolated function queryOneBuildings(anydata key) returns record {}|NotFoundError {
+    private isolated function queryOneBuildings(anydata key) returns record {}|NotFoundError {
         stream<Building, Error?> buildingsStream = self.queryBuildingsStream();
         error? unionResult = from record {} 'object in buildingsStream
             where getKey('object, ["buildingCode"]) == key
@@ -428,7 +428,7 @@ public isolated client class GoogleSheetsRainierClient {
         return <NotFoundError>error("Invalid key: " + key.toString());
     }
 
-    isolated function queryBuildingsWorkspaces(record {} value, string[] fields) returns record {}[]|Error {
+    private isolated function queryBuildingsWorkspaces(record {} value, string[] fields) returns record {}[]|Error {
         stream<Workspace, Error?> workspacesStream = self.queryWorkspacesStream();
         return from record {} 'object in workspacesStream
             where 'object.locationBuildingCode == value["buildingCode"]
@@ -437,7 +437,7 @@ public isolated client class GoogleSheetsRainierClient {
             }, fields);
     }
 
-    isolated function queryDepartments(string[] fields) returns stream<record {}, Error?>|Error {
+    private isolated function queryDepartments(string[] fields) returns stream<record {}, Error?>|Error {
         
         stream<Department, Error?> departmenttStream = self.queryDepartmentsStream();
         record {}[] outputArray = check from record {} 'object in departmenttStream
@@ -447,7 +447,7 @@ public isolated client class GoogleSheetsRainierClient {
         return outputArray.toStream();
     }
 
-    isolated function queryOneDepartments(anydata key) returns record {}|NotFoundError {
+    private isolated function queryOneDepartments(anydata key) returns record {}|NotFoundError {
         stream<Department, Error?> departmenttStream = self.queryDepartmentsStream();
         error? unionResult = from record {} 'object in departmenttStream
             where getKey('object, ["deptNo"]) == key
@@ -462,7 +462,7 @@ public isolated client class GoogleSheetsRainierClient {
         return <NotFoundError>error("Invalid key: " + key.toString());
     }
 
-    isolated function queryDepartmentsEmployees(record {} value, string[] fields) returns record {}[]|Error {
+    private isolated function queryDepartmentsEmployees(record {} value, string[] fields) returns record {}[]|Error {
         stream<Employee, Error?> employeesStream = self.queryEmployeesStream();
         return from record {} 'object in employeesStream
             where 'object["departmentDeptNo"] == value["deptNo"]
@@ -471,7 +471,7 @@ public isolated client class GoogleSheetsRainierClient {
             }, fields);
     }
 
-    isolated function queryWorkspaces(string[] fields) returns stream<record {}, Error?>|Error {
+    private isolated function queryWorkspaces(string[] fields) returns stream<record {}, Error?>|Error {
         stream<Workspace, Error?> workspacesStream = self.queryWorkspacesStream();
         stream<Building, Error?> buildingsStream = self.queryBuildingsStream();
         record {}[] outputArray = check from record {} 'object in workspacesStream
@@ -484,7 +484,7 @@ public isolated client class GoogleSheetsRainierClient {
         return outputArray.toStream();
     }
 
-    isolated function queryOneWorkspaces(anydata key) returns record {}|NotFoundError {
+    private isolated function queryOneWorkspaces(anydata key) returns record {}|NotFoundError {
         stream<Workspace, Error?> workspacesStream = self.queryWorkspacesStream();
         stream<Building, Error?> buildingsStream = self.queryBuildingsStream();
         error? unionResult = from record {} 'object in workspacesStream
@@ -503,7 +503,7 @@ public isolated client class GoogleSheetsRainierClient {
         return <NotFoundError>error("Invalid key: " + key.toString());
     }
 
-    isolated function queryWorkspacesEmployees(record {} value, string[] fields) returns record {}[]|Error {
+    private isolated function queryWorkspacesEmployees(record {} value, string[] fields) returns record {}[]|Error {
         stream<Employee, Error?> employeesStream = self.queryEmployeesStream();
         return from record {} 'object in employeesStream
             where 'object.workspaceWorkspaceId == value["workspaceId"]
@@ -512,7 +512,7 @@ public isolated client class GoogleSheetsRainierClient {
             }, fields);
     }
 
-    isolated function queryOrderItems(string[] fields) returns stream<record {|anydata...;|}, Error?>|Error {
+    private isolated function queryOrderItems(string[] fields) returns stream<record {|anydata...;|}, Error?>|Error {
         stream<OrderItem, Error?> orderItemsStream = self.queryOrderItemsStream();
         record {}[] outputArray = check from record {} 'object in orderItemsStream
             select filterRecord({
@@ -521,7 +521,7 @@ public isolated client class GoogleSheetsRainierClient {
         return outputArray.toStream();
     }
 
-    isolated function queryOneOrderItems(anydata key) returns record {}|NotFoundError {
+    private isolated function queryOneOrderItems(anydata key) returns record {}|NotFoundError {
         stream<OrderItem, Error?> orderItemsStream = self.queryOrderItemsStream();
         error? unionResult = from record {} 'object in orderItemsStream
             where getKey('object, ["orderId", "itemId"]) == key
@@ -536,27 +536,27 @@ public isolated client class GoogleSheetsRainierClient {
         return <NotFoundError>error("Invalid key: " + key.toString());
     }
 
-    isolated function queryEmployeesStream(EmployeeTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
+    private isolated function queryEmployeesStream(EmployeeTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.GoogleSheetsProcessor",
         name: "queryStream"
     } external;
 
-    isolated function queryBuildingsStream(BuildingTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
+    private isolated function queryBuildingsStream(BuildingTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.GoogleSheetsProcessor",
         name: "queryStream"
     } external;
 
-    isolated function queryDepartmentsStream(DepartmentTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
+    private isolated function queryDepartmentsStream(DepartmentTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.GoogleSheetsProcessor",
         name: "queryStream"
     } external;
 
-    isolated function queryWorkspacesStream(WorkspaceTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
+    private isolated function queryWorkspacesStream(WorkspaceTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.GoogleSheetsProcessor",
         name: "queryStream"
     } external;
 
-    isolated function queryOrderItemsStream(OrderItemTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
+    private isolated function queryOrderItemsStream(OrderItemTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {
         'class: "io.ballerina.stdlib.persist.datastore.GoogleSheetsProcessor",
         name: "queryStream"
     } external;
