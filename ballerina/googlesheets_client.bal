@@ -36,7 +36,7 @@ public isolated client class GoogleSheetsClient {
     private final sheets:Client googleSheetClient;
     private final http:Client httpClient;
     private final string spreadsheetId;
-    private final int & readonly sheetId;
+    private final int sheetId;
     private final string entityName;
     private final string tableName;
     private final string range;
@@ -340,7 +340,7 @@ public isolated client class GoogleSheetsClient {
             if relationFields.length() is 0 {
                 continue;
             }
-            function (record {}, string[]) returns record {}[]|error associationsMethod = self.associationsMethods.get(entity);
+            isolated function (record {}, string[]) returns record {}[]|error associationsMethod = self.associationsMethods.get(entity);
             record {}[]|error relations = associationsMethod('object, relationFields);
             if relations is error {
                 return <Error>error("unsupported data format");
