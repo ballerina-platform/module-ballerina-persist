@@ -44,6 +44,7 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_304;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_305;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_306;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_307;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_308;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_401;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_402;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_403;
@@ -201,10 +202,11 @@ public class CompilerPluginTest {
     }
     @Test
     public void validateEntityFieldTypeForGoogleSheets() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("project_3", "field-types.bal", 11);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_3", "field-types.bal", 12);
         testDiagnostic(
                 diagnostics,
                 new String[]{
+                        PERSIST_308.getCode(),
                         PERSIST_306.getCode(),
                         PERSIST_306.getCode(),
                         PERSIST_305.getCode(),
@@ -218,6 +220,7 @@ public class CompilerPluginTest {
                         PERSIST_306.getCode()
                 },
                 new String[]{
+                        "an entity does not support nillable field",
                         "an entity does not support byte array field type",
                         "an entity does not support boolean array field type",
                         "an entity does not support json-typed field",
@@ -231,6 +234,7 @@ public class CompilerPluginTest {
                         "an entity does not support enum array field type"
                 },
                 new String[]{
+                        "(13:4,13:10)",
                         "(16:4,16:10)",
                         "(18:4,18:13)",
                         "(20:4,20:8)",
