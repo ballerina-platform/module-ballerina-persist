@@ -191,12 +191,12 @@ public isolated client class GoogleSheetsClient {
                         SheetFieldType|error typedValue = self.dataConverter(value, dataType);
                         if typedValue is error {
                             return <Error>error(typedValue.message());
+                        } else if typedValue is time:Civil {
+                            rowArray[columnName] = <time:Civil>typedValue;
                         } else if typedValue is time:Date {
                             rowArray[columnName] = <time:Date>typedValue;
                         } else if typedValue is time:TimeOfDay {
                             rowArray[columnName] = <time:TimeOfDay>typedValue;
-                        } else if typedValue is time:Civil {
-                            rowArray[columnName] = <time:Civil>typedValue;
                         } else if typedValue is time:Utc {
                             rowArray[columnName] = <time:Utc>typedValue;
                         }
@@ -424,20 +424,20 @@ public isolated client class GoogleSheetsClient {
 
     private isolated function timeToString(SheetTimeType timeValue) returns string|error {
 
+        if timeValue is time:Civil {
+            return time:civilToString(timeValue);
+        }
+        
+        if timeValue is time:Utc {
+            return time:utcToString(timeValue);
+        }
+
         if timeValue is time:Date {
             return string `${timeValue.day}-${timeValue.month}-${timeValue.year}`;
         }
 
         if timeValue is time:TimeOfDay {
             return string `${timeValue.hour}-${timeValue.minute}-${(timeValue.second).toString()}`;
-        }
-
-        if timeValue is time:Civil {
-            return time:civilToString(timeValue);
-        }
-
-        if timeValue is time:Utc {
-            return time:utcToString(timeValue);
         }
 
         return <Error>error("Error: unsupported time format");
