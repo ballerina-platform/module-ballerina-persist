@@ -11,7 +11,7 @@ public type MedicalNeed record {|
     readonly int needId;
     boolean booleanTest;
     int itemId;
-    float? floatTest;
+    float floatTest;
     decimal decimalTest;
     string beneficiaryId;
     byte[] beneficiaryIdByteArray;

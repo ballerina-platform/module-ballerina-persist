@@ -23,6 +23,7 @@ import io.ballerina.projects.plugins.CompilerPluginContext;
 import io.ballerina.projects.plugins.codeaction.CodeAction;
 import io.ballerina.stdlib.persist.compiler.codeaction.AddSingleText;
 import io.ballerina.stdlib.persist.compiler.codeaction.ChangeToClosedRecord;
+import io.ballerina.stdlib.persist.compiler.codeaction.ChangeTypeNotNillable;
 import io.ballerina.stdlib.persist.compiler.codeaction.ChangeTypeToBoolean;
 import io.ballerina.stdlib.persist.compiler.codeaction.ChangeTypeToByteArray;
 import io.ballerina.stdlib.persist.compiler.codeaction.ChangeTypeToDecimal;
@@ -58,7 +59,8 @@ public class PersistCompilerPlugin extends CompilerPlugin {
                 new ChangeTypeToFloat(),
                 new ChangeTypeToDecimal(),
                 new ChangeTypeToByteArray(),
-                new SwitchRelationOwner()
+                new SwitchRelationOwner(),
+                new ChangeTypeNotNillable()
         );
     }
 }

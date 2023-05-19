@@ -314,7 +314,7 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                         new BNumericProperty(arrayLength),
                         new BStringProperty(isOptionalType ? type + "?" : type));
                 isValidType = ValidatorsByDatastore.validateSimpleTypes(
-                        entity, typeNode, typeNamePostfix, isArrayType, properties, type, datastore);
+                        entity, typeNode, typeNamePostfix, isArrayType, isOptionalType, properties, type, datastore);
                 isSimpleType = true;
             } else if (processedTypeNode instanceof QualifiedNameReferenceNode) {
                 // Support only time constructs
@@ -368,8 +368,8 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                             new BNumericProperty(arrayStartOffset),
                             new BNumericProperty(arrayLength),
                             new BStringProperty(isOptionalType ? typeName + "?" : typeName));
-                    isValidType = ValidatorsByDatastore.validateSimpleTypes(
-                            entity, typeNode, typeNamePostfix, isArrayType, properties, typeName, datastore);
+                    isValidType = ValidatorsByDatastore.validateSimpleTypes(entity, typeNode, typeNamePostfix,
+                            isArrayType, isOptionalType, properties, typeName, datastore);
                     isSimpleType = true;
                 }
             } else {
