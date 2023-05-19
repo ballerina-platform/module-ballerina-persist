@@ -290,7 +290,8 @@ OrderItemExtended orderItemExtended1 = {
     arivalTimeCivil: {"utcOffset":{"hours":5,"minutes":30},"timeAbbrev":"Asia/Colombo","dayOfWeek":1,"year":2021,"month":4,"day":12,"hour":23,"minute":20,"second":50.52},
     arivalTimeUtc: [1684493685, 0.998012000],
     arivalTimeDate: {year: 2021, month: 4, day: 12},
-    arivalTimeTimeOfDay: {hour: 17, minute: 50, second: 50.52}
+    arivalTimeTimeOfDay: {hour: 17, minute: 50, second: 50.52},
+    orderType: INSTORE
 };
 
 OrderItemExtended orderItemExtendedRetrieved = {
@@ -303,7 +304,8 @@ OrderItemExtended orderItemExtendedRetrieved = {
     arivalTimeCivil: {"timeAbbrev":"Z","dayOfWeek":1 ,"year":2021,"month":4,"day":12,"hour":17,"minute":50,"second":50.52},
     arivalTimeUtc: [1684493685, 0.998012000],
     arivalTimeDate: {year: 2021, month: 4, day: 12},
-    arivalTimeTimeOfDay: {hour: 17, minute: 50, second: 50.52}
+    arivalTimeTimeOfDay: {hour: 17, minute: 50, second: 50.52},
+    orderType: INSTORE
 };
 
 OrderItemExtended orderItemExtended2 = {
@@ -316,7 +318,8 @@ OrderItemExtended orderItemExtended2 = {
     arivalTimeCivil: {"utcOffset":{"hours":5,"minutes":30},"timeAbbrev":"Asia/Colombo","dayOfWeek":1 ,"year":2024,"month":4,"day":12,"hour":17,"minute":50,"second":50.52},
     arivalTimeUtc: [1684493685, 0.998012000],
     arivalTimeDate: {year: 2021, month: 4, day: 12},
-    arivalTimeTimeOfDay: {hour: 17, minute: 50, second: 50.52}
+    arivalTimeTimeOfDay: {hour: 17, minute: 50, second: 50.52},
+    orderType: ONLINE
 };
 
 public type EmployeeInfo record {|
@@ -338,7 +341,9 @@ OrderItemExtended orderItemExtended2Retrieved = {
     arivalTimeCivil: {"timeAbbrev":"Z","dayOfWeek":5 ,"year":2024,"month":4,"day":12,"hour":12,"minute":20,"second":50.52},
     arivalTimeUtc: [1684493685, 0.998012000],
     arivalTimeDate: {year: 2021, month: 4, day: 12},
-    arivalTimeTimeOfDay: {hour: 17, minute: 50, second: 50.52}
+    arivalTimeTimeOfDay: {hour: 17, minute: 50, second: 50.52},
+    orderType: ONLINE
+
 };
 
 OrderItemExtended orderItemExtended3 = {
@@ -351,7 +356,8 @@ OrderItemExtended orderItemExtended3 = {
     arivalTimeCivil: {"utcOffset":{"hours":5,"minutes":30},"timeAbbrev":"Asia/Colombo","dayOfWeek":1,"year":2021,"month":4,"day":12,"hour":23,"minute":20,"second":50.52},
     arivalTimeUtc: [1684493685, 0.998012000],
     arivalTimeDate: {year: 2021, month: 4, day: 12},
-    arivalTimeTimeOfDay: {hour: 17, minute: 50, second: 50.52}
+    arivalTimeTimeOfDay: {hour: 17, minute: 50, second: 50.52},
+    orderType: INSTORE
 };
 
 OrderItemExtended orderItemExtended3Retrieved = {
@@ -364,7 +370,8 @@ OrderItemExtended orderItemExtended3Retrieved = {
     arivalTimeCivil: {"timeAbbrev":"Z","dayOfWeek":1 ,"year":2021,"month":4,"day":12,"hour":17,"minute":50,"second":50.52},
     arivalTimeUtc: [1684493685, 0.998012000],
     arivalTimeDate: {year: 2021, month: 4, day: 12},
-    arivalTimeTimeOfDay: {hour: 17, minute: 50, second: 50.52}
+    arivalTimeTimeOfDay: {hour: 17, minute: 50, second: 50.52},
+    orderType: ONLINE
 };
 
 public type DepartmentInfo record {|

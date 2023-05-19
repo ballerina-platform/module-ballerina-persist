@@ -24,7 +24,7 @@ public isolated client class GoogleSheetsRainierClientAllDataType {
                 entityName: "OrderItemExtended",
                 tableName: "OrderItemExtended",
                 keyFields: ["orderId", "itemId"],
-                range: "A:J",
+                range: "A:K",
                 query: self.queryOrderitemextendeds,
                 queryOne: self.queryOneOrderitemextendeds,
                 dataTypes: {
@@ -37,7 +37,8 @@ public isolated client class GoogleSheetsRainierClientAllDataType {
                     arivalTimeCivil: "time:Civil",
                     arivalTimeUtc: "time:Utc",
                     arivalTimeDate: "time:Date",
-                    arivalTimeTimeOfDay: "time:TimeOfDay"
+                    arivalTimeTimeOfDay: "time:TimeOfDay",
+                    orderType: "ENUM"
                 },
                 fieldMetadata: {
                     orderId: {columnName: "orderId", columnId: "A"},
@@ -49,7 +50,8 @@ public isolated client class GoogleSheetsRainierClientAllDataType {
                     arivalTimeCivil: {columnName: "arivalTimeCivil", columnId: "G"},
                     arivalTimeUtc: {columnName: "arivalTimeUtc", columnId: "H"},
                     arivalTimeDate: {columnName: "arivalTimeDate", columnId: "I"},
-                    arivalTimeTimeOfDay: {columnName: "arivalTimeTimeOfDay", columnId: "J"}
+                    arivalTimeTimeOfDay: {columnName: "arivalTimeTimeOfDay", columnId: "J"},
+                    orderType: {columnName: "orderType", columnId: "K"}
                 },
                 associationsMethods: {}
             }

@@ -23,6 +23,11 @@ public enum EnumType {
     TYPE_4
 }
 
+public enum OrderType {
+    ONLINE,
+    INSTORE
+}
+
 public type AllTypes record {|
     readonly int id;
     boolean booleanType;
@@ -266,6 +271,7 @@ public type OrderItemExtended record {|
     time:Utc arivalTimeUtc;
     time:Date arivalTimeDate;
     time:TimeOfDay arivalTimeTimeOfDay;
+    OrderType orderType;
 |};
 
 public type OrderItemExtendedOptionalized record {|
@@ -279,6 +285,7 @@ public type OrderItemExtendedOptionalized record {|
     time:Utc arivalTimeUtc?;
     time:Date arivalTimeDate?;
     time:TimeOfDay arivalTimeTimeOfDay?;
+    OrderType orderType?;
 |};
 
 public type OrderItemExtendedTargetType typedesc<OrderItemExtendedOptionalized>;
@@ -294,6 +301,7 @@ public type OrderItemExtendedUpdate record {|
     time:Utc arivalTimeUtc?;
     time:Date arivalTimeDate?;
     time:TimeOfDay arivalTimeTimeOfDay?;
+    OrderType orderType?;
 |};
 
 
