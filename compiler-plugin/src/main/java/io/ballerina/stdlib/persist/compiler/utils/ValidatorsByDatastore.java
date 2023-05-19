@@ -40,6 +40,7 @@ import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.STRI
 import static io.ballerina.stdlib.persist.compiler.Constants.TIME_MODULE;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_305;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_306;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_308;
 
 /**
  * Class containing util functions.
@@ -50,8 +51,17 @@ public final class ValidatorsByDatastore {
     }
 
     public static boolean validateSimpleTypes(Entity entity, Node typeNode, String typeNamePostfix,
-                                        boolean isArrayType, List<DiagnosticProperty<?>> properties, String type,
-                                        String datastore) {
+                                              boolean isArrayType, boolean isOptionalType,
+                                              List<DiagnosticProperty<?>> properties, String type, String datastore) {
+        boolean validFlag = true;
+
+        if (isOptionalType && datastore.equals(Constants.Datastores.GOOGLE_SHEETS)) {
+            entity.reportDiagnostic(PERSIST_308.getCode(),
+                    MessageFormat.format(PERSIST_308.getMessage(), type),
+                    PERSIST_308.getSeverity(), typeNode.location(), properties);
+            validFlag = false;
+        }
+
         if (isArrayType) {
             if (!isValidArrayType(type, datastore)) {
                 if (isValidSimpleType(type, datastore)) {
@@ -63,17 +73,17 @@ public final class ValidatorsByDatastore {
                             MessageFormat.format(PERSIST_306.getMessage(), type),
                             PERSIST_306.getSeverity(), typeNode.location());
                 }
-                return false;
+                validFlag = false;
             }
         } else {
             if (!isValidSimpleType(type, datastore)) {
                 entity.reportDiagnostic(PERSIST_305.getCode(), MessageFormat.format(PERSIST_305.getMessage(),
                                 type + typeNamePostfix), PERSIST_305.getSeverity(),
                         typeNode.location());
-                return false;
+                validFlag = false;
             }
         }
-        return true;
+        return validFlag;
     }
 
     public static boolean isValidSimpleType(String type, String datastore) {
