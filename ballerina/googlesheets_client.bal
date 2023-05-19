@@ -371,11 +371,7 @@ public isolated client class GoogleSheetsClient {
         } else if dataType == "float" {
             return float:fromString(value.toString());
         } else if dataType == "boolean" {
-            if value.toString() == "TRUE" {
-                return true;
-            } else {
-                return false;
-            } 
+            return value.toString() == "TRUE";
         } else {
             return <error>error("unsupported data format");
         }

@@ -259,7 +259,6 @@ public type AllTypesIdRecordUpdate record {|
     string randomField?;
 |};
 
-
 public type OrderItemExtended record {|
     readonly string orderId;
     readonly string itemId;

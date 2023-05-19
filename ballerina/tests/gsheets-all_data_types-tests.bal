@@ -34,7 +34,6 @@ function gsheetsAllDataTypeCreateTest() returns error? {
     test:assertEquals(orderItemRetrieved, orderItemExtended2Retrieved);
 }
 
-
 @test:Config {
     groups: ["all-types", "google-sheets"],
     dependsOn: [gsheetsAllDataTypeCreateTest],
