@@ -184,7 +184,7 @@ public isolated client class GoogleSheetsClient {
                 record {} rowArray = {};
                 string[] rowValues = re `,`.split(rowString);
                 foreach string rowValue in rowValues {
-                    string columnName = re `"`.replaceAll(columnNames[i], "");
+                    string columnName = re ` `.replaceAll(re `"`.replaceAll(columnNames[i], ""), "");
                     string value = re `"`.replaceAll(rowValue, "");
                     string dataType = self.dataTypes.get(columnName).toString();
                     if dataType == "time:Date" || dataType == "time:TimeOfDay" ||dataType == "time:Civil" || dataType == "time:Utc" {

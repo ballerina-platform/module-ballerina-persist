@@ -55,7 +55,8 @@ import static io.ballerina.runtime.api.utils.StringUtils.fromString;
  */
 public class Utils {
     private static final List<String> KNOWN_RECORD_TYPES = Arrays.asList(
-            Constants.TimeTypes.CIVIL, Constants.TimeTypes.DATE_RECORD, Constants.TimeTypes.TIME_RECORD);
+            Constants.TimeTypes.CIVIL, Constants.TimeTypes.DATE_RECORD, Constants.TimeTypes.TIME_RECORD,
+            Constants.TimeTypes.UTC);
 
     private Utils() {
     }
