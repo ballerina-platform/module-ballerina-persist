@@ -17,7 +17,7 @@ import ballerina/time;
 
 # Generic type that can used to store any of the types supported by google sheets
 #
-public type SheetFieldType string|int|decimal|float|time:Date|time:TimeOfDay|time:Civil|time:Utc;
+public type SheetFieldType string|int|decimal|boolean|float|time:Date|time:TimeOfDay|time:Civil|time:Utc;
 
 # Generic type that can used to store any of time types supported by sheets
 #

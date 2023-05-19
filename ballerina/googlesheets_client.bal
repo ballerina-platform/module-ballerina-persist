@@ -370,6 +370,12 @@ public isolated client class GoogleSheetsClient {
             return decimal:fromString(value.toString());
         } else if dataType == "float" {
             return float:fromString(value.toString());
+        } else if dataType == "boolean" {
+            if value.toString() == "TRUE" {
+                return true;
+            } else {
+                return false;
+            } 
         } else {
             return <error>error("unsupported data format");
         }
