@@ -243,7 +243,7 @@ public class CodeActionTest {
 
         return compilation.diagnosticResult().diagnostics().stream()
                 .filter(diagnostic -> TestUtils.isWithinRange(diagnostic.location().lineRange(), cursorPos) &&
-                        filePath.endsWith(diagnostic.location().lineRange().filePath()))
+                        filePath.endsWith(diagnostic.location().lineRange().fileName()))
                 .flatMap(diagnostic -> {
                     CodeActionContextImpl context = CodeActionContextImpl.from(
                             filePath.toUri().toString(),

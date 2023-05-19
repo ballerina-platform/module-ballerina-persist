@@ -18,9 +18,15 @@
 
 package io.ballerina.stdlib.persist.compiler.codeaction;
 
+import io.ballerina.projects.plugins.codeaction.CodeActionArgument;
 import io.ballerina.projects.plugins.codeaction.CodeActionContext;
 import io.ballerina.projects.plugins.codeaction.CodeActionInfo;
+import io.ballerina.stdlib.persist.compiler.BalException;
+import io.ballerina.stdlib.persist.compiler.Constants;
+import io.ballerina.stdlib.persist.compiler.utils.Utils;
+import io.ballerina.stdlib.persist.compiler.utils.ValidatorsByDatastore;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,8 +37,6 @@ import static io.ballerina.stdlib.persist.compiler.codeaction.PersistCodeActionN
  * Change type to not nillable code action.
  */
 public class ChangeTypeNotNillable extends AbstractChangeToSupportedType {
-
-    private CodeActionContext codeActionContext;
 
     @Override
     protected String getName() {
@@ -46,17 +50,37 @@ public class ChangeTypeNotNillable extends AbstractChangeToSupportedType {
 
     @Override
     protected String getType() {
-        String type = codeActionContext.diagnostic().properties().get(2).value().toString();
-        if (type.endsWith("?")) {
-            return type.substring(0, type.length() - 1);
-        }
-        return type;
+        return null;
     }
 
     @Override
     public Optional<CodeActionInfo> codeActionInfo(CodeActionContext codeActionContext) {
-        this.codeActionContext = codeActionContext;
-        return super.codeActionInfo(codeActionContext);
+        String type = codeActionContext.diagnostic().properties().get(2).value().toString();
+        if (type.endsWith("?")) {
+            type = type.substring(0, type.length() - 1);
+        }
+
+        try {
+            String datastore = Utils.getDatastore(codeActionContext);
+            if (type.endsWith(Constants.ARRAY)) {
+                String arrayType = type.substring(0, type.length() - 2);
+                if (!ValidatorsByDatastore.isValidArrayType(arrayType, datastore)) {
+                    return Optional.empty();
+                }
+            } else {
+                if (!ValidatorsByDatastore.isValidSimpleType(type, datastore)) {
+                    return Optional.empty();
+                }
+            }
+        } catch (BalException e) {
+            throw new RuntimeException(e);
+        }
+
+        String title = MessageFormat.format("Change to ''{0}'' type", type);
+        CodeActionArgument syntaxLocationArg = CodeActionArgument.from(TYPE_CHANGE_TEXT_RANGE,
+                codeActionContext.diagnostic().location().textRange());
+        return Optional.of(CodeActionInfo.from(title, List.of(syntaxLocationArg)));
+
     }
 }
 
