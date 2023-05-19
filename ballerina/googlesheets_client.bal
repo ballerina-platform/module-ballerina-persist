@@ -364,7 +364,7 @@ public isolated client class GoogleSheetsClient {
             return int:fromString(value.toString());
         } else if dataType == "time:Date" || dataType == "time:TimeOfDay" ||dataType == "time:Civil" || dataType == "time:Utc" {
             return self.stringToTime(value.toString(), dataType);
-        } else if dataType == "string" {
+        } else if dataType == "string"||dataType == "ENUM" {
             return value.toString();
         } else if dataType == "decimal" {
             return decimal:fromString(value.toString());
