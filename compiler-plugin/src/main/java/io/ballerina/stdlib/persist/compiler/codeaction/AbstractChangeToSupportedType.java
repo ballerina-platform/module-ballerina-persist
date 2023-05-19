@@ -47,7 +47,7 @@ import static io.ballerina.stdlib.persist.compiler.utils.Utils.getTextRangeArgum
  */
 public abstract class AbstractChangeToSupportedType implements CodeAction {
 
-    static final String TYPE_CHANGE_TEXT_RANGE = "type.change.text.range";
+    private static final String TYPE_CHANGE_TEXT_RANGE = "type.change.text.range";
 
     @Override
     public List<String> supportedDiagnosticCodes() {
