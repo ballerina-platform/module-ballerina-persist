@@ -53,6 +53,8 @@ public enum DiagnosticsCodes {
     PERSIST_305("PERSIST_305", "an entity does not support {0}-typed field", ERROR),
     PERSIST_306("PERSIST_306", "an entity does not support {0} array field type", ERROR),
     PERSIST_307("PERSIST_307", "redeclared field ''{0}''", ERROR),
+    PERSIST_308("PERSIST_308", "an entity does not support nillable field", ERROR),
+
 
     PERSIST_401("PERSIST_401", "an entity cannot reference itself in a relation field", ERROR),
     PERSIST_402("PERSIST_402",
