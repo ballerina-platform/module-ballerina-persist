@@ -343,7 +343,6 @@ OrderItemExtended orderItemExtended2Retrieved = {
     arivalTimeDate: {year: 2021, month: 4, day: 12},
     arivalTimeTimeOfDay: {hour: 17, minute: 50, second: 50.52},
     orderType: ONLINE
-
 };
 
 OrderItemExtended orderItemExtended3 = {
