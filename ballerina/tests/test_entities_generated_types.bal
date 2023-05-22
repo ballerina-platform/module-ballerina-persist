@@ -23,6 +23,11 @@ public enum EnumType {
     TYPE_4
 }
 
+public enum OrderType {
+    ONLINE,
+    INSTORE
+}
+
 public type AllTypes record {|
     readonly int id;
     boolean booleanType;
@@ -253,4 +258,49 @@ public type AllTypesIdRecordInsert AllTypesIdRecord;
 public type AllTypesIdRecordUpdate record {|
     string randomField?;
 |};
+
+public type OrderItemExtended record {|
+    readonly string orderId;
+    readonly string itemId;
+    int CustomerId;
+    boolean paid;
+    float ammountPaid;
+    decimal ammountPaidDecimal;
+    time:Civil arivalTimeCivil;
+    time:Utc arivalTimeUtc;
+    time:Date arivalTimeDate;
+    time:TimeOfDay arivalTimeTimeOfDay;
+    OrderType orderType;
+|};
+
+public type OrderItemExtendedOptionalized record {|
+    string orderId?;
+    string itemId?;
+    int CustomerId?;
+    boolean paid?;
+    float ammountPaid?;
+    decimal ammountPaidDecimal?;
+    time:Civil arivalTimeCivil?;
+    time:Utc arivalTimeUtc?;
+    time:Date arivalTimeDate?;
+    time:TimeOfDay arivalTimeTimeOfDay?;
+    OrderType orderType?;
+|};
+
+public type OrderItemExtendedTargetType typedesc<OrderItemExtendedOptionalized>;
+
+public type OrderItemExtendedInsert OrderItemExtended;
+
+public type OrderItemExtendedUpdate record {|
+    int CustomerId?;
+    boolean paid?;
+    float ammountPaid?;
+    decimal ammountPaidDecimal?;
+    time:Civil arivalTimeCivil?;
+    time:Utc arivalTimeUtc?;
+    time:Date arivalTimeDate?;
+    time:TimeOfDay arivalTimeTimeOfDay?;
+    OrderType orderType?;
+|};
+
 

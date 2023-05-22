@@ -280,6 +280,48 @@ public type AllTypesDependent record {|
     time:Civil? civilTypeOptional;
 |};
 
+OrderItemExtended orderItemExtended1 = {
+    orderId: "order-1",
+    itemId: "item-1",
+    CustomerId: 1,
+    paid: false,
+    ammountPaid: 10.5f,
+    ammountPaidDecimal: 10.5,
+    arivalTimeCivil: {"utcOffset":{"hours":5,"minutes":30},"timeAbbrev":"Asia/Colombo","dayOfWeek":1,"year":2021,"month":4,"day":12,"hour":23,"minute":20,"second":50.52},
+    arivalTimeUtc: [1684493685, 0.998012000],
+    arivalTimeDate: {year: 2021, month: 4, day: 12},
+    arivalTimeTimeOfDay: {hour: 17, minute: 50, second: 50.52},
+    orderType: INSTORE
+};
+
+OrderItemExtended orderItemExtendedRetrieved = {
+    orderId: "order-1",
+    itemId: "item-1",
+    CustomerId: 1,
+    paid: false,
+    ammountPaid: 10.5f,
+    ammountPaidDecimal: 10.5,
+    arivalTimeCivil: {"timeAbbrev":"Z","dayOfWeek":1 ,"year":2021,"month":4,"day":12,"hour":17,"minute":50,"second":50.52},
+    arivalTimeUtc: [1684493685, 0.998012000],
+    arivalTimeDate: {year: 2021, month: 4, day: 12},
+    arivalTimeTimeOfDay: {hour: 17, minute: 50, second: 50.52},
+    orderType: INSTORE
+};
+
+OrderItemExtended orderItemExtended2 = {
+    orderId: "order-2",
+    itemId: "item-2",
+    CustomerId: 1,
+    paid: false,
+    ammountPaid: 10.5f,
+    ammountPaidDecimal: 10.5,
+    arivalTimeCivil: {"utcOffset":{"hours":5,"minutes":30},"timeAbbrev":"Asia/Colombo","dayOfWeek":1 ,"year":2024,"month":4,"day":12,"hour":17,"minute":50,"second":50.52},
+    arivalTimeUtc: [1684493685, 0.998012000],
+    arivalTimeDate: {year: 2021, month: 4, day: 12},
+    arivalTimeTimeOfDay: {hour: 17, minute: 50, second: 50.52},
+    orderType: ONLINE
+};
+
 public type EmployeeInfo record {|
     string firstName;
     string lastName;
@@ -288,6 +330,48 @@ public type EmployeeInfo record {|
     |} department;
     Workspace workspace;
 |};
+
+OrderItemExtended orderItemExtended2Retrieved = {
+    orderId: "order-2",
+    itemId: "item-2",
+    CustomerId: 1,
+    paid: false,
+    ammountPaid: 10.5f,
+    ammountPaidDecimal: 10.5,
+    arivalTimeCivil: {"timeAbbrev":"Z","dayOfWeek":5 ,"year":2024,"month":4,"day":12,"hour":12,"minute":20,"second":50.52},
+    arivalTimeUtc: [1684493685, 0.998012000],
+    arivalTimeDate: {year: 2021, month: 4, day: 12},
+    arivalTimeTimeOfDay: {hour: 17, minute: 50, second: 50.52},
+    orderType: ONLINE
+};
+
+OrderItemExtended orderItemExtended3 = {
+    orderId: "order-3",
+    itemId: "item-3",
+    CustomerId: 4,
+    paid: true,
+    ammountPaid: 20.5f,
+    ammountPaidDecimal: 20.5,
+    arivalTimeCivil: {"utcOffset":{"hours":5,"minutes":30},"timeAbbrev":"Asia/Colombo","dayOfWeek":1,"year":2021,"month":4,"day":12,"hour":23,"minute":20,"second":50.52},
+    arivalTimeUtc: [1684493685, 0.998012000],
+    arivalTimeDate: {year: 2021, month: 4, day: 12},
+    arivalTimeTimeOfDay: {hour: 17, minute: 50, second: 50.52},
+    orderType: INSTORE
+};
+
+OrderItemExtended orderItemExtended3Retrieved = {
+    orderId: "order-2",
+    itemId: "item-2",
+    CustomerId: 1,
+    paid: true,
+    ammountPaid: 10.5f,
+    ammountPaidDecimal: 10.5,
+    arivalTimeCivil: {"timeAbbrev":"Z","dayOfWeek":1 ,"year":2021,"month":4,"day":12,"hour":17,"minute":50,"second":50.52},
+    arivalTimeUtc: [1684493685, 0.998012000],
+    arivalTimeDate: {year: 2021, month: 4, day: 12},
+    arivalTimeTimeOfDay: {hour: 17, minute: 50, second: 50.52},
+    orderType: ONLINE
+};
 
 public type DepartmentInfo record {|
     string deptNo;

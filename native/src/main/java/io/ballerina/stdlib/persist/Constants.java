@@ -54,7 +54,7 @@ public final class Constants {
         public static final String CIVIL = "Civil";
         public static final String DATE_RECORD = "Date";
         public static final String TIME_RECORD = "TimeOfDay";
-
+        public static final String UTC = "Utc";
     }
-
+    
 }

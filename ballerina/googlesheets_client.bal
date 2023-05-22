@@ -184,7 +184,7 @@ public isolated client class GoogleSheetsClient {
                 record {} rowArray = {};
                 string[] rowValues = re `,`.split(rowString);
                 foreach string rowValue in rowValues {
-                    string columnName = re `"`.replaceAll(columnNames[i], "");
+                    string columnName = re ` `.replaceAll(re `"`.replaceAll(columnNames[i], ""), "");
                     string value = re `"`.replaceAll(rowValue, "");
                     string dataType = self.dataTypes.get(columnName).toString();
                     if dataType == "time:Date" || dataType == "time:TimeOfDay" ||dataType == "time:Civil" || dataType == "time:Utc" {
@@ -364,12 +364,14 @@ public isolated client class GoogleSheetsClient {
             return int:fromString(value.toString());
         } else if dataType == "time:Date" || dataType == "time:TimeOfDay" ||dataType == "time:Civil" || dataType == "time:Utc" {
             return self.stringToTime(value.toString(), dataType);
-        } else if dataType == "string" {
+        } else if dataType == "string"||dataType == "ENUM" {
             return value.toString();
         } else if dataType == "decimal" {
             return decimal:fromString(value.toString());
         } else if dataType == "float" {
             return float:fromString(value.toString());
+        } else if dataType == "boolean" {
+            return value.toString() == "TRUE";
         } else {
             return <error>error("unsupported data format");
         }

@@ -50,7 +50,7 @@ public isolated client class GoogleSheetsRainierClient {
                 },
                 keyFields: ["empNo"],
                 range: "A:I",
-                dataTypes: {empNo: "string", firstName: "string", lastName: "string", birthDate: "time:Date", gender: "string", hireDate: "time:Date", departmentDeptNo: "string", workspaceWorkspaceId: "string"},
+                dataTypes: {empNo: "string", firstName: "string", lastName: "string", birthDate: "time:Date", gender: "ENUM", hireDate: "time:Date", departmentDeptNo: "string", workspaceWorkspaceId: "string"},
                 queryOne: self.queryOneEmployees,
                 query: self.queryEmployees,
                 associationsMethods: {}
