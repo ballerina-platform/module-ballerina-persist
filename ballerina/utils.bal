@@ -52,7 +52,7 @@ isolated function arrayToParameterizedQuery(string[] arr, sql:ParameterizedQuery
 #
 # + customStream - Stream that needs to be closed
 # + return - `()` if the operation is performed successfully or a `persist:Error` if the operation fails
-public isolated function closePersistEntityStream(stream<anydata, error?>? customStream) returns Error? {
+public isolated function closeEntityStream(stream<anydata, error?>? customStream) returns Error? {
     if customStream is stream<anydata, error?> {
         error? e = customStream.close();
         if e is error {
@@ -61,11 +61,11 @@ public isolated function closePersistEntityStream(stream<anydata, error?>? custo
     }
 }
 
-# Closes the entity stream.
+# Closes the SQL entity stream.
 #
 # + customStream - Stream that needs to be closed
 # + return - `()` if the operation is performed successfully or a `persist:Error` if the operation fails
-public isolated function closeEntityStream(stream<anydata, error?>? customStream) returns Error? {
+public isolated function closeSQLEntityStream(stream<anydata, error?>? customStream) returns Error? {
     if customStream is stream<anydata, sql:Error?> {
         error? e = customStream.close();
         if e is error {

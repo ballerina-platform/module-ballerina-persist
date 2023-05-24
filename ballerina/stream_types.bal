@@ -75,7 +75,7 @@ public class PersistSQLStream {
     }
 
     public isolated function close() returns Error? {
-        check closeEntityStream(self.anydataStream);
+        check closeSQLEntityStream(self.anydataStream);
     }
 }
 
@@ -138,7 +138,7 @@ public class PersistGoogleSheetsStream {
     }
 
     public isolated function close() returns Error? {
-        check closePersistEntityStream(self.anydataStream);
+        check closeEntityStream(self.anydataStream);
     }
 }
 
@@ -201,6 +201,6 @@ public class PersistInMemoryStream {
     }
 
     public isolated function close() returns Error? {
-        check closePersistEntityStream(self.anydataStream);
+        check closeEntityStream(self.anydataStream);
     }
 }
