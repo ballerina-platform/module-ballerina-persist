@@ -16,7 +16,7 @@
 
 import ballerina/test;
 
-GoogleSheetsRainierClient rainierClient = check new (); //uncomment this line to run the tests after the secrets are added
+//GoogleSheetsRainierClient rainierClient = check new (); //uncomment this line to run the tests after the secrets are added
 
 @test:Config {
     groups: ["composite-key", "google-sheets"],
