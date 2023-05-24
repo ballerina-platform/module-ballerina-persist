@@ -75,14 +75,14 @@ public class PersistSQLStream {
     }
 
     public isolated function close() returns Error? {
-        check closeEntityStream(self.anydataStream);
+        check closeSQLEntityStream(self.anydataStream);
     }
 }
 
 
 public class PersistGoogleSheetsStream {
 
-    private stream<record {}, sql:Error?>? anydataStream;
+    private stream<record {}, error?>? anydataStream;
     private Error? err;
     private string[] fields;
     private string[] include;
@@ -90,7 +90,7 @@ public class PersistGoogleSheetsStream {
     private GoogleSheetsClient? persistClient;
     private typedesc<record {}> targetType;
 
-    public isolated function init(stream<record {}, sql:Error?>? anydataStream, typedesc<record {}> targetType, string[] fields, string[] include, any[] typeDescriptions, GoogleSheetsClient persistClient, Error? err = ()) {
+    public isolated function init(stream<record {}, error?>? anydataStream, typedesc<record {}> targetType, string[] fields, string[] include, any[] typeDescriptions, GoogleSheetsClient persistClient, Error? err = ()) {
         self.anydataStream = anydataStream;
         self.fields = fields;
         self.include = include;
@@ -109,12 +109,12 @@ public class PersistGoogleSheetsStream {
     public isolated function next() returns record {|record {} value;|}|Error? {
         if self.err is Error {
             return <Error>self.err;
-        } else if self.anydataStream is stream<record {}, sql:Error?> {
-            var anydataStream = <stream<record {}, sql:Error?>>self.anydataStream;
+        } else if self.anydataStream is stream<record {}, error?> {
+            var anydataStream = <stream<record {}, error?>>self.anydataStream;
             var streamValue = anydataStream.next();
             if streamValue is () {
                 return streamValue;
-            } else if (streamValue is sql:Error) {
+            } else if (streamValue is error) {
                 return <Error>error(streamValue.message());
             } else {
                 record {}|error value = streamValue.value;
@@ -171,7 +171,7 @@ public class PersistInMemoryStream {
     public isolated function next() returns record {|record {} value;|}|Error? {
         if self.err is Error {
             return <Error>self.err;
-        } else if self.anydataStream is stream<record {}, Error?> {
+        } else if self.anydataStream is stream<record {}, error?> {
             var anydataStream = <stream<record {}, error?>>self.anydataStream;
             var streamValue = anydataStream.next();
             if streamValue is () {
