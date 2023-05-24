@@ -44,7 +44,7 @@ public isolated client class GoogleSheetsClient {
     private final map<string> & readonly dataTypes;
     private final string[] & readonly keyFields;
     private isolated function (string[]) returns stream<record {}, Error?>|Error query;
-    private isolated function (anydata) returns record {}|NotFoundError queryOne;
+    private isolated function (anydata) returns record {}|NotFoundError|Error queryOne;
     private final (map<isolated function (record {}, string[]) returns record {}[]|Error>) & readonly associationsMethods;
 
     # Initializes the `GSheetClient`.

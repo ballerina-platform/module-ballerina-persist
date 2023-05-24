@@ -381,7 +381,7 @@ public isolated client class GoogleSheetsRainierClient {
         return outputArray.toStream();
     }
 
-    private isolated function queryOneEmployees(anydata key) returns record {}|NotFoundError {
+    private isolated function queryOneEmployees(anydata key) returns record {}|NotFoundError|Error {
         stream<Employee, Error?> employeesStream = self.queryEmployeesStream();
         stream<Department, Error?> departmenttStream = self.queryDepartmentsStream();
         stream<Workspace, Error?> workspacesStream = self.queryWorkspacesStream();
@@ -399,9 +399,9 @@ public isolated client class GoogleSheetsRainierClient {
                 };
             };
         if unionResult is error {
-            return <NotFoundError>error(unionResult.message());
+            return error Error(unionResult.message());
         }
-        return <NotFoundError>error("Invalid key: " + key.toString());
+        return getNotFoundError("Employee", key);
     }
 
     private isolated function queryBuildings(string[] fields) returns stream<record {}, Error?>|Error {
@@ -413,7 +413,7 @@ public isolated client class GoogleSheetsRainierClient {
         return outputArray.toStream();
     }
 
-    private isolated function queryOneBuildings(anydata key) returns record {}|NotFoundError {
+    private isolated function queryOneBuildings(anydata key) returns record {}|NotFoundError|Error {
         stream<Building, Error?> buildingsStream = self.queryBuildingsStream();
         error? unionResult = from record {} 'object in buildingsStream
             where getKey('object, ["buildingCode"]) == key
@@ -423,9 +423,9 @@ public isolated client class GoogleSheetsRainierClient {
                 };
             };
         if unionResult is error {
-            return <NotFoundError>error(unionResult.message());
+            return error Error(unionResult.message());
         }
-        return <NotFoundError>error("Invalid key: " + key.toString());
+        return getNotFoundError("Building", key);
     }
 
     private isolated function queryBuildingsWorkspaces(record {} value, string[] fields) returns record {}[]|Error {
@@ -438,7 +438,7 @@ public isolated client class GoogleSheetsRainierClient {
     }
 
     private isolated function queryDepartments(string[] fields) returns stream<record {}, Error?>|Error {
-        
+
         stream<Department, Error?> departmenttStream = self.queryDepartmentsStream();
         record {}[] outputArray = check from record {} 'object in departmenttStream
             select filterRecord({
@@ -447,7 +447,7 @@ public isolated client class GoogleSheetsRainierClient {
         return outputArray.toStream();
     }
 
-    private isolated function queryOneDepartments(anydata key) returns record {}|NotFoundError {
+    private isolated function queryOneDepartments(anydata key) returns record {}|NotFoundError|Error {
         stream<Department, Error?> departmenttStream = self.queryDepartmentsStream();
         error? unionResult = from record {} 'object in departmenttStream
             where getKey('object, ["deptNo"]) == key
@@ -457,9 +457,9 @@ public isolated client class GoogleSheetsRainierClient {
                 };
             };
         if unionResult is error {
-            return <NotFoundError>error(unionResult.message());
+            return error Error(unionResult.message());
         }
-        return <NotFoundError>error("Invalid key: " + key.toString());
+        return getNotFoundError("Department", key);
     }
 
     private isolated function queryDepartmentsEmployees(record {} value, string[] fields) returns record {}[]|Error {
@@ -484,7 +484,7 @@ public isolated client class GoogleSheetsRainierClient {
         return outputArray.toStream();
     }
 
-    private isolated function queryOneWorkspaces(anydata key) returns record {}|NotFoundError {
+    private isolated function queryOneWorkspaces(anydata key) returns record {}|NotFoundError|Error {
         stream<Workspace, Error?> workspacesStream = self.queryWorkspacesStream();
         stream<Building, Error?> buildingsStream = self.queryBuildingsStream();
         error? unionResult = from record {} 'object in workspacesStream
@@ -498,9 +498,9 @@ public isolated client class GoogleSheetsRainierClient {
                 };
             };
         if unionResult is error {
-            return <NotFoundError>error(unionResult.message());
+            return error Error(unionResult.message());
         }
-        return <NotFoundError>error("Invalid key: " + key.toString());
+        return getNotFoundError("Workspace", key);
     }
 
     private isolated function queryWorkspacesEmployees(record {} value, string[] fields) returns record {}[]|Error {
@@ -521,7 +521,7 @@ public isolated client class GoogleSheetsRainierClient {
         return outputArray.toStream();
     }
 
-    private isolated function queryOneOrderItems(anydata key) returns record {}|NotFoundError {
+    private isolated function queryOneOrderItems(anydata key) returns record {}|NotFoundError|Error {
         stream<OrderItem, Error?> orderItemsStream = self.queryOrderItemsStream();
         error? unionResult = from record {} 'object in orderItemsStream
             where getKey('object, ["orderId", "itemId"]) == key
@@ -531,9 +531,9 @@ public isolated client class GoogleSheetsRainierClient {
                 };
             };
         if unionResult is error {
-            return <NotFoundError>error(unionResult.message());
+            return error Error(unionResult.message());
         }
-        return <NotFoundError>error("Invalid key: " + key.toString());
+        return getNotFoundError("OrderItem", key);
     }
 
     private isolated function queryEmployeesStream(EmployeeTargetType targetType = <>) returns stream<targetType, Error?> = @java:Method {

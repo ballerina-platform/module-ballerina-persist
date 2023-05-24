@@ -22,7 +22,7 @@ import ballerina/test;
     enable: false
 }
 function gsheetsEmployeeRelationsTest() returns error? {
-    GoogleSheetsRainierClient rainierClient =  check new ();
+    GoogleSheetsRainierClient rainierClient = check new ();
     Employee employee21 = {
         empNo: "employee-21",
         firstName: "Tom",
@@ -80,7 +80,7 @@ function gsheetsEmployeeRelationsTest() returns error? {
 
     test:assertTrue(employees.indexOf(expected) is int, "Expected EmployeeInfo not found.");
     test:assertEquals(retrieved, expected);
-    
+
 }
 
 @test:Config {
@@ -89,7 +89,7 @@ function gsheetsEmployeeRelationsTest() returns error? {
     enable: false
 }
 function gsheetsDepartmentRelationsTest() returns error? {
-    GoogleSheetsRainierClient rainierClient =  check new ();
+    GoogleSheetsRainierClient rainierClient = check new ();
     Employee employee11 = {
         empNo: "employee-11",
         firstName: "Tom",
@@ -160,7 +160,7 @@ function gsheetsDepartmentRelationsTest() returns error? {
 
     test:assertTrue(departments.indexOf(expected) is int, "Expected DepartmentInfo not found.");
     test:assertEquals(retrieved, expected);
-    
+
 }
 
 @test:Config {
@@ -169,7 +169,7 @@ function gsheetsDepartmentRelationsTest() returns error? {
     enable: false
 }
 function gsheetsWorkspaceRelationsTest() returns error? {
-    GoogleSheetsRainierClient rainierClient =  check new ();
+    GoogleSheetsRainierClient rainierClient = check new ();
     Employee employee22 = {
         empNo: "employee-22",
         firstName: "James",
@@ -243,7 +243,7 @@ function gsheetsWorkspaceRelationsTest() returns error? {
     enable: false
 }
 function gsheetsBuildingRelationsTest() returns error? {
-    GoogleSheetsRainierClient rainierClient =  check new ();
+    GoogleSheetsRainierClient rainierClient = check new ();
     stream<BuildingInfo, error?> buildingStream = rainierClient->/buildings.get();
     BuildingInfo[] buildings = check from BuildingInfo building in buildingStream
         select building;
