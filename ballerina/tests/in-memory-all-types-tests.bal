@@ -164,7 +164,7 @@ function inMemoryAllTypesReadOneTestNegative() returns error? {
 
     AllTypes|Error allTypesRetrieved = testEntitiesClient->/alltypes/[4].get();
     if allTypesRetrieved is NotFoundError {
-        test:assertEquals(allTypesRetrieved.message(), "Invalid key: 4");
+        test:assertEquals(allTypesRetrieved.message(), "A record with the key '4' does not exist for the entity 'AllTypes'.");
     }
     else {
         test:assertFail("NotFoundError expected.");

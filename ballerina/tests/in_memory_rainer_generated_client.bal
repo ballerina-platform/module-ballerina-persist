@@ -96,7 +96,7 @@ public isolated client class InMemoryRainierClient {
         foreach BuildingInsert value in data.clone() {
             lock {
                 if buildingsTable.hasKey(value.buildingCode) {
-                    return <AlreadyExistsError>error("Duplicate key: " + value.buildingCode);
+                    return getAlreadyExistsError("Building", value.buildingCode);
                 }
                 buildingsTable.put(value.clone());
             }
@@ -145,7 +145,7 @@ public isolated client class InMemoryRainierClient {
         foreach DepartmentInsert value in data.clone() {
             lock {
                 if departmentsTable.hasKey(value.deptNo) {
-                    return <AlreadyExistsError>error("Duplicate key: " + value.deptNo);
+                    return getAlreadyExistsError("Department", value.deptNo);
                 }
                 departmentsTable.put(value.clone());
             }
@@ -194,7 +194,7 @@ public isolated client class InMemoryRainierClient {
         foreach WorkspaceInsert value in data.clone() {
             lock {
                 if workspacesTable.hasKey(value.workspaceId) {
-                    return <AlreadyExistsError>error("Duplicate key: " + value.workspaceId);
+                    return getAlreadyExistsError("Workspace", value.workspaceId);
                 }
                 workspacesTable.put(value.clone());
             }
@@ -243,7 +243,7 @@ public isolated client class InMemoryRainierClient {
         foreach EmployeeInsert value in data.clone() {
             lock {
                 if employeesTable.hasKey(value.empNo) {
-                    return <AlreadyExistsError>error("Duplicate key: " + value.empNo);
+                    return getAlreadyExistsError("Employee", value.empNo);
                 }
                 employeesTable.put(value.clone());
             }
@@ -296,7 +296,7 @@ public isolated client class InMemoryRainierClient {
         foreach OrderItemInsert value in data.clone() {
             lock {
                 if orderItemsTable.hasKey([value.orderId, value.itemId]) {
-                    return <AlreadyExistsError>error("Duplicate key: " + [value.orderId, value.itemId].toString());
+                    return getAlreadyExistsError("OrderItem", {orderId: value.orderId, itemId: value.itemId});
                 }
                 orderItemsTable.put(value.clone());
             }
