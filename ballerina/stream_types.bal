@@ -109,7 +109,7 @@ public class PersistGoogleSheetsStream {
     public isolated function next() returns record {|record {} value;|}|Error? {
         if self.err is Error {
             return <Error>self.err;
-        } else if self.anydataStream is stream<record {}, Error?> {
+        } else if self.anydataStream is stream<record {}, error?> {
             var anydataStream = <stream<record {}, error?>>self.anydataStream;
             var streamValue = anydataStream.next();
             if streamValue is () {
@@ -171,7 +171,7 @@ public class PersistInMemoryStream {
     public isolated function next() returns record {|record {} value;|}|Error? {
         if self.err is Error {
             return <Error>self.err;
-        } else if self.anydataStream is stream<record {}, Error?> {
+        } else if self.anydataStream is stream<record {}, error?> {
             var anydataStream = <stream<record {}, error?>>self.anydataStream;
             var streamValue = anydataStream.next();
             if streamValue is () {
