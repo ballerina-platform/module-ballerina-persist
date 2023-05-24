@@ -88,7 +88,7 @@ public isolated client class SQLClient {
         record {}|error result = self.dbClient->queryRow(query, rowTypeWithIdFields);
 
         if result is sql:NoRowsError {
-            return <NotFoundError>error(string `A record does not exist for '${self.entityName}' for key ${key.toBalString()}.`);
+            return getNotFoundError(self.entityName, key);
         }
 
         if result is record {} {
@@ -342,7 +342,7 @@ public isolated client class SQLClient {
         return fieldMetadata.columnName;
     }
 
-    private isolated function getFieldFromColumn(string columnName) returns string|NotFoundError {
+    private isolated function getFieldFromColumn(string columnName) returns string|Error {
         foreach string key in self.fieldMetadata.keys() {
             FieldMetadata fieldMetadata = self.fieldMetadata.get(key);
             if fieldMetadata is EntityFieldMetadata {
@@ -354,7 +354,7 @@ public isolated client class SQLClient {
             }
         }
 
-        return <NotFoundError>error(string `A field corresponding to column '${columnName}' does not exist in entity '${self.entityName}'.`);
+        return error Error(string `A field corresponding to column '${columnName}' does not exist in entity '${self.entityName}'.`);
     }
 
     private isolated function getFieldFromKey(string key) returns string {

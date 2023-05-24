@@ -38,7 +38,7 @@ OrderItem orderItem2Updated = {
 };
 
 @test:Config {
-    groups: ["composite-key"]
+    groups: ["composite-key", "sql"]
 }
 function compositeKeyCreateTest() returns error? {
     SQLRainierClient rainierClient = check new ();
@@ -56,7 +56,7 @@ function compositeKeyCreateTest() returns error? {
 }
 
 @test:Config {
-    groups: ["composite-key"],
+    groups: ["composite-key", "sql"],
     dependsOn: [compositeKeyCreateTest]
 }
 function compositeKeyCreateTestNegative() returns error? {
@@ -73,7 +73,7 @@ function compositeKeyCreateTestNegative() returns error? {
 }
 
 @test:Config {
-    groups: ["composite-key"],
+    groups: ["composite-key", "sql"],
     dependsOn: [compositeKeyCreateTest]
 }
 function compositeKeyReadManyTest() returns error? {
@@ -88,7 +88,7 @@ function compositeKeyReadManyTest() returns error? {
 }
 
 @test:Config {
-    groups: ["composite-key"],
+    groups: ["composite-key", "sql"],
     dependsOn: [compositeKeyCreateTest]
 }
 function compositeKeyReadOneTest() returns error? {
@@ -99,7 +99,7 @@ function compositeKeyReadOneTest() returns error? {
 }
 
 @test:Config {
-    groups: ["composite-key2"],
+    groups: ["composite-key2", "sql"],
     dependsOn: [compositeKeyCreateTest]
 }
 function compositeKeyReadOneTest2() returns error? {
@@ -110,7 +110,7 @@ function compositeKeyReadOneTest2() returns error? {
 }
 
 @test:Config {
-    groups: ["composite-key"],
+    groups: ["composite-key", "sql"],
     dependsOn: [compositeKeyCreateTest]
 }
 function compositeKeyReadOneTestNegative1() returns error? {
@@ -118,16 +118,16 @@ function compositeKeyReadOneTestNegative1() returns error? {
     OrderItem|error orderItem = rainierClient->/orderitems/["invalid-order-id"]/[orderItem1.itemId].get();
 
     if orderItem is NotFoundError {
-        test:assertEquals(orderItem.message(), "A record does not exist for 'OrderItem' for key {\"orderId\":\"invalid-order-id\",\"itemId\":\"item-1\"}.");
+        test:assertEquals(orderItem.message(), "A record with the key '{\"orderId\":\"invalid-order-id\",\"itemId\":\"item-1\"}' does not exist for the entity 'OrderItem'.");
     } else {
-        test:assertFail("Error expected.");
+        test:assertFail("NotFoundError expected.");
     }
 
     check rainierClient.close();
 }
 
 @test:Config {
-    groups: ["composite-key"],
+    groups: ["composite-key", "sql"],
     dependsOn: [compositeKeyCreateTest]
 }
 function compositeKeyReadOneTestNegative2() returns error? {
@@ -135,7 +135,7 @@ function compositeKeyReadOneTestNegative2() returns error? {
     OrderItem|error orderItem = rainierClient->/orderitems/[orderItem1.orderId]/["invalid-item-id"].get();
 
     if orderItem is NotFoundError {
-        test:assertEquals(orderItem.message(), "A record does not exist for 'OrderItem' for key {\"orderId\":\"order-1\",\"itemId\":\"invalid-item-id\"}.");
+        test:assertEquals(orderItem.message(), "A record with the key '{\"orderId\":\"order-1\",\"itemId\":\"invalid-item-id\"}' does not exist for the entity 'OrderItem'.");
     } else {
         test:assertFail("Error expected.");
     }
@@ -144,7 +144,7 @@ function compositeKeyReadOneTestNegative2() returns error? {
 }
 
 @test:Config {
-    groups: ["composite-key"],
+    groups: ["composite-key", "sql"],
     dependsOn: [compositeKeyCreateTest, compositeKeyReadOneTest, compositeKeyReadManyTest, compositeKeyReadOneTest2]
 }
 function compositeKeyUpdateTest() returns error? {
@@ -163,7 +163,7 @@ function compositeKeyUpdateTest() returns error? {
 }
 
 @test:Config {
-    groups: ["composite-key"],
+    groups: ["composite-key", "sql"],
     dependsOn: [compositeKeyCreateTest, compositeKeyReadOneTest, compositeKeyReadManyTest, compositeKeyReadOneTest2]
 }
 function compositeKeyUpdateTestNegative() returns error? {
@@ -174,7 +174,7 @@ function compositeKeyUpdateTestNegative() returns error? {
         notes: "updated notes"
     });
     if orderItem is NotFoundError {
-        test:assertEquals(orderItem.message(), "A record does not exist for 'OrderItem' for key {\"orderId\":\"order-1\",\"itemId\":\"item-2\"}.");
+        test:assertEquals(orderItem.message(), "A record with the key '{\"orderId\":\"order-1\",\"itemId\":\"item-2\"}' does not exist for the entity 'OrderItem'.");
     } else {
         test:assertFail("Error expected.");
     }
@@ -183,7 +183,7 @@ function compositeKeyUpdateTestNegative() returns error? {
 }
 
 @test:Config {
-    groups: ["composite-key"],
+    groups: ["composite-key", "sql"],
     dependsOn: [compositeKeyUpdateTest]
 }
 function compositeKeyDeleteTest() returns error? {
@@ -199,7 +199,7 @@ function compositeKeyDeleteTest() returns error? {
 }
 
 @test:Config {
-    groups: ["composite-key"],
+    groups: ["composite-key", "sql"],
     dependsOn: [compositeKeyUpdateTest]
 }
 function compositeKeyDeleteTestNegative() returns error? {
@@ -207,7 +207,7 @@ function compositeKeyDeleteTestNegative() returns error? {
 
     OrderItem|error orderItem = rainierClient->/orderitems/["invalid-order-id"]/[orderItem2.itemId].delete();
     if orderItem is NotFoundError {
-        test:assertEquals(orderItem.message(), "A record does not exist for 'OrderItem' for key {\"orderId\":\"invalid-order-id\",\"itemId\":\"item-2\"}.");
+        test:assertEquals(orderItem.message(), "A record with the key '{\"orderId\":\"invalid-order-id\",\"itemId\":\"item-2\"}' does not exist for the entity 'OrderItem'.");
     } else {
         test:assertFail("Error expected.");
     }
