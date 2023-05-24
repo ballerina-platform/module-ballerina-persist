@@ -71,7 +71,7 @@ function inMemoryEmployeeReadOneTestNegative() returns error? {
 
     Employee|error employeeRetrieved = rainierClient->/employees/["invalid-employee-id"].get();
     if employeeRetrieved is NotFoundError {
-        test:assertEquals(employeeRetrieved.message(), "Invalid key: invalid-employee-id");
+        test:assertEquals(employeeRetrieved.message(), "A record with the key 'invalid-employee-id' does not exist for the entity 'Employee'.");
     } else {
         test:assertFail("NotFoundError expected.");
     }
@@ -163,7 +163,7 @@ function inMemoryEmployeeUpdateTestNegative1() returns error? {
     });
 
     if employee is NotFoundError {
-        test:assertEquals(employee.message(), "Not found: invalid-employee-id");
+        test:assertEquals(employee.message(), "A record with the key 'invalid-employee-id' does not exist for the entity 'Employee'.");
     } else {
         test:assertFail("NotFoundError expected.");
     }
@@ -198,7 +198,7 @@ function inMemoryEmployeeDeleteTestNegative() returns error? {
     Employee|error employee = rainierClient->/employees/[employee1.empNo].delete();
 
     if employee is NotFoundError {
-        test:assertEquals(employee.message(), string `Not found: employee-1`);
+        test:assertEquals(employee.message(), string `A record with the key '${employee1.empNo}' does not exist for the entity 'Employee'.`);
     } else {
         test:assertFail("NotFoundError expected.");
     }

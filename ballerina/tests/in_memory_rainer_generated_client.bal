@@ -108,7 +108,7 @@ public isolated client class InMemoryRainierClient {
     isolated resource function put buildings/[string buildingCode](BuildingUpdate value) returns Building|Error {
         lock {
             if !buildingsTable.hasKey(buildingCode) {
-                return <NotFoundError>error("Not found: " + buildingCode);
+                return getNotFoundError("Building", buildingCode);
             }
 
             Building building = buildingsTable.get(buildingCode);
@@ -124,7 +124,7 @@ public isolated client class InMemoryRainierClient {
     isolated resource function delete buildings/[string buildingCode]() returns Building|Error {
         lock {
             if !buildingsTable.hasKey(buildingCode) {
-                return <NotFoundError>error("Not found: " + buildingCode);
+                return getNotFoundError("Building", buildingCode);
             }
             return buildingsTable.remove(buildingCode).clone();
         }
@@ -157,7 +157,7 @@ public isolated client class InMemoryRainierClient {
     isolated resource function put departments/[string deptNo](DepartmentUpdate value) returns Department|Error {
         lock {
             if !departmentsTable.hasKey(deptNo) {
-                return <NotFoundError>error("Not found: " + deptNo);
+                return getNotFoundError("Department", deptNo);
             }
 
             Department department = departmentsTable.get(deptNo);
@@ -173,7 +173,7 @@ public isolated client class InMemoryRainierClient {
     isolated resource function delete departments/[string deptNo]() returns Department|Error {
         lock {
             if !departmentsTable.hasKey(deptNo) {
-                return <NotFoundError>error("Not found: " + deptNo);
+                return getNotFoundError("Department", deptNo);
             }
             return departmentsTable.remove(deptNo).clone();
         }
@@ -206,7 +206,7 @@ public isolated client class InMemoryRainierClient {
     isolated resource function put workspaces/[string workspaceId](WorkspaceUpdate value) returns Workspace|Error {
         lock {
             if !workspacesTable.hasKey(workspaceId) {
-                return <NotFoundError>error("Not found: " + workspaceId);
+                return getNotFoundError("Workspace", workspaceId);
             }
 
             Workspace workspace = workspacesTable.get(workspaceId);
@@ -222,7 +222,7 @@ public isolated client class InMemoryRainierClient {
     isolated resource function delete workspaces/[string workspaceId]() returns Workspace|Error {
         lock {
             if !workspacesTable.hasKey(workspaceId) {
-                return <NotFoundError>error("Not found: " + workspaceId);
+                return getNotFoundError("Workspace", workspaceId);
             }
             return workspacesTable.remove(workspaceId).clone();
         }
@@ -255,7 +255,7 @@ public isolated client class InMemoryRainierClient {
     isolated resource function put employees/[string empNo](EmployeeUpdate value) returns Employee|Error {
         lock {
             if !employeesTable.hasKey(empNo) {
-                return <NotFoundError>error("Not found: " + empNo);
+                return getNotFoundError("Employee", empNo);
             }
 
             Employee employee = employeesTable.get(empNo);
@@ -271,7 +271,7 @@ public isolated client class InMemoryRainierClient {
     isolated resource function delete employees/[string empNo]() returns Employee|Error {
         lock {
             if !employeesTable.hasKey(empNo) {
-                return <NotFoundError>error("Not found: " + empNo);
+                return getNotFoundError("Employee", empNo);
             }
             return employeesTable.remove(empNo).clone();
         }
@@ -308,7 +308,7 @@ public isolated client class InMemoryRainierClient {
     isolated resource function put orderitems/[string orderId]/[string itemId](OrderItemUpdate value) returns OrderItem|Error {
         lock {
             if !orderItemsTable.hasKey([orderId, itemId]) {
-                return <NotFoundError>error("Not found: " + [orderId, itemId].toString());
+                return getNotFoundError("OrderItem", {orderId: orderId, itemId: itemId});
             }
 
             OrderItem orderItem = orderItemsTable.get([orderId, itemId]);
@@ -324,7 +324,7 @@ public isolated client class InMemoryRainierClient {
     isolated resource function delete orderitems/[string orderId]/[string itemId]() returns OrderItem|Error {
         lock {
             if !orderItemsTable.hasKey([orderId, itemId]) {
-                return <NotFoundError>error("Not found: " + [orderId, itemId].toString());
+                return getNotFoundError("OrderItem", {orderId: orderId, itemId: itemId});
             }
             return orderItemsTable.remove([orderId, itemId]).clone();
         }
@@ -386,7 +386,7 @@ isolated function queryOneEmployees(anydata key) returns record {}|NotFoundError
             "workspace": workspace
         };
     };
-    return <NotFoundError>error("Invalid key: " + key.toString());
+    return getNotFoundError("Employee", key);
 }
 
 isolated function queryBuildings(string[] fields) returns stream<record {}, Error?> {
@@ -414,7 +414,7 @@ isolated function queryOneBuildings(anydata key) returns record {}|NotFoundError
             ...'object
         };
     };
-    return <NotFoundError>error("Invalid key: " + key.toString());
+    return getNotFoundError("Building", key);
 }
 
 isolated function queryBuildingsWorkspaces(record {} value, string[] fields) returns record {}[] {
@@ -455,7 +455,7 @@ isolated function queryOneDepartments(anydata key) returns record {}|NotFoundErr
             ...'object
         };
     };
-    return <NotFoundError>error("Invalid key: " + key.toString());
+    return getNotFoundError("Department", key);
 }
 
 isolated function queryDepartmentsEmployees(record {} value, string[] fields) returns record {}[] {
@@ -509,7 +509,7 @@ isolated function queryOneWorkspaces(anydata key) returns record {}|NotFoundErro
             "location": location
         };
     };
-    return <NotFoundError>error("Invalid key: " + key.toString());
+    return getNotFoundError("Workspace", key);
 }
 
 isolated function queryWorkspacesEmployees(record {} value, string[] fields) returns record {}[] {
@@ -549,5 +549,5 @@ isolated function queryOneOrderItems(anydata key) returns record {}|NotFoundErro
             ...'object
         };
     };
-    return <NotFoundError>error("Invalid key: " + key.toString());
+    return getNotFoundError("OrderItem", key);
 }

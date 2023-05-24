@@ -86,7 +86,7 @@ function inMemoryWorkspaceReadOneTestNegative() returns error? {
 
     Workspace|error workspaceRetrieved = rainierClient->/workspaces/["invalid-workspace-id"].get();
     if workspaceRetrieved is NotFoundError {
-        test:assertEquals(workspaceRetrieved.message(), "Invalid key: invalid-workspace-id");
+        test:assertEquals(workspaceRetrieved.message(), "A record with the key 'invalid-workspace-id' does not exist for the entity 'Workspace'.");
     } else {
         test:assertFail("NotFoundError expected.");
     }
@@ -157,7 +157,7 @@ function inMemoryWorkspaceUpdateTestNegative1() returns error? {
     });
 
     if workspace is NotFoundError {
-        test:assertEquals(workspace.message(), "Not found: invalid-workspace-id");
+        test:assertEquals(workspace.message(), "A record with the key 'invalid-workspace-id' does not exist for the entity 'Workspace'.");
     } else {
         test:assertFail("NotFoundError expected.");
     }
@@ -192,7 +192,7 @@ function inMemoryWorkspaceDeleteTestNegative() returns error? {
     Workspace|error workspace = rainierClient->/workspaces/[workspace1.workspaceId].delete();
 
     if workspace is NotFoundError {
-        test:assertEquals(workspace.message(), string `Not found: workspace-1`);
+        test:assertEquals(workspace.message(), string `A record with the key '${workspace1.workspaceId}' does not exist for the entity 'Workspace'.`);
     } else {
         test:assertFail("NotFoundError expected.");
     }

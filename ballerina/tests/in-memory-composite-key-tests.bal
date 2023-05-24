@@ -97,7 +97,7 @@ function inMemoryCompositeKeyReadOneTestNegative1() returns error? {
     OrderItem|error orderItem = rainierClient->/orderitems/["invalid-order-id"]/[orderItem1.itemId].get();
 
     if orderItem is NotFoundError {
-        test:assertEquals(orderItem.message(), "Invalid key: {\"orderId\":\"invalid-order-id\",\"itemId\":\"item-1\"}");
+        test:assertEquals(orderItem.message(), "A record with the key '{\"orderId\":\"invalid-order-id\",\"itemId\":\"item-1\"}' does not exist for the entity 'OrderItem'.");
     } else {
         test:assertFail("Error expected.");
     }
@@ -114,7 +114,7 @@ function inMemoryCompositeKeyReadOneTestNegative2() returns error? {
     OrderItem|error orderItem = rainierClient->/orderitems/[orderItem1.orderId]/["invalid-item-id"].get();
 
     if orderItem is NotFoundError {
-        test:assertEquals(orderItem.message(), "Invalid key: {\"orderId\":\"order-1\",\"itemId\":\"invalid-item-id\"}");
+        test:assertEquals(orderItem.message(), "A record with the key '{\"orderId\":\"order-1\",\"itemId\":\"invalid-item-id\"}' does not exist for the entity 'OrderItem'.");
     } else {
         test:assertFail("Error expected.");
     }
@@ -153,7 +153,7 @@ function inMemoryCompositeKeyUpdateTestNegative() returns error? {
         notes: "updated notes"
     });
     if orderItem is NotFoundError {
-        test:assertEquals(orderItem.message(), "Not found: [\"order-1\",\"item-2\"]");
+        test:assertEquals(orderItem.message(), "A record with the key '{\"orderId\":\"order-1\",\"itemId\":\"item-2\"}' does not exist for the entity 'OrderItem'.");
     } else {
         test:assertFail("Error expected.");
     }
@@ -186,7 +186,7 @@ function inMemoryCompositeKeyDeleteTestNegative() returns error? {
 
     OrderItem|error orderItem = rainierClient->/orderitems/["invalid-order-id"]/[orderItem2.itemId].delete();
     if orderItem is NotFoundError {
-        test:assertEquals(orderItem.message(), "Not found: [\"invalid-order-id\",\"item-2\"]");
+        test:assertEquals(orderItem.message(), "A record with the key '{\"orderId\":\"invalid-order-id\",\"itemId\":\"item-2\"}' does not exist for the entity 'OrderItem'.");
     } else {
         test:assertFail("Error expected.");
     }
