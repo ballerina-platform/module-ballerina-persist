@@ -58,7 +58,7 @@ public isolated client class SQLClient {
         if result is sql:Error {
             if result.message().indexOf("Duplicate entry ") != () {
                 string duplicateKey = check getKeyFromAlreadyExistsErrorMessage(result.message());
-                return <AlreadyExistsError>error(string `A ${self.entityName} entity with the key '${duplicateKey}' already exists.`);
+                return getAlreadyExistsError(self.entityName, duplicateKey);
             }
 
             return <Error>error(result.message());

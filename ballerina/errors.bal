@@ -47,6 +47,11 @@ public isolated function getNotFoundError(string entity, anydata key) returns No
 # + key - The key of the record
 # + return - The generated `persist:AlreadyExistsError`
 public isolated function getAlreadyExistsError(string entity, anydata key) returns AlreadyExistsError {
-    string message = string `A record with the key '${key.toBalString()}' already exists for the entity '${entity}'.`;
+    string message;
+    if key is record {} {
+        message = string `A record with the key '${key.toBalString()}' already exists for the entity '${entity}'.`;
+    } else {
+        message = string `A record with the key '${key.toString()}' already exists for the entity '${entity}'.`;
+    }
     return error AlreadyExistsError(message);
 }

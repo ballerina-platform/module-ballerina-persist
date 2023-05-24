@@ -64,7 +64,7 @@ function compositeKeyCreateTestNegative() returns error? {
 
     [string, string][]|error ids = rainierClient->/orderitems.post([orderItem1]);
     if ids is AlreadyExistsError {
-        test:assertEquals(ids.message(), "A OrderItem entity with the key 'order-1-item-1' already exists.");
+        test:assertEquals(ids.message(), "A record with the key 'order-1-item-1' already exists for the entity 'OrderItem'.");
     } else {
         test:assertFail("AlreadyExistsError expected");
     }
