@@ -82,7 +82,7 @@ public class PersistSQLStream {
 
 public class PersistGoogleSheetsStream {
 
-    private stream<record {}, Error?>? anydataStream;
+    private stream<record {}, error?>? anydataStream;
     private Error? err;
     private string[] fields;
     private string[] include;
@@ -90,7 +90,7 @@ public class PersistGoogleSheetsStream {
     private GoogleSheetsClient? persistClient;
     private typedesc<record {}> targetType;
 
-    public isolated function init(stream<record {}, Error?>? anydataStream, typedesc<record {}> targetType, string[] fields, string[] include, any[] typeDescriptions, GoogleSheetsClient persistClient, Error? err = ()) {
+    public isolated function init(stream<record {}, error?>? anydataStream, typedesc<record {}> targetType, string[] fields, string[] include, any[] typeDescriptions, GoogleSheetsClient persistClient, Error? err = ()) {
         self.anydataStream = anydataStream;
         self.fields = fields;
         self.include = include;
@@ -110,11 +110,11 @@ public class PersistGoogleSheetsStream {
         if self.err is Error {
             return <Error>self.err;
         } else if self.anydataStream is stream<record {}, Error?> {
-            var anydataStream = <stream<record {}, Error?>>self.anydataStream;
+            var anydataStream = <stream<record {}, error?>>self.anydataStream;
             var streamValue = anydataStream.next();
             if streamValue is () {
                 return streamValue;
-            } else if (streamValue is Error) {
+            } else if (streamValue is error) {
                 return <Error>error(streamValue.message());
             } else {
                 record {}|error value = streamValue.value;
@@ -138,7 +138,7 @@ public class PersistGoogleSheetsStream {
     }
 
     public isolated function close() returns Error? {
-        check closeEntityStream(self.anydataStream);
+        check closePersistEntityStream(self.anydataStream);
     }
 }
 
@@ -201,6 +201,6 @@ public class PersistInMemoryStream {
     }
 
     public isolated function close() returns Error? {
-        check closeEntityStream(self.anydataStream);
+        check closePersistEntityStream(self.anydataStream);
     }
 }

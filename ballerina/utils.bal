@@ -48,6 +48,19 @@ isolated function arrayToParameterizedQuery(string[] arr, sql:ParameterizedQuery
     return query;
 }
 
+# Closes the googlesheets and inmemory entity stream.
+#
+# + customStream - Stream that needs to be closed
+# + return - `()` if the operation is performed successfully or a `persist:Error` if the operation fails
+public isolated function closePersistEntityStream(stream<anydata, error?>? customStream) returns Error? {
+    if customStream is stream<anydata, error?> {
+        error? e = customStream.close();
+        if e is error {
+            return <Error>error(e.message());
+        }
+    }
+}
+
 # Closes the entity stream.
 #
 # + customStream - Stream that needs to be closed
