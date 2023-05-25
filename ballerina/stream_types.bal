@@ -73,6 +73,11 @@ public class PersistInMemoryStream {
     }
 
     public isolated function close() returns Error? {
-        check closeEntityStream(self.anydataStream);
+        if self.anydataStream is stream<anydata, error?> {
+            error? e = (<stream<anydata, error?>>self.anydataStream).close();
+            if e is error {
+                return <Error>error(e.message());
+            }
+        }
     }
 }
