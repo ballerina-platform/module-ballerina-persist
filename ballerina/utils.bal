@@ -16,22 +16,9 @@
 
 import ballerina/jballerina.java;
 
-isolated function convertToArray(typedesc<record {}> elementType, record {}[] arr) returns elementType[] = @java:Method {
+public isolated function convertToArray(typedesc<record {}> elementType, record {}[] arr) returns elementType[] = @java:Method {
     'class: "io.ballerina.stdlib.persist.Utils"
 } external;
-
-# Closes the googlesheets and inmemory entity stream.
-#
-# + customStream - Stream that needs to be closed
-# + return - `()` if the operation is performed successfully or a `persist:Error` if the operation fails
-public isolated function closeEntityStream(stream<anydata, error?>? customStream) returns Error? {
-    if customStream is stream<anydata, error?> {
-        error? e = customStream.close();
-        if e is error {
-            return <Error>error(e.message());
-        }
-    }
-}
 
 public isolated function filterRecord(record {} 'object, string[] fields) returns record {} {
     record {} retrieved = {};
