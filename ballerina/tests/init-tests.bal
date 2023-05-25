@@ -47,30 +47,6 @@ function truncate() returns error? {
     check dbClient.close();
 }
 
-// @test:BeforeSuite  // Uncomment this after github secrets are added
-// function initSpreadsheet() {
-//     sheets:ConnectionConfig sheetsClientConfig = {
-//             auth: {
-//                 clientId: clientId,
-//                 clientSecret: clientSecret,
-//                 refreshUrl: sheets:REFRESH_URL,
-//                 refreshToken: refreshToken
-//             }
-//         };
-//     sheets:Client|error googleSheetClient = new (sheetsClientConfig);
-//     if googleSheetClient is error {
-//         io:println("Error: Client initialization failed. ");
-//         io:println(googleSheetClient);
-//     } else {
-//         sheets:Spreadsheet|error spreadsheet = googleSheetClient->createSpreadsheet("moduleBallerinaPersistTestSpreadSheet");
-//         if spreadsheet !is error {
-//             io:println(string `Spreadsheet ID is : ${spreadsheet.spreadsheetId}`);
-//         } else {
-//             io:println(spreadsheet);
-//         }
-//     }
-// }
-
 AllTypes allTypes1 = {
     id: 1,
     booleanType: false,
