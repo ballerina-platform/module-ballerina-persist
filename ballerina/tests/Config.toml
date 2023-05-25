@@ -1,9 +1,0 @@
-user="root"
-password="Test123#"
-host="localhost"
-port=3305
-database="test"
-
-[connectionOptions]
-connectTimeout = 50.0
-socketTimeout = 30.0

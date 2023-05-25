@@ -19,5 +19,4 @@
 module io.ballerina.stdlib.persist {
     requires io.ballerina.runtime;
     requires io.ballerina.lang;
-    requires io.ballerina.stdlib.sql;
 }

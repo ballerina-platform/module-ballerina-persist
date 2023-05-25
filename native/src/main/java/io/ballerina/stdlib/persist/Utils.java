@@ -26,13 +26,11 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
-import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
@@ -114,19 +112,6 @@ public class Utils {
         }
 
         return new BArray[]{fieldsArray, includeArray, typeDescriptionArray};
-    }
-
-    public static BMap<BString, Object> getFieldTypes(RecordType recordType) {
-        MapType stringMapType = TypeCreator.createMapType(PredefinedTypes.TYPE_STRING);
-        BMap<BString, Object> typeMap = ValueCreator.createMapValue(stringMapType);
-        Map<String, Field> fieldsMap = recordType.getFields();
-        for (Field field : fieldsMap.values()) {
-
-            Type type = field.getFieldType();
-            String fieldName = field.getFieldName();
-            typeMap.put(StringUtils.fromString(fieldName), StringUtils.fromString(type.getName()));
-        }
-        return typeMap;
     }
 
     private static BArray getInnerFieldsArray(Type type) {
