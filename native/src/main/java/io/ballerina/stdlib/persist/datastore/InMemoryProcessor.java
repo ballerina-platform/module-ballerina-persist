@@ -82,9 +82,9 @@ import static io.ballerina.stdlib.persist.Utils.getTransactionContextProperties;
                 null, null, new Callback() {
                     @Override
                     public void notifySuccess(Object o) {
-                        BStream sqlStream = (BStream) o;
+                        BStream stream = (BStream) o;
                         BObject persistStream = ValueCreator.createObjectValue(
-                                ModuleUtils.getModule(), Constants.PERSIST_IN_MEMORY_STREAM, sqlStream, targetType,
+                                ModuleUtils.getModule(), Constants.PERSIST_IN_MEMORY_STREAM, stream, targetType,
                                 fields, includes, typeDescriptions, persistClient, null
                         );
 

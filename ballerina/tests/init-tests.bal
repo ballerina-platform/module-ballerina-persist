@@ -14,38 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/test;
-import ballerinax/mysql;
-import ballerinax/mysql.driver as _;
 import ballerina/time;
-
-configurable int port = ?;
-configurable string host = ?;
-configurable string user = ?;
-configurable string database = ?;
-configurable string password = ?;
-configurable mysql:Options connectionOptions = {};
-
-@test:BeforeSuite
-function truncate() returns error? {
-    mysql:Client dbClient = check new (host = host, user = user, password = password, database = database, port = port);
-    _ = check dbClient->execute(`SET FOREIGN_KEY_CHECKS = 0`);
-    _ = check dbClient->execute(`TRUNCATE Employee`);
-    _ = check dbClient->execute(`TRUNCATE Workspace`);
-    _ = check dbClient->execute(`TRUNCATE Building`);
-    _ = check dbClient->execute(`TRUNCATE Department`);
-    _ = check dbClient->execute(`TRUNCATE OrderItem`);
-    _ = check dbClient->execute(`TRUNCATE AllTypes`);
-    _ = check dbClient->execute(`TRUNCATE FloatIdRecord`);
-    _ = check dbClient->execute(`TRUNCATE StringIdRecord`);
-    _ = check dbClient->execute(`TRUNCATE DecimalIdRecord`);
-    _ = check dbClient->execute(`TRUNCATE BooleanIdRecord`);
-    _ = check dbClient->execute(`TRUNCATE IntIdRecord`);
-    _ = check dbClient->execute(`TRUNCATE AllTypesIdRecord`);
-    _ = check dbClient->execute(`TRUNCATE CompositeAssociationRecord`);
-    _ = check dbClient->execute(`SET FOREIGN_KEY_CHECKS = 1`);
-    check dbClient.close();
-}
 
 AllTypes allTypes1 = {
     id: 1,
@@ -258,7 +227,7 @@ OrderItemExtended orderItemExtended1 = {
     paid: false,
     ammountPaid: 10.5f,
     ammountPaidDecimal: 10.5,
-    arivalTimeCivil: {"utcOffset":{"hours":5,"minutes":30},"timeAbbrev":"Asia/Colombo","dayOfWeek":1,"year":2021,"month":4,"day":12,"hour":23,"minute":20,"second":50.52},
+    arivalTimeCivil: {"utcOffset": {"hours": 5, "minutes": 30}, "timeAbbrev": "Asia/Colombo", "dayOfWeek": 1, "year": 2021, "month": 4, "day": 12, "hour": 23, "minute": 20, "second": 50.52},
     arivalTimeUtc: [1684493685, 0.998012000],
     arivalTimeDate: {year: 2021, month: 4, day: 12},
     arivalTimeTimeOfDay: {hour: 17, minute: 50, second: 50.52},
@@ -272,7 +241,7 @@ OrderItemExtended orderItemExtendedRetrieved = {
     paid: false,
     ammountPaid: 10.5f,
     ammountPaidDecimal: 10.5,
-    arivalTimeCivil: {"timeAbbrev":"Z","dayOfWeek":1 ,"year":2021,"month":4,"day":12,"hour":17,"minute":50,"second":50.52},
+    arivalTimeCivil: {"timeAbbrev": "Z", "dayOfWeek": 1, "year": 2021, "month": 4, "day": 12, "hour": 17, "minute": 50, "second": 50.52},
     arivalTimeUtc: [1684493685, 0.998012000],
     arivalTimeDate: {year: 2021, month: 4, day: 12},
     arivalTimeTimeOfDay: {hour: 17, minute: 50, second: 50.52},
@@ -286,7 +255,7 @@ OrderItemExtended orderItemExtended2 = {
     paid: false,
     ammountPaid: 10.5f,
     ammountPaidDecimal: 10.5,
-    arivalTimeCivil: {"utcOffset":{"hours":5,"minutes":30},"timeAbbrev":"Asia/Colombo","dayOfWeek":1 ,"year":2024,"month":4,"day":12,"hour":17,"minute":50,"second":50.52},
+    arivalTimeCivil: {"utcOffset": {"hours": 5, "minutes": 30}, "timeAbbrev": "Asia/Colombo", "dayOfWeek": 1, "year": 2024, "month": 4, "day": 12, "hour": 17, "minute": 50, "second": 50.52},
     arivalTimeUtc: [1684493685, 0.998012000],
     arivalTimeDate: {year: 2021, month: 4, day: 12},
     arivalTimeTimeOfDay: {hour: 17, minute: 50, second: 50.52},
@@ -309,7 +278,7 @@ OrderItemExtended orderItemExtended2Retrieved = {
     paid: false,
     ammountPaid: 10.5f,
     ammountPaidDecimal: 10.5,
-    arivalTimeCivil: {"timeAbbrev":"Z","dayOfWeek":5 ,"year":2024,"month":4,"day":12,"hour":12,"minute":20,"second":50.52},
+    arivalTimeCivil: {"timeAbbrev": "Z", "dayOfWeek": 5, "year": 2024, "month": 4, "day": 12, "hour": 12, "minute": 20, "second": 50.52},
     arivalTimeUtc: [1684493685, 0.998012000],
     arivalTimeDate: {year: 2021, month: 4, day: 12},
     arivalTimeTimeOfDay: {hour: 17, minute: 50, second: 50.52},
@@ -323,7 +292,7 @@ OrderItemExtended orderItemExtended3 = {
     paid: true,
     ammountPaid: 20.5f,
     ammountPaidDecimal: 20.5,
-    arivalTimeCivil: {"utcOffset":{"hours":5,"minutes":30},"timeAbbrev":"Asia/Colombo","dayOfWeek":1,"year":2021,"month":4,"day":12,"hour":23,"minute":20,"second":50.52},
+    arivalTimeCivil: {"utcOffset": {"hours": 5, "minutes": 30}, "timeAbbrev": "Asia/Colombo", "dayOfWeek": 1, "year": 2021, "month": 4, "day": 12, "hour": 23, "minute": 20, "second": 50.52},
     arivalTimeUtc: [1684493685, 0.998012000],
     arivalTimeDate: {year: 2021, month: 4, day: 12},
     arivalTimeTimeOfDay: {hour: 17, minute: 50, second: 50.52},
@@ -337,7 +306,7 @@ OrderItemExtended orderItemExtended3Retrieved = {
     paid: true,
     ammountPaid: 10.5f,
     ammountPaidDecimal: 10.5,
-    arivalTimeCivil: {"timeAbbrev":"Z","dayOfWeek":1 ,"year":2021,"month":4,"day":12,"hour":17,"minute":50,"second":50.52},
+    arivalTimeCivil: {"timeAbbrev": "Z", "dayOfWeek": 1, "year": 2021, "month": 4, "day": 12, "hour": 17, "minute": 50, "second": 50.52},
     arivalTimeUtc: [1684493685, 0.998012000],
     arivalTimeDate: {year: 2021, month: 4, day: 12},
     arivalTimeTimeOfDay: {hour: 17, minute: 50, second: 50.52},
@@ -588,3 +557,24 @@ public type BuildingInfo2 record {|
     string postalCode;
     string 'type;
 |};
+
+OrderItem orderItem1 = {
+    orderId: "order-1",
+    itemId: "item-1",
+    quantity: 5,
+    notes: "none"
+};
+
+OrderItem orderItem2 = {
+    orderId: "order-2",
+    itemId: "item-2",
+    quantity: 10,
+    notes: "more"
+};
+
+OrderItem orderItem2Updated = {
+    orderId: "order-2",
+    itemId: "item-2",
+    quantity: 20,
+    notes: "more than more"
+};

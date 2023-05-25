@@ -14,38 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/sql;
 import ballerina/jballerina.java;
-
-isolated function stringToParameterizedQuery(string queryStr) returns sql:ParameterizedQuery {
-    sql:ParameterizedQuery query = ``;
-    query.strings = [queryStr];
-    return query;
-}
-
-isolated function getKeyFromAlreadyExistsErrorMessage(string errorMessage) returns string|Error {
-    int? startIndex = errorMessage.indexOf(".Duplicate entry '");
-    int? endIndex = errorMessage.indexOf("' for key");
-
-    if startIndex is () || endIndex is () {
-        return <Error>error("Unable to determine key from DuplicateKey error message.");
-    }
-
-    string key = errorMessage.substring(startIndex + 18, endIndex);
-    return key;
-}
 
 isolated function convertToArray(typedesc<record {}> elementType, record {}[] arr) returns elementType[] = @java:Method {
     'class: "io.ballerina.stdlib.persist.Utils"
 } external;
-
-isolated function arrayToParameterizedQuery(string[] arr, sql:ParameterizedQuery delimiter = `,`) returns sql:ParameterizedQuery {
-    sql:ParameterizedQuery query = stringToParameterizedQuery(arr[0]);
-    foreach int i in 1 ..< arr.length() {
-        query = sql:queryConcat(query, delimiter, stringToParameterizedQuery(arr[i]));
-    }
-    return query;
-}
 
 # Closes the googlesheets and inmemory entity stream.
 #
@@ -53,19 +26,6 @@ isolated function arrayToParameterizedQuery(string[] arr, sql:ParameterizedQuery
 # + return - `()` if the operation is performed successfully or a `persist:Error` if the operation fails
 public isolated function closeEntityStream(stream<anydata, error?>? customStream) returns Error? {
     if customStream is stream<anydata, error?> {
-        error? e = customStream.close();
-        if e is error {
-            return <Error>error(e.message());
-        }
-    }
-}
-
-# Closes the SQL entity stream.
-#
-# + customStream - Stream that needs to be closed
-# + return - `()` if the operation is performed successfully or a `persist:Error` if the operation fails
-public isolated function closeSQLEntityStream(stream<anydata, error?>? customStream) returns Error? {
-    if customStream is stream<anydata, sql:Error?> {
         error? e = customStream.close();
         if e is error {
             return <Error>error(e.message());
