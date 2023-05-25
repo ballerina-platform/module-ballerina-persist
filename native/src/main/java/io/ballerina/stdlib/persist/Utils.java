@@ -43,7 +43,6 @@ import io.ballerina.runtime.transactions.TransactionResourceManager;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import static io.ballerina.runtime.api.utils.StringUtils.fromString;
@@ -63,12 +62,6 @@ public class Utils {
 
     public static BString getEntity(Environment env) {
         String entity = env.getFunctionName().split("\\$")[2];
-        return fromString(entity);
-    }
-
-    public static BString getEntityFromStreamMethod(Environment env) {
-        String functionName = env.getFunctionName();
-        String entity = functionName.substring(5, functionName.length() - 6).toLowerCase(Locale.ENGLISH);
         return fromString(entity);
     }
 

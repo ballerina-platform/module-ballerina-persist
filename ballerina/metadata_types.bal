@@ -36,38 +36,12 @@ public type TableMetadata record {|
     map<isolated function (record {}, string[]) returns record {}[]> associationsMethods = {};
 |};
 
-public type SheetMetadata record {|
-    string entityName;
-    string tableName;
-    map<SheetFieldMetadata> fieldMetadata;
-    string[] keyFields;
-    string range;
-    map<string> dataTypes;
-    isolated function (string[]) returns stream<record {}, Error?>|Error query;
-    isolated function (anydata) returns record {}|NotFoundError queryOne;
-    map<isolated function (record {}, string[]) returns record {}[]|Error> associationsMethods;
-|};
-
-# Represents the metadata associated with a simple field in the entity record.
-#
-# + columnName - The name of the spreadsheet column to which the field is mapped
-# + columnId - The alphabetical Id of the column
-public type SimpleSheetFieldMetadata record {|
-    string columnName;
-    string columnId;
-|};
-
 # Represents the metadata associated with a field from a related entity.
 #
 # + relation - The relational metadata associated with the field
 public type EntityFieldMetadata record {|
     RelationMetadata relation;
 |};
-
-# Represents the metadata associated with a field of an entity.
-# Only used by the generated persist clients and `persist:GoogleSheetsClient`.
-#
-public type SheetFieldMetadata SimpleSheetFieldMetadata;
 
 # Represents the metadata associated with a simple field in the entity record.
 #
