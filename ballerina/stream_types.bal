@@ -75,7 +75,7 @@ public class PersistSQLStream {
     }
 
     public isolated function close() returns Error? {
-        check closeEntityStream(self.anydataStream);
+        check closeSQLEntityStream(self.anydataStream);
     }
 }
 
@@ -108,7 +108,7 @@ public class PersistInMemoryStream {
     public isolated function next() returns record {|record {} value;|}|Error? {
         if self.err is Error {
             return <Error>self.err;
-        } else if self.anydataStream is stream<record {}, Error?> {
+        } else if self.anydataStream is stream<record {}, error?> {
             var anydataStream = <stream<record {}, error?>>self.anydataStream;
             var streamValue = anydataStream.next();
             if streamValue is () {
