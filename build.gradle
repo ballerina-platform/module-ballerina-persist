@@ -70,10 +70,6 @@ subprojects {
         externalJars
         ballerinaStdLibs
     }
-
-    dependencies {
-        ballerinaStdLibs "io.ballerina.stdlib:time-ballerina:${stdlibTimeVersion}"
-    }
 }
 
 def moduleVersion = project.version.replace("-SNAPSHOT", "")
