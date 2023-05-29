@@ -36,7 +36,7 @@ isolated function getKeyFromAlreadyExistsErrorMessage(string errorMessage) retur
     return key;
 }
 
-isolated function convertToArray(typedesc<record {}> elementType, record {}[] arr) returns elementType[] = @java:Method {
+public isolated function convertToArray(typedesc<record {}> elementType, record {}[] arr) returns elementType[] = @java:Method {
     'class: "io.ballerina.stdlib.persist.Utils"
 } external;
 
