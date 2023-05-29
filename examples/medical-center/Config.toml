@@ -1,8 +1,0 @@
-[medical_center]
-host = "localhost"
-port = 3305
-user = "root"
-password = "Test123#"
-database = "test"
-
-
