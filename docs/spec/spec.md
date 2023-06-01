@@ -3,7 +3,7 @@
 _Owners_: @daneshk @niveathika @kaneeldias  
 _Reviewers_: @daneshk  
 _Created_: 2022/01/25   
-_Updated_: 2023/05/31  
+_Updated_: 2023/06/01  
 _Edition_: Swan Lake  
 
 ## Introduction
@@ -99,45 +99,6 @@ type Department record {|
    Department department; // EntityType
 |};
 ```
-Simple Types are mapped to native data source types as follows:
-1. **MySQL**
-
-   | Ballerina Type |   MySQL Type   |
-         |:--------------:| :------------: |
-   | ()             |      NULL      |
-   | boolean        |    BOOLEAN     |
-   | int            |      INT       |
-   | float          |     DOUBLE     |
-   | decimal        | DECIMAL(65,30) |
-   | string         |  VARCHAR(191)  |
-   | byte[]         |    LONGBLOB    |
-   | enum           |      ENUM      |
-   | time:Date      |      DATE      |
-   | time:TimeOfDay |      TIME      |
-   | time:Utc       |   TIMESTAMP    |
-   | time:Civil     |    DATETIME    |
-
-2. **In-memory**
-
-   In-memory uses Ballerina tables as the data store. Therefore, all types supported by Ballerina are supported with `persist` when in-memory is used as the data source.
-
-
-3. **Google Sheets**
-
-   | Ballerina Type | Google Sheets Column Data Type |
-         |:------------------------------:| :------------: |
-   | ()             |          Text (empty)          |
-   | boolean        |              Text              |
-   | int            |             Number             |
-   | float          |             Number             |
-   | decimal        |             Number             |
-   | string         |              Text              |
-   | enum           |              Text              |
-   | time:Date      |              Text              |
-   | time:TimeOfDay |              TIME              |
-   | time:Utc       |              Text              |
-   | time:Civil     |              Text              |
-
 ### 2.2 Entity Attributes Definition
 
 Ballerina record fields are used to model the attributes of an entity. The type of the field should be a subtype of SimpleType.
