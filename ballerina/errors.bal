@@ -25,3 +25,33 @@ public type NotFoundError distinct Error;
 
 # Represents an error that occurs when the user attempts to create a record which already exists in the database.
 public type AlreadyExistsError distinct Error;
+
+# Generates a new `persist:NotFoundError` with the given parameters.
+#
+# + entity - The name of the entity  
+# + key - The key of the record
+# + return - The generated `persist:NotFoundError`
+public isolated function getNotFoundError(string entity, anydata key) returns NotFoundError {
+    string message;
+    if key is record {} {
+        message = string `A record with the key '${key.toBalString()}' does not exist for the entity '${entity}'.`;
+    } else {
+        message = string `A record with the key '${key.toString()}' does not exist for the entity '${entity}'.`;
+    }
+    return error NotFoundError(message);
+}
+
+# Generates a new `persist:AlreadyExistsError` with the given parameters.
+#
+# + entity - The name of the entity  
+# + key - The key of the record
+# + return - The generated `persist:AlreadyExistsError`
+public isolated function getAlreadyExistsError(string entity, anydata key) returns AlreadyExistsError {
+    string message;
+    if key is record {} {
+        message = string `A record with the key '${key.toBalString()}' already exists for the entity '${entity}'.`;
+    } else {
+        message = string `A record with the key '${key.toString()}' already exists for the entity '${entity}'.`;
+    }
+    return error AlreadyExistsError(message);
+}
