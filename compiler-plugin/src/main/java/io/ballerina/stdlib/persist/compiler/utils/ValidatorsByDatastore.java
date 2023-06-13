@@ -145,7 +145,7 @@ public final class ValidatorsByDatastore {
         }
     }
 
-        public static boolean isValidMssqlType(String type) {
+    public static boolean isValidMssqlType(String type) {
         switch (type) {
             case INT:
             case BOOLEAN:
@@ -158,7 +158,6 @@ public final class ValidatorsByDatastore {
                 return false;
         }
     }
-
 
     public static boolean isValidInMemoryType(String type) {
         return true;
@@ -219,7 +218,7 @@ public final class ValidatorsByDatastore {
         }
     }
 
-        public static boolean isValidMssqlImportedType(String modulePrefix, String identifier) {
+    public static boolean isValidMssqlImportedType(String modulePrefix, String identifier) {
         if (!modulePrefix.equals(TIME_MODULE)) {
             return false;
         }
@@ -233,7 +232,6 @@ public final class ValidatorsByDatastore {
                 return false;
         }
     }
-
 
     public static boolean isValidInMemoryImportedType(String modulePrefix, String identifier) {
         return true;
