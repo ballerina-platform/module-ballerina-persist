@@ -90,6 +90,8 @@ public final class ValidatorsByDatastore {
         switch (datastore) {
             case Constants.Datastores.MYSQL:
                 return isValidMysqlType(type);
+            case Constants.Datastores.MSSQL:
+                return isValidMssqlType(type);
             case Constants.Datastores.IN_MEMORY:
                 return isValidInMemoryType(type);
             case Constants.Datastores.GOOGLE_SHEETS:
@@ -103,6 +105,8 @@ public final class ValidatorsByDatastore {
         switch (datastore) {
             case Constants.Datastores.MYSQL:
                 return isValidMysqlArrayType(type);
+            case Constants.Datastores.MSSQL:
+                return isValidMssqlArrayType(type);
             case Constants.Datastores.IN_MEMORY:
                 return isValidInMemoryArrayType(type);
             case Constants.Datastores.GOOGLE_SHEETS:
@@ -116,6 +120,8 @@ public final class ValidatorsByDatastore {
         switch (datastore) {
             case Constants.Datastores.MYSQL:
                 return isValidMysqlImportedType(modulePrefix, identifier);
+            case Constants.Datastores.MSSQL:
+                return isValidMssqlImportedType(modulePrefix, identifier);
             case Constants.Datastores.IN_MEMORY:
                 return isValidInMemoryImportedType(modulePrefix, identifier);
             case Constants.Datastores.GOOGLE_SHEETS:
@@ -139,6 +145,21 @@ public final class ValidatorsByDatastore {
         }
     }
 
+        public static boolean isValidMssqlType(String type) {
+        switch (type) {
+            case INT:
+            case BOOLEAN:
+            case DECIMAL:
+            case FLOAT:
+            case STRING:
+            case ENUM:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+
     public static boolean isValidInMemoryType(String type) {
         return true;
     }
@@ -158,6 +179,15 @@ public final class ValidatorsByDatastore {
     }
 
     public static boolean isValidMysqlArrayType(String type) {
+        switch (type) {
+            case BYTE:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    public static boolean isValidMssqlArrayType(String type) {
         switch (type) {
             case BYTE:
                 return true;
@@ -188,6 +218,22 @@ public final class ValidatorsByDatastore {
                 return false;
         }
     }
+
+        public static boolean isValidMssqlImportedType(String modulePrefix, String identifier) {
+        if (!modulePrefix.equals(TIME_MODULE)) {
+            return false;
+        }
+        switch (identifier) {
+            case DATE:
+            case TIME_OF_DAY:
+            case UTC:
+            case CIVIL:
+                return true;
+            default:
+                return false;
+        }
+    }
+
 
     public static boolean isValidInMemoryImportedType(String modulePrefix, String identifier) {
         return true;
