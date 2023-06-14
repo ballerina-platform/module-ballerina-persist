@@ -70,6 +70,7 @@ public final class Constants {
     public static final class Datastores {
 
         public static final String MYSQL = "mysql";
+        public static final String MSSQL = "mssql";
         public static final String IN_MEMORY = "inmemory";
         public static final String GOOGLE_SHEETS = "googlesheets";
 
