@@ -9,11 +9,11 @@ icon = "icon.png"
 license = ["Apache-2.0"]
 distribution = "2201.7.0"
 
+[platform.java11]
+graalvmCompatible = true
+
 [[platform.java11.dependency]]
 groupId = "io.ballerina.persist"
 artifactId = "persist-native"
 version = "1.1.0"
 path = "../native/build/libs/persist-native-1.1.0-SNAPSHOT.jar"
-
-[platform.java11]
-graalvmCompatible = true
