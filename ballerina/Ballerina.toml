@@ -1,16 +1,19 @@
 [package]
 org = "ballerina"
 name = "persist"
-version = "1.0.1"
+version = "1.1.0"
 authors = ["Ballerina"]
 keywords = ["persist"]
 repository = "https://github.com/ballerina-platform/module-ballerina-persist"
 icon = "icon.png"
 license = ["Apache-2.0"]
-distribution = "2201.6.0"
+distribution = "2201.7.0"
+
+[platform.java11]
+graalvmCompatible = true
 
 [[platform.java11.dependency]]
 groupId = "io.ballerina.persist"
 artifactId = "persist-native"
-version = "1.0.1"
-path = "../native/build/libs/persist-native-1.0.1-SNAPSHOT.jar"
+version = "1.1.0"
+path = "../native/build/libs/persist-native-1.1.0-SNAPSHOT.jar"
