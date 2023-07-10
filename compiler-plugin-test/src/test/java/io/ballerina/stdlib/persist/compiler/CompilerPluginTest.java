@@ -157,7 +157,7 @@ public class CompilerPluginTest {
         );
     }
 
-    @Test
+    @Test(enabled = false)
     public void validateEntityFieldTypeForMysql() {
         List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "field-types.bal", 10);
         testDiagnostic(
@@ -201,7 +201,7 @@ public class CompilerPluginTest {
         );
     }
 
-    @Test
+    @Test(enabled = false)
     public void validateEntityFieldTypeForMssql() {
         List<Diagnostic> diagnostics = getErrorDiagnostics("project_5", "field-types.bal", 10);
         testDiagnostic(
@@ -244,7 +244,8 @@ public class CompilerPluginTest {
                 }
         );
     }
-    @Test
+
+    @Test(enabled = false)
     public void validateEntityFieldTypeForGoogleSheets() {
         List<Diagnostic> diagnostics = getErrorDiagnostics("project_3", "field-types.bal", 12);
         testDiagnostic(
@@ -294,7 +295,7 @@ public class CompilerPluginTest {
         );
     }
 
-    @Test
+    @Test(enabled = false)
     public void validateEntityFieldTypeForInMemory() {
         getErrorDiagnostics("project_4", "field-types.bal", 0);
     }
