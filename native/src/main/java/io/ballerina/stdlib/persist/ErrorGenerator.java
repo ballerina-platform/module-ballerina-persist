@@ -15,6 +15,9 @@ import static io.ballerina.stdlib.persist.ModuleUtils.getModule;
  * @since 1.1.0
  */
 public class ErrorGenerator {
+
+    private ErrorGenerator() {
+    }
     private static BError generatePersistError(BString message, BError cause, BMap<BString, Object> details) {
         return ErrorCreator.createError(getModule(), ERROR, message, cause, details);
     }
