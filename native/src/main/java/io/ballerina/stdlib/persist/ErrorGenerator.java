@@ -18,6 +18,7 @@ public class ErrorGenerator {
 
     private ErrorGenerator() {
     }
+
     private static BError generatePersistError(BString message, BError cause, BMap<BString, Object> details) {
         return ErrorCreator.createError(getModule(), ERROR, message, cause, details);
     }
