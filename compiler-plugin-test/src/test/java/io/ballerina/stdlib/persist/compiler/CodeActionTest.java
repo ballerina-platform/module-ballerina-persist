@@ -94,9 +94,8 @@ public class CodeActionTest {
                         "PERSIST_306", "CHANGE_TYPE_TO_INT", "Change to 'int' type"},
                 {"project_2", "field-types-valid.bal", LinePosition.from(15, 6), "field-types-string.bal",
                         "PERSIST_306", "CHANGE_TYPE_TO_STRING", "Change to 'string' type"},
-                // TODO: Uncomment after fixing the issue due to importing `ballerinax-mysql` module
-//                {"project_3", "field-types.bal", LinePosition.from(13, 4), "field-types-nillable.bal",
-//                        "PERSIST_308", "CHANGE_TYPE_TO_NOT_NILLABLE", "Change to 'float' type"},
+                {"project_3", "field-types.bal", LinePosition.from(13, 4), "field-types-nillable.bal",
+                        "PERSIST_308", "CHANGE_TYPE_TO_NOT_NILLABLE", "Change to 'float' type"},
 
                 {"project_2", "field-types-valid.bal", LinePosition.from(18, 12),
                         "field-types-unsupported-array.bal", "PERSIST_306", "REMOVE_TEXT_RANGE",
