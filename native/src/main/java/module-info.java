@@ -20,4 +20,5 @@ module io.ballerina.stdlib.persist {
     requires io.ballerina.runtime;
     requires io.ballerina.lang;
     exports io.ballerina.stdlib.persist;
+    exports io.ballerina.stdlib.persist.plural;
 }
