@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
  */
 public class Pluralizer {
 
-    private Pluralizer(){}
+    private Pluralizer() {}
 
     public static String pluralize(String word) {
         for (String rule : Rules.UNCOUNTABLE_RULES) {

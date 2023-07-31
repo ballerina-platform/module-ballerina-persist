@@ -24,7 +24,7 @@ plugins {
 }
 
 jacoco {
-    toolVersion = "0.8.6"
+    toolVersion = "0.8.10"
 }
 
 description = 'Ballerina - Persist Compiler Plugin Test'
@@ -39,6 +39,7 @@ dependencies {
     testImplementation group: 'org.ballerinalang', name: 'ballerina-tools-api', version: "${ballerinaLangVersion}"
     testImplementation group: 'org.ballerinalang', name: 'ballerina-parser', version: "${ballerinaLangVersion}"
     implementation group: 'org.testng', name: 'testng', version: "${testngVersion}"
+    testImplementation 'org.testng:testng'
     testImplementation group: 'com.google.code.gson', name: 'gson', version: "${gsonVersion}"
 }
 
@@ -74,7 +75,7 @@ jacocoTestReport {
         additionalClassDirs files(it.sourceSets.main.output)
     }
     reports {
-        xml.enabled true
+        xml.required = true
     }
 }
 

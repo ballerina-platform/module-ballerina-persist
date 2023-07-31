@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class Rules {
 
-    private Rules(){}
+    private Rules() {}
 
     // Irregular rules.
     static final String[][] IRREGULAR_RULES = (new String[][] {
