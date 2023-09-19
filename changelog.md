@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+## [1.1.0] - 2023-06-30
+
+### Added
 - [Added util methods to generate error messages which are consistent across data sources](https://github.com/ballerina-platform/ballerina-standard-library/issues/4360)
 - [Added compiler plugin validations for MSSQL as a datasource](https://github.com/ballerina-platform/ballerina-standard-library/issues/4506)
 
