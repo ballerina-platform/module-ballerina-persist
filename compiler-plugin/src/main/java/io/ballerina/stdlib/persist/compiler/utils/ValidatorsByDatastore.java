@@ -92,6 +92,8 @@ public final class ValidatorsByDatastore {
                 return isValidMysqlType(type);
             case Constants.Datastores.MSSQL:
                 return isValidMssqlType(type);
+            case Constants.Datastores.POSTGRESQL:
+                return isValidPostgresqlType(type);
             case Constants.Datastores.IN_MEMORY:
                 return isValidInMemoryType(type);
             case Constants.Datastores.GOOGLE_SHEETS:
@@ -107,6 +109,8 @@ public final class ValidatorsByDatastore {
                 return isValidMysqlArrayType(type);
             case Constants.Datastores.MSSQL:
                 return isValidMssqlArrayType(type);
+            case Constants.Datastores.POSTGRESQL:
+                return isValidPostgresqlArrayType(type);
             case Constants.Datastores.IN_MEMORY:
                 return isValidInMemoryArrayType(type);
             case Constants.Datastores.GOOGLE_SHEETS:
@@ -122,6 +126,8 @@ public final class ValidatorsByDatastore {
                 return isValidMysqlImportedType(modulePrefix, identifier);
             case Constants.Datastores.MSSQL:
                 return isValidMssqlImportedType(modulePrefix, identifier);
+            case Constants.Datastores.POSTGRESQL:
+                return isValidPostgresqlImportedType(modulePrefix, identifier);
             case Constants.Datastores.IN_MEMORY:
                 return isValidInMemoryImportedType(modulePrefix, identifier);
             case Constants.Datastores.GOOGLE_SHEETS:
@@ -159,6 +165,21 @@ public final class ValidatorsByDatastore {
         }
     }
 
+    public static boolean isValidPostgresqlType(String type) {
+        switch (type) {
+            case INT:
+            case BOOLEAN:
+            case DECIMAL:
+            case FLOAT:
+            case STRING:
+            case ENUM:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+
     public static boolean isValidInMemoryType(String type) {
         return true;
     }
@@ -194,6 +215,16 @@ public final class ValidatorsByDatastore {
                 return false;
         }
     }
+
+    public static boolean isValidPostgresqlArrayType(String type) {
+        switch (type) {
+            case BYTE:
+                return true;
+            default:
+                return false;
+        }
+    }
+
 
     public static boolean isValidInMemoryArrayType(String type) {
        return true;
@@ -232,6 +263,22 @@ public final class ValidatorsByDatastore {
                 return false;
         }
     }
+
+    public static boolean isValidPostgresqlImportedType(String modulePrefix, String identifier) {
+        if (!modulePrefix.equals(TIME_MODULE)) {
+            return false;
+        }
+        switch (identifier) {
+            case DATE:
+            case TIME_OF_DAY:
+            case UTC:
+            case CIVIL:
+                return true;
+            default:
+                return false;
+        }
+    }
+
 
     public static boolean isValidInMemoryImportedType(String modulePrefix, String identifier) {
         return true;
