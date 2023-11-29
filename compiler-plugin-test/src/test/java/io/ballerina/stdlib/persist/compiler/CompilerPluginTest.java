@@ -245,8 +245,9 @@ public class CompilerPluginTest {
         );
     }
 
+    @Test
     public void validateEntityFieldTypeForPostgresql() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("project_5", "field-types.bal", 10);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_6", "field-types.bal", 10);
         testDiagnostic(
                 diagnostics,
                 new String[]{
