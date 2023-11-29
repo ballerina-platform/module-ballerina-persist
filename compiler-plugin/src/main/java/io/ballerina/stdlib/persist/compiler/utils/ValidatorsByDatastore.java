@@ -179,7 +179,6 @@ public final class ValidatorsByDatastore {
         }
     }
 
-
     public static boolean isValidInMemoryType(String type) {
         return true;
     }
@@ -224,7 +223,6 @@ public final class ValidatorsByDatastore {
                 return false;
         }
     }
-
 
     public static boolean isValidInMemoryArrayType(String type) {
        return true;
@@ -278,7 +276,6 @@ public final class ValidatorsByDatastore {
                 return false;
         }
     }
-
 
     public static boolean isValidInMemoryImportedType(String modulePrefix, String identifier) {
         return true;

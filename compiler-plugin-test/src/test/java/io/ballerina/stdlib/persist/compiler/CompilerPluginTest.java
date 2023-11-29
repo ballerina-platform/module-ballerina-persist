@@ -288,7 +288,6 @@ public class CompilerPluginTest {
         );
     }
 
-
     @Test
     public void validateEntityFieldTypeForGoogleSheets() {
         List<Diagnostic> diagnostics = getErrorDiagnostics("project_3", "field-types.bal", 12);
