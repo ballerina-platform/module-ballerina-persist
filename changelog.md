@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- [Added compiler plugin validations for MSSQL as a datasource](https://github.com/ballerina-platform/ballerina-library/issues/5829)
+- [Added compiler plugin validations for Postgresql as a datasource](https://github.com/ballerina-platform/ballerina-library/issues/5829)
 
 ### Changed
 
