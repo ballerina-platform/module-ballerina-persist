@@ -246,6 +246,50 @@ public class CompilerPluginTest {
     }
 
     @Test
+    public void validateEntityFieldTypeForPostgresql() {
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_6", "field-types.bal", 10);
+        testDiagnostic(
+                diagnostics,
+                new String[]{
+                        PERSIST_306.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_306.getCode(),
+                },
+                new String[]{
+                        "an entity does not support boolean array field type",
+                        "an entity does not support json-typed field",
+                        "an entity does not support json array field type",
+                        "an entity does not support time:Civil array field type",
+                        "an entity does not support union-typed field",
+                        "an entity does not support error-typed field",
+                        "an entity does not support error array field type",
+                        "an entity does not support mysql:Client-typed field",
+                        "an entity does not support mysql:Client array field type",
+                        "an entity does not support enum array field type"
+                },
+                new String[]{
+                        "(18:4,18:13)",
+                        "(20:4,20:8)",
+                        "(21:4,21:10)",
+                        "(24:4,24:16)",
+                        "(25:4,25:21)",
+                        "(27:4,27:9)",
+                        "(28:4,28:11)",
+                        "(30:4,30:16)",
+                        "(31:4,31:18)",
+                        "(34:4,34:12)"
+                }
+        );
+    }
+
+    @Test
     public void validateEntityFieldTypeForGoogleSheets() {
         List<Diagnostic> diagnostics = getErrorDiagnostics("project_3", "field-types.bal", 12);
         testDiagnostic(
