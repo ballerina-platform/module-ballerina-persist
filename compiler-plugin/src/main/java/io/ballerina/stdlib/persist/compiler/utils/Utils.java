@@ -19,6 +19,12 @@
 package io.ballerina.stdlib.persist.compiler.utils;
 
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.projects.BallerinaToml;
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.Package;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.projects.plugins.codeaction.CodeActionArgument;
 import io.ballerina.projects.plugins.codeaction.CodeActionContext;
@@ -38,6 +44,7 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 import io.ballerina.tools.text.TextRange;
+import java.nio.file.Paths;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.BNumericProperty;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.BStringProperty;
 
@@ -175,8 +182,18 @@ public final class Utils {
         if (balProjectDir == null) {
             throw new BalException("unable to locate the project's Ballerina.toml file");
         }
-
+//        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+//        buildOptionsBuilder.setOffline(true);
+//        Project buildProject = BuildProject.load(balProjectDir.toAbsolutePath(),
+//                buildOptionsBuilder.build());
+//        Package currentPackage = buildProject.currentPackage();
+//        BallerinaToml toml = currentPackage.ballerinaToml().get();
         Path configPath = balProjectDir.resolve(ProjectConstants.BALLERINA_TOML);
+        Path targetDir = Paths.get(String.valueOf(balProjectDir), "target");
+        Path genCmdConfigPath = targetDir.resolve("generatecmd.toml");
+        if (Files.exists(genCmdConfigPath)) {
+            configPath = genCmdConfigPath;
+        }
         try {
             TextDocument configDocument = TextDocuments.from(Files.readString(configPath));
             SyntaxTree syntaxTree = SyntaxTree.from(configDocument);
