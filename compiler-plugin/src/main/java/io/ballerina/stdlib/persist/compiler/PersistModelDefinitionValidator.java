@@ -18,10 +18,12 @@
 
 package io.ballerina.stdlib.persist.compiler;
 
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
+import io.ballerina.compiler.syntax.tree.MetadataNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -70,6 +72,7 @@ import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.INT;
 import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.STRING;
 import static io.ballerina.stdlib.persist.compiler.Constants.LS;
 import static io.ballerina.stdlib.persist.compiler.Constants.PERSIST_DIRECTORY;
+import static io.ballerina.stdlib.persist.compiler.Constants.SQL_RELATION_MAPPING_ANNOTATION_NAME;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_001;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_002;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_003;
@@ -94,6 +97,12 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_405;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_406;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_420;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_422;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_423;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_424;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_426;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_427;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_428;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_429;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_501;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_502;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_503;
@@ -104,6 +113,8 @@ import static io.ballerina.stdlib.persist.compiler.utils.Utils.getDatastore;
 import static io.ballerina.stdlib.persist.compiler.utils.Utils.getFieldName;
 import static io.ballerina.stdlib.persist.compiler.utils.Utils.getTypeName;
 import static io.ballerina.stdlib.persist.compiler.utils.Utils.hasCompilationErrors;
+import static io.ballerina.stdlib.persist.compiler.utils.Utils.isAnnotationPresent;
+import static io.ballerina.stdlib.persist.compiler.utils.Utils.readStringArrayValueFromAnnotation;
 import static io.ballerina.stdlib.persist.compiler.utils.Utils.stripEscapeCharacter;
 
 /**
@@ -204,8 +215,20 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                 }
             }
 
-            entity.getDiagnostics().forEach((ctx::reportDiagnostic));
             this.entities.put(entityName, entity);
+        }
+        //validate annotations
+        for (Entity entity : this.entities.values()) {
+            for (RelationField relationField : entity.getRelationFields().values()) {
+                validateRelationAnnotation(
+                        relationField,
+                        this.entities.get(relationField.getContainingEntity()),
+                        this.entities.get(relationField.getType()),
+                        this.entities.get(relationField.getContainingEntity()))
+                ;
+
+            }
+            entity.getDiagnostics().forEach(ctx::reportDiagnostic);
         }
     }
 
@@ -260,6 +283,9 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                         fieldNode.location());
                 continue;
             }
+
+            NodeList<AnnotationNode> annotations =
+                    recordFieldNode.metadata().map(MetadataNode::annotations).orElse(null);
 
             if (fieldNames.contains(fieldName.toLowerCase(Locale.ROOT))) {
                 entity.reportDiagnostic(PERSIST_307.getCode(),
@@ -328,7 +354,8 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                                 ? modulePrefix + ":" + identifier + "?"
                                 : modulePrefix + ":" + identifier;
                         entity.reportDiagnostic(PERSIST_306.getCode(),
-                                MessageFormat.format(PERSIST_306.getMessage(), modulePrefix + ":" + identifier),
+                                MessageFormat.format(PERSIST_306.getMessage(),
+                                        modulePrefix + ":" + identifier),
                                 PERSIST_306.getSeverity(), typeNode.location(),
                                 List.of(new BNumericProperty(arrayStartOffset), new BNumericProperty(arrayLength),
                                         new BStringProperty(fieldType)));
@@ -357,7 +384,7 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                     entity.addRelationField(new RelationField(fieldName, typeName,
                             typeNode.location().textRange().endOffset(), isOptionalType, nullableStartOffset,
                             isArrayType, arrayStartOffset, arrayLength, recordFieldNode.location(),
-                            entity.getEntityName()));
+                            entity.getEntityName(), annotations));
                 } else {
                     if (this.enumTypes.contains(typeName)) {
                         typeName = Constants.BallerinaTypes.ENUM;
@@ -383,6 +410,9 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                             typeName), PERSIST_306.getSeverity(), typeNode.location());
                 }
             }
+
+
+
             if (isIdentityField) {
                 identityField.setType(fieldType);
                 identityField.setValidType(isValidType);
@@ -390,12 +420,13 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                 identityField.setNullableStartOffset(nullableStartOffset);
                 identityField.setReadonlyTextRangeStartOffset(readonlyTextRangeStartOffset);
                 identityField.setTypeLocation(typeNode.location());
+                identityField.setAnnotations(annotations);
                 entity.addIdentityField(identityField);
             }
 
             if (isSimpleType) {
                 entity.addNonRelationField(new SimpleTypeField(fieldName, fieldType, isValidType,
-                        isOptionalType, isArrayType, fieldNode.location(), typeNode.location()));
+                        isOptionalType, isArrayType, fieldNode.location(), typeNode.location(), annotations));
             }
 
         }
@@ -497,6 +528,93 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                     value.add(relationField);
                     return value;
                 });
+            }
+        }
+    }
+
+    private void validateRelationAnnotation(RelationField relationField, Entity ownerEntity, Entity referredEntity,
+                                            Entity reportDiagnosticsEntity) {
+        boolean isRelationAnnotationPresent = isAnnotationPresent
+                (relationField.getAnnotations(), SQL_RELATION_MAPPING_ANNOTATION_NAME);
+        if (!isRelationAnnotationPresent) {
+            return;
+        }
+        if (relationField.isArrayType()) {
+            reportDiagnosticsEntity.reportDiagnostic(
+                        PERSIST_426.getCode(),
+                        MessageFormat.format(PERSIST_426.getMessage(), relationField.getName()),
+                        PERSIST_426.getSeverity(),
+                        relationField.getLocation()
+            );
+            return;
+        }
+        if (relationField.isOptionalType()) {
+            reportDiagnosticsEntity.reportDiagnostic(
+                        PERSIST_427.getCode(),
+                        MessageFormat.format(PERSIST_427.getMessage(), relationField.getName()),
+                        PERSIST_427.getSeverity(),
+                        relationField.getLocation()
+            );
+            return;
+        }
+//        if (relationField.isOwnerIdentifiable()) {
+//            reportDiagnosticsEntity.reportDiagnostic(
+//                    PERSIST_425.getCode(),
+//                    MessageFormat.format(PERSIST_425.getMessage(), ownerEntity.getEntityName(),
+//                            relationField.getType()),
+//                    PERSIST_425.getSeverity(),
+//                    relationField.getLocation()
+//            );
+//            return;
+//        }
+
+        //annotation present, relationField is the owner
+        List<String> referenceFields = readStringArrayValueFromAnnotation(relationField.getAnnotations(),
+                SQL_RELATION_MAPPING_ANNOTATION_NAME, "refs");
+        List<String> ownerIdFieldTypes = ownerEntity.getIdentityFields().stream()
+                .map(IdentityField::getType).toList();
+        if (referenceFields == null) {
+            return;
+        }
+        List<String> distinctReferenceFields = referenceFields.stream()
+                .distinct()
+                .toList();
+        if (distinctReferenceFields.size() != referenceFields.size()) {
+            reportDiagnosticsEntity.reportDiagnostic(PERSIST_429.getCode(),
+                    PERSIST_429.getMessage(),
+                    PERSIST_429.getSeverity(), relationField.getLocation());
+            return;
+        }
+        for (String referenceField : referenceFields) {
+            boolean doesFieldExist = ownerEntity.getNonRelationFields().stream().anyMatch
+                    (f -> f.getName().equals(referenceField));
+            if (!doesFieldExist) {
+                reportDiagnosticsEntity.reportDiagnostic(PERSIST_428.getCode(),
+                        MessageFormat.format(PERSIST_428.getMessage(), referenceField, ownerEntity.getEntityName()),
+                        PERSIST_428.getSeverity(), relationField.getLocation());
+                return;
+            }
+        }
+        if (referenceFields.size() != ownerIdFieldTypes.size()) {
+            reportDiagnosticsEntity.reportDiagnostic(PERSIST_423.getCode(),
+                    MessageFormat.format(PERSIST_423.getMessage(), ownerEntity.getEntityName(),
+                            relationField.getType(), ownerIdFieldTypes.size(), referenceFields.size()),
+                    PERSIST_423.getSeverity(),
+                    relationField.getLocation());
+            return;
+        }
+        for (int i = 0; i < referenceFields.size(); i++) {
+            int finalI = i;
+            SimpleTypeField ownerField = ownerEntity.getNonRelationFields().stream()
+                    .filter(f -> f.getName().equals(referenceFields.get(finalI))).findFirst().orElse(null);
+            if (ownerField != null) {
+                if (!ownerField.getType().equals(ownerIdFieldTypes.get(finalI))) {
+                    reportDiagnosticsEntity.reportDiagnostic(PERSIST_424.getCode(),
+                            MessageFormat.format(PERSIST_424.getMessage(),
+                                    referredEntity.getEntityName()),
+                            PERSIST_424.getSeverity(), relationField.getLocation());
+                    return;
+                }
             }
         }
     }
@@ -832,11 +950,21 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             owner.getNonRelationFields().stream().
                     filter(field -> field.getName().equals(foreignKey))
                     .findFirst()
-                    .ifPresent(field ->
-                            reportDiagnosticsEntity.reportDiagnostic(PERSIST_422.getCode(), MessageFormat.format(
-                                            PERSIST_422.getMessage(), foreignKey, referredEntity.getEntityName()),
-                                    PERSIST_422.getSeverity(), field.getNodeLocation()));
+                    .ifPresent(field -> validateRelationAnnotationFieldName
+                            (field, reportDiagnosticsEntity, foreignKey, referredEntity,
+                                    ownerRelationField));
+        }
+    }
 
+    private void validateRelationAnnotationFieldName(SimpleTypeField field, Entity reportDiagnosticsEntity,
+                                            String foreignKey, Entity referredEntity,
+                                            RelationField ownerRelationField) {
+        List<String> references = readStringArrayValueFromAnnotation
+                (ownerRelationField.getAnnotations(), Constants.SQL_RELATION_MAPPING_ANNOTATION_NAME, "refs");
+        if (references == null || !references.contains(field.getName())) {
+            reportDiagnosticsEntity.reportDiagnostic(PERSIST_422.getCode(), MessageFormat.format(
+                            PERSIST_422.getMessage(), foreignKey, referredEntity.getEntityName()),
+                    PERSIST_422.getSeverity(), field.getNodeLocation());
         }
     }
 

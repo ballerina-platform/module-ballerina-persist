@@ -66,7 +66,35 @@ public enum DiagnosticsCodes {
     PERSIST_406("PERSIST_406", "1-n relationship does not support nillable relation field", ERROR),
 
     PERSIST_420("PERSIST_420", "many-to-many relation is not supported yet", ERROR),
-    PERSIST_422("PERSIST_422", "the entity should not contain foreign key field ''{0}'' for relation ''{1}''", ERROR),
+    PERSIST_422("PERSIST_422",
+            "the entity should not contain foreign key field ''{0}'' for relation ''{1}''." +
+            " if you need to have a foreign key, annotate the relation field with @sql:Relation.",
+            ERROR),
+    PERSIST_423("PERSIST_423", "invalid use of Relation annotation. " +
+            "mismatched number of reference keys for entity ''{0}'' for relation ''{1}''." +
+            " expected {2} but found {3}.",
+            ERROR),
+    PERSIST_424("PERSIST_424", "invalid use of Relation annotation. " +
+            "mismatched key types for entity ''{0}'' for its relationship.",
+            ERROR),
+    PERSIST_425("PERSIST_425", "invalid use of Relation annotation. " +
+            "the entity ''{0}'' is not the owner of the relationship with ''{1}''. " +
+            "therefore, it cannot have foreign keys.",
+            ERROR),
+    PERSIST_426("PERSIST_426", "invalid use of Relation annotation. " +
+            "the field ''{0}'' is an array type in a 1-n relationship. " +
+            "therefore, it cannot have foreign keys.",
+            ERROR),
+    PERSIST_427("PERSIST_427", "invalid use of Relation annotation. " +
+            "the field ''{0}'' is an optional type in a 1-1 relationship. " +
+            "therefore, it cannot have foreign keys.",
+            ERROR),
+    PERSIST_428("PERSIST_428", "invalid use of Relation annotation. " +
+            "the field ''{0}'' is not found in the entity ''{1}''.",
+            ERROR),
+    PERSIST_429("PERSIST_429", "invalid use of Relation annotation. " +
+            "refs cannot contain duplicates.",
+            ERROR),
 
     PERSIST_501("PERSIST_501", "''{0}'' entity must have at least one identity readonly field", ERROR),
     PERSIST_502("PERSIST_502", "an identity field cannot be nillable", ERROR),
