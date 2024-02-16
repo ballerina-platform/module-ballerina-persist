@@ -270,7 +270,7 @@ public final class Utils {
                         }
                         Optional<ExpressionNode> valueExpr = specificFieldNode.valueExpr();
                         if (valueExpr.isPresent()) {
-                            return valueExpr.get().toSourceCode().trim().replace("\"", "");
+                            return valueExpr.get().toSourceCode().trim().replace("\"", "").trim();
                         }
                     }
                 }

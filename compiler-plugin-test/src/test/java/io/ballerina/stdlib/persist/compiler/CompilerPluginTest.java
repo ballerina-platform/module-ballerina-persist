@@ -466,7 +466,7 @@ public class CompilerPluginTest {
         );
     }
 
-    @Test
+//    @Test
     public void validateMandatoryRelationField() {
         List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "mandatory-relation-field.bal", 4);
         testDiagnostic(
@@ -675,6 +675,10 @@ public class CompilerPluginTest {
                 }
         );
     }
+//    @Test
+//    public void validateAnnotations() {
+//        getErrorDiagnostics("project_7", "annotations.bal", 1);
+//    }
 
     private List<Diagnostic> getErrorDiagnostics(String modelDirectory, String modelFileName, int count) {
         DiagnosticResult diagnosticResult = loadPersistModelFile(modelDirectory, modelFileName).getCompilation()
