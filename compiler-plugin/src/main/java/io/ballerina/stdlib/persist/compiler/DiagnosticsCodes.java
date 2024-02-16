@@ -22,6 +22,7 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import static io.ballerina.tools.diagnostics.DiagnosticSeverity.ERROR;
 import static io.ballerina.tools.diagnostics.DiagnosticSeverity.INTERNAL;
+import static io.ballerina.tools.diagnostics.DiagnosticSeverity.WARNING;
 
 /**
  * Persist related diagnostic codes.
@@ -99,7 +100,24 @@ public enum DiagnosticsCodes {
     PERSIST_501("PERSIST_501", "''{0}'' entity must have at least one identity readonly field", ERROR),
     PERSIST_502("PERSIST_502", "an identity field cannot be nillable", ERROR),
     PERSIST_503("PERSIST_503", "only ''int'', ''string'', ''float'', ''boolean'', ''decimal'' " +
-            "types are supported as identity fields, found ''{0}''", ERROR);
+            "types are supported as identity fields, found ''{0}''", ERROR),
+    PERSIST_600("PERSIST_600", "invalid use of Mapping annotation. mapping name cannot be empty.", ERROR),
+    PERSIST_601("PERSIST_601", "mapping name is same as model definition.", WARNING),
+    PERSIST_602("PERSIST_602", "invalid use of Mapping annotation. " +
+            "Mapping annotation cannot be used for relation fields.", ERROR),
+    PERSIST_604("PERSIST_604", "invalid use of ''{0}'' annotation. " +
+            "''{0}'' annotation can only be used for string data type.", ERROR),
+    PERSIST_605("PERSIST_605", "invalid use of VarChar and Char annotations. " +
+            "only one of either Char or Varchar annotations can be used at a time.", ERROR),
+    PERSIST_606("PERSIST_606", "invalid use of Decimal annotation. " +
+            "Decimal annotation can only be used for decimal data type.", ERROR),
+    PERSIST_607("PERSIST_607", "invalid use of ''{0}'' annotation. " +
+            "length cannot be 0", ERROR),
+    PERSIST_608("PERSIST_608", "invalid use of Decimal annotation. " +
+            "precision cannot be 0", ERROR),
+    PERSIST_609("PERSIST_609", "invalid use of Decimal annotation. " +
+            "precision cannot be less than scale", ERROR),
+    ;
 
     private final String code;
     private final String message;
