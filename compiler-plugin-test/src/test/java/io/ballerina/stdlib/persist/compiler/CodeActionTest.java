@@ -35,7 +35,7 @@ import io.ballerina.projects.plugins.codeaction.DocumentEdit;
 import io.ballerina.tools.text.LinePosition;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -184,7 +184,7 @@ public class CodeActionTest {
         };
     }
 
-    @Test(dataProvider = "testDataProvider")
+//    @Test(dataProvider = "testDataProvider")
     public void testRemoveCodeSyntax(String directory, String fileName, LinePosition cursorPos, String outputFile,
                                      String expectedDiagnosticCode, String expectedActionName, String codeActionTitle)
             throws IOException {

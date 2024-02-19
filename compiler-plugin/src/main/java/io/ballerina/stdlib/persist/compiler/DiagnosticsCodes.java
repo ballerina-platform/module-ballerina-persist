@@ -96,6 +96,9 @@ public enum DiagnosticsCodes {
     PERSIST_429("PERSIST_429", "invalid use of Relation annotation. " +
             "refs cannot contain duplicates.",
             ERROR),
+    PERSIST_430("PERSIST_430", "invalid use of Relation annotation. " +
+            "duplicated reference field.",
+            ERROR),
 
     PERSIST_501("PERSIST_501", "''{0}'' entity must have at least one identity readonly field", ERROR),
     PERSIST_502("PERSIST_502", "an identity field cannot be nillable", ERROR),
@@ -117,6 +120,9 @@ public enum DiagnosticsCodes {
             "precision cannot be 0", ERROR),
     PERSIST_609("PERSIST_609", "invalid use of Decimal annotation. " +
             "precision cannot be less than scale", ERROR),
+    PERSIST_610("PERSIST_610", "invalid use of Mapping annotation. " +
+            "duplicate mapping name found.", ERROR),
+
     ;
 
     private final String code;
