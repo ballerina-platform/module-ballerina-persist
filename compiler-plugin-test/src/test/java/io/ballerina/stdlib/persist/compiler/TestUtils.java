@@ -33,8 +33,7 @@ import java.nio.file.Paths;
 public class TestUtils {
 
     public static ProjectEnvironmentBuilder getEnvironmentBuilder() {
-        Path distributionPath = Paths.get("../", "../", "persist-tools", "target", "ballerina-distribution")
-                .toAbsolutePath();
+        Path distributionPath = Paths.get("../", "target", "ballerina-runtime").toAbsolutePath();
         Environment environment = EnvironmentBuilder.getBuilder().setBallerinaHome(distributionPath).build();
         return ProjectEnvironmentBuilder.getBuilder(environment);
     }
