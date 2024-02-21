@@ -122,6 +122,14 @@ public enum DiagnosticsCodes {
             "precision cannot be less than scale", ERROR),
     PERSIST_610("PERSIST_610", "invalid use of Mapping annotation. " +
             "duplicate mapping name found.", ERROR),
+    PERSIST_611("PERSIST_611", "invalid use of Index annotation. " +
+            "Index annotation cannot be used for relation fields.", ERROR),
+    PERSIST_612("PERSIST_612", "invalid use of UniqueIndex annotation. " +
+            "UniqueIndex annotation cannot be used for relation fields.", ERROR),
+    PERSIST_613("PERSIST_613", "invalid use of Index annotation. " +
+            "duplicate index names", ERROR),
+    PERSIST_614("PERSIST_614", "invalid use of UniqueIndex annotation. " +
+            "duplicate index names", ERROR),
 
     ;
 
