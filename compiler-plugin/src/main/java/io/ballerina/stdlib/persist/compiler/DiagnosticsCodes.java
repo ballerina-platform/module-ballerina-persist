@@ -78,10 +78,6 @@ public enum DiagnosticsCodes {
     PERSIST_424("PERSIST_424", "invalid use of Relation annotation. " +
             "mismatched key types for entity ''{0}'' for its relationship.",
             ERROR),
-    PERSIST_425("PERSIST_425", "invalid use of Relation annotation. " +
-            "the entity ''{0}'' is not the owner of the relationship with ''{1}''. " +
-            "therefore, it cannot have foreign keys.",
-            ERROR),
     PERSIST_426("PERSIST_426", "invalid use of Relation annotation. " +
             "the field ''{0}'' is an array type in a 1-n relationship. " +
             "therefore, it cannot have foreign keys.",
@@ -115,11 +111,11 @@ public enum DiagnosticsCodes {
     PERSIST_606("PERSIST_606", "invalid use of Decimal annotation. " +
             "Decimal annotation can only be used for decimal data type.", ERROR),
     PERSIST_607("PERSIST_607", "invalid use of ''{0}'' annotation. " +
-            "length cannot be 0", ERROR),
+            "length cannot be 0.", ERROR),
     PERSIST_608("PERSIST_608", "invalid use of Decimal annotation. " +
-            "precision cannot be 0", ERROR),
+            "precision cannot be 0.", ERROR),
     PERSIST_609("PERSIST_609", "invalid use of Decimal annotation. " +
-            "precision cannot be less than scale", ERROR),
+            "precision cannot be less than scale.", ERROR),
     PERSIST_610("PERSIST_610", "invalid use of Mapping annotation. " +
             "duplicate mapping name found.", ERROR),
     PERSIST_611("PERSIST_611", "invalid use of Index annotation. " +
@@ -127,9 +123,13 @@ public enum DiagnosticsCodes {
     PERSIST_612("PERSIST_612", "invalid use of UniqueIndex annotation. " +
             "UniqueIndex annotation cannot be used for relation fields.", ERROR),
     PERSIST_613("PERSIST_613", "invalid use of Index annotation. " +
-            "duplicate index names", ERROR),
+            "duplicate index names.", ERROR),
     PERSIST_614("PERSIST_614", "invalid use of UniqueIndex annotation. " +
-            "duplicate index names", ERROR),
+            "duplicate index names.", ERROR),
+    PERSIST_615("PERSIST_615", "invalid use of Index annotation. " +
+            "there cannot be empty index names.", ERROR),
+    PERSIST_616("PERSIST_616", "invalid use of UniqueIndex annotation. " +
+            "there cannot be empty index names.", ERROR),
 
     ;
 

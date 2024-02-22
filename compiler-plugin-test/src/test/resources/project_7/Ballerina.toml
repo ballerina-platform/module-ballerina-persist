@@ -1,7 +1,0 @@
-[package]
-org = "root"
-name = "project_7"
-version = "0.1.0"
-
-[persist]
-datastore = "mysql"
