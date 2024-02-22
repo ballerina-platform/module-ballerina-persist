@@ -37,6 +37,7 @@ import io.ballerina.toml.syntax.tree.DocumentNode;
 import io.ballerina.toml.syntax.tree.KeyValueNode;
 import io.ballerina.toml.syntax.tree.NodeList;
 import io.ballerina.toml.syntax.tree.SyntaxTree;
+import io.ballerina.toml.syntax.tree.TableArrayNode;
 import io.ballerina.toml.syntax.tree.TableNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
@@ -182,12 +183,6 @@ public final class Utils {
         if (balProjectDir == null) {
             throw new BalException("unable to locate the project's Ballerina.toml file");
         }
-//        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
-//        buildOptionsBuilder.setOffline(true);
-//        Project buildProject = BuildProject.load(balProjectDir.toAbsolutePath(),
-//                buildOptionsBuilder.build());
-//        Package currentPackage = buildProject.currentPackage();
-//        BallerinaToml toml = currentPackage.ballerinaToml().get();
         Path configPath = balProjectDir.resolve(ProjectConstants.BALLERINA_TOML);
         Path targetDir = Paths.get(String.valueOf(balProjectDir), "target");
         Path genCmdConfigPath = targetDir.resolve("generatecmd.toml");
@@ -200,8 +195,8 @@ public final class Utils {
             DocumentNode rootNote = syntaxTree.rootNode();
             NodeList<DocumentMemberDeclarationNode> nodeList = rootNote.members();
             for (DocumentMemberDeclarationNode member : nodeList) {
-                if (member instanceof TableNode) {
-                    TableNode node = (TableNode) member;
+                if (member instanceof TableArrayNode) {
+                    TableArrayNode node = (TableArrayNode) member;
                     String tableName = node.identifier().toSourceCode().trim();
                     if (tableName.equals(Constants.PERSIST)) {
                         for (KeyValueNode field : node.fields()) {
