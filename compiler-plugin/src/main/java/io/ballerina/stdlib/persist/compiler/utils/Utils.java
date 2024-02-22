@@ -19,12 +19,6 @@
 package io.ballerina.stdlib.persist.compiler.utils;
 
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.projects.BallerinaToml;
-import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.Package;
-import io.ballerina.projects.Project;
-import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.projects.plugins.codeaction.CodeActionArgument;
 import io.ballerina.projects.plugins.codeaction.CodeActionContext;
@@ -38,20 +32,19 @@ import io.ballerina.toml.syntax.tree.KeyValueNode;
 import io.ballerina.toml.syntax.tree.NodeList;
 import io.ballerina.toml.syntax.tree.SyntaxTree;
 import io.ballerina.toml.syntax.tree.TableArrayNode;
-import io.ballerina.toml.syntax.tree.TableNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 import io.ballerina.tools.text.TextRange;
-import java.nio.file.Paths;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.BNumericProperty;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.BStringProperty;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -234,8 +227,7 @@ public final class Utils {
             DocumentNode rootNote = syntaxTree.rootNode();
             NodeList<DocumentMemberDeclarationNode> nodeList = rootNote.members();
             for (DocumentMemberDeclarationNode member : nodeList) {
-                if (member instanceof TableNode) {
-                    TableNode node = (TableNode) member;
+                if (member instanceof TableArrayNode node) {
                     String tableName = node.identifier().toSourceCode().trim();
                     if (tableName.equals(Constants.PERSIST)) {
                         for (KeyValueNode field : node.fields()) {
