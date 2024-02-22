@@ -419,29 +419,29 @@ public class CompilerPluginTest {
                 diagnostics,
                 new String[]{
                         PERSIST_406.getCode(),
-                        PERSIST_406.getCode(),
                         PERSIST_404.getCode(),
                         PERSIST_404.getCode(),
                         PERSIST_405.getCode(),
-                        PERSIST_405.getCode()
+                        PERSIST_405.getCode(),
+                        PERSIST_406.getCode()
                 },
                 new String[]{
-                        "1-n relationship does not support nillable relation field",
                         "1-n relationship does not support nillable relation field",
                         "1-1 relationship should have at least one relation field nillable " +
                                 "to indicate non-owner of the relationship",
                         "1-1 relationship should have at least one relation field nillable " +
                                 "to indicate non-owner of the relationship",
                         "1-1 relationship should have only one nillable relation field",
-                        "1-1 relationship should have only one nillable relation field"
+                        "1-1 relationship should have only one nillable relation field",
+                        "1-n relationship does not support nillable relation field"
                 },
                 new String[]{
-                        "(14:4,14:23)",
                         "(29:4,29:29)",
                         "(44:4,44:23)",
                         "(38:4,38:26)",
                         "(59:4,59:27)",
-                        "(50:4,50:24)"
+                        "(50:4,50:24)",
+                        "(14:4,14:23)"
                 }
         );
     }
@@ -466,7 +466,7 @@ public class CompilerPluginTest {
         );
     }
 
-//    @Test
+    @Test
     public void validateMandatoryRelationField() {
         List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "mandatory-relation-field.bal", 4);
         testDiagnostic(
@@ -478,16 +478,16 @@ public class CompilerPluginTest {
                         PERSIST_402.getCode()
                 },
                 new String[]{
-                        "the related entity 'Workspace' does not have the corresponding relation field",
-                        "the related entity 'Building1' does not have the corresponding relation field",
+                        "the related entity 'Workspace4' does not have the corresponding relation field",
                         "the related entity 'Building3' does not have the corresponding relation field",
-                        "the related entity 'Workspace4' does not have the corresponding relation field"
+                        "the related entity 'Building1' does not have the corresponding relation field",
+                        "the related entity 'Workspace' does not have the corresponding relation field"
                 },
                 new String[]{
-                        "(8:4,8:27)",
-                        "(27:4,27:23)",
+                        "(68:4,68:27)",
                         "(58:4,58:24)",
-                        "(68:4,68:27)"
+                        "(27:4,27:23)",
+                        "(8:4,8:27)"
                 }
         );
     }
@@ -506,20 +506,20 @@ public class CompilerPluginTest {
                         PERSIST_402.getCode()
                 },
                 new String[]{
-                        "the related entity 'Workspace' does not have the corresponding relation field",
-                        "the related entity 'Workspace' does not have the corresponding relation field",
-                        "the related entity 'Building1' does not have the corresponding relation field",
-                        "the related entity 'Building1' does not have the corresponding relation field",
+                        "the related entity 'Workspace4' does not have the corresponding relation field",
                         "the related entity 'Building3' does not have the corresponding relation field",
-                        "the related entity 'Workspace4' does not have the corresponding relation field"
+                        "the related entity 'Building1' does not have the corresponding relation field",
+                        "the related entity 'Building1' does not have the corresponding relation field",
+                        "the related entity 'Workspace' does not have the corresponding relation field",
+                        "the related entity 'Workspace' does not have the corresponding relation field",
                 },
                 new String[]{
-                        "(8:4,8:27)",
-                        "(9:4,9:24)",
+                        "(75:4,75:28)",
+                        "(64:4,64:27)",
                         "(28:4,28:23)",
                         "(29:4,29:23)",
-                        "(64:4,64:27)",
-                        "(75:4,75:28)"
+                        "(8:4,8:27)",
+                        "(9:4,9:24)"
                 }
         );
     }
@@ -536,9 +536,6 @@ public class CompilerPluginTest {
                         PERSIST_422.getCode()
                 },
                 new String[]{
-                        "the entity should not contain foreign key field 'buildingBuildingCode' for relation " +
-                                "'Building'. if you need to have a foreign key, annotate the relation field with " +
-                                "@sql:Relation.",
                         "the entity should not contain foreign key field 'locationBuildingCode' for relation " +
                                 "'Building2'. if you need to have a foreign key, annotate the relation field with " +
                                 "@sql:Relation.",
@@ -547,13 +544,17 @@ public class CompilerPluginTest {
                                 "@sql:Relation.",
                         "the entity should not contain foreign key field 'workspacesWorkspaceId' for relation " +
                                 "'Workspace4'. if you need to have a foreign key, annotate the relation field with " +
+                                "@sql:Relation.",
+                        "the entity should not contain foreign key field 'buildingBuildingCode' for relation " +
+                                "'Building'. if you need to have a foreign key, annotate the relation field with " +
                                 "@sql:Relation."
                 },
                 new String[]{
-                        "(15:4,15:32)",
                         "(22:4,22:32)",
                         "(42:4,42:33)",
-                        "(66:4,66:33)"
+                        "(66:4,66:33)",
+                        "(15:4,15:32)"
+
                 }
         );
     }
@@ -608,16 +609,22 @@ public class CompilerPluginTest {
                         "All relation between two entities should have a single owner"
                 },
                 new String[]{
-                        "(15:4,15:22)",
-                        "(8:4,8:27)",
-                        "(16:4,16:23)",
-                        "(9:4,9:24)",
                         "(33:4,33:23)",
                         "(25:4,25:27)",
                         "(34:4,34:25)",
                         "(26:4,26:25)",
                         "(35:4,35:24)",
                         "(27:4,27:28)",
+                        "(15:4,15:22)",
+                        "(8:4,8:27)",
+                        "(16:4,16:23)",
+                        "(9:4,9:24)",
+
+
+
+
+
+
 
                 }
         );
