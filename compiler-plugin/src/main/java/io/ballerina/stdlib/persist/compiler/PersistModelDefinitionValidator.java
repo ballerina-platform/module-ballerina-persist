@@ -128,6 +128,8 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_611;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_612;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_613;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_614;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_615;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_616;
 import static io.ballerina.stdlib.persist.compiler.model.RelationType.MANY_TO_MANY;
 import static io.ballerina.stdlib.persist.compiler.model.RelationType.ONE_TO_MANY;
 import static io.ballerina.stdlib.persist.compiler.model.RelationType.ONE_TO_ONE;
@@ -419,6 +421,11 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                                     PERSIST_613.getSeverity(),
                                     field.getNodeLocation());
                         }
+                        if (indexNames.contains("")) {
+                            entity.reportDiagnostic(PERSIST_615.getCode(), PERSIST_615.getMessage(),
+                                    PERSIST_615.getSeverity(),
+                                    field.getNodeLocation());
+                        }
                     }
                 }
                 if (isAnnotationPresent(field.getAnnotations(), SQL_UNIQUE_INDEX_MAPPING_ANNOTATION_NAME)) {
@@ -431,6 +438,11 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                         if (indexNames.size() != distinctIndexes.size()) {
                             entity.reportDiagnostic(PERSIST_614.getCode(), PERSIST_614.getMessage(),
                                     PERSIST_614.getSeverity(),
+                                    field.getNodeLocation());
+                        }
+                        if (indexNames.contains("")) {
+                            entity.reportDiagnostic(PERSIST_616.getCode(), PERSIST_616.getMessage(),
+                                    PERSIST_616.getSeverity(),
                                     field.getNodeLocation());
                         }
                     }
