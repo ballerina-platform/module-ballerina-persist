@@ -58,29 +58,29 @@ public class CodeActionTest {
     @DataProvider
     private Object[][] testDataProvider() {
         return new Object[][]{
-//                {"project_2", "valid-persist-model-path.bal", LinePosition.from(2, 1),
-//                        "valid-persist-model-path.bal", "PERSIST_101", "REMOVE_DIAGNOSTIC_LOCATION",
-//                        "Remove unsupported member"},
-//
-//                {"project_2", "usage-of-import-prefix.bal", LinePosition.from(0, 25),
-//                        "usage-of-import-prefix.bal", "PERSIST_102", "REMOVE_TEXT_RANGE",
-//                        "Remove import prefix"},
-//
-//                {"project_2", "record-properties.bal", LinePosition.from(18, 6),
-//                        "record-properties.bal", "PERSIST_201", "CHANGE_TO_CLOSED_RECORD", "Change to closed record"},
-//
-//                {"project_2", "field-properties.bal", LinePosition.from(22, 9),
-//                        "field-properties-rest-descriptor.bal", "PERSIST_301", "REMOVE_DIAGNOSTIC_LOCATION",
-//                        "Remove rest descriptor field"},
-//                {"project_2", "field-properties.bal", LinePosition.from(12, 13),
-//                        "field-properties-inherited-field.bal", "PERSIST_303", "REMOVE_DIAGNOSTIC_LOCATION",
-//                        "Remove inherited field"},
-//                {"project_2", "field-properties.bal", LinePosition.from(4, 21),
-//                        "field-properties-default-value.bal", "PERSIST_302", "REMOVE_TEXT_RANGE",
-//                        "Remove default value"},
-//                {"project_2", "field-properties.bal", LinePosition.from(13, 27),
-//                        "field-properties-optional-field.bal", "PERSIST_304", "REMOVE_TEXT_RANGE",
-//                        "Make field mandatory"},
+                {"project_2", "valid-persist-model-path.bal", LinePosition.from(2, 1),
+                        "valid-persist-model-path.bal", "PERSIST_101", "REMOVE_DIAGNOSTIC_LOCATION",
+                        "Remove unsupported member"},
+
+                {"project_2", "usage-of-import-prefix.bal", LinePosition.from(0, 25),
+                        "usage-of-import-prefix.bal", "PERSIST_102", "REMOVE_TEXT_RANGE",
+                        "Remove import prefix"},
+
+                {"project_2", "record-properties.bal", LinePosition.from(18, 6),
+                        "record-properties.bal", "PERSIST_201", "CHANGE_TO_CLOSED_RECORD", "Change to closed record"},
+
+                {"project_2", "field-properties.bal", LinePosition.from(22, 9),
+                        "field-properties-rest-descriptor.bal", "PERSIST_301", "REMOVE_DIAGNOSTIC_LOCATION",
+                        "Remove rest descriptor field"},
+                {"project_2", "field-properties.bal", LinePosition.from(12, 13),
+                        "field-properties-inherited-field.bal", "PERSIST_303", "REMOVE_DIAGNOSTIC_LOCATION",
+                        "Remove inherited field"},
+                {"project_2", "field-properties.bal", LinePosition.from(4, 21),
+                        "field-properties-default-value.bal", "PERSIST_302", "REMOVE_TEXT_RANGE",
+                        "Remove default value"},
+                {"project_2", "field-properties.bal", LinePosition.from(13, 27),
+                        "field-properties-optional-field.bal", "PERSIST_304", "REMOVE_TEXT_RANGE",
+                        "Make field mandatory"},
 
                 {"project_2", "field-types-valid.bal", LinePosition.from(15, 6), "field-types-boolean.bal",
                         "PERSIST_306", "CHANGE_TYPE_TO_BOOLEAN", "Change to 'boolean' type"},

@@ -188,8 +188,7 @@ public final class Utils {
             DocumentNode rootNote = syntaxTree.rootNode();
             NodeList<DocumentMemberDeclarationNode> nodeList = rootNote.members();
             for (DocumentMemberDeclarationNode member : nodeList) {
-                if (member instanceof TableArrayNode) {
-                    TableArrayNode node = (TableArrayNode) member;
+                if (member instanceof TableArrayNode node) {
                     String tableName = node.identifier().toSourceCode().trim();
                     if (tableName.equals(Constants.PERSIST)) {
                         for (KeyValueNode field : node.fields()) {
