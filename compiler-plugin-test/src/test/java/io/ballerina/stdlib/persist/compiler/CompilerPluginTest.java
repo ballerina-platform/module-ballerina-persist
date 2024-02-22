@@ -527,14 +527,18 @@ public class CompilerPluginTest {
                         PERSIST_422.getCode()
                 },
                 new String[]{
-                        "the entity should not contain foreign key field " +
-                                "'buildingBuildingCode' for relation 'Building'",
-                        "the entity should not contain foreign key field " +
-                                "'locationBuildingCode' for relation 'Building2'",
-                        "the entity should not contain foreign key field " +
-                                "'workspacesWorkspaceId' for relation 'Workspace3'",
-                        "the entity should not contain foreign key field " +
-                                "'workspacesWorkspaceId' for relation 'Workspace4'"
+                        "the entity should not contain foreign key field 'buildingBuildingCode' for relation " +
+                                "'Building'. if you need to have a foreign key, annotate the relation field with " +
+                                "@sql:Relation.",
+                        "the entity should not contain foreign key field 'locationBuildingCode' for relation " +
+                                "'Building2'. if you need to have a foreign key, annotate the relation field with " +
+                                "@sql:Relation.",
+                        "the entity should not contain foreign key field 'workspacesWorkspaceId' for relation " +
+                                "'Workspace3'. if you need to have a foreign key, annotate the relation field with " +
+                                "@sql:Relation.",
+                        "the entity should not contain foreign key field 'workspacesWorkspaceId' for relation " +
+                                "'Workspace4'. if you need to have a foreign key, annotate the relation field with " +
+                                "@sql:Relation."
                 },
                 new String[]{
                         "(15:4,15:32)",
@@ -619,7 +623,9 @@ public class CompilerPluginTest {
                         PERSIST_422.getCode()
                 },
                 new String[]{
-                        "the entity should not contain foreign key field 'locationBuildingCode' for relation 'Building'"
+                        "the entity should not contain foreign key field 'locationBuildingCode' for relation " +
+                                "'Building'. if you need to have a foreign key, annotate the relation field with " +
+                                "@sql:Relation."
                 },
                 new String[]{
                         "(18:4,18:33)"
@@ -666,10 +672,6 @@ public class CompilerPluginTest {
                 }
         );
     }
-//    @Test
-//    public void validateAnnotations() {
-//        getErrorDiagnostics("project_7", "annotations.bal", 1);
-//    }
 
     private List<Diagnostic> getErrorDiagnostics(String modelDirectory, String modelFileName, int count) {
         DiagnosticResult diagnosticResult = loadPersistModelFile(modelDirectory, modelFileName).getCompilation()
