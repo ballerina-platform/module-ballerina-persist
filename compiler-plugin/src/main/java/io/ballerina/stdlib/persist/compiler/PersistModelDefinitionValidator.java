@@ -631,9 +631,6 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                             typeName), PERSIST_306.getSeverity(), typeNode.location());
                 }
             }
-
-
-
             if (isIdentityField) {
                 identityField.setType(fieldType);
                 identityField.setValidType(isValidType);

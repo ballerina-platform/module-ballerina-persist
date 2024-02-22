@@ -68,8 +68,7 @@ public enum DiagnosticsCodes {
 
     PERSIST_420("PERSIST_420", "many-to-many relation is not supported yet", ERROR),
     PERSIST_422("PERSIST_422",
-            "the entity should not contain foreign key field ''{0}'' for relation ''{1}''." +
-            " if you need to have a foreign key, annotate the relation field with @sql:Relation.",
+            "the entity should not contain foreign key field ''{0}'' for relation ''{1}''",
             ERROR),
     PERSIST_423("PERSIST_423", "invalid use of Relation annotation. " +
             "mismatched number of reference keys for entity ''{0}'' for relation ''{1}''." +
