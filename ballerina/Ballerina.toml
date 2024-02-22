@@ -1,7 +1,7 @@
 [package]
 org = "ballerina"
 name = "persist"
-version = "1.2.3"
+version = "1.2.1"
 authors = ["Ballerina"]
 keywords = ["persist"]
 repository = "https://github.com/ballerina-platform/module-ballerina-persist"
@@ -15,5 +15,5 @@ graalvmCompatible = true
 [[platform.java17.dependency]]
 groupId = "io.ballerina.persist"
 artifactId = "persist-native"
-version = "1.2.3"
-path = "../native/build/libs/persist-native-1.2.3.jar"
+version = "1.2.1"
+path = "../native/build/libs/persist-native-1.2.1-SNAPSHOT.jar"
