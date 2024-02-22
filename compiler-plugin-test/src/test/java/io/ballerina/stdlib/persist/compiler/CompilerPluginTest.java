@@ -537,17 +537,13 @@ public class CompilerPluginTest {
                 },
                 new String[]{
                         "the entity should not contain foreign key field 'locationBuildingCode' for relation " +
-                                "'Building2'. if you need to have a foreign key, annotate the relation field with " +
-                                "@sql:Relation.",
+                                "'Building2'",
                         "the entity should not contain foreign key field 'workspacesWorkspaceId' for relation " +
-                                "'Workspace3'. if you need to have a foreign key, annotate the relation field with " +
-                                "@sql:Relation.",
+                                "'Workspace3'",
                         "the entity should not contain foreign key field 'workspacesWorkspaceId' for relation " +
-                                "'Workspace4'. if you need to have a foreign key, annotate the relation field with " +
-                                "@sql:Relation.",
+                                "'Workspace4'",
                         "the entity should not contain foreign key field 'buildingBuildingCode' for relation " +
-                                "'Building'. if you need to have a foreign key, annotate the relation field with " +
-                                "@sql:Relation."
+                                "'Building'",
                 },
                 new String[]{
                         "(22:4,22:32)",
@@ -640,8 +636,7 @@ public class CompilerPluginTest {
                 },
                 new String[]{
                         "the entity should not contain foreign key field 'locationBuildingCode' for relation " +
-                                "'Building'. if you need to have a foreign key, annotate the relation field with " +
-                                "@sql:Relation."
+                                "'Building'",
                 },
                 new String[]{
                         "(18:4,18:33)"
