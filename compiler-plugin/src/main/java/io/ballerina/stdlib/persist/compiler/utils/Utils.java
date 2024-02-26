@@ -178,7 +178,7 @@ public final class Utils {
         }
         Path configPath = balProjectDir.resolve(ProjectConstants.BALLERINA_TOML);
         Path targetDir = Paths.get(String.valueOf(balProjectDir), "target");
-        Path genCmdConfigPath = targetDir.resolve("generatecmd.toml");
+        Path genCmdConfigPath = targetDir.resolve("Persist.toml");
         if (Files.exists(genCmdConfigPath)) {
             configPath = genCmdConfigPath;
         }
