@@ -1,6 +1,6 @@
+import ballerina/persist as _;
 import ballerina/time;
 import ballerinax/mysql;
-import ballerina/persist as _;
 
 public enum Gender {
     M,
