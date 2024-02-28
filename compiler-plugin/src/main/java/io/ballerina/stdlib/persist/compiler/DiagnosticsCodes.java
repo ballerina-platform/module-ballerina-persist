@@ -129,6 +129,12 @@ public enum DiagnosticsCodes {
             "there cannot be empty index names.", ERROR),
     PERSIST_616("PERSIST_616", "invalid use of UniqueIndex annotation. " +
             "there cannot be empty index names.", ERROR),
+    PERSIST_617("PERSIST_617", "invalid use of Generated annotation. " +
+            "generated annotation can only be used for readonly fields.", ERROR),
+    PERSIST_618("PERSIST_618", "invalid use of Generated annotation. " +
+            "partial key fields cannot be auto-generated.", ERROR),
+    PERSIST_619("PERSIST_619", "invalid use of Generated annotation. " +
+            "a generated field can only be an integer data type.", ERROR),
 
     ;
 

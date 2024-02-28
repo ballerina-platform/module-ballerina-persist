@@ -81,6 +81,7 @@ import static io.ballerina.stdlib.persist.compiler.Constants.PERSIST_DIRECTORY;
 import static io.ballerina.stdlib.persist.compiler.Constants.SQL_CHAR_MAPPING_ANNOTATION_NAME;
 import static io.ballerina.stdlib.persist.compiler.Constants.SQL_DB_MAPPING_ANNOTATION_NAME;
 import static io.ballerina.stdlib.persist.compiler.Constants.SQL_DECIMAL_MAPPING_ANNOTATION_NAME;
+import static io.ballerina.stdlib.persist.compiler.Constants.SQL_GENERATED_ANNOTATION_NAME;
 import static io.ballerina.stdlib.persist.compiler.Constants.SQL_INDEX_MAPPING_ANNOTATION_NAME;
 import static io.ballerina.stdlib.persist.compiler.Constants.SQL_RELATION_MAPPING_ANNOTATION_NAME;
 import static io.ballerina.stdlib.persist.compiler.Constants.SQL_UNIQUE_INDEX_MAPPING_ANNOTATION_NAME;
@@ -135,6 +136,9 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_613;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_614;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_615;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_616;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_617;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_618;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_619;
 import static io.ballerina.stdlib.persist.compiler.model.RelationType.MANY_TO_MANY;
 import static io.ballerina.stdlib.persist.compiler.model.RelationType.ONE_TO_MANY;
 import static io.ballerina.stdlib.persist.compiler.model.RelationType.ONE_TO_ONE;
@@ -253,54 +257,10 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         for (Entity entity : this.entities.values()) {
             //relation annotations
             List<String> refs = new ArrayList<>();
-            for (RelationField relationField : entity.getRelationFields().values()) {
-                validateRelationAnnotation(
-                        relationField,
-                        this.entities.get(relationField.getContainingEntity()),
-                        this.entities.get(relationField.getType()),
-                        refs);
-                if (isAnnotationPresent(relationField.getAnnotations(), SQL_DB_MAPPING_ANNOTATION_NAME)) {
-                    entity.reportDiagnostic(PERSIST_602.getCode(), PERSIST_602.getMessage(), PERSIST_602.getSeverity(),
-                            relationField.getLocation());
-                }
-                if (isAnnotationPresent(relationField.getAnnotations(), SQL_INDEX_MAPPING_ANNOTATION_NAME)) {
-                    entity.reportDiagnostic(PERSIST_611.getCode(), PERSIST_611.getMessage(),
-                            PERSIST_611.getSeverity(),
-                            relationField.getLocation());
-                }
-                if (isAnnotationPresent(relationField.getAnnotations(), SQL_UNIQUE_INDEX_MAPPING_ANNOTATION_NAME)) {
-                    entity.reportDiagnostic(PERSIST_612.getCode(), PERSIST_612.getMessage(),
-                            PERSIST_612.getSeverity(),
-                            relationField.getLocation());
-                }
-            }
-            for (GroupedRelationField groupedRelationField : entity.getGroupedRelationFields().values()) {
-                for (RelationField relationField : groupedRelationField.getRelationFields()) {
-                    validateRelationAnnotation(
-                            relationField,
-                            this.entities.get(relationField.getContainingEntity()),
-                            this.entities.get(relationField.getType()),
-                            refs)
-                    ;
-                    if (isAnnotationPresent(relationField.getAnnotations(), SQL_DB_MAPPING_ANNOTATION_NAME)) {
-                        entity.reportDiagnostic(PERSIST_602.getCode(), PERSIST_602.getMessage(),
-                                PERSIST_602.getSeverity(),
-                                relationField.getLocation());
-                    }
-                    if (isAnnotationPresent(relationField.getAnnotations(), SQL_INDEX_MAPPING_ANNOTATION_NAME)) {
-                        entity.reportDiagnostic(PERSIST_611.getCode(), PERSIST_611.getMessage(),
-                                PERSIST_611.getSeverity(),
-                                relationField.getLocation());
-                    }
-                    if (isAnnotationPresent(relationField.getAnnotations(), SQL_UNIQUE_INDEX_MAPPING_ANNOTATION_NAME)) {
-                        entity.reportDiagnostic(PERSIST_612.getCode(), PERSIST_612.getMessage(),
-                                PERSIST_612.getSeverity(),
-                                relationField.getLocation());
-                    }
-                }
-            }
-
-
+            entity.getRelationFields().values().forEach(field -> validateRelationField(entity, field, refs));
+            entity.getGroupedRelationFields().values()
+                    .forEach(groupedRelationField -> groupedRelationField.getRelationFields()
+                            .forEach(field -> validateRelationField(entity, field, refs)));
             //table mapping annotations
             if (isAnnotationPresent(entity.getAnnotations(), SQL_DB_MAPPING_ANNOTATION_NAME)) {
                 String tableName = readStringValueFromAnnotation
@@ -450,9 +410,49 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                         }
                     }
                 }
-
+                if (isAnnotationPresent(field.getAnnotations(), SQL_GENERATED_ANNOTATION_NAME)) {
+                    if (!entity.getIdentityFieldNames().contains(field.getName())) {
+                        entity.reportDiagnostic(PERSIST_617.getCode(), PERSIST_617.getMessage(),
+                                PERSIST_617.getSeverity(),
+                                field.getNodeLocation());
+                    } else if (entity.getIdentityFieldNames().size() > 1) {
+                        entity.reportDiagnostic(PERSIST_618.getCode(), PERSIST_618.getMessage(),
+                                PERSIST_618.getSeverity(),
+                                field.getNodeLocation());
+                    } else if (!field.getType().equals(INT)) {
+                        entity.reportDiagnostic(PERSIST_619.getCode(), PERSIST_619.getMessage(),
+                                PERSIST_619.getSeverity(),
+                                field.getNodeLocation());
+                    }
+                }
             }
             entity.getDiagnostics().forEach(ctx::reportDiagnostic);
+        }
+    }
+    private void validateRelationField(Entity entity, RelationField relationField, List<String> refs) {
+        validateRelationAnnotation(
+                relationField,
+                this.entities.get(relationField.getContainingEntity()),
+                this.entities.get(relationField.getType()),
+                refs);
+        if (isAnnotationPresent(relationField.getAnnotations(), SQL_DB_MAPPING_ANNOTATION_NAME)) {
+            entity.reportDiagnostic(PERSIST_602.getCode(), PERSIST_602.getMessage(), PERSIST_602.getSeverity(),
+                    relationField.getLocation());
+        }
+        if (isAnnotationPresent(relationField.getAnnotations(), SQL_INDEX_MAPPING_ANNOTATION_NAME)) {
+            entity.reportDiagnostic(PERSIST_611.getCode(), PERSIST_611.getMessage(),
+                    PERSIST_611.getSeverity(),
+                    relationField.getLocation());
+        }
+        if (isAnnotationPresent(relationField.getAnnotations(), SQL_UNIQUE_INDEX_MAPPING_ANNOTATION_NAME)) {
+            entity.reportDiagnostic(PERSIST_612.getCode(), PERSIST_612.getMessage(),
+                    PERSIST_612.getSeverity(),
+                    relationField.getLocation());
+        }
+        if (isAnnotationPresent(relationField.getAnnotations(), SQL_GENERATED_ANNOTATION_NAME)) {
+            entity.reportDiagnostic(PERSIST_617.getCode(), PERSIST_617.getMessage(),
+                    PERSIST_617.getSeverity(),
+                    relationField.getLocation());
         }
     }
 
