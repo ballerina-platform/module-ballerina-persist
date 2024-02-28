@@ -37,6 +37,11 @@ public final class Constants {
     public static final String SQL_INDEX_MAPPING_ANNOTATION_NAME = "sql:Index";
     public static final String SQL_UNIQUE_INDEX_MAPPING_ANNOTATION_NAME = "sql:UniqueIndex";
     public static final String SQL_GENERATED_ANNOTATION_NAME = "sql:Generated";
+    public static final String ANNOTATION_NAME_FIELD = "name";
+    public static final String ANNOTATION_NAMES_FIELD = "names";
+    public static final String ANNOTATION_PRECISION_FIELD = "precision";
+    public static final String ANNOTATION_REFS_FIELD = "refs";
+    public static final String ANNOTATION_LENGTH_FIELD = "length";
 
     private Constants() {
     }

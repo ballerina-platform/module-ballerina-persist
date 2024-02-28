@@ -51,6 +51,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -252,11 +253,8 @@ public final class Utils {
     }
 
     public static String readStringValueFromAnnotation
-            (io.ballerina.compiler.syntax.tree.NodeList<AnnotationNode> annotationNodes, String annotation,
+            (List<AnnotationNode> annotationNodes, String annotation,
              String field) {
-        if (annotationNodes == null) {
-            return null;
-        }
         for (AnnotationNode annotationNode : annotationNodes) {
             String annotationName = annotationNode.annotReference().toSourceCode().trim();
             if (annotationName.equals(annotation)) {
@@ -266,7 +264,7 @@ public final class Utils {
                         SpecificFieldNode specificFieldNode = (SpecificFieldNode) mappingFieldNode;
                         String fieldName = specificFieldNode.fieldName().toSourceCode().trim();
                         if (!fieldName.equals(field)) {
-                            return null;
+                            return "";
                         }
                         Optional<ExpressionNode> valueExpr = specificFieldNode.valueExpr();
                         if (valueExpr.isPresent()) {
@@ -276,13 +274,10 @@ public final class Utils {
                 }
             }
         }
-        return null;
+        return "";
     }
     public static boolean isAnnotationPresent
-            (io.ballerina.compiler.syntax.tree.NodeList<AnnotationNode> annotationNodes, String annotation) {
-        if (annotationNodes == null) {
-            return false;
-        }
+            (List<AnnotationNode> annotationNodes, String annotation) {
         for (AnnotationNode annotationNode : annotationNodes) {
             String annotationName = annotationNode.annotReference().toSourceCode().trim();
             if (annotationName.equals(annotation)) {
@@ -292,11 +287,8 @@ public final class Utils {
         return false;
     }
     public static List<String> readStringArrayValueFromAnnotation
-            (io.ballerina.compiler.syntax.tree.NodeList<AnnotationNode> annotationNodes, String annotation,
+            (List<AnnotationNode> annotationNodes, String annotation,
              String field) {
-        if (annotationNodes == null) {
-            return null;
-        }
         for (AnnotationNode annotationNode : annotationNodes) {
             String annotationName = annotationNode.annotReference().toSourceCode().trim();
             if (annotationName.equals(annotation)) {
@@ -306,7 +298,7 @@ public final class Utils {
                         SpecificFieldNode specificFieldNode = (SpecificFieldNode) mappingFieldNode;
                         String fieldName = specificFieldNode.fieldName().toSourceCode().trim();
                         if (!fieldName.equals(field)) {
-                            return null;
+                            return Collections.emptyList();
                         }
                         Optional<ExpressionNode> valueExpr = specificFieldNode.valueExpr();
                         if (valueExpr.isPresent()) {
@@ -318,6 +310,6 @@ public final class Utils {
                 }
             }
         }
-        return null;
+        return Collections.emptyList();
     }
 }

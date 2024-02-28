@@ -19,8 +19,10 @@
 package io.ballerina.stdlib.persist.compiler.model;
 
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
-import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeLocation;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Simple type field model.
@@ -34,11 +36,11 @@ public class SimpleTypeField {
     private final boolean isArrayType;
     private final NodeLocation nodeLocation;
     private final NodeLocation typeLocation;
-    private NodeList<AnnotationNode> annotations;
+    private final List<AnnotationNode> annotations;
 
     public SimpleTypeField(String name, String type, boolean isValidType, boolean isNullable,
                            boolean isArrayType, NodeLocation location, NodeLocation typeLocation,
-                           NodeList<AnnotationNode> annotations) {
+                           List<AnnotationNode> annotations) {
         this.name = name;
         this.type = type;
         this.isValidType = isValidType;
@@ -46,7 +48,7 @@ public class SimpleTypeField {
         this.isArrayType = isArrayType;
         this.nodeLocation = location;
         this.typeLocation = typeLocation;
-        this.annotations = annotations;
+        this.annotations = Collections.unmodifiableList(annotations);
     }
 
     public String getName() {
@@ -77,11 +79,8 @@ public class SimpleTypeField {
         return typeLocation;
     }
 
-    public NodeList<AnnotationNode> getAnnotations() {
+    public List<AnnotationNode> getAnnotations() {
         return annotations;
     }
 
-    public void setAnnotations(NodeList<AnnotationNode> annotations) {
-        this.annotations = annotations;
-    }
 }

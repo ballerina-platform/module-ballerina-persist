@@ -18,8 +18,6 @@
 
 package io.ballerina.stdlib.persist.compiler.model;
 
-import io.ballerina.compiler.syntax.tree.AnnotationNode;
-import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeLocation;
 
 /**
@@ -33,9 +31,6 @@ public class IdentityField {
     private int nullableStartOffset = 0;
     private boolean isValidType = false;
     private NodeLocation typeLocation;
-
-    private NodeList<AnnotationNode> annotations;
-
     public IdentityField(String name) {
         this.name = name;
     }
@@ -92,11 +87,4 @@ public class IdentityField {
         this.typeLocation = typeLocation;
     }
 
-    public NodeList<AnnotationNode> getAnnotations() {
-        return annotations;
-    }
-
-    public void setAnnotations(NodeList<AnnotationNode> annotations) {
-        this.annotations = annotations;
-    }
 }

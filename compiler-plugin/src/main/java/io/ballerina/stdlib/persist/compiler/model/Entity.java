@@ -19,7 +19,6 @@
 package io.ballerina.stdlib.persist.compiler.model;
 
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
-import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeLocation;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -46,7 +45,7 @@ public class Entity {
     private final HashMap<String, GroupedRelationField> groupedRelationFields = new HashMap<>();
     private final List<Diagnostic> diagnosticList = new ArrayList<>();
     private boolean containsRelations = false;
-    private NodeList<AnnotationNode> annotations;
+    private List<AnnotationNode> annotations;
 
     public Entity(String entityName, NodeLocation entityNameLocation, RecordTypeDescriptorNode typeDescriptorNode) {
         this.entityName = entityName;
@@ -137,10 +136,10 @@ public class Entity {
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(code, message, severity);
         this.diagnosticList.add(DiagnosticFactory.createDiagnostic(diagnosticInfo, location, diagnosticProperties));
     }
-    public void setAnnotations(NodeList<AnnotationNode> annotations) {
+    public void setAnnotations(List<AnnotationNode> annotations) {
         this.annotations = annotations;
     }
-    public NodeList<AnnotationNode> getAnnotations() {
+    public List<AnnotationNode> getAnnotations() {
         return annotations;
     }
 }
