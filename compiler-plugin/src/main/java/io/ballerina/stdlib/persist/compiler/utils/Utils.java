@@ -31,7 +31,7 @@ import io.ballerina.toml.syntax.tree.DocumentNode;
 import io.ballerina.toml.syntax.tree.KeyValueNode;
 import io.ballerina.toml.syntax.tree.NodeList;
 import io.ballerina.toml.syntax.tree.SyntaxTree;
-import io.ballerina.toml.syntax.tree.TableNode;
+import io.ballerina.toml.syntax.tree.TableArrayNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.diagnostic.properties.BStringProperty;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -175,16 +176,19 @@ public final class Utils {
         if (balProjectDir == null) {
             throw new BalException("unable to locate the project's Ballerina.toml file");
         }
-
         Path configPath = balProjectDir.resolve(ProjectConstants.BALLERINA_TOML);
+        Path targetDir = Paths.get(String.valueOf(balProjectDir), "target");
+        Path genCmdConfigPath = targetDir.resolve("Persist.toml");
+        if (Files.exists(genCmdConfigPath)) {
+            configPath = genCmdConfigPath;
+        }
         try {
             TextDocument configDocument = TextDocuments.from(Files.readString(configPath));
             SyntaxTree syntaxTree = SyntaxTree.from(configDocument);
             DocumentNode rootNote = syntaxTree.rootNode();
             NodeList<DocumentMemberDeclarationNode> nodeList = rootNote.members();
             for (DocumentMemberDeclarationNode member : nodeList) {
-                if (member instanceof TableNode) {
-                    TableNode node = (TableNode) member;
+                if (member instanceof TableArrayNode node) {
                     String tableName = node.identifier().toSourceCode().trim();
                     if (tableName.equals(Constants.PERSIST)) {
                         for (KeyValueNode field : node.fields()) {
@@ -222,8 +226,7 @@ public final class Utils {
             DocumentNode rootNote = syntaxTree.rootNode();
             NodeList<DocumentMemberDeclarationNode> nodeList = rootNote.members();
             for (DocumentMemberDeclarationNode member : nodeList) {
-                if (member instanceof TableNode) {
-                    TableNode node = (TableNode) member;
+                if (member instanceof TableArrayNode node) {
                     String tableName = node.identifier().toSourceCode().trim();
                     if (tableName.equals(Constants.PERSIST)) {
                         for (KeyValueNode field : node.fields()) {
