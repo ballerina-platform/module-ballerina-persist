@@ -6,9 +6,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
-- [Added validation support for new persist commands](https://github.com/ballerina-platform/ballerina-library/issues/5784)
-
 ### Added
 - [Added compiler plugin validations for Postgresql as a datasource](https://github.com/ballerina-platform/ballerina-library/issues/5829)
 
