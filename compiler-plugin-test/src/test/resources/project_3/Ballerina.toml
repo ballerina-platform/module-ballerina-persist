@@ -3,5 +3,5 @@ org = "root"
 name = "project_3"
 version = "0.1.0"
 
-[[tool.persist]]
-options.datastore = "googlesheets"
+[persist]
+datastore = "googlesheets"

@@ -23,8 +23,8 @@ package io.ballerina.stdlib.persist.compiler;
  */
 public final class Constants {
     public static final String PERSIST_DIRECTORY = "persist";
-    public static final String PERSIST = "tool.persist";
-    public static final String DATASTORE = "options.datastore";
+    public static final String PERSIST = "persist";
+    public static final String DATASTORE = "datastore";
     public static final String TIME_MODULE = "time";
     public static final String EMPTY_STRING = "";
     public static final String ARRAY = "[]";

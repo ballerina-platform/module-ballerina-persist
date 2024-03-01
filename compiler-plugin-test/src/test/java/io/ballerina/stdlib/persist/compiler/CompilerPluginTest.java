@@ -98,15 +98,6 @@ public class CompilerPluginTest {
     }
 
     @Test
-    public void validateTheProjectForNewGenerateCmd() {
-        Path projectDirPath = Paths.get("src", "test", "resources", "project_7").
-                toAbsolutePath();
-        BuildProject project7 = BuildProject.load(getEnvironmentBuilder(), projectDirPath);
-        DiagnosticResult diagnosticResult = project7.currentPackage().getCompilation().diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0);
-    }
-
-    @Test
     public void identifyModelFileSuccess() {
         List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "valid-persist-model-path.bal", 1);
         testDiagnostic(
