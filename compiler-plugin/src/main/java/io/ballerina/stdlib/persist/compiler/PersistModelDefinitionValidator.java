@@ -227,9 +227,10 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         for (TypeDefinitionNode typeDefinitionNode : foundEntities) {
             String entityName = stripEscapeCharacter(typeDefinitionNode.typeName().text().trim());
             TypeDescriptorNode typeDescriptorNode = (TypeDescriptorNode) typeDefinitionNode.typeDescriptor();
-
+            List<AnnotationNode> annotations = typeDefinitionNode.metadata().map(
+                    metadata -> metadata.annotations().stream().toList()).orElse(Collections.emptyList());
             Entity entity = new Entity(entityName, typeDefinitionNode.typeName().location(),
-                    ((RecordTypeDescriptorNode) typeDescriptorNode));
+                    ((RecordTypeDescriptorNode) typeDescriptorNode), annotations);
             validateEntityRecordProperties(entity);
             validateEntityFields(entity, datastore);
             validateIdentityFields(entity);
@@ -248,8 +249,6 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                     validateGroupedRelation(field, this.entities.get(field.getContainingEntity()), entity, entity);
                 }
             }
-            entity.setAnnotations(typeDefinitionNode.metadata().map(
-                    metadata -> metadata.annotations().stream().toList()).orElse(Collections.emptyList()));
             this.entities.put(entityName, entity);
         }
         //validate annotations

@@ -45,12 +45,14 @@ public class Entity {
     private final HashMap<String, GroupedRelationField> groupedRelationFields = new HashMap<>();
     private final List<Diagnostic> diagnosticList = new ArrayList<>();
     private boolean containsRelations = false;
-    private List<AnnotationNode> annotations;
+    private final List<AnnotationNode> annotations;
 
-    public Entity(String entityName, NodeLocation entityNameLocation, RecordTypeDescriptorNode typeDescriptorNode) {
+    public Entity(String entityName, NodeLocation entityNameLocation, RecordTypeDescriptorNode typeDescriptorNode,
+                  List<AnnotationNode> annotations) {
         this.entityName = entityName;
         this.entityNameLocation = entityNameLocation;
         this.typeDescriptorNode = typeDescriptorNode;
+        this.annotations = annotations;
     }
 
     public String getEntityName() {
@@ -135,9 +137,6 @@ public class Entity {
                                  List<DiagnosticProperty<?>> diagnosticProperties) {
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(code, message, severity);
         this.diagnosticList.add(DiagnosticFactory.createDiagnostic(diagnosticInfo, location, diagnosticProperties));
-    }
-    public void setAnnotations(List<AnnotationNode> annotations) {
-        this.annotations = annotations;
     }
     public List<AnnotationNode> getAnnotations() {
         return annotations;
