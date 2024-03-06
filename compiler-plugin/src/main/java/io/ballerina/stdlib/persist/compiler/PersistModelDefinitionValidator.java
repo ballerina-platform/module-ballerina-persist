@@ -139,6 +139,8 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_616;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_617;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_618;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_619;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_620;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_621;
 import static io.ballerina.stdlib.persist.compiler.model.RelationType.MANY_TO_MANY;
 import static io.ballerina.stdlib.persist.compiler.model.RelationType.ONE_TO_MANY;
 import static io.ballerina.stdlib.persist.compiler.model.RelationType.ONE_TO_ONE;
@@ -271,6 +273,9 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                 if (tableName.equals(entity.getEntityName())) {
                     entity.reportDiagnostic(PERSIST_601.getCode(), PERSIST_601.getMessage(), PERSIST_601.getSeverity(),
                             entity.getEntityNameLocation());
+                } else if (entities.containsKey(tableName)) {
+                    entity.reportDiagnostic(PERSIST_620.getCode(), PERSIST_620.getMessage(), PERSIST_620.getSeverity(),
+                            entity.getEntityNameLocation());
                 }
                 if (tableMappings.contains(tableName)) {
                     entity.reportDiagnostic(PERSIST_610.getCode(), PERSIST_610.getMessage(), PERSIST_610.getSeverity(),
@@ -302,6 +307,11 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                                 field.getNodeLocation());
                     } else {
                         columnMappings.add(mappingName);
+                    }
+                    if (entity.getNonRelationFields().stream().anyMatch(f -> f.getName().equals(mappingName)
+                            && f != field)) {
+                        entity.reportDiagnostic(PERSIST_621.getCode(), PERSIST_621.getMessage(),
+                                PERSIST_621.getSeverity(), field.getNodeLocation());
                     }
                 }
                 boolean isCharPresent =
@@ -803,8 +813,8 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         }
         if (referenceFields.size() != referredIdFieldTypes.size()) {
             ownerEntity.reportDiagnostic(PERSIST_423.getCode(),
-                    MessageFormat.format(PERSIST_423.getMessage(), ownerEntity.getEntityName(),
-                            relationField.getType(), referredIdFieldTypes.size(), referenceFields.size()),
+                    MessageFormat.format(PERSIST_423.getMessage(), relationField.getType(), ownerEntity.getEntityName(),
+                             referredIdFieldTypes.size(), referenceFields.size()),
                     PERSIST_423.getSeverity(),
                     relationField.getLocation());
             return;
