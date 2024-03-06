@@ -189,30 +189,38 @@ public final class Utils {
             DocumentNode rootNote = syntaxTree.rootNode();
             NodeList<DocumentMemberDeclarationNode> nodeList = rootNote.members();
             for (DocumentMemberDeclarationNode member : nodeList) {
-                if (member instanceof TableArrayNode arrNode) {
-                    String tableName = arrNode.identifier().toSourceCode().trim();
-                    if (tableName.equals(Constants.TOOL_PERSIST)) {
-                        for (KeyValueNode field : arrNode.fields()) {
-                            if (field.identifier().toSourceCode().trim().equals(Constants.OPTIONS_DATASTORE)) {
-                                return field.value().toSourceCode().trim().replaceAll("\"", "");
-                            }
-                        }
-                    }
-                } else if (member instanceof TableNode tableNode) {
-                    String tableName = tableNode.identifier().toSourceCode().trim();
-                    if (tableName.equals(Constants.PERSIST)) {
-                        for (KeyValueNode field : tableNode.fields()) {
-                            if (field.identifier().toSourceCode().trim().equals(Constants.DATASTORE)) {
-                                return field.value().toSourceCode().trim().replaceAll("\"", "");
-                            }
-                        }
-                    }
+                String field = getDataStoreName(member);
+                if (field != null) {
+                    return field;
                 }
             }
             throw new BalException("the persist.datastore configuration does not exist in the Ballerina.toml file");
         } catch (IOException e) {
             throw new BalException("error while reading persist configurations. " + e.getMessage());
         }
+    }
+
+    private static String getDataStoreName(DocumentMemberDeclarationNode member) {
+        if (member instanceof TableArrayNode arrNode) {
+            String tableName = arrNode.identifier().toSourceCode().trim();
+            if (tableName.equals(Constants.TOOL_PERSIST)) {
+                for (KeyValueNode field : arrNode.fields()) {
+                    if (field.identifier().toSourceCode().trim().equals(Constants.OPTIONS_DATASTORE)) {
+                        return field.value().toSourceCode().trim().replaceAll("\"", "");
+                    }
+                }
+            }
+        } else if (member instanceof TableNode tableNode) {
+            String tableName = tableNode.identifier().toSourceCode().trim();
+            if (tableName.equals(Constants.PERSIST)) {
+                for (KeyValueNode field : tableNode.fields()) {
+                    if (field.identifier().toSourceCode().trim().equals(Constants.DATASTORE)) {
+                        return field.value().toSourceCode().trim().replaceAll("\"", "");
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     public static String getDatastore(CodeActionContext ctx) throws BalException {
@@ -235,24 +243,9 @@ public final class Utils {
             DocumentNode rootNote = syntaxTree.rootNode();
             NodeList<DocumentMemberDeclarationNode> nodeList = rootNote.members();
             for (DocumentMemberDeclarationNode member : nodeList) {
-                if (member instanceof TableArrayNode arrNode) {
-                    String tableName = arrNode.identifier().toSourceCode().trim();
-                    if (tableName.equals(Constants.TOOL_PERSIST)) {
-                        for (KeyValueNode field : arrNode.fields()) {
-                            if (field.identifier().toSourceCode().trim().equals(Constants.OPTIONS_DATASTORE)) {
-                                return field.value().toSourceCode().trim().replaceAll("\"", "");
-                            }
-                        }
-                    }
-                } else if (member instanceof TableNode tableNode) {
-                    String tableName = tableNode.identifier().toSourceCode().trim();
-                    if (tableName.equals(Constants.PERSIST)) {
-                        for (KeyValueNode field : tableNode.fields()) {
-                            if (field.identifier().toSourceCode().trim().equals(Constants.DATASTORE)) {
-                                return field.value().toSourceCode().trim().replaceAll("\"", "");
-                            }
-                        }
-                    }
+                String field = getDataStoreName(member);
+                if (field != null) {
+                    return field;
                 }
             }
             throw new BalException("the persist.datastore configuration does not exist in the Ballerina.toml file");
