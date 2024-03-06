@@ -103,6 +103,17 @@ public class CompilerPluginTest {
     }
 
     @Test
+    public void testWithoutDatastore() {
+        try {
+            loadPersistModelFile("project_9", "field-types.bal").getCompilation();
+            Assert.fail("Compilation should fail");
+        } catch (Exception e) {
+            Assert.assertTrue(e.getMessage().contains("the persist.datastore configuration does not exist in " +
+                    "the Ballerina.toml file"));
+        }
+    }
+
+    @Test
     public void validateTheProjectForNewGenerateCmd() {
         Path projectDirPath = Paths.get("src", "test", "resources", "project_7").
                 toAbsolutePath();
