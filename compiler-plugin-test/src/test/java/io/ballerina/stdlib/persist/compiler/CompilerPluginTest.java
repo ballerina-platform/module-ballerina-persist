@@ -98,6 +98,11 @@ public class CompilerPluginTest {
     }
 
     @Test
+    public void validateWithOldPersistTomlConfig() {
+        getErrorDiagnostics("project_8", "field-types.bal", 0);
+    }
+
+    @Test
     public void validateTheProjectForNewGenerateCmd() {
         Path projectDirPath = Paths.get("src", "test", "resources", "project_7").
                 toAbsolutePath();

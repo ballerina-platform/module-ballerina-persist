@@ -2,3 +2,8 @@
 org = "root"
 name = "project_7"
 version = "0.1.0"
+
+[[tool.persist]]
+id = "project7"
+options.datastore = "postgresql"
+filePath = "persist/model.bal"

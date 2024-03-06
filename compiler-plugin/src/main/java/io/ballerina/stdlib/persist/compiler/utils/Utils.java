@@ -32,6 +32,7 @@ import io.ballerina.toml.syntax.tree.KeyValueNode;
 import io.ballerina.toml.syntax.tree.NodeList;
 import io.ballerina.toml.syntax.tree.SyntaxTree;
 import io.ballerina.toml.syntax.tree.TableArrayNode;
+import io.ballerina.toml.syntax.tree.TableNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
@@ -188,16 +189,24 @@ public final class Utils {
             DocumentNode rootNote = syntaxTree.rootNode();
             NodeList<DocumentMemberDeclarationNode> nodeList = rootNote.members();
             for (DocumentMemberDeclarationNode member : nodeList) {
-                if (member instanceof TableArrayNode node) {
-                    String tableName = node.identifier().toSourceCode().trim();
+                if (member instanceof TableArrayNode arrNode) {
+                    String tableName = arrNode.identifier().toSourceCode().trim();
+                    if (tableName.equals(Constants.TOOL_PERSIST)) {
+                        for (KeyValueNode field : arrNode.fields()) {
+                            if (field.identifier().toSourceCode().trim().equals(Constants.OPTIONS_DATASTORE)) {
+                                return field.value().toSourceCode().trim().replaceAll("\"", "");
+                            }
+                        }
+                    }
+                } else if (member instanceof TableNode tableNode) {
+                    String tableName = tableNode.identifier().toSourceCode().trim();
                     if (tableName.equals(Constants.PERSIST)) {
-                        for (KeyValueNode field : node.fields()) {
+                        for (KeyValueNode field : tableNode.fields()) {
                             if (field.identifier().toSourceCode().trim().equals(Constants.DATASTORE)) {
                                 return field.value().toSourceCode().trim().replaceAll("\"", "");
                             }
                         }
                     }
-
                 }
             }
             throw new BalException("the persist.datastore configuration does not exist in the Ballerina.toml file");
@@ -226,16 +235,24 @@ public final class Utils {
             DocumentNode rootNote = syntaxTree.rootNode();
             NodeList<DocumentMemberDeclarationNode> nodeList = rootNote.members();
             for (DocumentMemberDeclarationNode member : nodeList) {
-                if (member instanceof TableArrayNode node) {
-                    String tableName = node.identifier().toSourceCode().trim();
+                if (member instanceof TableArrayNode arrNode) {
+                    String tableName = arrNode.identifier().toSourceCode().trim();
+                    if (tableName.equals(Constants.TOOL_PERSIST)) {
+                        for (KeyValueNode field : arrNode.fields()) {
+                            if (field.identifier().toSourceCode().trim().equals(Constants.OPTIONS_DATASTORE)) {
+                                return field.value().toSourceCode().trim().replaceAll("\"", "");
+                            }
+                        }
+                    }
+                } else if (member instanceof TableNode tableNode) {
+                    String tableName = tableNode.identifier().toSourceCode().trim();
                     if (tableName.equals(Constants.PERSIST)) {
-                        for (KeyValueNode field : node.fields()) {
+                        for (KeyValueNode field : tableNode.fields()) {
                             if (field.identifier().toSourceCode().trim().equals(Constants.DATASTORE)) {
                                 return field.value().toSourceCode().trim().replaceAll("\"", "");
                             }
                         }
                     }
-
                 }
             }
             throw new BalException("the persist.datastore configuration does not exist in the Ballerina.toml file");
