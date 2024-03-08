@@ -41,6 +41,7 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.stdlib.persist.compiler.Constants.Datastores;
 import io.ballerina.stdlib.persist.compiler.model.Entity;
 import io.ballerina.stdlib.persist.compiler.model.GroupedRelationField;
 import io.ballerina.stdlib.persist.compiler.model.IdentityField;
@@ -270,7 +271,7 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             fieldNames.add(fieldName.toLowerCase(Locale.ROOT));
 
             // Check if optional field
-            if (recordFieldNode.questionMarkToken().isPresent()) {
+            if (recordFieldNode.questionMarkToken().isPresent() && !datastore.equals(Constants.Datastores.REDIS)) {
                 int startOffset = recordFieldNode.questionMarkToken().get().textRange().startOffset();
                 int length = recordFieldNode.semicolonToken().textRange().startOffset() - startOffset;
                 entity.reportDiagnostic(PERSIST_304.getCode(), PERSIST_304.getMessage(), PERSIST_304.getSeverity(),
@@ -322,30 +323,39 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                 String modulePrefix = stripEscapeCharacter(qualifiedName.modulePrefix().text());
                 String identifier = stripEscapeCharacter(qualifiedName.identifier().text());
                 fieldType = modulePrefix + ":" + identifier;
-                if (ValidatorsByDatastore.isValidImportedType(modulePrefix, identifier, datastore)) {
-                    if (isArrayType && !ValidatorsByDatastore.isValidArrayType(fieldType, datastore)) {
-                        fieldType = isOptionalType
-                                ? modulePrefix + ":" + identifier + "?"
-                                : modulePrefix + ":" + identifier;
-                        entity.reportDiagnostic(PERSIST_306.getCode(),
-                                MessageFormat.format(PERSIST_306.getMessage(), modulePrefix + ":" + identifier),
-                                PERSIST_306.getSeverity(), typeNode.location(),
-                                List.of(new BNumericProperty(arrayStartOffset), new BNumericProperty(arrayLength),
-                                        new BStringProperty(fieldType)));
-                    } else {
-                        isValidType = true;
-                    }
-                } else {
-                    if (isArrayType) {
-                        entity.reportDiagnostic(PERSIST_306.getCode(), MessageFormat.format(PERSIST_306.getMessage(),
-                                        modulePrefix + ":" + identifier), PERSIST_305.getSeverity(),
-                                typeNode.location());
-                    } else {
-                        entity.reportDiagnostic(PERSIST_305.getCode(), MessageFormat.format(PERSIST_305.getMessage(),
-                                        modulePrefix + ":" + identifier), PERSIST_305.getSeverity(),
-                                typeNode.location());
-                    }
-                }
+
+                List<DiagnosticProperty<?>> properties = List.of(
+                        new BNumericProperty(arrayStartOffset),
+                        new BNumericProperty(arrayLength),
+                        new BStringProperty(isOptionalType ? fieldType + "?" : fieldType));
+
+                isValidType = ValidatorsByDatastore.validateImportedTypes(
+                        entity, typeNode, isArrayType, isOptionalType, properties, modulePrefix, identifier, datastore);
+
+//                if (ValidatorsByDatastore.isValidImportedType(modulePrefix, identifier, datastore)) {
+//                    if (isArrayType && !ValidatorsByDatastore.isValidArrayType(fieldType, datastore)) {
+//                        fieldType = isOptionalType
+//                                ? modulePrefix + ":" + identifier + "?"
+//                                : modulePrefix + ":" + identifier;
+//                        entity.reportDiagnostic(PERSIST_306.getCode(),
+//                                MessageFormat.format(PERSIST_306.getMessage(), modulePrefix + ":" + identifier),
+//                                PERSIST_306.getSeverity(), typeNode.location(),
+//                                List.of(new BNumericProperty(arrayStartOffset), new BNumericProperty(arrayLength),
+//                                        new BStringProperty(fieldType)));
+//                    } else {
+//                        isValidType = true;
+//                    }
+//                } else {
+//                    if (isArrayType) {
+//                        entity.reportDiagnostic(PERSIST_306.getCode(), MessageFormat.format(PERSIST_306.getMessage(),
+//                                        modulePrefix + ":" + identifier), PERSIST_305.getSeverity(),
+//                                typeNode.location());
+//                    } else {
+//                        entity.reportDiagnostic(PERSIST_305.getCode(), MessageFormat.format(PERSIST_305.getMessage(),
+//                                        modulePrefix + ":" + identifier), PERSIST_305.getSeverity(),
+//                                typeNode.location());
+//                    }
+//                }
                 isSimpleType = true;
             } else if (processedTypeNode instanceof SimpleNameReferenceNode) {
                 String typeName = stripEscapeCharacter(

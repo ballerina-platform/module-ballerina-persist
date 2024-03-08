@@ -74,6 +74,7 @@ public final class Constants {
         public static final String POSTGRESQL = "postgresql";
         public static final String IN_MEMORY = "inmemory";
         public static final String GOOGLE_SHEETS = "googlesheets";
+        public static final String REDIS = "redis";
 
         private Datastores() {
         }

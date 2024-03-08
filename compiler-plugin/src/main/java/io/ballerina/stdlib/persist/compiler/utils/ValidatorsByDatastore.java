@@ -22,6 +22,8 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.stdlib.persist.compiler.Constants;
 import io.ballerina.stdlib.persist.compiler.model.Entity;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
+import org.wso2.ballerinalang.compiler.diagnostic.properties.BNumericProperty;
+import org.wso2.ballerinalang.compiler.diagnostic.properties.BStringProperty;
 
 import java.text.MessageFormat;
 import java.util.List;
@@ -55,7 +57,8 @@ public final class ValidatorsByDatastore {
                                               List<DiagnosticProperty<?>> properties, String type, String datastore) {
         boolean validFlag = true;
 
-        if (isOptionalType && datastore.equals(Constants.Datastores.GOOGLE_SHEETS)) {
+        if (isOptionalType && (datastore.equals(Constants.Datastores.GOOGLE_SHEETS)
+        || datastore.equals(Constants.Datastores.REDIS))) {
             entity.reportDiagnostic(PERSIST_308.getCode(),
                     MessageFormat.format(PERSIST_308.getMessage(), type),
                     PERSIST_308.getSeverity(), typeNode.location(), properties);
@@ -86,6 +89,45 @@ public final class ValidatorsByDatastore {
         return validFlag;
     }
 
+    public static boolean validateImportedTypes(Entity entity, Node typeNode,
+                                                boolean isArrayType, boolean isOptionalType,
+                                                List<DiagnosticProperty<?>> properties,
+                                                String modulePrefix, String identifier, String datastore){
+        boolean validFlag = true;
+
+        if (isOptionalType && datastore.equals(Constants.Datastores.REDIS)) {
+            entity.reportDiagnostic(PERSIST_308.getCode(),
+                    MessageFormat.format(PERSIST_308.getMessage(), modulePrefix + ":" + identifier),
+                    PERSIST_308.getSeverity(), typeNode.location(), properties);
+            validFlag = false;
+        }
+
+        if (ValidatorsByDatastore.isValidImportedType(modulePrefix, identifier, datastore)) {
+            if (isArrayType && !ValidatorsByDatastore.isValidArrayType(modulePrefix + ":" + identifier,
+            datastore)) {
+
+                entity.reportDiagnostic(PERSIST_306.getCode(),
+                        MessageFormat.format(PERSIST_306.getMessage(), modulePrefix + ":" + identifier),
+                        PERSIST_306.getSeverity(), typeNode.location(),
+                        properties);
+            } else {
+                validFlag = true;
+            }
+        } else {
+            if (isArrayType) {
+                entity.reportDiagnostic(PERSIST_306.getCode(), MessageFormat.format(PERSIST_306.getMessage(),
+                                modulePrefix + ":" + identifier), PERSIST_305.getSeverity(),
+                        typeNode.location());
+            } else {
+                entity.reportDiagnostic(PERSIST_305.getCode(), MessageFormat.format(PERSIST_305.getMessage(),
+                                modulePrefix + ":" + identifier), PERSIST_305.getSeverity(),
+                        typeNode.location());
+            }
+        }
+
+        return validFlag;
+    }
+
     public static boolean isValidSimpleType(String type, String datastore) {
         switch (datastore) {
             case Constants.Datastores.MYSQL:
@@ -98,6 +140,8 @@ public final class ValidatorsByDatastore {
                 return isValidInMemoryType(type);
             case Constants.Datastores.GOOGLE_SHEETS:
                 return isValidGoogleSheetsType(type);
+            case Constants.Datastores.REDIS:
+                return isValidRedisType(type);
             default:
                 return false;
         }
@@ -115,12 +159,15 @@ public final class ValidatorsByDatastore {
                 return isValidInMemoryArrayType(type);
             case Constants.Datastores.GOOGLE_SHEETS:
                 return isValidGoogleSheetsArrayType(type);
+            case Constants.Datastores.REDIS:
+                return isValidRedisArrayType(type);
             default:
                 return false;
         }
     }
 
     public static boolean isValidImportedType(String modulePrefix, String identifier, String datastore) {
+
         switch (datastore) {
             case Constants.Datastores.MYSQL:
                 return isValidMysqlImportedType(modulePrefix, identifier);
@@ -132,6 +179,8 @@ public final class ValidatorsByDatastore {
                 return isValidInMemoryImportedType(modulePrefix, identifier);
             case Constants.Datastores.GOOGLE_SHEETS:
                 return isValidGoogleSheetsImportedType(modulePrefix, identifier);
+            case Constants.Datastores.REDIS:
+                return isValidRedisImportedType(modulePrefix, identifier);
             default:
                 return false;
         }
@@ -197,6 +246,20 @@ public final class ValidatorsByDatastore {
         }
     }
 
+    public static boolean isValidRedisType(String type) {
+        switch (type) {
+            case INT:
+            case BOOLEAN:
+            case DECIMAL:
+            case FLOAT:
+            case STRING:
+            case ENUM:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     public static boolean isValidMysqlArrayType(String type) {
         switch (type) {
             case BYTE:
@@ -229,6 +292,10 @@ public final class ValidatorsByDatastore {
     }
 
     public static boolean isValidGoogleSheetsArrayType(String type) {
+        return false;
+    }
+
+    public static boolean isValidRedisArrayType(String type) {
         return false;
     }
 
@@ -290,6 +357,21 @@ public final class ValidatorsByDatastore {
             case TIME_OF_DAY:
             case UTC:
             case CIVIL:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    public static boolean isValidRedisImportedType(String modulePrefix, String identifier) {
+        if (!modulePrefix.equals(TIME_MODULE)) {
+            return false;
+        }
+        switch (identifier) {
+            case DATE:
+            case TIME_OF_DAY:
+            case CIVIL:
+            case UTC:
                 return true;
             default:
                 return false;
