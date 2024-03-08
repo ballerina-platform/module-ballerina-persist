@@ -286,9 +286,8 @@ public final class Utils {
         }
         return false;
     }
-    public static List<String> readStringArrayValueFromAnnotation
-            (List<AnnotationNode> annotationNodes, String annotation,
-             String field) {
+    public static List<String> readStringArrayValueFromAnnotation(List<AnnotationNode> annotationNodes,
+                                                                  String annotation, String field) {
         for (AnnotationNode annotationNode : annotationNodes) {
             String annotationName = annotationNode.annotReference().toSourceCode().trim();
             if (annotationName.equals(annotation)) {
