@@ -18,6 +18,7 @@
 
 package io.ballerina.stdlib.persist.compiler.model;
 
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.NodeLocation;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -27,6 +28,7 @@ import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,11 +46,14 @@ public class Entity {
     private final HashMap<String, GroupedRelationField> groupedRelationFields = new HashMap<>();
     private final List<Diagnostic> diagnosticList = new ArrayList<>();
     private boolean containsRelations = false;
+    private final List<AnnotationNode> annotations;
 
-    public Entity(String entityName, NodeLocation entityNameLocation, RecordTypeDescriptorNode typeDescriptorNode) {
+    public Entity(String entityName, NodeLocation entityNameLocation, RecordTypeDescriptorNode typeDescriptorNode,
+                  List<AnnotationNode> annotations) {
         this.entityName = entityName;
         this.entityNameLocation = entityNameLocation;
         this.typeDescriptorNode = typeDescriptorNode;
+        this.annotations = annotations;
     }
 
     public String getEntityName() {
@@ -134,5 +139,7 @@ public class Entity {
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(code, message, severity);
         this.diagnosticList.add(DiagnosticFactory.createDiagnostic(diagnosticInfo, location, diagnosticProperties));
     }
-
+    public List<AnnotationNode> getAnnotations() {
+        return Collections.unmodifiableList(annotations);
+    }
 }

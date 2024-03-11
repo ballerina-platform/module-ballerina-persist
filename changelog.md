@@ -6,13 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
-- [Added validation support for new persist commands](https://github.com/ballerina-platform/ballerina-library/issues/5784)
-
 ### Added
 - [Added compiler plugin validations for Postgresql as a datasource](https://github.com/ballerina-platform/ballerina-library/issues/5829)
 
 ### Changed
+- [Added validation support for new persist commands](https://github.com/ballerina-platform/ballerina-library/issues/5784)
+- [Changed the behavior of foreign key presence validation to account for Relation annotation](https://github.com/ballerina-platform/ballerina-library/issues/6068)
 
 ## [1.1.0] - 2023-06-30
 

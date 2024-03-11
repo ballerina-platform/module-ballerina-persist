@@ -630,7 +630,6 @@ public class CompilerPluginTest {
                         "(26:4,26:25)",
                         "(35:4,35:24)",
                         "(27:4,27:28)",
-
                 }
         );
     }
@@ -644,7 +643,8 @@ public class CompilerPluginTest {
                         PERSIST_422.getCode()
                 },
                 new String[]{
-                        "the entity should not contain foreign key field 'locationBuildingCode' for relation 'Building'"
+                        "the entity should not contain foreign key field 'locationBuildingCode' for relation " +
+                                "'Building'",
                 },
                 new String[]{
                         "(18:4,18:33)"
