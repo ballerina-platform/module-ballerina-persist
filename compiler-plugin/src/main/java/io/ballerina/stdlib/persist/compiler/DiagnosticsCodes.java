@@ -66,12 +66,14 @@ public enum DiagnosticsCodes {
     PERSIST_406("PERSIST_406", "1-n relationship does not support nillable relation field", ERROR),
 
     PERSIST_420("PERSIST_420", "many-to-many relation is not supported yet", ERROR),
-    PERSIST_422("PERSIST_422", "the entity should not contain foreign key field ''{0}'' for relation ''{1}''", ERROR),
-
+    PERSIST_422("PERSIST_422",
+            "the entity should not contain foreign key field ''{0}'' for relation ''{1}''",
+            ERROR),
     PERSIST_501("PERSIST_501", "''{0}'' entity must have at least one identity readonly field", ERROR),
     PERSIST_502("PERSIST_502", "an identity field cannot be nillable", ERROR),
     PERSIST_503("PERSIST_503", "only ''int'', ''string'', ''float'', ''boolean'', ''decimal'' " +
-            "types are supported as identity fields, found ''{0}''", ERROR);
+            "types are supported as identity fields, found ''{0}''", ERROR),
+    ;
 
     private final String code;
     private final String message;

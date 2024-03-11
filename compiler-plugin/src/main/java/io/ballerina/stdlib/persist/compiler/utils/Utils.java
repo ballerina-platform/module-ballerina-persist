@@ -18,7 +18,12 @@
 
 package io.ballerina.stdlib.persist.compiler.utils;
 
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.MappingFieldNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.projects.plugins.codeaction.CodeActionArgument;
 import io.ballerina.projects.plugins.codeaction.CodeActionContext;
@@ -46,8 +51,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Class containing util functions.
@@ -242,5 +250,31 @@ public final class Utils {
         } catch (IOException e) {
             throw new BalException("error while reading persist configurations. " + e.getMessage());
         }
+    }
+
+    public static List<String> readStringArrayValueFromAnnotation(List<AnnotationNode> annotationNodes,
+                                                                  String annotation, String field) {
+        for (AnnotationNode annotationNode : annotationNodes) {
+            String annotationName = annotationNode.annotReference().toSourceCode().trim();
+            if (annotationName.equals(annotation)) {
+                Optional<MappingConstructorExpressionNode> annotationFieldNode = annotationNode.annotValue();
+                if (annotationFieldNode.isPresent()) {
+                    for (MappingFieldNode mappingFieldNode : annotationFieldNode.get().fields()) {
+                        SpecificFieldNode specificFieldNode = (SpecificFieldNode) mappingFieldNode;
+                        String fieldName = specificFieldNode.fieldName().toSourceCode().trim();
+                        if (!fieldName.equals(field)) {
+                            return Collections.emptyList();
+                        }
+                        Optional<ExpressionNode> valueExpr = specificFieldNode.valueExpr();
+                        if (valueExpr.isPresent()) {
+                            return Stream.of(valueExpr.get().toSourceCode().trim().replace("\"", "")
+                                    .replace("[", "")
+                                    .replace("]", "").split(",")).map(String::trim).toList();
+                        }
+                    }
+                }
+            }
+        }
+        return Collections.emptyList();
     }
 }

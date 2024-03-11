@@ -31,7 +31,6 @@ public class IdentityField {
     private int nullableStartOffset = 0;
     private boolean isValidType = false;
     private NodeLocation typeLocation;
-
     public IdentityField(String name) {
         this.name = name;
     }
@@ -87,4 +86,5 @@ public class IdentityField {
     public void setTypeLocation(NodeLocation typeLocation) {
         this.typeLocation = typeLocation;
     }
+
 }
