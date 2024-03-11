@@ -252,40 +252,6 @@ public final class Utils {
         }
     }
 
-    public static String readStringValueFromAnnotation
-            (List<AnnotationNode> annotationNodes, String annotation,
-             String field) {
-        for (AnnotationNode annotationNode : annotationNodes) {
-            String annotationName = annotationNode.annotReference().toSourceCode().trim();
-            if (annotationName.equals(annotation)) {
-                Optional<MappingConstructorExpressionNode> annotationFieldNode = annotationNode.annotValue();
-                if (annotationFieldNode.isPresent()) {
-                    for (MappingFieldNode mappingFieldNode : annotationFieldNode.get().fields()) {
-                        SpecificFieldNode specificFieldNode = (SpecificFieldNode) mappingFieldNode;
-                        String fieldName = specificFieldNode.fieldName().toSourceCode().trim();
-                        if (!fieldName.equals(field)) {
-                            return "";
-                        }
-                        Optional<ExpressionNode> valueExpr = specificFieldNode.valueExpr();
-                        if (valueExpr.isPresent()) {
-                            return valueExpr.get().toSourceCode().trim().replace("\"", "").trim();
-                        }
-                    }
-                }
-            }
-        }
-        return "";
-    }
-    public static boolean isAnnotationPresent
-            (List<AnnotationNode> annotationNodes, String annotation) {
-        for (AnnotationNode annotationNode : annotationNodes) {
-            String annotationName = annotationNode.annotReference().toSourceCode().trim();
-            if (annotationName.equals(annotation)) {
-                return true;
-            }
-        }
-        return false;
-    }
     public static List<String> readStringArrayValueFromAnnotation(List<AnnotationNode> annotationNodes,
                                                                   String annotation, String field) {
         for (AnnotationNode annotationNode : annotationNodes) {

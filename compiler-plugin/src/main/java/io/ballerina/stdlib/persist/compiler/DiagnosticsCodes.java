@@ -22,7 +22,6 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import static io.ballerina.tools.diagnostics.DiagnosticSeverity.ERROR;
 import static io.ballerina.tools.diagnostics.DiagnosticSeverity.INTERNAL;
-import static io.ballerina.tools.diagnostics.DiagnosticSeverity.WARNING;
 
 /**
  * Persist related diagnostic codes.
@@ -70,77 +69,10 @@ public enum DiagnosticsCodes {
     PERSIST_422("PERSIST_422",
             "the entity should not contain foreign key field ''{0}'' for relation ''{1}''",
             ERROR),
-    PERSIST_423("PERSIST_423", "invalid use of the `Relation` annotation. " +
-            "mismatched number of reference keys for relation ''{0}'' in entity ''{1}''." +
-            " expected {2} but found {3}.",
-            ERROR),
-    PERSIST_424("PERSIST_424", "invalid use of the `Relation` annotation. " +
-            "mismatched key types for the related entity ''{0}''.",
-            ERROR),
-    PERSIST_426("PERSIST_426", "invalid use of the `Relation` annotation. " +
-            "the field ''{0}'' is an array type in a 1-n relationship. " +
-            "therefore, it cannot have foreign keys.",
-            ERROR),
-    PERSIST_427("PERSIST_427", "invalid use of the `Relation` annotation. " +
-            "the field ''{0}'' is an optional type in a 1-1 relationship. " +
-            "therefore, it cannot have foreign keys.",
-            ERROR),
-    PERSIST_428("PERSIST_428", "invalid use of the `Relation` annotation. " +
-            "the field ''{0}'' is not found in the entity ''{1}''.",
-            ERROR),
-    PERSIST_429("PERSIST_429", "invalid use of the `Relation` annotation. " +
-            "refs cannot contain duplicates.",
-            ERROR),
-    PERSIST_430("PERSIST_430", "invalid use of the `Relation` annotation. " +
-            "duplicated reference field.",
-            ERROR),
-
     PERSIST_501("PERSIST_501", "''{0}'' entity must have at least one identity readonly field", ERROR),
     PERSIST_502("PERSIST_502", "an identity field cannot be nillable", ERROR),
     PERSIST_503("PERSIST_503", "only ''int'', ''string'', ''float'', ''boolean'', ''decimal'' " +
             "types are supported as identity fields, found ''{0}''", ERROR),
-    PERSIST_600("PERSIST_600", "invalid use of the `Mapping` annotation. mapping name cannot be empty.",
-            ERROR),
-    PERSIST_601("PERSIST_601", "redundant use of the `Mapping` annotation. mapping name is same as " +
-            "model definition.", WARNING),
-    PERSIST_602("PERSIST_602", "invalid use of the `Mapping` annotation. " +
-            "the `Mapping` annotation cannot be used for relation fields.", ERROR),
-    PERSIST_604("PERSIST_604", "invalid use of the `''{0}''` annotation. " +
-            "the `''{0}''` annotation can only be used for ''string'' type.", ERROR),
-    PERSIST_605("PERSIST_605", "invalid use of `VarChar` and `Char` annotations. " +
-            "only one of either `VarChar` or `Char` annotations can be used at a time.", ERROR),
-    PERSIST_606("PERSIST_606", "invalid use of the `Decimal` annotation. " +
-            "the `Decimal` annotation can only be used for ''decimal'' data type.", ERROR),
-    PERSIST_607("PERSIST_607", "invalid use of the `''{0}''` annotation. " +
-            "length cannot be 0.", ERROR),
-    PERSIST_608("PERSIST_608", "invalid use of the `Decimal` annotation. " +
-            "precision cannot be 0.", ERROR),
-    PERSIST_609("PERSIST_609", "invalid use of the `Decimal` annotation. " +
-            "precision cannot be less than scale.", ERROR),
-    PERSIST_610("PERSIST_610", "invalid use of the `Mapping` annotation. " +
-            "duplicate mapping name found.", ERROR),
-    PERSIST_611("PERSIST_611", "invalid use of the `Index` annotation. " +
-            "the `Index` annotation cannot be used for relation fields.", ERROR),
-    PERSIST_612("PERSIST_612", "invalid use of the `UniqueIndex` annotation. " +
-            "the `UniqueIndex` annotation cannot be used for relation fields.", ERROR),
-    PERSIST_613("PERSIST_613", "invalid use of the `Index` annotation. " +
-            "duplicate index names.", ERROR),
-    PERSIST_614("PERSIST_614", "invalid use of the `UniqueIndex` annotation. " +
-            "duplicate index names.", ERROR),
-    PERSIST_615("PERSIST_615", "invalid use of the `Index` annotation. " +
-            "there cannot be empty index names.", ERROR),
-    PERSIST_616("PERSIST_616", "invalid use of the `UniqueIndex` annotation. " +
-            "there cannot be empty index names.", ERROR),
-    PERSIST_617("PERSIST_617", "invalid use of the `Generated` annotation. " +
-            "the `Generated` annotation can only be used for ''readonly'' fields.", ERROR),
-    PERSIST_618("PERSIST_618", "invalid use of the `Generated` annotation. " +
-            "partial key fields cannot be auto-generated.", ERROR),
-    PERSIST_619("PERSIST_619", "invalid use of the `Generated` annotation. " +
-            "a generated field can only be an ''int'' type.", ERROR),
-    PERSIST_620("PERSIST_620", "invalid use of the `Mapping` annotation. " +
-            "a mapping name should not conflict with an Entity name", ERROR),
-    PERSIST_621("PERSIST_621", "invalid use of the `Mapping` annotation. " +
-            "a mapping name should not conflict with a field name", ERROR),
     ;
 
     private final String code;

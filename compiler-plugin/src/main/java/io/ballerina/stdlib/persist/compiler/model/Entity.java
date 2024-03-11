@@ -28,6 +28,7 @@ import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -139,6 +140,6 @@ public class Entity {
         this.diagnosticList.add(DiagnosticFactory.createDiagnostic(diagnosticInfo, location, diagnosticProperties));
     }
     public List<AnnotationNode> getAnnotations() {
-        return annotations;
+        return Collections.unmodifiableList(annotations);
     }
 }
