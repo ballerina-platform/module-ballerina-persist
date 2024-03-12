@@ -670,10 +670,11 @@ public class CompilerPluginTest {
     @Test
     public void validateUseOfOptionalFieldForRedisDB() {
         List<Diagnostic> diagnostics = getErrorDiagnostics("project_7", "optional_fields.bal", 0);
+        testDiagnostic(diagnostics, new String[]{}, new String[]{}, new String[]{});
     }
 
     @Test
-    public void validateNillableTypesForRedisDB(){
+    public void validateNillableTypesForRedisDB() {
         List<Diagnostic> diagnostics = getErrorDiagnostics("project_7", "nillable_types.bal", 8);
         testDiagnostic(
                 diagnostics,

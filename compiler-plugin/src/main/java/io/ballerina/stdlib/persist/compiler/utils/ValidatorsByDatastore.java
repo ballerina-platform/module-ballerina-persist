@@ -22,8 +22,6 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.stdlib.persist.compiler.Constants;
 import io.ballerina.stdlib.persist.compiler.model.Entity;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
-import org.wso2.ballerinalang.compiler.diagnostic.properties.BNumericProperty;
-import org.wso2.ballerinalang.compiler.diagnostic.properties.BStringProperty;
 
 import java.text.MessageFormat;
 import java.util.List;
@@ -92,7 +90,7 @@ public final class ValidatorsByDatastore {
     public static boolean validateImportedTypes(Entity entity, Node typeNode,
                                                 boolean isArrayType, boolean isOptionalType,
                                                 List<DiagnosticProperty<?>> properties,
-                                                String modulePrefix, String identifier, String datastore){
+                                                String modulePrefix, String identifier, String datastore) {
         boolean validFlag = true;
 
         if (isOptionalType && datastore.equals(Constants.Datastores.REDIS)) {
