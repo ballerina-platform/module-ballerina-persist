@@ -23,12 +23,16 @@ package io.ballerina.stdlib.persist.compiler;
  */
 public final class Constants {
     public static final String PERSIST_DIRECTORY = "persist";
+    public static final String TOOL_PERSIST = "tool.persist";
     public static final String PERSIST = "persist";
+    public static final String OPTIONS_DATASTORE = "options.datastore";
     public static final String DATASTORE = "datastore";
     public static final String TIME_MODULE = "time";
     public static final String EMPTY_STRING = "";
     public static final String ARRAY = "[]";
     public static final String LS = System.lineSeparator();
+    public static final String SQL_RELATION_MAPPING_ANNOTATION_NAME = "sql:Relation";
+    public static final String ANNOTATION_REFS_FIELD = "refs";
 
     private Constants() {
     }

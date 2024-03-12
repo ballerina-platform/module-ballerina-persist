@@ -1,7 +1,7 @@
 [package]
 org = "root"
-name = "project_3"
+name = "project_2"
 version = "0.1.0"
 
 [[tool.persist]]
-options.datastore = "googlesheets"
+datastore = "postgresql"

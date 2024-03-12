@@ -98,6 +98,31 @@ public class CompilerPluginTest {
     }
 
     @Test
+    public void validateWithOldPersistTomlConfig() {
+        getErrorDiagnostics("project_8", "field-types.bal", 0);
+    }
+
+    @Test
+    public void testWithoutDatastore() {
+        try {
+            loadPersistModelFile("project_9", "field-types.bal").getCompilation();
+            Assert.fail("Compilation should fail");
+        } catch (Exception e) {
+            Assert.assertTrue(e.getMessage().contains("the persist.datastore configuration does not exist in " +
+                    "the Ballerina.toml file"));
+        }
+    }
+
+    @Test
+    public void validateTheProjectForNewGenerateCmd() {
+        Path projectDirPath = Paths.get("src", "test", "resources", "project_7").
+                toAbsolutePath();
+        BuildProject project7 = BuildProject.load(getEnvironmentBuilder(), projectDirPath);
+        DiagnosticResult diagnosticResult = project7.currentPackage().getCompilation().diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0);
+    }
+
+    @Test
     public void identifyModelFileSuccess() {
         List<Diagnostic> diagnostics = getErrorDiagnostics("project_2", "valid-persist-model-path.bal", 1);
         testDiagnostic(
@@ -605,7 +630,6 @@ public class CompilerPluginTest {
                         "(26:4,26:25)",
                         "(35:4,35:24)",
                         "(27:4,27:28)",
-
                 }
         );
     }
@@ -619,7 +643,8 @@ public class CompilerPluginTest {
                         PERSIST_422.getCode()
                 },
                 new String[]{
-                        "the entity should not contain foreign key field 'locationBuildingCode' for relation 'Building'"
+                        "the entity should not contain foreign key field 'locationBuildingCode' for relation " +
+                                "'Building'",
                 },
                 new String[]{
                         "(18:4,18:33)"
@@ -669,13 +694,13 @@ public class CompilerPluginTest {
 
     @Test
     public void validateUseOfOptionalFieldForRedisDB() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("project_7", "optional_fields.bal", 0);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_10", "optional_fields.bal", 0);
         testDiagnostic(diagnostics, new String[]{}, new String[]{}, new String[]{});
     }
 
     @Test
     public void validateNillableTypesForRedisDB() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("project_7", "nillable_types.bal", 8);
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_10", "nillable_types.bal", 8);
         testDiagnostic(
                 diagnostics,
                 new String[]{

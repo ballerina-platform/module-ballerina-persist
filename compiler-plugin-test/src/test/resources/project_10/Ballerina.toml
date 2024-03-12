@@ -4,6 +4,6 @@ name = "project_7"
 version = "0.1.0"
 
 [[tool.persist]]
-id = "project7"
-options.datastore = "postgresql"
+id = "project10"
+options.datastore = "redis"
 filePath = "persist/model.bal"

@@ -18,7 +18,11 @@
 
 package io.ballerina.stdlib.persist.compiler.model;
 
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.NodeLocation;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Model class to hold relation field details.
@@ -37,10 +41,11 @@ public class RelationField {
     private boolean isOwnerIdentifiable = false;
     private String owner = null;
     private RelationType relationType;
+    private final List<AnnotationNode> annotations;
 
     public RelationField(String name, String type, int typeEndOffset, boolean isOptionalType, int nullableStartOffset,
                          boolean isArrayType, int arrayStartOffset, int arrayRangeLength, NodeLocation location,
-                         String containingEntity) {
+                         String containingEntity, List<AnnotationNode> annotations) {
         this.name = name;
         this.type = type;
         this.typeEndOffset = typeEndOffset;
@@ -51,6 +56,7 @@ public class RelationField {
         this.arrayRangeLength = arrayRangeLength;
         this.location = location;
         this.containingEntity = containingEntity;
+        this.annotations = Collections.unmodifiableList(annotations);
     }
 
     public String getName() {
@@ -116,4 +122,9 @@ public class RelationField {
     public void setRelationType(RelationType relationType) {
         this.relationType = relationType;
     }
+
+    public List<AnnotationNode> getAnnotations() {
+        return annotations;
+    }
+
 }
