@@ -89,6 +89,7 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_304;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_305;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_306;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_307;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_309;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_401;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_402;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_403;
@@ -278,12 +279,22 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             fieldNames.add(fieldName.toLowerCase(Locale.ROOT));
 
             // Check if optional field
-            if (recordFieldNode.questionMarkToken().isPresent() && !datastore.equals(Constants.Datastores.REDIS)) {
-                int startOffset = recordFieldNode.questionMarkToken().get().textRange().startOffset();
-                int length = recordFieldNode.semicolonToken().textRange().startOffset() - startOffset;
-                entity.reportDiagnostic(PERSIST_304.getCode(), PERSIST_304.getMessage(), PERSIST_304.getSeverity(),
-                        recordFieldNode.location(),
-                        List.of(new BNumericProperty(startOffset), new BNumericProperty(length)));
+            if (recordFieldNode.questionMarkToken().isPresent()) {
+                if (datastore.equals(Constants.Datastores.REDIS)) {
+                    if (recordFieldNode.readonlyKeyword().isPresent()) {
+                        int startOffset = recordFieldNode.questionMarkToken().get().textRange().startOffset();
+                        int length = recordFieldNode.semicolonToken().textRange().startOffset() - startOffset;
+                        entity.reportDiagnostic(PERSIST_309.getCode(), PERSIST_309.getMessage(),
+                                PERSIST_309.getSeverity(), recordFieldNode.location(),
+                                List.of(new BNumericProperty(startOffset), new BNumericProperty(length)));
+                    }
+                } else {
+                    int startOffset = recordFieldNode.questionMarkToken().get().textRange().startOffset();
+                    int length = recordFieldNode.semicolonToken().textRange().startOffset() - startOffset;
+                    entity.reportDiagnostic(PERSIST_304.getCode(), PERSIST_304.getMessage(), PERSIST_304.getSeverity(),
+                            recordFieldNode.location(),
+                            List.of(new BNumericProperty(startOffset), new BNumericProperty(length)));
+                }
             }
 
             Node typeNode = recordFieldNode.typeName();
@@ -330,31 +341,13 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                 String modulePrefix = stripEscapeCharacter(qualifiedName.modulePrefix().text());
                 String identifier = stripEscapeCharacter(qualifiedName.identifier().text());
                 fieldType = modulePrefix + ":" + identifier;
-                if (ValidatorsByDatastore.isValidImportedType(modulePrefix, identifier, datastore)) {
-                    if (isArrayType && !ValidatorsByDatastore.isValidArrayType(fieldType, datastore)) {
-                        fieldType = isOptionalType
-                                ? modulePrefix + ":" + identifier + "?"
-                                : modulePrefix + ":" + identifier;
-                        entity.reportDiagnostic(PERSIST_306.getCode(),
-                                MessageFormat.format(PERSIST_306.getMessage(),
-                                        modulePrefix + ":" + identifier),
-                                PERSIST_306.getSeverity(), typeNode.location(),
-                                List.of(new BNumericProperty(arrayStartOffset), new BNumericProperty(arrayLength),
-                                        new BStringProperty(fieldType)));
-                    } else {
-                        isValidType = true;
-                    }
-                } else {
-                    if (isArrayType) {
-                        entity.reportDiagnostic(PERSIST_306.getCode(), MessageFormat.format(PERSIST_306.getMessage(),
-                                        modulePrefix + ":" + identifier), PERSIST_305.getSeverity(),
-                                typeNode.location());
-                    } else {
-                        entity.reportDiagnostic(PERSIST_305.getCode(), MessageFormat.format(PERSIST_305.getMessage(),
-                                        modulePrefix + ":" + identifier), PERSIST_305.getSeverity(),
-                                typeNode.location());
-                    }
-                }
+                List<DiagnosticProperty<?>> properties = List.of(
+                        new BNumericProperty(arrayStartOffset),
+                        new BNumericProperty(arrayLength),
+                        new BStringProperty(isOptionalType ? fieldType + "?" : fieldType));
+
+                isValidType = ValidatorsByDatastore.validateImportedTypes(
+                        entity, typeNode, isArrayType, isOptionalType, properties, modulePrefix, identifier, datastore);
                 isSimpleType = true;
             } else if (processedTypeNode instanceof SimpleNameReferenceNode) {
                 String typeName = stripEscapeCharacter(
