@@ -16,7 +16,9 @@ public type MedicalNeed record {|
     float floatType;
     decimal decimalType;
     string stringType;
+    string? stringNillableType;
     time:Date dateType;
+    time:Date? dateNillableType;
     time:TimeOfDay timeOfDayType;
     time:Utc utcType;
     time:Civil civilType;

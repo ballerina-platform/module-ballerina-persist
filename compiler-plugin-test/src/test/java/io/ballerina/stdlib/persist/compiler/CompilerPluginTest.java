@@ -696,11 +696,13 @@ public class CompilerPluginTest {
     @Test
     public void validateFieldTypesForRedisDB() {
         List<Diagnostic> diagnostics = getErrorDiagnostics("project_10",
-                "field-types.bal", 12);
+                "field-types.bal", 14);
         testDiagnostic(
                 diagnostics,
                 new String[]{
                         PERSIST_309.getCode(),
+                        PERSIST_308.getCode(),
+                        PERSIST_308.getCode(),
                         PERSIST_305.getCode(),
                         PERSIST_305.getCode(),
                         PERSIST_305.getCode(),
@@ -715,6 +717,8 @@ public class CompilerPluginTest {
                 },
                 new String[]{
                         "an entity does not support optional readonly field",
+                        "an entity does not support nillable field",
+                        "an entity does not support nillable field",
                         "an entity does not support redis:Client-typed field",
                         "an entity does not support json-typed field",
                         "an entity does not support error-typed field",
@@ -729,17 +733,19 @@ public class CompilerPluginTest {
                 },
                 new String[]{
                         "(11:4,11:34)",
-                        "(23:4,23:16)",
-                        "(24:4,24:8)",
-                        "(25:4,25:9)",
-                        "(28:4,28:21)",
-                        "(30:4,30:12)",
-                        "(31:4,31:10)",
-                        "(32:4,32:13)",
+                        "(18:4,18:11)",
+                        "(20:4,20:14)",
+                        "(25:4,25:16)",
+                        "(26:4,26:8)",
+                        "(27:4,27:9)",
+                        "(30:4,30:21)",
+                        "(32:4,32:12)",
                         "(33:4,33:10)",
-                        "(34:4,34:16)",
-                        "(35:4,35:11)",
-                        "(36:4,36:18)"
+                        "(34:4,34:13)",
+                        "(35:4,35:10)",
+                        "(36:4,36:16)",
+                        "(37:4,37:11)",
+                        "(38:4,38:18)"
                 }
         );
     }
