@@ -692,6 +692,59 @@ public class CompilerPluginTest {
         );
     }
 
+    @Test
+    public void validateAllTypesForRedisDB() {
+        getErrorDiagnostics("project_10", "all_types.bal", 0);
+    }
+
+    @Test
+    public void validateRainierForRedisDB() {
+        getErrorDiagnostics("project_10", "rainier.bal", 0);
+    }
+
+    @Test
+    public void validateUseOfOptionalFieldForRedisDB() {
+        getErrorDiagnostics("project_10", "optional_fields.bal", 0);
+    }
+
+    @Test
+    public void validateNillableTypesForRedisDB() {
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_10", "nillable_types.bal", 8);
+        testDiagnostic(
+                diagnostics,
+                new String[]{
+                        PERSIST_308.getCode(),
+                        PERSIST_308.getCode(),
+                        PERSIST_308.getCode(),
+                        PERSIST_308.getCode(),
+                        PERSIST_308.getCode(),
+                        PERSIST_308.getCode(),
+                        PERSIST_308.getCode(),
+                        PERSIST_308.getCode()
+                },
+                new String[]{
+                        "an entity does not support nillable field",
+                        "an entity does not support nillable field",
+                        "an entity does not support nillable field",
+                        "an entity does not support nillable field",
+                        "an entity does not support nillable field",
+                        "an entity does not support nillable field",
+                        "an entity does not support nillable field",
+                        "an entity does not support nillable field"
+                },
+                new String[]{
+                        "(12:4,12:12)",
+                        "(13:4,13:8)",
+                        "(14:4,14:10)",
+                        "(15:4,15:12)",
+                        "(16:4,16:11)",
+                        "(17:4,17:14)",
+                        "(18:4,18:19)",
+                        "(19:4,19:13)"
+                }
+        );
+    }
+
     private List<Diagnostic> getErrorDiagnostics(String modelDirectory, String modelFileName, int count) {
         DiagnosticResult diagnosticResult = loadPersistModelFile(modelDirectory, modelFileName).getCompilation()
                 .diagnosticResult();
