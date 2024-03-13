@@ -45,6 +45,7 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_305;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_306;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_307;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_308;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_309;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_401;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_402;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_403;
@@ -693,54 +694,52 @@ public class CompilerPluginTest {
     }
 
     @Test
-    public void validateAllTypesForRedisDB() {
-        getErrorDiagnostics("project_10", "all_types.bal", 0);
-    }
-
-    @Test
-    public void validateRainierForRedisDB() {
-        getErrorDiagnostics("project_10", "rainier.bal", 0);
-    }
-
-    @Test
-    public void validateUseOfOptionalFieldForRedisDB() {
-        getErrorDiagnostics("project_10", "optional_fields.bal", 0);
-    }
-
-    @Test
-    public void validateNillableTypesForRedisDB() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("project_10", "nillable_types.bal", 8);
+    public void validateFieldTypesForRedisDB() {
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_10",
+                "field-types.bal", 12);
         testDiagnostic(
                 diagnostics,
                 new String[]{
-                        PERSIST_308.getCode(),
-                        PERSIST_308.getCode(),
-                        PERSIST_308.getCode(),
-                        PERSIST_308.getCode(),
-                        PERSIST_308.getCode(),
-                        PERSIST_308.getCode(),
-                        PERSIST_308.getCode(),
-                        PERSIST_308.getCode()
+                        PERSIST_309.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_306.getCode()
                 },
                 new String[]{
-                        "an entity does not support nillable field",
-                        "an entity does not support nillable field",
-                        "an entity does not support nillable field",
-                        "an entity does not support nillable field",
-                        "an entity does not support nillable field",
-                        "an entity does not support nillable field",
-                        "an entity does not support nillable field",
-                        "an entity does not support nillable field"
+                        "an entity does not support optional readonly field",
+                        "an entity does not support redis:Client-typed field",
+                        "an entity does not support json-typed field",
+                        "an entity does not support error-typed field",
+                        "an entity does not support union-typed field",
+                        "an entity does not support enum array field type",
+                        "an entity does not support byte array field type",
+                        "an entity does not support boolean array field type",
+                        "an entity does not support json array field type",
+                        "an entity does not support time:Civil array field type",
+                        "an entity does not support error array field type",
+                        "an entity does not support redis:Client array field type"
                 },
                 new String[]{
-                        "(12:4,12:12)",
-                        "(13:4,13:8)",
-                        "(14:4,14:10)",
-                        "(15:4,15:12)",
-                        "(16:4,16:11)",
-                        "(17:4,17:14)",
-                        "(18:4,18:19)",
-                        "(19:4,19:13)"
+                        "(11:4,11:34)",
+                        "(23:4,23:16)",
+                        "(24:4,24:8)",
+                        "(25:4,25:9)",
+                        "(28:4,28:21)",
+                        "(30:4,30:12)",
+                        "(31:4,31:10)",
+                        "(32:4,32:13)",
+                        "(33:4,33:10)",
+                        "(34:4,34:16)",
+                        "(35:4,35:11)",
+                        "(36:4,36:18)"
                 }
         );
     }
