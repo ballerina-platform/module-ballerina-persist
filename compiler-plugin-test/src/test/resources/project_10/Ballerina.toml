@@ -1,6 +1,6 @@
 [package]
 org = "root"
-name = "project_7"
+name = "project_10"
 version = "0.1.0"
 
 [[tool.persist]]

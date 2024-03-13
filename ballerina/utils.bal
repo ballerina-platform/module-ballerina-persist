@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// just a comment
-
 import ballerina/jballerina.java;
 
 public isolated function convertToArray(typedesc<record {}> elementType, record {}[] arr) returns elementType[] = @java:Method {

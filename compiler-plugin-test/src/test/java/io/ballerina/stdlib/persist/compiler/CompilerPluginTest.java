@@ -693,9 +693,18 @@ public class CompilerPluginTest {
     }
 
     @Test
+    public void validateAllTypesForRedisDB() {
+        getErrorDiagnostics("project_10", "all_types.bal", 0);
+    }
+
+    @Test
+    public void validateRainierForRedisDB() {
+        getErrorDiagnostics("project_10", "rainier.bal", 0);
+    }
+
+    @Test
     public void validateUseOfOptionalFieldForRedisDB() {
-        List<Diagnostic> diagnostics = getErrorDiagnostics("project_10", "optional_fields.bal", 0);
-        testDiagnostic(diagnostics, new String[]{}, new String[]{}, new String[]{});
+        getErrorDiagnostics("project_10", "optional_fields.bal", 0);
     }
 
     @Test
