@@ -1,0 +1,9 @@
+[package]
+org = "root"
+name = "project_10"
+version = "0.1.0"
+
+[[tool.persist]]
+id = "project10"
+options.datastore = "redis"
+filePath = "persist/model.bal"
