@@ -32,7 +32,7 @@ public final class Constants {
     public static final String ARRAY = "[]";
     public static final String LS = System.lineSeparator();
     public static final String SQL_RELATION_MAPPING_ANNOTATION_NAME = "sql:Relation";
-    public static final String ANNOTATION_REFS_FIELD = "refs";
+    public static final String ANNOTATION_KEYS_FIELD = "keys";
 
     private Constants() {
     }

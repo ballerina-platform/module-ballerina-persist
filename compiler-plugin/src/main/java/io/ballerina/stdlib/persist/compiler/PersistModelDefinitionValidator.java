@@ -65,7 +65,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import static io.ballerina.stdlib.persist.compiler.Constants.ANNOTATION_REFS_FIELD;
+import static io.ballerina.stdlib.persist.compiler.Constants.ANNOTATION_KEYS_FIELD;
 import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.BOOLEAN;
 import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.DECIMAL;
 import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.FLOAT;
@@ -845,7 +845,7 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                                             RelationField ownerRelationField) {
         List<String> references = readStringArrayValueFromAnnotation
                 (ownerRelationField.getAnnotations(), Constants.SQL_RELATION_MAPPING_ANNOTATION_NAME,
-                        ANNOTATION_REFS_FIELD);
+                        ANNOTATION_KEYS_FIELD);
         if (references == null || !references.contains(field.getName())) {
             reportDiagnosticsEntity.reportDiagnostic(PERSIST_422.getCode(), MessageFormat.format(
                             PERSIST_422.getMessage(), foreignKey, referredEntity.getEntityName()),
