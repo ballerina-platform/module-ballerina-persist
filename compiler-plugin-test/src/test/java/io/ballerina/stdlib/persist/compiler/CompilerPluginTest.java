@@ -20,6 +20,7 @@ package io.ballerina.stdlib.persist.compiler;
 
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -104,13 +105,8 @@ public class CompilerPluginTest {
 
     @Test
     public void testWithoutDatastore() {
-        try {
-            loadPersistModelFile("project_9", "field-types.bal").getCompilation();
-            Assert.fail("Compilation should fail");
-        } catch (Exception e) {
-            Assert.assertTrue(e.getMessage().contains("the persist.datastore configuration does not exist in " +
-                    "the Ballerina.toml file"));
-        }
+        PackageCompilation loadedProject = loadPersistModelFile("project_9", "field-types.bal").getCompilation();
+        Assert.assertEquals(loadedProject.diagnosticResult().errorCount(), 0);
     }
 
     @Test
