@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- [Fixed the persist compiler crash when no persist configurations are found](https://github.com/ballerina-platform/ballerina-library/issues/6187)
+
 ### Added
 - [Added compiler plugin validations for Postgresql as a datasource](https://github.com/ballerina-platform/ballerina-library/issues/5829)
 
