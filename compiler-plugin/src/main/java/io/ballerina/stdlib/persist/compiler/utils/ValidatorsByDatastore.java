@@ -127,7 +127,7 @@ public final class ValidatorsByDatastore {
     }
 
     public static boolean isValidSimpleType(String type, String datastore) {
-        // Ignore the validation if the datastore is not specified in toml files(ex:before executing generate command).
+        // If the datastore is null(ex: before executing the generate command), ignore the data type validation.
         if (null == datastore) {
             return true;
         }
@@ -150,7 +150,7 @@ public final class ValidatorsByDatastore {
     }
 
     public static boolean isValidArrayType(String type, String datastore) {
-        // Ignore the validation if the datastore is not specified in toml files(ex:before executing generate command).
+        // If the datastore is null(ex: before executing the generate command), ignore the data type validation.
         if (null == datastore) {
             return true;
         }
@@ -173,7 +173,7 @@ public final class ValidatorsByDatastore {
     }
 
     public static boolean isValidImportedType(String modulePrefix, String identifier, String datastore) {
-        // Ignore the validation if the datastore is not specified in toml files(ex:before executing generate command).
+        // If the datastore is null(ex: before executing the generate command), ignore the data type validation.
         if (null == datastore) {
             return true;
         }
