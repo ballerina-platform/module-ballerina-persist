@@ -46,6 +46,7 @@ import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_305;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_306;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_307;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_308;
+import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_309;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_401;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_402;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_403;
@@ -684,6 +685,63 @@ public class CompilerPluginTest {
                 new String[]{
                         "(12:5,12:13)",
                         "(27:11,27:19)"
+                }
+        );
+    }
+
+    @Test
+    public void validateFieldTypesForRedisDB() {
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_10",
+                "field-types.bal", 14);
+        testDiagnostic(
+                diagnostics,
+                new String[]{
+                        PERSIST_309.getCode(),
+                        PERSIST_308.getCode(),
+                        PERSIST_308.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_306.getCode()
+                },
+                new String[]{
+                        "an entity does not support optional readonly field",
+                        "an entity does not support nillable field",
+                        "an entity does not support nillable field",
+                        "an entity does not support redis:Client-typed field",
+                        "an entity does not support json-typed field",
+                        "an entity does not support error-typed field",
+                        "an entity does not support union-typed field",
+                        "an entity does not support enum array field type",
+                        "an entity does not support byte array field type",
+                        "an entity does not support boolean array field type",
+                        "an entity does not support json array field type",
+                        "an entity does not support time:Civil array field type",
+                        "an entity does not support error array field type",
+                        "an entity does not support redis:Client array field type"
+                },
+                new String[]{
+                        "(11:4,11:34)",
+                        "(18:4,18:11)",
+                        "(20:4,20:14)",
+                        "(25:4,25:16)",
+                        "(26:4,26:8)",
+                        "(27:4,27:9)",
+                        "(30:4,30:21)",
+                        "(32:4,32:12)",
+                        "(33:4,33:10)",
+                        "(34:4,34:13)",
+                        "(35:4,35:10)",
+                        "(36:4,36:16)",
+                        "(37:4,37:11)",
+                        "(38:4,38:18)"
                 }
         );
     }

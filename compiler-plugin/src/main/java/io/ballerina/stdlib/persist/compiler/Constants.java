@@ -32,7 +32,7 @@ public final class Constants {
     public static final String ARRAY = "[]";
     public static final String LS = System.lineSeparator();
     public static final String SQL_RELATION_MAPPING_ANNOTATION_NAME = "sql:Relation";
-    public static final String ANNOTATION_REFS_FIELD = "refs";
+    public static final String ANNOTATION_KEYS_FIELD = "keys";
 
     private Constants() {
     }
@@ -78,6 +78,7 @@ public final class Constants {
         public static final String POSTGRESQL = "postgresql";
         public static final String IN_MEMORY = "inmemory";
         public static final String GOOGLE_SHEETS = "googlesheets";
+        public static final String REDIS = "redis";
 
         private Datastores() {
         }
