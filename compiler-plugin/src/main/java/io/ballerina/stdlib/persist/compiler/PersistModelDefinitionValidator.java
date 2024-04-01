@@ -134,9 +134,6 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         try {
             datastore = getDatastore(ctx);
         } catch (BalException e) {
-            if (e.getMessage().contains("the persist.datastore configuration does not exist")) {
-                return;
-            }
             throw new RuntimeException(e);
         }
 

@@ -221,7 +221,7 @@ public final class Utils {
                     }
                 }
             }
-            throw new BalException("the persist.datastore configuration does not exist in the Ballerina.toml file");
+            return null;
         } catch (IOException e) {
             throw new BalException("error while reading persist configurations. " + e.getMessage());
         }
