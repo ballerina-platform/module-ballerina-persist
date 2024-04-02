@@ -55,8 +55,8 @@ public final class ValidatorsByDatastore {
                                               List<DiagnosticProperty<?>> properties, String type, String datastore) {
         boolean validFlag = true;
 
-        if (isOptionalType && (datastore.equals(Constants.Datastores.GOOGLE_SHEETS)
-        || datastore.equals(Constants.Datastores.REDIS))) {
+        if (isOptionalType && (Constants.Datastores.GOOGLE_SHEETS.equals(datastore)
+                || Constants.Datastores.REDIS.equals(datastore))) {
             entity.reportDiagnostic(PERSIST_308.getCode(),
                     MessageFormat.format(PERSIST_308.getMessage(), type),
                     PERSIST_308.getSeverity(), typeNode.location(), properties);
@@ -127,6 +127,10 @@ public final class ValidatorsByDatastore {
     }
 
     public static boolean isValidSimpleType(String type, String datastore) {
+        // If the datastore is null(ex: before executing the generate command), ignore the data type validation.
+        if (null == datastore) {
+            return true;
+        }
         switch (datastore) {
             case Constants.Datastores.MYSQL:
                 return isValidMysqlType(type);
@@ -146,6 +150,10 @@ public final class ValidatorsByDatastore {
     }
 
     public static boolean isValidArrayType(String type, String datastore) {
+        // If the datastore is null(ex: before executing the generate command), ignore the data type validation.
+        if (null == datastore) {
+            return true;
+        }
         switch (datastore) {
             case Constants.Datastores.MYSQL:
                 return isValidMysqlArrayType(type);
@@ -165,7 +173,10 @@ public final class ValidatorsByDatastore {
     }
 
     public static boolean isValidImportedType(String modulePrefix, String identifier, String datastore) {
-
+        // If the datastore is null(ex: before executing the generate command), ignore the data type validation.
+        if (null == datastore) {
+            return true;
+        }
         switch (datastore) {
             case Constants.Datastores.MYSQL:
                 return isValidMysqlImportedType(modulePrefix, identifier);
