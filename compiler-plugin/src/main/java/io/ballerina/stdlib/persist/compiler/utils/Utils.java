@@ -221,6 +221,7 @@ public final class Utils {
                     }
                 }
             }
+            // Skip data store-specific validations if the `tool.persist` configuration does not exist in the `toml` files, instead of returning an error.
             return null;
         } catch (IOException e) {
             throw new BalException("error while reading persist configurations. " + e.getMessage());
