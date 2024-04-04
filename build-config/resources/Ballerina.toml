@@ -13,7 +13,7 @@ distribution = "2201.8.0"
 graalvmCompatible = true
 
 [[platform.java17.dependency]]
-groupId = "io.ballerina.persist"
+groupId = "io.ballerina.stdlib"
 artifactId = "persist-native"
 version = "@toml.version@"
 path = "../native/build/libs/persist-native-@project.version@.jar"
