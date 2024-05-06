@@ -16,4 +16,4 @@ graalvmCompatible = true
 groupId = "io.ballerina.stdlib"
 artifactId = "persist-native"
 version = "1.3.0"
-path = "../native/build/libs/persist-native-1.3.0-SNAPSHOT.jar"
+path = "../native/build/libs/persist-native-1.3.0.jar"
