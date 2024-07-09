@@ -79,6 +79,7 @@ public final class Constants {
         public static final String IN_MEMORY = "inmemory";
         public static final String GOOGLE_SHEETS = "googlesheets";
         public static final String REDIS = "redis";
+        public static final String H2 = "h2";
 
         private Datastores() {
         }
