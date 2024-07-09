@@ -131,22 +131,16 @@ public final class ValidatorsByDatastore {
         if (null == datastore) {
             return true;
         }
-        switch (datastore) {
-            case Constants.Datastores.MYSQL:
-                return isValidMysqlType(type);
-            case Constants.Datastores.MSSQL:
-                return isValidMssqlType(type);
-            case Constants.Datastores.POSTGRESQL:
-                return isValidPostgresqlType(type);
-            case Constants.Datastores.IN_MEMORY:
-                return isValidInMemoryType(type);
-            case Constants.Datastores.GOOGLE_SHEETS:
-                return isValidGoogleSheetsType(type);
-            case Constants.Datastores.REDIS:
-                return isValidRedisType(type);
-            default:
-                return false;
-        }
+        return switch (datastore) {
+            case Constants.Datastores.MYSQL -> isValidMysqlType(type);
+            case Constants.Datastores.MSSQL -> isValidMssqlType(type);
+            case Constants.Datastores.POSTGRESQL -> isValidPostgresqlType(type);
+            case Constants.Datastores.H2 -> isValidH2Type(type);
+            case Constants.Datastores.IN_MEMORY -> isValidInMemoryType(type);
+            case Constants.Datastores.GOOGLE_SHEETS -> isValidGoogleSheetsType(type);
+            case Constants.Datastores.REDIS -> isValidRedisType(type);
+            default -> false;
+        };
     }
 
     public static boolean isValidArrayType(String type, String datastore) {
@@ -154,22 +148,16 @@ public final class ValidatorsByDatastore {
         if (null == datastore) {
             return true;
         }
-        switch (datastore) {
-            case Constants.Datastores.MYSQL:
-                return isValidMysqlArrayType(type);
-            case Constants.Datastores.MSSQL:
-                return isValidMssqlArrayType(type);
-            case Constants.Datastores.POSTGRESQL:
-                return isValidPostgresqlArrayType(type);
-            case Constants.Datastores.IN_MEMORY:
-                return isValidInMemoryArrayType(type);
-            case Constants.Datastores.GOOGLE_SHEETS:
-                return isValidGoogleSheetsArrayType(type);
-            case Constants.Datastores.REDIS:
-                return isValidRedisArrayType(type);
-            default:
-                return false;
-        }
+        return switch (datastore) {
+            case Constants.Datastores.MYSQL -> isValidMysqlArrayType(type);
+            case Constants.Datastores.MSSQL -> isValidMssqlArrayType(type);
+            case Constants.Datastores.POSTGRESQL -> isValidPostgresqlArrayType(type);
+            case Constants.Datastores.H2 -> isValidH2ArrayType(type);
+            case Constants.Datastores.IN_MEMORY -> isValidInMemoryArrayType(type);
+            case Constants.Datastores.GOOGLE_SHEETS -> isValidGoogleSheetsArrayType(type);
+            case Constants.Datastores.REDIS -> isValidRedisArrayType(type);
+            default -> false;
+        };
     }
 
     public static boolean isValidImportedType(String modulePrefix, String identifier, String datastore) {
@@ -177,22 +165,16 @@ public final class ValidatorsByDatastore {
         if (null == datastore) {
             return true;
         }
-        switch (datastore) {
-            case Constants.Datastores.MYSQL:
-                return isValidMysqlImportedType(modulePrefix, identifier);
-            case Constants.Datastores.MSSQL:
-                return isValidMssqlImportedType(modulePrefix, identifier);
-            case Constants.Datastores.POSTGRESQL:
-                return isValidPostgresqlImportedType(modulePrefix, identifier);
-            case Constants.Datastores.IN_MEMORY:
-                return isValidInMemoryImportedType(modulePrefix, identifier);
-            case Constants.Datastores.GOOGLE_SHEETS:
-                return isValidGoogleSheetsImportedType(modulePrefix, identifier);
-            case Constants.Datastores.REDIS:
-                return isValidRedisImportedType(modulePrefix, identifier);
-            default:
-                return false;
-        }
+        return switch (datastore) {
+            case Constants.Datastores.MYSQL -> isValidMysqlImportedType(modulePrefix, identifier);
+            case Constants.Datastores.MSSQL -> isValidMssqlImportedType(modulePrefix, identifier);
+            case Constants.Datastores.POSTGRESQL -> isValidPostgresqlImportedType(modulePrefix, identifier);
+            case Constants.Datastores.H2 -> isValidH2ImportedType(modulePrefix, identifier);
+            case Constants.Datastores.IN_MEMORY -> isValidInMemoryImportedType(modulePrefix, identifier);
+            case Constants.Datastores.GOOGLE_SHEETS -> isValidGoogleSheetsImportedType(modulePrefix, identifier);
+            case Constants.Datastores.REDIS -> isValidRedisImportedType(modulePrefix, identifier);
+            default -> false;
+        };
     }
 
     public static boolean isValidMysqlType(String type) {
@@ -235,6 +217,13 @@ public final class ValidatorsByDatastore {
             default:
                 return false;
         }
+    }
+
+    private static boolean isValidH2Type(String type) {
+        return switch (type) {
+            case INT, BOOLEAN, DECIMAL, FLOAT, STRING, ENUM -> true;
+            default -> false;
+        };
     }
 
     public static boolean isValidInMemoryType(String type) {
@@ -296,6 +285,10 @@ public final class ValidatorsByDatastore {
         }
     }
 
+    private static boolean isValidH2ArrayType(String type) {
+        return type.equals(BYTE);
+    }
+
     public static boolean isValidInMemoryArrayType(String type) {
        return true;
     }
@@ -351,6 +344,16 @@ public final class ValidatorsByDatastore {
             default:
                 return false;
         }
+    }
+
+    private static boolean isValidH2ImportedType(String modulePrefix, String identifier) {
+        if (!modulePrefix.equals(TIME_MODULE)) {
+            return false;
+        }
+        return switch (identifier) {
+            case DATE, TIME_OF_DAY, UTC, CIVIL -> true;
+            default -> false;
+        };
     }
 
     public static boolean isValidInMemoryImportedType(String modulePrefix, String identifier) {
