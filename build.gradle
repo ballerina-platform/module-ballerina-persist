@@ -67,6 +67,7 @@ allprojects {
 subprojects {
 
     configurations {
+        ballerinaStdLibs
         jbalTools
     }
 
