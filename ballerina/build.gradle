@@ -17,19 +17,8 @@
 
 import org.apache.tools.ant.taskdefs.condition.Os
 
-buildscript {
-    repositories {
-        maven {
-            url = 'https://maven.pkg.github.com/ballerina-platform/plugin-gradle'
-            credentials {
-                username System.getenv('packageUser')
-                password System.getenv('packagePAT')
-            }
-        }
-    }
-    dependencies {
-        classpath "io.ballerina:plugin-gradle:${project.ballerinaGradlePluginVersion}"
-    }
+plugins {
+    id 'io.ballerina.plugin'
 }
 
 description = 'Ballerina - Persist Ballerina Generator'
@@ -56,8 +45,6 @@ def stripBallerinaExtensionVersion(String extVersion) {
         return extVersion.replace("${project.ext.snapshotVersion}", '')
     }
 }
-
-apply plugin: 'io.ballerina.plugin'
 
 ballerina {
     packageOrganization = packageOrg
@@ -108,6 +95,9 @@ publishing {
 }
 
 updateTomlFiles.dependsOn copyStdlibs
+
+test.dependsOn ":${packageName}-compiler-plugin:build"
+test.dependsOn ":${packageName}-native:build"
 
 build.dependsOn "generatePomFileForMavenPublication"
 build.dependsOn ":${packageName}-compiler-plugin:build"
