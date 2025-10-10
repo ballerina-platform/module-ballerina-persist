@@ -165,7 +165,8 @@ type User record {|
 
 The above entities explain the following,
 - A `Car` must have a `User` as the owner.
-- A `User` may own multiple `Car`s or do not own one. (Represented with empty array `[]`)
+- A `User` may own multiple `Car`s or do not own one. (Represented with empty array `[]`)  
+
 
 The entity that contains the field of type `EntityType` is taken as the owner in the 1-n relationship.
 
