@@ -1,15 +1,15 @@
-# Module Overview
+## Module Overview
 
-This module provides Ballerina `persist` features, which provides functionality to store and query data conveniently through a data model.
+This module provides Ballerina `persist` features, which enable you to store and query data conveniently through a data model.
 
-The `persist` tools provides following functionalities,
+The `persist` tools provides the following functionalities,
 1. Define and validate the entity data model definitions in the `persist` folder
-2. Initialize the Ballerina Persistence Layer for every model definitions in the `persist` folder
+2. Initialize the Ballerina persistence layer for each model definitions in the `persist` folder
 3. Generate persistence derived entity types and clients 
-4. Push persistence schema to the data store (only with supported data sources)
+4. Push persistence schema to the data store (only for supported data sources)
 5. Migration support for supported data stores (experimental feature)
 
-## Data Model Definitions
+### Data Model Definitions
 
 Within a Ballerina project, the data model should be defined in a separate bal file under the `persist` directory. This file is not considered part of the Ballerina project and is used only for data model definition.
 
@@ -20,7 +20,7 @@ The Ballerina `persist` library defines a mechanism to express the application's
 An EntityType is defined using `SimpleType` and `EntityType` fields.
 
 ```ballerina
-   // This are the type definitions for the data model when using MySQL
+   // These are the type definitions for the data model when using MySQL
     type SimpleType ()|boolean|int|float|decimal|string|byte[]|time:Date|time:TimeOfDay|time:Utc|time:Civil;
     type EntityType record {|
        SimpleType|EntityType|EntityType[]...;
@@ -29,7 +29,7 @@ An EntityType is defined using `SimpleType` and `EntityType` fields.
 
 > *Note*: The data types for `SimpleType` supported by `persist` will vary by data source. For example, the `byte` type is not supported by MySQL.
 
-This design use fields of type `EntityType` or `EntityType[]` to define associations between two entities.
+This design uses fields of type `EntityType` or `EntityType[]` to define associations between two entities.
 
 Here are some examples of entity type definitions:
 
@@ -66,6 +66,7 @@ type Department record {|
    Department department; // EntityType
 |};
 ```
+
 ### Entity Attributes Definition
 
 Ballerina record fields are used to model the attributes of an entity. The type of the field should be a subtype of SimpleType.
@@ -103,7 +104,7 @@ Say type T is a subtype of SimpleType, and T does not contain (),
 
 ### Relationship Definition
 
-Ballerina record fields are used to model a connection between two entities. The type of the field should be a subtype of EntityType|EntityType?|EntityType[].
+Ballerina record fields are used to model a connection between two entities. The type of the field should be a subtype of `EntityType|EntityType?|EntityType[]`.
 
 This design supports the following cardinalities:
 1. One-to-one (1-1)
@@ -129,7 +130,7 @@ type User record {|
 |};
 ```
 
-The above entities explains the following,
+The above entities explain the following,
 - A `Car` must have a `User` as the owner.
 - A `User` may own a `Car` or do not own one.
 
@@ -155,8 +156,8 @@ type User record {|
 |};
 ```
 
-The above entities explains the following,
+The above entities explain the following,
 - A `Car` must have a `User` as the owner.
 - A `User` may own multiple `Car`s or do not own one. (Represented with empty array `[]`)
--
+
 The entity that contains the field of type `EntityType` is taken as the owner in the 1-n relationship.
