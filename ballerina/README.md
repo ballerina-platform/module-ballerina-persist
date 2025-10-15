@@ -1,4 +1,4 @@
-## Module Overview
+## Overview
 
 This module provides Ballerina `persist` features, which enable you to store and query data conveniently through a data model.
 
