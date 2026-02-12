@@ -150,6 +150,10 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
             throw new RuntimeException(e);
         }
 
+        if (datastore == null) {
+            return;
+        }
+
         if (ctx.node() instanceof ImportPrefixNode) {
             Token prefix = ((ImportPrefixNode) ctx.node()).prefix();
             if (prefix.kind() != SyntaxKind.UNDERSCORE_KEYWORD) {

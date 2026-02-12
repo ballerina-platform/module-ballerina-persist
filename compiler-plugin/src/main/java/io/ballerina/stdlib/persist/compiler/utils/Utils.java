@@ -420,7 +420,7 @@ public final class Utils {
      *
      * @param model the requested model name, or {@code null} to indicate the default (no model)
      * @param modelFieldValue the value of the TOML `model` field, or {@code null} if absent
-     * @param filePathValue the value of the TOML `file_path` field, or {@code null} if absent
+     * @param filePathValue the value of the TOML `filePath` field, or {@code null} if absent
      * @return {@code true} if the values satisfy the model selection rules, {@code false} otherwise
      */
     private static boolean isModelConditionSatisfied(String model, String modelFieldValue, String filePathValue) {
