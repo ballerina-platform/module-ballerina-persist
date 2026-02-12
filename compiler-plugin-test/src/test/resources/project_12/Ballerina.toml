@@ -1,0 +1,9 @@
+[package]
+org = "root"
+name = "project_12"
+version = "0.1.0"
+
+[[tool.persist]]
+model = "medical"
+options.datastore = "mysql"
+filePath = "persist/medical/model.bal"

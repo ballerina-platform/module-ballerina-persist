@@ -1,0 +1,9 @@
+[package]
+org = "root"
+name = "project_13"
+version = "0.1.0"
+
+[[tool.persist]]
+id = "project13"
+options.datastore = "postgresql"
+filePath = "persist/inventory/model.bal"

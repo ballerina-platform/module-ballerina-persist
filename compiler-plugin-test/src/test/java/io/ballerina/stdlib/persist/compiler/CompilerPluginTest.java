@@ -790,11 +790,253 @@ public class CompilerPluginTest {
         );
     }
 
+    // --- Multi-model support tests ---
+
+    private Package loadMultiModelPersistFile(String directory, String modelName, String name) {
+        Path projectDirPath = Paths.get("src", "test", "resources", directory, "persist", modelName)
+                .toAbsolutePath().resolve(name);
+        SingleFileProject project = SingleFileProject.load(getEnvironmentBuilder(), projectDirPath);
+        return project.currentPackage();
+    }
+
+    @Test
+    public void identifyMultiModelFileSuccess() {
+        List<Diagnostic> diagnostics = getMultiModelErrorDiagnostics("project_12", "medical",
+                "valid-persist-model-path.bal", 1);
+        testDiagnostic(
+                diagnostics,
+                new String[]{
+                        PERSIST_101.getCode()
+                },
+                new String[]{
+                        "persist model definition only supports record and enum definitions"
+                },
+                new String[]{
+                        "(2:0,3:1)"
+                });
+    }
+
+    @Test
+    public void identifyMultiModelFileFailure() {
+        // A file in a non-persist subdirectory should not be identified as a model file
+        Path projectDirPath = Paths.get("src", "test", "resources", "project_1", "resources").toAbsolutePath()
+                .resolve("single-bal.bal");
+        SingleFileProject project = SingleFileProject.load(getEnvironmentBuilder(), projectDirPath);
+        DiagnosticResult diagnosticResult = project.currentPackage().getCompilation().diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0);
+    }
+
+    @Test
+    public void validateEntityFieldTypeForMysqlMultiModel() {
+        List<Diagnostic> diagnostics = getMultiModelErrorDiagnostics("project_12", "medical",
+                "field-types.bal", 10);
+        testDiagnostic(
+                diagnostics,
+                new String[]{
+                        PERSIST_306.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_306.getCode(),
+                },
+                new String[]{
+                        "an entity does not support boolean array field type",
+                        "an entity does not support json-typed field",
+                        "an entity does not support json array field type",
+                        "an entity does not support time:Civil array field type",
+                        "an entity does not support union-typed field",
+                        "an entity does not support error-typed field",
+                        "an entity does not support error array field type",
+                        "an entity does not support mysql:Client-typed field",
+                        "an entity does not support mysql:Client array field type",
+                        "an entity does not support enum array field type"
+                },
+                new String[]{
+                        "(18:4,18:13)",
+                        "(20:4,20:8)",
+                        "(21:4,21:10)",
+                        "(24:4,24:16)",
+                        "(25:4,25:21)",
+                        "(27:4,27:9)",
+                        "(28:4,28:11)",
+                        "(30:4,30:16)",
+                        "(31:4,31:18)",
+                        "(34:4,34:12)"
+                });
+    }
+
+    @Test
+    public void validateEntityRecordPropertiesMultiModel() {
+        List<Diagnostic> diagnostics = getMultiModelErrorDiagnostics("project_12", "medical",
+                "record-properties.bal", 1);
+        testDiagnostic(
+                diagnostics,
+                new String[]{
+                        PERSIST_201.getCode()
+                },
+                new String[]{
+                        "an entity should be a closed record"
+                },
+                new String[]{
+                        "(17:25,23:1)"
+                });
+    }
+
+    @Test
+    public void validateEntityFieldTypeForPostgresqlMultiModelByFilePath() {
+        List<Diagnostic> diagnostics = getMultiModelErrorDiagnostics("project_13", "inventory",
+                "field-types.bal", 10);
+        testDiagnostic(
+                diagnostics,
+                new String[]{
+                        PERSIST_306.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_306.getCode(),
+                },
+                new String[]{
+                        "an entity does not support boolean array field type",
+                        "an entity does not support json-typed field",
+                        "an entity does not support json array field type",
+                        "an entity does not support time:Civil array field type",
+                        "an entity does not support union-typed field",
+                        "an entity does not support error-typed field",
+                        "an entity does not support error array field type",
+                        "an entity does not support mysql:Client-typed field",
+                        "an entity does not support mysql:Client array field type",
+                        "an entity does not support enum array field type"
+                },
+                new String[]{
+                        "(18:4,18:13)",
+                        "(20:4,20:8)",
+                        "(21:4,21:10)",
+                        "(24:4,24:16)",
+                        "(25:4,25:21)",
+                        "(27:4,27:9)",
+                        "(28:4,28:11)",
+                        "(30:4,30:16)",
+                        "(31:4,31:18)",
+                        "(34:4,34:12)"
+                });
+    }
+
+    @Test
+    public void validateMultiModelIsolationDefaultModel() {
+        List<Diagnostic> diagnostics = getErrorDiagnostics("project_14", "field-types.bal", 10);
+        testDiagnostic(
+                diagnostics,
+                new String[]{
+                        PERSIST_306.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_306.getCode(),
+                },
+                new String[]{
+                        "an entity does not support boolean array field type",
+                        "an entity does not support json-typed field",
+                        "an entity does not support json array field type",
+                        "an entity does not support time:Civil array field type",
+                        "an entity does not support union-typed field",
+                        "an entity does not support error-typed field",
+                        "an entity does not support error array field type",
+                        "an entity does not support mysql:Client-typed field",
+                        "an entity does not support mysql:Client array field type",
+                        "an entity does not support enum array field type"
+                },
+                new String[]{
+                        "(18:4,18:13)",
+                        "(20:4,20:8)",
+                        "(21:4,21:10)",
+                        "(24:4,24:16)",
+                        "(25:4,25:21)",
+                        "(27:4,27:9)",
+                        "(28:4,28:11)",
+                        "(30:4,30:16)",
+                        "(31:4,31:18)",
+                        "(34:4,34:12)"
+                });
+    }
+
+    @Test
+    public void validateMultiModelIsolationNamedModel() {
+        List<Diagnostic> diagnostics = getMultiModelErrorDiagnostics("project_14", "secondary",
+                "field-types.bal", 10);
+        testDiagnostic(
+                diagnostics,
+                new String[]{
+                        PERSIST_306.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_305.getCode(),
+                        PERSIST_306.getCode(),
+                        PERSIST_306.getCode(),
+                },
+                new String[]{
+                        "an entity does not support boolean array field type",
+                        "an entity does not support json-typed field",
+                        "an entity does not support json array field type",
+                        "an entity does not support time:Civil array field type",
+                        "an entity does not support union-typed field",
+                        "an entity does not support error-typed field",
+                        "an entity does not support error array field type",
+                        "an entity does not support mysql:Client-typed field",
+                        "an entity does not support mysql:Client array field type",
+                        "an entity does not support enum array field type"
+                },
+                new String[]{
+                        "(18:4,18:13)",
+                        "(20:4,20:8)",
+                        "(21:4,21:10)",
+                        "(24:4,24:16)",
+                        "(25:4,25:21)",
+                        "(27:4,27:9)",
+                        "(28:4,28:11)",
+                        "(30:4,30:16)",
+                        "(31:4,31:18)",
+                        "(34:4,34:12)"
+                });
+    }
+
+    // --- Helper methods ---
+
     private List<Diagnostic> getErrorDiagnostics(String modelDirectory, String modelFileName, int count) {
         DiagnosticResult diagnosticResult = loadPersistModelFile(modelDirectory, modelFileName).getCompilation()
                 .diagnosticResult();
         List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream().filter
                 (r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).collect(Collectors.toList());
+        Assert.assertEquals(errorDiagnosticsList.size(), count);
+        return errorDiagnosticsList;
+    }
+
+    private List<Diagnostic> getMultiModelErrorDiagnostics(String projectDirectory, String modelName,
+                                                           String modelFileName, int count) {
+        DiagnosticResult diagnosticResult = loadMultiModelPersistFile(projectDirectory, modelName,
+                modelFileName)
+                .getCompilation().diagnosticResult();
+        List<Diagnostic> errorDiagnosticsList = diagnosticResult.diagnostics().stream()
+                .filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR))
+                .collect(Collectors.toList());
         Assert.assertEquals(errorDiagnosticsList.size(), count);
         return errorDiagnosticsList;
     }

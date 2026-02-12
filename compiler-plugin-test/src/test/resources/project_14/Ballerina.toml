@@ -1,0 +1,12 @@
+[package]
+org = "root"
+name = "project_14"
+version = "0.1.0"
+
+[[tool.persist]]
+options.datastore = "mysql"
+
+[[tool.persist]]
+model = "secondary"
+options.datastore = "postgresql"
+filePath = "persist/secondary/model.bal"
