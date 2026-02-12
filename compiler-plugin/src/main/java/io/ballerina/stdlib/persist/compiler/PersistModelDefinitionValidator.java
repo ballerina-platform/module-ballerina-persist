@@ -119,6 +119,18 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
     private final Map<String, List<RelationField>> deferredRelationKeyEntities = new HashMap<>();
     private final Map<String, List<GroupedRelationField>> deferredGroupedRelationKeyEntities = new HashMap<>();
 
+    /**
+     * Validates persist model definitions found in the given syntax node context and reports any diagnostics.
+     *
+     * Performs high-level validation of a persist model file: obtains persist model information, resolves the
+     * configured datastore, rejects invalid import prefixes, collects entity type and enum declarations, and for
+     * each entity runs record, field, identity, and relation validations. Deferred relation checks that target
+     * entities defined later are resumed when those entities are encountered. All discovered diagnostics are
+     * reported through the provided analysis context.
+     *
+     * @param ctx the syntax node analysis context for the node being analyzed; diagnostics produced by this method
+     *            are reported on this context
+     */
     @Override
     public void perform(SyntaxNodeAnalysisContext ctx) {
         Utils.PersistModelInformation persistModelInformation = getPersistModelInfo(ctx);
@@ -840,6 +852,16 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         }
     }
 
+    /**
+     * Ensure the owner relation's SQL relation-mapping annotation includes the specified foreign key field,
+     * and report a PERSIST_422 diagnostic on the field if it does not.
+     *
+     * @param field the foreign key field to validate
+     * @param reportDiagnosticsEntity the entity used to report diagnostics
+     * @param foreignKey the constructed foreign key name to include in the diagnostic message
+     * @param referredEntity the entity being referenced by the relation
+     * @param ownerRelationField the relation field that should contain the SQL relation-mapping annotation
+     */
     private void validateRelationAnnotationFieldName(SimpleTypeField field, Entity reportDiagnosticsEntity,
                                             String foreignKey, Entity referredEntity,
                                             RelationField ownerRelationField) {
