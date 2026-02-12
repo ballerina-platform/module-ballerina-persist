@@ -24,6 +24,7 @@ import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.MappingFieldNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.projects.plugins.codeaction.CodeActionArgument;
 import io.ballerina.projects.plugins.codeaction.CodeActionContext;
@@ -47,6 +48,7 @@ import io.ballerina.tools.text.TextRange;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.BNumericProperty;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.BStringProperty;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -55,8 +57,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
+
+import static io.ballerina.stdlib.persist.compiler.Constants.MODEL;
+import static io.ballerina.stdlib.persist.compiler.Constants.PERSIST_DIRECTORY;
 
 /**
  * Class containing util functions.
@@ -173,77 +179,193 @@ public final class Utils {
         return fieldName;
     }
 
-    public static String getDatastore(SyntaxNodeAnalysisContext ctx) throws BalException {
-        Path balFilePath = ctx.currentPackage().project().sourceRoot().toAbsolutePath();
+    public static PersistModelInformation getPersistModelInfo(SyntaxNodeAnalysisContext ctx) {
+        try {
+            if (ctx.currentPackage().project().kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
+                Path balFilePath = ctx.currentPackage().project().sourceRoot().toAbsolutePath();
+                return getPersistModelInformation(balFilePath);
+            }
+        } catch (UnsupportedOperationException e) {
+            //todo log properly This is to identify any issues in resolving path
+        }
+        return new PersistModelInformation();
+    }
 
+    private static PersistModelInformation getPersistModelInformation(Path balFilePath) {
         Path balFileContainingFolder = balFilePath.getParent();
         if (balFileContainingFolder == null) {
-            throw new BalException("unable to locate the project's Ballerina.toml file");
+            return new PersistModelInformation();
+        }
+
+        // First level check
+        Path ballerinaTomlPath =
+                getBallerinaTomlPathFromPersistDir(balFileContainingFolder);
+        if (ballerinaTomlPath != null) {
+            return new PersistModelInformation(ballerinaTomlPath);
+        }
+
+        // Second level check
+        Path parent = balFileContainingFolder.getParent();
+        String modelName = null;
+        if (balFileContainingFolder.toFile().isDirectory()) {
+            Path fileName = balFileContainingFolder.getFileName();
+            modelName = fileName != null ? fileName.toString() : null;
+        }
+
+        Path secondLevelToml = parent != null
+                ? getBallerinaTomlPathFromPersistDir(parent)
+                : null;
+        return new PersistModelInformation(modelName, secondLevelToml);
+    }
+
+    public record PersistModelInformation(String modelName, Path ballerinaTomlPath) {
+
+        public PersistModelInformation() {
+            this(null, null);
+        }
+
+        public PersistModelInformation(Path ballerinaTomlPath) {
+            this(null, ballerinaTomlPath);
+        }
+    }
+
+    private static Path getBallerinaTomlPathFromPersistDir(Path balFileContainingFolder) {
+        if (balFileContainingFolder == null || !balFileContainingFolder.endsWith(PERSIST_DIRECTORY)) {
+            return null;
         }
 
         Path balProjectDir = balFileContainingFolder.getParent();
         if (balProjectDir == null) {
+            return null;
+        }
+
+        File balProject = balProjectDir.toFile();
+        if (!balProject.exists()) {
+            return null;
+        }
+
+        File tomlFile = balProjectDir.resolve(ProjectConstants.BALLERINA_TOML).toFile();
+        return tomlFile.exists() ? tomlFile.toPath() : null;
+    }
+
+    public static String getDatastore(Path configPath, String model) throws BalException {
+        if (configPath == null) {
             throw new BalException("unable to locate the project's Ballerina.toml file");
         }
-        Path configPath = balProjectDir.resolve(ProjectConstants.BALLERINA_TOML);
+        Path balProjectDir = configPath.getParent();
         Path targetDir = Paths.get(String.valueOf(balProjectDir), "target");
         Path genCmdConfigPath = targetDir.resolve("Persist.toml");
         if (Files.exists(genCmdConfigPath)) {
             configPath = genCmdConfigPath;
         }
-        return getDataStoreName(configPath);
+        return getDataStoreName(configPath, model);
     }
 
-    private static String getDataStoreName(Path configPath) throws BalException {
+    private static String getDataStoreName(Path configPath, String model) throws BalException {
         try {
             TextDocument configDocument = TextDocuments.from(Files.readString(configPath));
             SyntaxTree syntaxTree = SyntaxTree.from(configDocument);
-            DocumentNode rootNote = syntaxTree.rootNode();
-            NodeList<DocumentMemberDeclarationNode> nodeList = rootNote.members();
-            for (DocumentMemberDeclarationNode member : nodeList) {
-                if (member instanceof TableArrayNode arrNode) {
-                    String tableName = arrNode.identifier().toSourceCode().trim();
-                    if (tableName.equals(Constants.TOOL_PERSIST)) {
-                        for (KeyValueNode field : arrNode.fields()) {
-                            if (field.identifier().toSourceCode().trim().equals(Constants.OPTIONS_DATASTORE)) {
-                                return field.value().toSourceCode().trim().replaceAll("\"", "");
-                            }
-                        }
-                    }
-                } else if (member instanceof TableNode tableNode) {
-                    String tableName = tableNode.identifier().toSourceCode().trim();
-                    if (tableName.equals(Constants.PERSIST)) {
-                        for (KeyValueNode field : tableNode.fields()) {
-                            if (field.identifier().toSourceCode().trim().equals(Constants.DATASTORE)) {
-                                return field.value().toSourceCode().trim().replaceAll("\"", "");
-                            }
-                        }
-                    }
-                }
-            }
-            // Skip data store-specific validations if the `tool.persist` configuration does not exist in the `toml`
-            // files, instead of returning an error.
-            return null;
+            DocumentNode rootNode = syntaxTree.rootNode();
+
+            return rootNode.members().stream()
+                    .map(member -> getDataStoreName(member, model))
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElse(null);
+
         } catch (IOException e) {
             throw new BalException("error while reading persist configurations. " + e.getMessage());
         }
     }
 
+    private static String getDataStoreName(DocumentMemberDeclarationNode member, String model) {
+        if (member instanceof TableArrayNode arrNode) {
+            return extractDataStore(
+                    arrNode.identifier().toSourceCode().trim(),
+                    Constants.TOOL_PERSIST,
+                    arrNode.fields(),
+                    Constants.OPTIONS_DATASTORE,
+                    model
+            );
+        }
+
+        if (member instanceof TableNode tableNode) {
+            return extractDataStore(
+                    tableNode.identifier().toSourceCode().trim(),
+                    Constants.PERSIST,
+                    tableNode.fields(),
+                    Constants.DATASTORE,
+                    model
+            );
+        }
+
+        return null;
+    }
+
+    private static String extractDataStore(String tableName, String expectedTableName, NodeList<KeyValueNode> fields,
+                                           String datastoreKey, String model) {
+        if (!tableName.equals(expectedTableName)) {
+            return null;
+        }
+
+        String modelFieldValue = null;
+        String filePathValue = null;
+
+        for (KeyValueNode field : fields) {
+            String key = getKey(field);
+
+            if (key.equals(MODEL)) {
+                modelFieldValue = getValue(field);
+            } else if (key.equals(Constants.FILE_PATH)) {
+                filePathValue = getValue(field);
+            }
+        }
+
+        if (!isModelConditionSatisfied(model, modelFieldValue, filePathValue)) {
+            return null;
+        }
+
+        return fields.stream()
+                .filter(f -> getKey(f).equals(datastoreKey))
+                .map(Utils::getValue)
+                .findFirst()
+                .orElse(null);
+    }
+
+    private static boolean isModelConditionSatisfied(String model, String modelFieldValue, String filePathValue) {
+        if (model == null) {
+            // MODEL must be absent
+            if (modelFieldValue != null) {
+                return false;
+            }
+
+            // FILE_PATH must be absent OR end with persist/model.bal
+            return filePathValue == null ||
+                    filePathValue.endsWith("persist/model.bal");
+        }
+
+        // MODEL field present and equals
+        if (model.equals(modelFieldValue)) {
+            return true;
+        }
+
+        // OR FILE_PATH ends with persist/{model}/model.bal
+        return filePathValue != null && filePathValue.endsWith(String.format("persist/%s/model.bal", model));
+    }
+
+
+    private static String getKey(KeyValueNode field) {
+        return field.identifier().toSourceCode().trim();
+    }
+
+    private static String getValue(KeyValueNode field) {
+        return field.value().toSourceCode().trim().replace("\"", "");
+    }
+
     public static String getDatastore(CodeActionContext ctx) throws BalException {
         Path balFilePath = ctx.filePath();
-
-        Path balFileContainingFolder = balFilePath.getParent();
-        if (balFileContainingFolder == null) {
-            throw new BalException("unable to locate the project's Ballerina.toml file");
-        }
-
-        Path balProjectDir = balFileContainingFolder.getParent();
-        if (balProjectDir == null) {
-            throw new BalException("unable to locate the project's Ballerina.toml file");
-        }
-
-        Path configPath = balProjectDir.resolve(ProjectConstants.BALLERINA_TOML);
-        return getDataStoreName(configPath);
+        PersistModelInformation persistModelInformation = getPersistModelInformation(balFilePath);
+        return getDatastore(persistModelInformation.ballerinaTomlPath(), persistModelInformation.modelName());
     }
 
     public static List<String> readStringArrayValueFromAnnotation(List<AnnotationNode> annotationNodes,
