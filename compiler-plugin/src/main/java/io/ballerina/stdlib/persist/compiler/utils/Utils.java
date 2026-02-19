@@ -24,6 +24,7 @@ import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.MappingFieldNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.projects.plugins.codeaction.CodeActionArgument;
 import io.ballerina.projects.plugins.codeaction.CodeActionContext;
@@ -47,6 +48,7 @@ import io.ballerina.tools.text.TextRange;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.BNumericProperty;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.BStringProperty;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -55,8 +57,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
+
+import static io.ballerina.stdlib.persist.compiler.Constants.MODEL;
+import static io.ballerina.stdlib.persist.compiler.Constants.PERSIST_DIRECTORY;
 
 /**
  * Class containing util functions.
@@ -161,6 +167,14 @@ public final class Utils {
         return ((BNumericProperty) diagnosticProperties.get(index)).value().intValue();
     }
 
+    /**
+     * Generate a unique field name derived from the given entity name, avoiding collisions with existing names.
+     *
+     * @param entityName the base entity name to derive the field name from
+     * @param fieldNames the list of existing field names to avoid collisions with
+     * @return a lowercase field name derived from {@code entityName} that is not present in {@code fieldNames};
+     * a numeric suffix is appended if needed to ensure uniqueness
+     */
     public static String getFieldName(String entityName, ArrayList<String> fieldNames) {
         String fieldName = entityName.toLowerCase(Locale.ROOT);
         if (fieldNames.contains(fieldName)) {
@@ -173,79 +187,311 @@ public final class Utils {
         return fieldName;
     }
 
-    public static String getDatastore(SyntaxNodeAnalysisContext ctx) throws BalException {
-        Path balFilePath = ctx.currentPackage().project().sourceRoot().toAbsolutePath();
+    /**
+     * Compute persist model information (model name and path to ballerina.toml) for the project that contains
+     * the source referenced by the given analysis context.
+     *
+     * @param ctx the syntax node analysis context used to locate the current package and its source root
+     * @return a PersistModelInformation populated with the discovered model name and TOML path; returns a default
+     *         PersistModelInformation with both fields set to {@code null} if the information cannot be resolved
+     */
+    public static PersistModelInformation getPersistModelInfo(SyntaxNodeAnalysisContext ctx) {
+        try {
+            if (ctx.currentPackage().project().kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
+                Path balFilePath = ctx.currentPackage().project().sourceRoot().toAbsolutePath();
+                return getPersistModelInformation(balFilePath);
+            }
+        } catch (UnsupportedOperationException e) {
+            //todo log properly This is to identify any issues in resolving path
+        }
+        return new PersistModelInformation();
+    }
 
+    /**
+     * Resolve persist model information for a Ballerina source file.
+     *
+     * Searches for a Ballerina.toml associated with the given .bal file in two levels:
+     * 1) If the file's containing folder is the known persist directory and contains Ballerina.toml,
+     *    returns a PersistModelInformation with that toml path and a null modelName.
+     * 2) Otherwise, if the containing folder is a directory, use its name as the modelName and
+     *    search for Ballerina.toml in the parent folder; return a PersistModelInformation with
+     *    the derived modelName and the found toml path (or null if none found).
+     * If the provided path has no parent, returns a default PersistModelInformation with both fields null.
+     *
+     * @param balFilePath the path to the .bal file to analyze
+     * @return a PersistModelInformation containing the resolved modelName (may be null) and the path
+     *         to the associated Ballerina.toml (may be null)
+     */
+    private static PersistModelInformation getPersistModelInformation(Path balFilePath) {
         Path balFileContainingFolder = balFilePath.getParent();
         if (balFileContainingFolder == null) {
-            throw new BalException("unable to locate the project's Ballerina.toml file");
+            return new PersistModelInformation();
+        }
+
+        // First level check
+        Path ballerinaTomlPath =
+                getBallerinaTomlPathFromPersistDir(balFileContainingFolder);
+        if (ballerinaTomlPath != null) {
+            return new PersistModelInformation(ballerinaTomlPath);
+        }
+
+        // Second level check
+        Path parent = balFileContainingFolder.getParent();
+        String modelName = null;
+        if (balFileContainingFolder.toFile().isDirectory()) {
+            Path fileName = balFileContainingFolder.getFileName();
+            modelName = fileName != null ? fileName.toString() : null;
+        }
+
+        Path secondLevelToml = parent != null
+                ? getBallerinaTomlPathFromPersistDir(parent)
+                : null;
+        return new PersistModelInformation(modelName, secondLevelToml);
+    }
+
+    public record PersistModelInformation(String modelName, Path ballerinaTomlPath) {
+
+        /**
+         * Creates a PersistModelInformation with both `modelName` and `ballerinaTomlPath` set to {@code null}.
+         */
+        public PersistModelInformation() {
+            this(null, null);
+        }
+
+        /**
+         * Creates a PersistModelInformation for the given Ballerina TOML path and leaves the model name unset.
+         *
+         * @param ballerinaTomlPath the path to the Ballerina TOML file; may be null
+         */
+        public PersistModelInformation(Path ballerinaTomlPath) {
+            this(null, ballerinaTomlPath);
+        }
+    }
+
+    /**
+     * Locate the project's Ballerina.toml when the provided folder is a persist directory.
+     *
+     * @param balFileContainingFolder the path expected to end with the persist directory name
+     * @return the path to the project's BALLERINA_TOML if the persist directory's parent exists and the file is
+     * present, or {@code null} otherwise
+     */
+    private static Path getBallerinaTomlPathFromPersistDir(Path balFileContainingFolder) {
+        if (balFileContainingFolder == null || !balFileContainingFolder.endsWith(PERSIST_DIRECTORY)) {
+            return null;
         }
 
         Path balProjectDir = balFileContainingFolder.getParent();
         if (balProjectDir == null) {
+            return null;
+        }
+
+        File balProject = balProjectDir.toFile();
+        if (!balProject.exists()) {
+            return null;
+        }
+
+        File tomlFile = balProjectDir.resolve(ProjectConstants.BALLERINA_TOML).toFile();
+        return tomlFile.exists() ? tomlFile.toPath() : null;
+    }
+
+    /**
+     * Resolve the datastore name for a persist model using the project's TOML configuration.
+     *
+     * @param configPath path to the project's Ballerina.toml (may be replaced by target/Persist.toml if present)
+     * @param model      the persist model name to select, or {@code null} to select the default model entry
+     * @return the resolved datastore name, or {@code null} if no matching datastore is found
+     * @throws BalException if {@code configPath} is {@code null} or if reading/parsing the configuration fails
+     */
+    public static String getDatastore(Path configPath, String model) throws BalException {
+        if (configPath == null) {
             throw new BalException("unable to locate the project's Ballerina.toml file");
         }
-        Path configPath = balProjectDir.resolve(ProjectConstants.BALLERINA_TOML);
+        Path balProjectDir = configPath.getParent();
         Path targetDir = Paths.get(String.valueOf(balProjectDir), "target");
         Path genCmdConfigPath = targetDir.resolve("Persist.toml");
         if (Files.exists(genCmdConfigPath)) {
             configPath = genCmdConfigPath;
         }
-        return getDataStoreName(configPath);
+        return getDataStoreName(configPath, model);
     }
 
-    private static String getDataStoreName(Path configPath) throws BalException {
+    /**
+     * Locate the datastore name in a TOML configuration file for the specified persist model.
+     *
+     * @param configPath path to the TOML configuration file
+     * @param model      the persist model name to match, or {@code null} to select the default model entry
+     * @return           the resolved datastore name if a matching entry is found, {@code null} otherwise
+     * @throws BalException if the configuration file cannot be read
+     */
+    private static String getDataStoreName(Path configPath, String model) throws BalException {
         try {
             TextDocument configDocument = TextDocuments.from(Files.readString(configPath));
             SyntaxTree syntaxTree = SyntaxTree.from(configDocument);
-            DocumentNode rootNote = syntaxTree.rootNode();
-            NodeList<DocumentMemberDeclarationNode> nodeList = rootNote.members();
-            for (DocumentMemberDeclarationNode member : nodeList) {
-                if (member instanceof TableArrayNode arrNode) {
-                    String tableName = arrNode.identifier().toSourceCode().trim();
-                    if (tableName.equals(Constants.TOOL_PERSIST)) {
-                        for (KeyValueNode field : arrNode.fields()) {
-                            if (field.identifier().toSourceCode().trim().equals(Constants.OPTIONS_DATASTORE)) {
-                                return field.value().toSourceCode().trim().replaceAll("\"", "");
-                            }
-                        }
-                    }
-                } else if (member instanceof TableNode tableNode) {
-                    String tableName = tableNode.identifier().toSourceCode().trim();
-                    if (tableName.equals(Constants.PERSIST)) {
-                        for (KeyValueNode field : tableNode.fields()) {
-                            if (field.identifier().toSourceCode().trim().equals(Constants.DATASTORE)) {
-                                return field.value().toSourceCode().trim().replaceAll("\"", "");
-                            }
-                        }
-                    }
-                }
-            }
-            // Skip data store-specific validations if the `tool.persist` configuration does not exist in the `toml`
-            // files, instead of returning an error.
-            return null;
+            DocumentNode rootNode = syntaxTree.rootNode();
+
+            return rootNode.members().stream()
+                    .map(member -> getDataStoreName(member, model))
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElse(null);
+
         } catch (IOException e) {
             throw new BalException("error while reading persist configurations. " + e.getMessage());
         }
     }
 
-    public static String getDatastore(CodeActionContext ctx) throws BalException {
-        Path balFilePath = ctx.filePath();
-
-        Path balFileContainingFolder = balFilePath.getParent();
-        if (balFileContainingFolder == null) {
-            throw new BalException("unable to locate the project's Ballerina.toml file");
+    /**
+     * Extracts the datastore name from a TOML document member when the member represents a persist configuration
+     * table.
+     *
+     * @param member a TOML document member node to inspect (may be a table or table array)
+     * @param model  optional model name used to select a model-specific datastore; may be null
+     * @return the datastore name when present for the given member and model, or `null` if none is found
+     */
+    private static String getDataStoreName(DocumentMemberDeclarationNode member, String model) {
+        if (member instanceof TableArrayNode arrNode) {
+            return extractDataStore(
+                    arrNode.identifier().toSourceCode().trim(),
+                    Constants.TOOL_PERSIST,
+                    arrNode.fields(),
+                    Constants.OPTIONS_DATASTORE,
+                    model
+            );
         }
 
-        Path balProjectDir = balFileContainingFolder.getParent();
-        if (balProjectDir == null) {
-            throw new BalException("unable to locate the project's Ballerina.toml file");
+        if (member instanceof TableNode tableNode) {
+            return extractDataStore(
+                    tableNode.identifier().toSourceCode().trim(),
+                    Constants.PERSIST,
+                    tableNode.fields(),
+                    Constants.DATASTORE,
+                    model
+            );
         }
 
-        Path configPath = balProjectDir.resolve(ProjectConstants.BALLERINA_TOML);
-        return getDataStoreName(configPath);
+        return null;
     }
 
+    /**
+     * Extracts the datastore value from a TOML table's fields when the table name and model conditions match.
+     *
+     * Examines the provided fields for `MODEL` and file path entries, validates model-related conditions, and then
+     * returns the value of the specified datastore key if present.
+     *
+     * @param tableName the name of the current TOML table
+     * @param expectedTableName the table name expected for this extraction (must match {@code tableName})
+     * @param fields the list of key-value fields in the table
+     * @param datastoreKey the key name whose value should be returned when conditions are satisfied
+     * @param model optional model name used to filter matching entries; may be {@code null}
+     * @return the datastore value if present and model conditions are satisfied, {@code null} otherwise
+     */
+    private static String extractDataStore(String tableName, String expectedTableName, NodeList<KeyValueNode> fields,
+                                           String datastoreKey, String model) {
+        if (!tableName.equals(expectedTableName)) {
+            return null;
+        }
+
+        String modelFieldValue = null;
+        String filePathValue = null;
+
+        for (KeyValueNode field : fields) {
+            String key = getKey(field);
+
+            if (key.equals(MODEL)) {
+                modelFieldValue = getValue(field);
+            } else if (key.equals(Constants.FILE_PATH)) {
+                filePathValue = getValue(field);
+            }
+        }
+
+        if (!isModelConditionSatisfied(model, modelFieldValue, filePathValue)) {
+            return null;
+        }
+
+        return fields.stream()
+                .filter(f -> getKey(f).equals(datastoreKey))
+                .map(Utils::getValue)
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * Checks whether the provided MODEL and FILE_PATH values satisfy the requested model selection.
+     *
+     * @param model the requested model name, or {@code null} to indicate the default (no model)
+     * @param modelFieldValue the value of the TOML `model` field, or {@code null} if absent
+     * @param filePathValue the value of the TOML `filePath` field, or {@code null} if absent
+     * @return {@code true} if the values satisfy the model selection rules, {@code false} otherwise
+     */
+    private static boolean isModelConditionSatisfied(String model, String modelFieldValue, String filePathValue) {
+        if (model == null) {
+            // MODEL must be absent
+            if (modelFieldValue != null) {
+                return false;
+            }
+
+            // FILE_PATH must be absent OR end with persist/model.bal
+            return filePathValue == null ||
+                    filePathValue.endsWith("persist/model.bal");
+        }
+
+        // MODEL field present and equals
+        if (model.equals(modelFieldValue)) {
+            return true;
+        }
+
+        // OR FILE_PATH ends with persist/{model}/model.bal
+        return filePathValue != null && filePathValue.endsWith(String.format("persist/%s/model.bal", model));
+    }
+
+
+    /**
+     * Extracts the key identifier text from the given key-value node.
+     *
+     * @param field the key-value node to read the key from
+     * @return the key identifier text, trimmed of surrounding whitespace
+     */
+    private static String getKey(KeyValueNode field) {
+        return field.identifier().toSourceCode().trim();
+    }
+
+    /**
+     * Extracts the value text from a KeyValueNode, trimming whitespace and removing enclosing double quotes.
+     *
+     * @param field the key-value node to read the value from
+     * @return the node's value text with surrounding whitespace trimmed and enclosing `"` characters removed
+     */
+    private static String getValue(KeyValueNode field) {
+        return field.value().toSourceCode().trim().replace("\"", "");
+    }
+
+    /**
+     * Resolve the datastore name for the current Ballerina file represented by the given code action context.
+     *
+     * @param ctx the code action context containing the current file path
+     * @return the configured datastore name for the resolved persist model, or `null` if no datastore is configured
+     * for that model
+     * @throws BalException if the configuration path cannot be determined or read
+     */
+    public static String getDatastore(CodeActionContext ctx) throws BalException {
+        Path balFilePath = ctx.filePath();
+        PersistModelInformation persistModelInformation = getPersistModelInformation(balFilePath);
+        return getDatastore(persistModelInformation.ballerinaTomlPath(), persistModelInformation.modelName());
+    }
+
+    /**
+     * Extracts a comma-separated list of string values from a specific field of a given annotation node.
+     *
+     * Searches the provided annotation nodes for an annotation matching `annotation` and, if found,
+     * returns the contents of its `field` as a list of trimmed strings parsed from a bracketed,
+     * quote-delimited string array expression (e.g. ["a","b"]).
+     *
+     * @param annotationNodes the list of annotation nodes to search
+     * @param annotation the fully qualified annotation name to match
+     * @param field the field name within the annotation whose value should be parsed
+     * @return a list of strings parsed from the annotation field; an empty list if the annotation or field is not
+     * present or has no value
+     */
     public static List<String> readStringArrayValueFromAnnotation(List<AnnotationNode> annotationNodes,
                                                                   String annotation, String field) {
         for (AnnotationNode annotationNode : annotationNodes) {

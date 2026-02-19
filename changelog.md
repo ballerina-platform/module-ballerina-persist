@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+- [Enable persist compiler plugin validations for the new persist multi-model support](https://github.com/ballerina-platform/ballerina-library/issues/8503)
+
+## [1.4.0] - 2024-08-20
+
+### Added
 - [Added compiler plugin validations for H2 as a datasource](https://github.com/ballerina-platform/ballerina-library/issues/5715)
 
 

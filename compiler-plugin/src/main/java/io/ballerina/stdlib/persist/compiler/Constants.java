@@ -27,6 +27,8 @@ public final class Constants {
     public static final String PERSIST = "persist";
     public static final String OPTIONS_DATASTORE = "options.datastore";
     public static final String DATASTORE = "datastore";
+    public static final String MODEL = "model";
+    public static final String FILE_PATH = "filePath";
     public static final String TIME_MODULE = "time";
     public static final String EMPTY_STRING = "";
     public static final String ARRAY = "[]";

@@ -38,16 +38,15 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
-import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
-import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.stdlib.persist.compiler.model.Entity;
 import io.ballerina.stdlib.persist.compiler.model.GroupedRelationField;
 import io.ballerina.stdlib.persist.compiler.model.IdentityField;
 import io.ballerina.stdlib.persist.compiler.model.RelationField;
 import io.ballerina.stdlib.persist.compiler.model.RelationType;
 import io.ballerina.stdlib.persist.compiler.model.SimpleTypeField;
+import io.ballerina.stdlib.persist.compiler.utils.Utils;
 import io.ballerina.stdlib.persist.compiler.utils.ValidatorsByDatastore;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
@@ -55,7 +54,6 @@ import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.BNumericProperty;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.BStringProperty;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -72,7 +70,6 @@ import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.FLOA
 import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.INT;
 import static io.ballerina.stdlib.persist.compiler.Constants.BallerinaTypes.STRING;
 import static io.ballerina.stdlib.persist.compiler.Constants.LS;
-import static io.ballerina.stdlib.persist.compiler.Constants.PERSIST_DIRECTORY;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_001;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_002;
 import static io.ballerina.stdlib.persist.compiler.DiagnosticsCodes.PERSIST_003;
@@ -106,6 +103,7 @@ import static io.ballerina.stdlib.persist.compiler.model.RelationType.ONE_TO_MAN
 import static io.ballerina.stdlib.persist.compiler.model.RelationType.ONE_TO_ONE;
 import static io.ballerina.stdlib.persist.compiler.utils.Utils.getDatastore;
 import static io.ballerina.stdlib.persist.compiler.utils.Utils.getFieldName;
+import static io.ballerina.stdlib.persist.compiler.utils.Utils.getPersistModelInfo;
 import static io.ballerina.stdlib.persist.compiler.utils.Utils.getTypeName;
 import static io.ballerina.stdlib.persist.compiler.utils.Utils.hasCompilationErrors;
 import static io.ballerina.stdlib.persist.compiler.utils.Utils.readStringArrayValueFromAnnotation;
@@ -121,9 +119,23 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
     private final Map<String, List<RelationField>> deferredRelationKeyEntities = new HashMap<>();
     private final Map<String, List<GroupedRelationField>> deferredGroupedRelationKeyEntities = new HashMap<>();
 
+    /**
+     * Validates persist model definitions found in the given syntax node context and reports any diagnostics.
+     *
+     * Performs high-level validation of a persist model file: obtains persist model information, resolves the
+     * configured datastore, rejects invalid import prefixes, collects entity type and enum declarations, and for
+     * each entity runs record, field, identity, and relation validations. Deferred relation checks that target
+     * entities defined later are resumed when those entities are encountered. All discovered diagnostics are
+     * reported through the provided analysis context.
+     *
+     * @param ctx the syntax node analysis context for the node being analyzed; diagnostics produced by this method
+     *            are reported on this context
+     */
     @Override
     public void perform(SyntaxNodeAnalysisContext ctx) {
-        if (!isPersistModelDefinitionDocument(ctx)) {
+        Utils.PersistModelInformation persistModelInformation = getPersistModelInfo(ctx);
+        Path ballerinaTomlPath = persistModelInformation.ballerinaTomlPath();
+        if (ballerinaTomlPath == null) {
             return;
         }
 
@@ -133,9 +145,13 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
 
         String datastore;
         try {
-            datastore = getDatastore(ctx);
+            datastore = getDatastore(ballerinaTomlPath, persistModelInformation.modelName());
         } catch (BalException e) {
             throw new RuntimeException(e);
+        }
+
+        if (datastore == null) {
+            return;
         }
 
         if (ctx.node() instanceof ImportPrefixNode) {
@@ -840,6 +856,16 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         }
     }
 
+    /**
+     * Ensure the owner relation's SQL relation-mapping annotation includes the specified foreign key field,
+     * and report a PERSIST_422 diagnostic on the field if it does not.
+     *
+     * @param field the foreign key field to validate
+     * @param reportDiagnosticsEntity the entity used to report diagnostics
+     * @param foreignKey the constructed foreign key name to include in the diagnostic message
+     * @param referredEntity the entity being referenced by the relation
+     * @param ownerRelationField the relation field that should contain the SQL relation-mapping annotation
+     */
     private void validateRelationAnnotationFieldName(SimpleTypeField field, Entity reportDiagnosticsEntity,
                                             String foreignKey, Entity referredEntity,
                                             RelationField ownerRelationField) {
@@ -851,27 +877,5 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
                             PERSIST_422.getMessage(), foreignKey, referredEntity.getEntityName()),
                     PERSIST_422.getSeverity(), field.getNodeLocation());
         }
-    }
-
-    private boolean isPersistModelDefinitionDocument(SyntaxNodeAnalysisContext ctx) {
-        try {
-            if (ctx.currentPackage().project().kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
-                Path balFilePath = ctx.currentPackage().project().sourceRoot().toAbsolutePath();
-                Path balFileContainingFolder = balFilePath.getParent();
-                if (balFileContainingFolder != null && balFileContainingFolder.endsWith(PERSIST_DIRECTORY)) {
-                    Path balProjectDir = balFileContainingFolder.getParent();
-                    if (balProjectDir != null) {
-                        File balProject = balProjectDir.toFile();
-                        if (balProject.isDirectory()) {
-                            File tomlFile = balProjectDir.resolve(ProjectConstants.BALLERINA_TOML).toFile();
-                            return tomlFile.exists();
-                        }
-                    }
-                }
-            }
-        } catch (UnsupportedOperationException e) {
-            //todo log properly This is to identify any issues in resolving path
-        }
-        return false;
     }
 }
