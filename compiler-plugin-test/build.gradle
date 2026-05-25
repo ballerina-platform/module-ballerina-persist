@@ -69,11 +69,7 @@ test {
 
 jacocoTestReport {
     dependsOn test
-    def projs = configurations.implementation.getAllDependencies().withType(ProjectDependency).collect { it.getDependencyProject() }
-    projs.each {
-        additionalSourceDirs files(it.sourceSets.main.allSource.srcDirs)
-        additionalClassDirs files(it.sourceSets.main.output)
-    }
+    sourceSets project(':persist-compiler-plugin').sourceSets.main
     reports {
         xml.required = true
     }
@@ -85,10 +81,10 @@ spotbugsMain {
     def SpotBugsEffort = classLoader.findLoadedClass("com.github.spotbugs.snom.Effort")
     effort = SpotBugsEffort.MAX
     reportLevel = SpotBugsConfidence.LOW
-    reportsDir = file("$project.buildDir/reports/spotbugs")
+    reportsDir = layout.buildDirectory.dir("reports/spotbugs").get().asFile
     reports {
-        html.enabled true
-        text.enabled = true
+        html.required = true
+        text.required = true
     }
     def excludeFile = file("${rootDir}/spotbugs-exclude.xml")
     if (excludeFile.exists()) {
