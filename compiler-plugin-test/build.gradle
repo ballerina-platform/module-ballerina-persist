@@ -24,7 +24,7 @@ plugins {
 }
 
 jacoco {
-    toolVersion = "0.8.10"
+    toolVersion = "0.8.13"
 }
 
 description = 'Ballerina - Persist Compiler Plugin Test'
