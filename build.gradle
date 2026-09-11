@@ -101,10 +101,20 @@ release {
     }
 }
 
-tasks.named('build') {
-    dependsOn(":${packageName}-compiler-plugin:build")
-    dependsOn(":${packageName}-compiler-plugin-test:build")
-    dependsOn(":${packageName}-ballerina:build")
+if (tasks.names.contains('build')) {
+    tasks.named('build') {
+        dependsOn(":${packageName}-compiler-plugin:build")
+        dependsOn(":${packageName}-compiler-plugin-test:build")
+        dependsOn(":${packageName}-ballerina:build")
+
+    }
+} else {
+    tasks.register('build') {
+        dependsOn(":${packageName}-compiler-plugin:build")
+        dependsOn(":${packageName}-compiler-plugin-test:build")
+        dependsOn(":${packageName}-ballerina:build")
+
+    }
 }
 
 publishToMavenLocal.dependsOn build
