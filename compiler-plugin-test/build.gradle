@@ -24,7 +24,7 @@ plugins {
 }
 
 jacoco {
-    toolVersion = "0.8.10"
+    toolVersion = jacocoVersion
 }
 
 description = 'Ballerina - Persist Compiler Plugin Test'
@@ -69,11 +69,11 @@ test {
 
 jacocoTestReport {
     dependsOn test
-    def projs = configurations.implementation.getAllDependencies().withType(ProjectDependency).collect { it.getDependencyProject() }
-    projs.each {
-        additionalSourceDirs files(it.sourceSets.main.allSource.srcDirs)
-        additionalClassDirs files(it.sourceSets.main.output)
-    }
+    // Gradle 9 removed ProjectDependency#getDependencyProject(); this module has exactly
+    // one project dependency (persist-compiler-plugin), so reference it directly by path.
+    def compilerPluginProject = project(":persist-compiler-plugin")
+    additionalSourceDirs files(compilerPluginProject.sourceSets.main.allSource.srcDirs)
+    additionalClassDirs files(compilerPluginProject.sourceSets.main.output)
     reports {
         xml.required = true
     }
@@ -85,7 +85,7 @@ spotbugsMain {
     def SpotBugsEffort = classLoader.findLoadedClass("com.github.spotbugs.snom.Effort")
     effort = SpotBugsEffort.MAX
     reportLevel = SpotBugsConfidence.LOW
-    reportsDir = file("$project.buildDir/reports/spotbugs")
+    reportsDir = layout.buildDirectory.dir("reports/spotbugs")
     reports {
         html.enabled true
         text.enabled = true
