@@ -70,7 +70,7 @@ public abstract class AbstractChangeToSupportedType implements CodeAction {
                 }
             }
         } catch (BalException e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
         String type = getType();
         String title = MessageFormat.format("Change to ''{0}'' type", type);
