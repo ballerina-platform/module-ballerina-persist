@@ -147,7 +147,7 @@ public class PersistModelDefinitionValidator implements AnalysisTask<SyntaxNodeA
         try {
             datastore = getDatastore(ballerinaTomlPath, persistModelInformation.modelName());
         } catch (BalException e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
 
         if (datastore == null) {
