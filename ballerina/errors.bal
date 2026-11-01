@@ -26,6 +26,10 @@ public type NotFoundError distinct Error;
 # Represents an error that occurs when the user attempts to create a record which already exists in the database.
 public type AlreadyExistsError distinct Error;
 
+# Represents an error that occurs when a record is updated but cannot be read back.
+# The update is already saved in the datastore.
+public type ReadBackError distinct Error;
+
 # Generates a new `persist:NotFoundError` with the given parameters.
 #
 # + entity - The name of the entity  

@@ -3,7 +3,7 @@
 _Owners_: @daneshk @niveathika @kaneeldias  
 _Reviewers_: @daneshk  
 _Created_: 2022/01/25   
-_Updated_: 2023/06/01  
+_Updated_: 2026/11/01  
 _Edition_: Swan Lake  
 
 ## Introduction
@@ -306,3 +306,5 @@ The conventions used in deriving the Persist client are as follows:
 5. Resource names are lowercase pluralized entity names.
 6. The resource method should return the derived entity types.
 7. Resource method with path parameters will support composite identity field by having multiple path parameters.
+8. The put resource method returns `persist:ReadBackError` when the update is saved but the updated record cannot be read back.
+9. The delete resource method returns the record as it was read before the deletion.
