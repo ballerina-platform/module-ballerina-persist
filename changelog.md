@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+## [1.7.1] - 2026-11-02
+
 - [Add `persist:ReadBackError` for updates that are saved but cannot be read back](https://github.com/ballerina-platform/ballerina-library/issues/9439)
 
 ## [1.7.0] - 2026-02-24
