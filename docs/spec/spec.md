@@ -130,7 +130,7 @@ type Department record {|
 ### 3.4. Supported types
 
 1. The simple types of `persist` are `boolean`, `int`, `float`, `decimal`, `string`, enum types, `byte[]`, `time:Date`, `time:TimeOfDay`, `time:Utc` and `time:Civil`.
-2. Each datastore supports a set of field types and array types, which its datastore specification states. A datastore MAY support only some of the simple types, or other types.
+2. Each datastore supports a set of field types and array types, which its datastore specification states. A datastore MAY reject some of the simple types, such as `byte[]`, when its storage does not suit them, and MAY support other types.
 3. A field whose type, or array type, the datastore does not support is rejected at compile time, as specified in [3.8](#38-compile-time-validation).
 
 ### 3.5. Entity attributes
@@ -399,7 +399,7 @@ The `persist` library does not define transaction behaviour. Whether, and how, t
     | `persist:ReadBackError` | A record is updated, but cannot be read back. The update is saved in the datastore. |
 
 3. The `persist:getNotFoundError` function creates a `persist:NotFoundError` with the message `A record with the key '<key>' does not exist for the entity '<entity>'.`, and the `persist:getAlreadyExistsError` function creates a `persist:AlreadyExistsError` with the message `A record with the key '<key>' already exists for the entity '<entity>'.`. A key that is a record is written with `toBalString`, and any other key with `toString`.
-4. The `put` resource method returns a `persist:ReadBackError` when the update is saved but the updated record cannot be read back.
+4. Only the clients of the SQL datastores return a `persist:ReadBackError`, from the `put` resource method, when the update is saved but the updated record cannot be read back.
 5. Which resource method of a client returns which error is specified in its datastore specification.
 
 ## 5. Security considerations
