@@ -32,12 +32,8 @@ The key words MUST, MUST NOT, REQUIRED, SHALL, SHALL NOT, SHOULD, SHOULD NOT, RE
         - [3.6.1. One-to-one relations](#361-one-to-one-relations)
         - [3.6.2. One-to-many relations](#362-one-to-many-relations)
         - [3.6.3. Multiple relations between two entities](#363-multiple-relations-between-two-entities)
-    - [3.7. SQL annotations](#37-sql-annotations)
-        - [3.7.1. Configuration](#371-configuration)
-        - [3.7.2. Behaviour](#372-behaviour)
+    - [3.7. Datastore annotations](#37-datastore-annotations)
     - [3.8. Compile-time validation](#38-compile-time-validation)
-        - [3.8.1. Model validation](#381-model-validation)
-        - [3.8.2. SQL annotation validation](#382-sql-annotation-validation)
 - [4. Derived entity types and persist clients](#4-derived-entity-types-and-persist-clients)
     - [4.1. Description](#41-description)
     - [4.2. Derived entity types](#42-derived-entity-types)
@@ -60,6 +56,15 @@ The [persist tool](https://github.com/ballerina-platform/persist-tools/blob/main
 4. Push the persistence schema to the datastore, only with supported datastores.
 5. Migrate the schema of supported datastores. This is an experimental feature.
 
+Each datastore is implemented by a separate library, whose specification covers what is specific to the datastore, such as its supported types, annotations, client behaviour and errors:
+
+| Datastore | Library | Specification |
+|---|---|---|
+| MySQL, MSSQL, PostgreSQL, H2 | `ballerinax/persist.sql` | [persist.sql specification](https://github.com/ballerina-platform/module-ballerinax-persist.sql/blob/main/docs/spec/spec.md) |
+| In-memory | `ballerinax/persist.inmemory` | [persist.inmemory specification](https://github.com/ballerina-platform/module-ballerinax-persist.inmemory/blob/main/docs/spec/spec.md) |
+| Google Sheets | `ballerinax/persist.googlesheets` | [persist.googlesheets specification](https://github.com/ballerina-platform/module-ballerinax-persist.googlesheets/blob/main/docs/spec/spec.md) |
+| Redis | `ballerinax/persist.redis` | [persist.redis specification](https://github.com/ballerina-platform/module-ballerinax-persist.redis/blob/main/docs/spec/spec.md) |
+
 ## 2. Terminology
 
 - **Model definition file:** the Ballerina file in the `persist` directory of a project that defines the data model.
@@ -68,8 +73,8 @@ The [persist tool](https://github.com/ballerina-platform/persist-tools/blob/main
 - **Identity field:** a field of an entity declared with `readonly`. The identity fields of an entity identify each of its records uniquely.
 - **Relation field:** a field of an entity whose type is another entity, an optional entity, or an array of an entity.
 - **Owner:** the entity of a relation that holds the foreign key of the other entity.
-- **Datastore:** the data source that a persist client stores data in: MySQL, MSSQL, PostgreSQL, H2, the in-memory datastore, Google Sheets or Redis.
-- **SQL datastore:** one of MySQL, MSSQL, PostgreSQL and H2.
+- **Datastore:** the data source that a persist client stores data in, as listed in [1](#1-overview).
+- **Datastore specification:** the specification of the library that implements a datastore, as listed in [1](#1-overview).
 - **Derived entity types:** the record and type descriptor types that the persist tool derives from each entity, as specified in [4.2](#42-derived-entity-types).
 - **Persist client:** the client that the persist tool generates from a model definition file, as specified in [4.3](#43-persist-clients).
 
@@ -90,23 +95,22 @@ The `persist` library defines a mechanism to express the data model of an applic
 
 ### 3.3. Entity types
 
-1. An entity is defined using `SimpleType` and `EntityType` fields. When MySQL is the datastore, the types are as follows:
+1. An entity is defined using `SimpleType` and `EntityType` fields:
 
     ```ballerina
-    // This are the type definitions for the data model when using MySQL
     type SimpleType ()|boolean|int|float|decimal|string|byte[]|time:Date|time:TimeOfDay|time:Utc|time:Civil;
     type EntityType record {|
        SimpleType|EntityType|EntityType[]...;
     |};
     ```
 
-2. The simple types that `persist` supports vary by datastore, as specified in [3.4](#34-supported-types).
+2. The simple types that a datastore supports are specified in [3.4](#34-supported-types).
 3. A field of type `EntityType` or `EntityType[]` defines an association between two entities, as specified in [3.6](#36-relations).
 4. An entity MUST be a closed record type, and MUST NOT have a rest field.
 5. An entity field MUST NOT have a default value, and an entity MUST NOT include another type.
 6. Entity names, and the field names of an entity, are compared ignoring case, and MUST be unique.
 
-For example, these entities are valid with all datastores:
+For example:
 
 ```ballerina
 type Employee record {|
@@ -123,37 +127,11 @@ type Department record {|
 |};
 ```
 
-These entities are valid or invalid depending on the datastore:
-
-```ballerina
-// Valid with the SQL datastores and in-memory; Google Sheets and Redis do not support array types
-type Logo record {|
-   readonly int id;
-   byte[] image;
-|};
-
-// Valid with in-memory only; the SQL datastores support only the `byte[]` array type, and Google Sheets and Redis do not support array types
-type Metrics record {|
-   readonly int id;
-   int[] readings;
-|};
-
-// Valid with in-memory only; the other datastores do not support union types
-type Tag record {|
-   readonly int id;
-   int|string code;
-|};
-```
-
 ### 3.4. Supported types
 
-The field types that each datastore supports are as follows. The `time` types are `time:Date`, `time:TimeOfDay`, `time:Utc` and `time:Civil`.
-
-| Datastore | Simple types | Array types |
-|---|---|---|
-| MySQL, MSSQL, PostgreSQL, H2 | `int`, `boolean`, `decimal`, `float`, `string`, enum types, the `time` types | `byte[]` |
-| Google Sheets, Redis | `int`, `boolean`, `decimal`, `float`, `string`, enum types, the `time` types | None |
-| In-memory | Any type, including union types | Any array type |
+1. The simple types of `persist` are `boolean`, `int`, `float`, `decimal`, `string`, enum types, `byte[]`, `time:Date`, `time:TimeOfDay`, `time:Utc` and `time:Civil`.
+2. Each datastore supports a set of field types and array types, which its datastore specification states. A datastore MAY support only some of the simple types, or other types.
+3. A field whose type, or array type, the datastore does not support is rejected at compile time, as specified in [3.8](#38-compile-time-validation).
 
 ### 3.5. Entity attributes
 
@@ -174,8 +152,8 @@ Let `T` be a simple type that does not contain `()`.
 | Field definition | Semantics | Example |
 |---|---|---|
 | `T field` | Mapped to a non-nullable type in the datastore. | `int id;` |
-| `T? field` | Mapped to a nullable type in the datastore. Not allowed with Redis. Not allowed with Google Sheets when `T` is a built-in simple type or an enum type. | `string? description;` |
-| `T field?` | Not allowed, except with Redis, which allows it on a field that is not an identity field. | - |
+| `T? field` | Mapped to a nullable type in the datastore, unless the datastore specification does not allow nillable fields of type `T`. | `string? description;` |
+| `T field?` | Not allowed, unless the datastore specification allows optional fields. An identity field is never optional. | - |
 | `T? field?` | Not allowed. | - |
 
 ### 3.6. Relations
@@ -188,7 +166,7 @@ Let `T` be a simple type that does not contain `()`.
 4. The relation field is mandatory in both entities.
 5. An entity MUST NOT have a relation field whose type is the entity itself.
 6. The owner includes one foreign key field for each identity field of the other entity. The default foreign key field name is `<lowercasedRelationFieldName><First-LetterCapitalizedIdentityFieldName>`, and it refers to that identity field.
-7. The owner MUST NOT declare a field with the default foreign key field name, unless the relation field has the `@sql:Relation` annotation and lists that field in its `keys`, as specified in [3.7](#37-sql-annotations).
+7. The owner MUST NOT declare a field with the default foreign key field name, unless the relation field has the `@sql:Relation` annotation and lists that field in its `keys`, as specified in the [persist.sql specification](https://github.com/ballerina-platform/module-ballerinax-persist.sql/blob/main/docs/spec/spec.md).
 
 #### 3.6.1. One-to-one relations
 
@@ -243,58 +221,11 @@ Here, a `Car` must have a `User` as the owner, and a `User` may own multiple `Ca
 2. The relation fields of each entity that refer to the other entity are paired in declaration order.
 3. All relations between the same two entities MUST have the same owner.
 
-### 3.7. SQL annotations
+### 3.7. Datastore annotations
 
-The `ballerinax/persist.sql` package defines annotations that configure how an entity is stored in an SQL datastore. They are used in the model definition file with the `sql` prefix, such as `@sql:Name`.
-
-#### 3.7.1. Configuration
-
-| Annotation | Applies to | Field | Type | Default | Meaning |
-|---|---|---|---|---|---|
-| `Name` | Entity, non-relation field | `value` | `string` | Required | The name of the table of the entity, or of the column of the field. |
-| `Schema` | Entity | `value` | `string` | Required | The database schema of the table of the entity. |
-| `Index` | Non-relation field | `name` | `string\|string[]?` | `()` | The name of the index, or the names of the indexes, that include the column. `()` gives the name `idx_<lowercased field name>`. |
-| `UniqueIndex` | Non-relation field | `name` | `string\|string[]?` | `()` | The name of the unique index, or the names of the unique indexes, that include the column. `()` gives the name `unique_idx_<lowercased field name>`. |
-| `Varchar` | `string` field | `length` | `int` | `191` | The maximum length of the `VARCHAR` column. |
-| `Char` | `string` field | `length` | `int` | `10` | The length of the `CHAR` column. |
-| `Decimal` | `decimal` field | `precision` | `[int, int]` | `[65, 30]` | The precision and the scale of the `DECIMAL` column. |
-| `Relation` | Relation field of the owner | `keys` | `string[]` | Required | The fields of the owner that hold the foreign key, in place of the default foreign key fields. |
-| `Generated` | Identity field | None | - | - | The datastore generates the value of the field. |
-
-#### 3.7.2. Behaviour
-
-1. Fields of one entity that give the same `Index` name form one index, and fields that give the same `UniqueIndex` name form one unique index.
-2. The `keys` of `Relation` are matched, in order, to the identity fields of the related entity. Each key MUST have the same type, and the same `Char`, `Varchar` or `Decimal` annotation, as its identity field.
-3. A `Generated` field MUST be the only identity field of its entity, and MUST be of type `int`.
-4. The insert type of an entity with a `Generated` field does not have that field, and the `post` resource method returns the values that the datastore generated.
-
-For example:
-
-```ballerina
-import ballerina/persist as _;
-import ballerinax/persist.sql;
-
-@sql:Name {value: "patients"}
-type Patient record {|
-    @sql:Generated
-    readonly int id;
-    @sql:Varchar {length: 100}
-    string name;
-    Appointment[] appointments;
-|};
-
-type Appointment record {|
-    readonly int id;
-    @sql:Index {name: "patient_index"}
-    int patientId;
-    @sql:Relation {keys: ["patientId"]}
-    Patient patient;
-|};
-```
+A datastore library MAY define annotations that configure how entities and fields are stored in its datastore. The annotations of the SQL datastores, such as `@sql:Name` and `@sql:Relation`, are defined by `ballerinax/persist.sql`, and are specified in the [persist.sql specification](https://github.com/ballerina-platform/module-ballerinax-persist.sql/blob/main/docs/spec/spec.md).
 
 ### 3.8. Compile-time validation
-
-#### 3.8.1. Model validation
 
 The `persist` compiler plugin validates a model definition file when the `Ballerina.toml` file of its package configures a datastore for the model, and validates the field types against that datastore. It reports these conditions as errors:
 
@@ -307,12 +238,12 @@ The `persist` compiler plugin validates a model definition file when the `Baller
 | An entity has a rest field ([3.3](#33-entity-types)) | `PERSIST_301` |
 | An entity field has a default value ([3.3](#33-entity-types)) | `PERSIST_302` |
 | An entity includes another type ([3.3](#33-entity-types)) | `PERSIST_303` |
-| An entity field is optional, `T field?` or `T? field?`, with a datastore other than Redis ([3.5.2](#352-nullable-and-optional-fields)) | `PERSIST_304` |
+| An entity field is optional, with a datastore that does not allow optional fields ([3.5.2](#352-nullable-and-optional-fields)) | `PERSIST_304` |
 | A field's type is not a simple type of the datastore ([3.4](#34-supported-types)) | `PERSIST_305` |
 | A field's type is an array type that the datastore does not support ([3.4](#34-supported-types)) | `PERSIST_306` |
 | A field name is declared more than once in an entity, ignoring case ([3.3](#33-entity-types)) | `PERSIST_307` |
 | A field is nillable with a datastore that does not allow it ([3.5.2](#352-nullable-and-optional-fields)) | `PERSIST_308` |
-| An identity field is optional, with Redis ([3.5.2](#352-nullable-and-optional-fields)) | `PERSIST_309` |
+| An identity field is optional, with a datastore that allows optional fields ([3.5.2](#352-nullable-and-optional-fields)) | `PERSIST_309` |
 | A relation field's type is the entity itself ([3.6](#36-relations)) | `PERSIST_401` |
 | A relation field has no corresponding relation field in the related entity ([3.6](#36-relations)) | `PERSIST_402` |
 | The relations between two entities do not all have the same owner ([3.6.3](#363-multiple-relations-between-two-entities)) | `PERSIST_403` |
@@ -325,44 +256,7 @@ The `persist` compiler plugin validates a model definition file when the `Baller
 | An identity field is nillable ([3.5.1](#351-identity-fields)) | `PERSIST_502` |
 | An identity field is not of type `int`, `string`, `float`, `boolean` or `decimal` ([3.5.1](#351-identity-fields)) | `PERSIST_503` |
 
-#### 3.8.2. SQL annotation validation
-
-The `persist.sql` compiler plugin validates the SQL annotations of a model definition file, and reports these conditions:
-
-| Condition | Code | Kind |
-|---|---|---|
-| The number of `Relation` keys differs from the number of identity fields of the related entity | `PERSIST_423` | error |
-| A `Relation` key differs from its identity field in type, or in its `Char`, `Varchar` or `Decimal` annotation | `PERSIST_424` | error |
-| `Relation` is on an `EntityType[]` field | `PERSIST_426` | error |
-| `Relation` is on an `EntityType?` field | `PERSIST_427` | error |
-| A `Relation` key is not a field of the owner | `PERSIST_428` | error |
-| A `Relation` key is listed more than once | `PERSIST_429` | error |
-| The `Relation` keys are all used by another relation of the entity | `PERSIST_430` | error |
-| A `Name` value is empty | `PERSIST_600` | error |
-| A `Name` value is the same as the entity or field name | `PERSIST_601` | warning |
-| `Name` is on a relation field | `PERSIST_602` | error |
-| `Char` or `Varchar` is on a field that is not of type `string` | `PERSIST_604` | error |
-| A field has both `Char` and `Varchar` | `PERSIST_605` | error |
-| `Decimal` is on a field that is not of type `decimal` | `PERSIST_606` | error |
-| The `length` of `Char` or `Varchar` is `0` | `PERSIST_607` | error |
-| The precision of `Decimal` is `0` | `PERSIST_608` | error |
-| The precision of `Decimal` is less than its scale | `PERSIST_609` | error |
-| Two entities, or two fields of an entity, have the same `Name` value | `PERSIST_610` | error |
-| `Index` is on a relation field | `PERSIST_611` | error |
-| `UniqueIndex` is on a relation field | `PERSIST_612` | error |
-| An `Index` name array has a name more than once | `PERSIST_613` | error |
-| A `UniqueIndex` name array has a name more than once | `PERSIST_614` | error |
-| An `Index` name array has an empty name | `PERSIST_615` | error |
-| A `UniqueIndex` name array has an empty name | `PERSIST_616` | error |
-| `Generated` is on a field that is not an identity field | `PERSIST_617` | error |
-| `Generated` is on an identity field of an entity with more than one identity field | `PERSIST_618` | error |
-| `Generated` is on a field that is not of type `int` | `PERSIST_619` | error |
-| An entity's `Name` value is the name of another entity | `PERSIST_620` | error |
-| A field's `Name` value is the name of another field of the entity | `PERSIST_621` | error |
-| An `Index` name is empty | `PERSIST_622` | error |
-| A `UniqueIndex` name is empty | `PERSIST_623` | error |
-| An `Index` name array is empty | `PERSIST_624` | error |
-| A `UniqueIndex` name array is empty | `PERSIST_625` | error |
+A datastore library MAY validate its own annotations at compile time, as its datastore specification states.
 
 ## 4. Derived entity types and persist clients
 
@@ -375,7 +269,7 @@ The persist tool generates the derived entity types and the persist client from 
 Six derived entity types are derived from each entity:
 
 1. **Entity type:** the type defined in the data model, without its relation fields. It indicates the data structure in the datastore. The owner of a relation includes the foreign key field(s).
-2. **Insert type:** the record used to insert data in the datastore. It is the same as the entity type, except as specified in [3.7.2](#372-behaviour).
+2. **Insert type:** the record used to insert data in the datastore. It is the same as the entity type, except that a datastore MAY leave out a field whose value the datastore generates, as its datastore specification states.
 3. **Update type:** the record used to update data in the datastore. It is the entity type without the identity fields, with all fields optional. Only the fields for which values are provided are updated.
 4. **Optionalized type:** the entity type with all fields optional. It is not directly used in any operation.
 5. **With relations type:** a record that includes all fields of the optionalized type, and adds the relation fields as optional fields of the optionalized types of the related entities. It is not directly used in any operation.
@@ -486,13 +380,11 @@ public isolated client class Client {
 
 ### 4.4. Native SQL methods
 
-1. The client of an SQL datastore has two remote methods that run SQL written by the user: `queryNativeSQL` and `executeNativeSQL`. The clients of the other datastores do not have them.
-2. `queryNativeSQL` runs a parameterized SQL query and returns a stream of records of the given row type.
-3. `executeNativeSQL` runs a parameterized SQL command, such as `INSERT`, `UPDATE` or `DELETE`, and returns a `persist.sql:ExecutionResult`, which holds the number of affected rows, `affectedRowCount`, and the last inserted identity value, `lastInsertId`.
+The clients of the SQL datastores have remote methods that run SQL written by the user, as specified in the [persist.sql specification](https://github.com/ballerina-platform/module-ballerinax-persist.sql/blob/main/docs/spec/spec.md). The `persist` client API does not define them.
 
 ### 4.5. Transactions
 
-The resource methods and the native SQL methods of the client of an SQL datastore take part in a Ballerina `transaction` statement. The changes that they make in the transaction are committed by `commit`, and are rolled back when the transaction fails.
+The `persist` library does not define transaction behaviour. Whether, and how, the client of a datastore takes part in a Ballerina `transaction` statement is specified in its datastore specification.
 
 ### 4.6. Errors
 
@@ -506,17 +398,9 @@ The resource methods and the native SQL methods of the client of an SQL datastor
     | `persist:ConstraintViolationError` | The operation violates a foreign key constraint. |
     | `persist:ReadBackError` | A record is updated, but cannot be read back. The update is saved in the datastore. |
 
-3. The `persist:getNotFoundError` function creates a `persist:NotFoundError` with the message `A record with the key '<key>' does not exist for the entity '<entity>'.`, and the `persist:getAlreadyExistsError` function creates a `persist:AlreadyExistsError` with the message `A record with the key '<key>' already exists for the entity '<entity>'.`. A key that is a record is written with `toBalString`, and any other key with `toString`. When an SQL datastore client cannot read the key from the database error, it returns a `persist:AlreadyExistsError` with the message of the database error.
-4. The resource methods of the SQL datastore clients and the in-memory client return these errors:
-
-    | Resource method | SQL datastores | In-memory |
-    |---|---|---|
-    | `get` by identity | `persist:NotFoundError` when no record has the identity. | `persist:NotFoundError` when no record has the identity. |
-    | `post` | `persist:AlreadyExistsError` when a record has the same identity or unique value. `persist:ConstraintViolationError` when a foreign key has no matching record. | `persist:AlreadyExistsError` when a record has the same identity. |
-    | `put` | `persist:ConstraintViolationError` when a foreign key has no matching record. `persist:AlreadyExistsError` when another record has the same unique value. `persist:NotFoundError` when no record has the identity. `persist:ReadBackError` when the updated record cannot be read back. | `persist:NotFoundError` when no record has the identity. |
-    | `delete` | `persist:NotFoundError` when no record has the identity. `persist:ConstraintViolationError` when another record refers to the record through a foreign key. | `persist:NotFoundError` when no record has the identity. |
-
-5. Any other failure of an SQL datastore client, including a failure of a native SQL method, is returned as a `persist:Error` with the message of the database error. `queryNativeSQL` returns the error from the stream.
+3. The `persist:getNotFoundError` function creates a `persist:NotFoundError` with the message `A record with the key '<key>' does not exist for the entity '<entity>'.`, and the `persist:getAlreadyExistsError` function creates a `persist:AlreadyExistsError` with the message `A record with the key '<key>' already exists for the entity '<entity>'.`. A key that is a record is written with `toBalString`, and any other key with `toString`.
+4. The `put` resource method returns a `persist:ReadBackError` when the update is saved but the updated record cannot be read back.
+5. Which resource method of a client returns which error is specified in its datastore specification.
 
 ## 5. Security considerations
 
@@ -525,5 +409,9 @@ The `persist` library does not connect to a datastore. The generated persist cli
 ## References
 
 - [Ballerina persist tools specification](https://github.com/ballerina-platform/persist-tools/blob/main/docs/spec/spec.md)
+- [Ballerina persist.sql specification](https://github.com/ballerina-platform/module-ballerinax-persist.sql/blob/main/docs/spec/spec.md)
+- [Ballerina persist.inmemory specification](https://github.com/ballerina-platform/module-ballerinax-persist.inmemory/blob/main/docs/spec/spec.md)
+- [Ballerina persist.googlesheets specification](https://github.com/ballerina-platform/module-ballerinax-persist.googlesheets/blob/main/docs/spec/spec.md)
+- [Ballerina persist.redis specification](https://github.com/ballerina-platform/module-ballerinax-persist.redis/blob/main/docs/spec/spec.md)
 - [RFC 2119: Key words for use in RFCs to Indicate Requirement Levels](https://www.rfc-editor.org/rfc/rfc2119)
 - [RFC 8174: Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words](https://www.rfc-editor.org/rfc/rfc8174)
