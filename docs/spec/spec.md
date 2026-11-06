@@ -89,7 +89,7 @@ The `persist` library defines a mechanism to express the data model of an applic
 1. The data model of a project is defined in a model definition file in the `persist` directory, or in the `persist/<model-name>` directory for a named model. The persist tool creates the file as `model.bal`.
 2. The model definition file is not considered part of the Ballerina project, and is used only for data model definition.
 3. Every record type definition in the model definition file is an entity.
-4. The model definition file MAY contain enum declarations. An enum type is a simple type of every datastore.
+4. The model definition file MAY contain enum declarations. A field MAY have an enum type declared in the model.
 5. The model definition file MUST NOT contain any module-level declaration other than record type definitions and enum declarations.
 6. An import declaration in the model definition file MUST NOT have a prefix other than `_`.
 
@@ -223,7 +223,7 @@ Here, a `Car` must have a `User` as the owner, and a `User` may own multiple `Ca
 
 ### 3.7. Datastore annotations
 
-A datastore library MAY define annotations that configure how entities and fields are stored in its datastore. The annotations of the SQL datastores, such as `@sql:Name` and `@sql:Relation`, are defined by `ballerinax/persist.sql`, and are specified in the [persist.sql specification](https://github.com/ballerina-platform/module-ballerinax-persist.sql/blob/main/docs/spec/spec.md).
+A datastore library MAY define annotations that configure how entities and fields are stored in its datastore. The annotations of the SQL datastores, such as `@sql:Name` and `@sql:Relation`, are defined by `ballerinax/persist.sql`, and are specified in the [persist.sql specification](https://github.com/ballerina-platform/module-ballerinax-persist.sql/blob/main/docs/spec/spec.md). An annotation that the configured datastore does not use is accepted, and has no effect.
 
 ### 3.8. Compile-time validation
 
@@ -380,11 +380,11 @@ public isolated client class Client {
 
 ### 4.4. Native SQL methods
 
-The clients of the SQL datastores have remote methods that run SQL written by the user, as specified in the [persist.sql specification](https://github.com/ballerina-platform/module-ballerinax-persist.sql/blob/main/docs/spec/spec.md). The `persist` client API does not define them.
+The clients of the SQL datastores have the remote methods `queryNativeSQL` and `executeNativeSQL`, which run SQL written by the user, as specified in the [persist.sql specification](https://github.com/ballerina-platform/module-ballerinax-persist.sql/blob/main/docs/spec/spec.md). The `persist` client API does not define them.
 
 ### 4.5. Transactions
 
-The `persist` library does not define transaction behaviour. Whether, and how, the client of a datastore takes part in a Ballerina `transaction` statement is specified in its datastore specification.
+The `persist` library does not define transaction behaviour. Whether, and how, the client of a datastore takes part in a Ballerina `transaction` statement is specified in its datastore specification. Currently, only the clients of the SQL datastores take part in transactions.
 
 ### 4.6. Errors
 
