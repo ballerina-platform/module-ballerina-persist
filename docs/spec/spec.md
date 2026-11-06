@@ -272,7 +272,7 @@ Six derived entity types are derived from each entity:
 2. **Insert type:** the record used to insert data in the datastore. It is the same as the entity type, except that a datastore MAY leave out a field whose value the datastore generates, as its datastore specification states.
 3. **Update type:** the record used to update data in the datastore. It is the entity type without the identity fields, with all fields optional. Only the fields for which values are provided are updated.
 4. **Optionalized type:** the entity type with all fields optional. It is not directly used in any operation.
-5. **With relations type:** a record that includes all fields of the optionalized type, and adds the relation fields as optional fields of the optionalized types of the related entities. It is not directly used in any operation.
+5. **With relations type:** a record that includes all fields of the optionalized type, and adds the relation fields as optional fields of the optionalized types of the related entities. An array relation field stays an array. It is not directly used in any operation.
 6. **Target type:** the type used to retrieve data from the datastore. If the entity contains a relation field, the target type is a type description of the with relations type. Otherwise, it is a type description of the optionalized type.
 
 For example, for these entities:
@@ -388,7 +388,7 @@ The `persist` library does not define transaction behaviour. Whether, and how, t
 
 ### 4.6. Errors
 
-1. The `init` and `close` functions and the resource methods return a `persist:Error` on failure.
+1. The `init` and `close` functions and the resource methods return a `persist:Error` on failure. The `get` resource method returns the error as the completion value of the stream.
 2. The `persist` module defines these error types. Each one is a distinct subtype of `persist:Error`.
 
     | Error type | Condition |
